@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && vite build -c vite.sw.config.js",
     "preview": "vite preview",
     "test:rules": "firebase emulators:exec --only firestore 'node tests/rules.test.mjs'"
   },

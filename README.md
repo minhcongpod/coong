@@ -13,18 +13,27 @@ Web app đặt café cho quán CongCa (React + Vite + Tailwind + Firebase).
 - Lần đầu mở app sẽ hiện màn **Thiết lập quán** để tạo tài khoản chủ quán. Sau đó chủ quán
   vào bằng link `?user=admin`.
 
+## Thông báo
+
+- Khi app đang mở: có đơn mới thì chủ quán nghe chuông, rung máy và thấy thông báo trong app.
+  Khách nhận báo khi đơn chuyển sang "Đã xong".
+- Khi app đã tắt: Cloud Functions (`functions/`) gửi thông báo đẩy qua Firebase Cloud Messaging.
+  Cần gói Blaze và key Web Push đặt ở `VAPID_KEY` trong `src/firebaseConfig.js`.
+  Trên iPhone (iOS 16.4+), phải "Thêm vào MH chính" rồi mở app từ đó và bấm "Bật thông báo".
+
 ## Triển khai lên Firebase
 
 Cần Node.js 18+ trên máy tính.
 
 ```bash
 npm install
+(cd functions && npm install)
 npm run build
 npx firebase-tools login
 npx firebase-tools deploy
 ```
 
-Lệnh `deploy` đưa cả quy tắc bảo mật Firestore và trang web lên Firebase Hosting
+Lệnh `deploy` đưa quy tắc bảo mật Firestore, Cloud Functions (cần gói Blaze) và trang web lên Firebase Hosting
 (địa chỉ dạng `https://coong-59ede.web.app`).
 
 Nếu chỉ muốn cập nhật quy tắc bằng tay: Firebase Console → Firestore → tab Rules,

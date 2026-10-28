@@ -85,6 +85,9 @@ await t('khách A khóa thiết bị', assertSucceeds(deleteDoc(doc(aDb, 'device
 await t('sau khi khóa không đọc menu', assertFails(getDocs(collection(aDb, 'menu'))));
 await t('PIN cũ không dùng được', assertFails(setDoc(doc(aDb, 'devices/uid-a'), { phone: A, pin: '1111', createdAt: 'x' })));
 await t('PIN mới dùng được', assertSucceeds(setDoc(doc(aDb, 'devices/uid-a'), { phone: A, pin: '9999', createdAt: 'x' })));
+await t('khách A lưu token thông báo của mình', assertSucceeds(setDoc(doc(aDb, 'pushTokens/tokA'), { phone: A, uid: 'uid-a', userAgent: 'x', updatedAt: 'x' })));
+await t('khách A không lưu token mạo danh chủ quán', assertFails(setDoc(doc(aDb, 'pushTokens/tokX'), { phone: ADMIN, uid: 'uid-a', userAgent: 'x', updatedAt: 'x' })));
+await t('không ai đọc được token', assertFails(getDoc(doc(aDb, 'pushTokens/tokA'))));
 await t('admin không xóa được chính tài khoản admin', assertFails(deleteDoc(doc(adminDb, 'users', ADMIN))));
 
 console.log(`\n${pass} ok, ${fail} fail`);

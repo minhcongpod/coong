@@ -99,6 +99,15 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Token nhận thông báo đẩy của từng thiết bị; chỉ Cloud Functions đọc (qua Admin SDK)
+    match /pushTokens/{token} {
+      allow read: if false;
+      allow create, update: if hasDevice()
+        && request.resource.data.phone == myPhone()
+        && request.resource.data.keys().hasOnly(['phone', 'uid', 'userAgent', 'updatedAt']);
+      allow delete: if hasDevice() && resource.data.phone == myPhone();
+    }
+
     match /transactions/{txId} {
       allow read, write: if isAdmin();
     }

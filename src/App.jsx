@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Coffee, History, BarChart3, Wallet, User, Users,
-  Trash2, Plus, Edit, X, LogOut, Lock, Search, Copy, KeyRound
+  Trash2, Plus, Edit, X, LogOut, Lock, Search, Copy, KeyRound, Bell, BellOff
 } from 'lucide-react';
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { auth } from './firebase';
@@ -12,6 +12,8 @@ import {
   addTransaction, deleteTransaction, collectDebt,
   createCustomer, updateUserName, setPin as savePin, deleteCustomer,
 } from './db';
+import { unlockAudio, alertUser, notificationPermission, requestNotificationPermission } from './notify';
+import { registerPush, isIosBrowser } from './push';
 
 // --- INITIAL MOCK DATA ---
 const INITIAL_MENU = [
@@ -309,15 +311,80 @@ function MainApp({ phone, onLock }) {
   const [transactions, setTransactions] = useState([]);
   const [users, setUsers] = useState({});
 
+  const [toast, setToast] = useState(null);
+  const [permission, setPermission] = useState(notificationPermission());
+  // Trạng thái đơn ở lần cập nhật trước; null = chưa nhận lần đầu (không báo đơn cũ)
+  const prevStatusRef = useRef(null);
+
   useEffect(() => watchUser(phone, setCurrentUser, showError), [phone]);
 
   const isAdmin = currentUser?.role === 'admin';
 
+  // Âm thanh chỉ phát được sau lần chạm đầu tiên vào trang
+  useEffect(() => {
+    window.addEventListener('pointerdown', unlockAudio);
+    return () => window.removeEventListener('pointerdown', unlockAudio);
+  }, []);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 6000);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
+  // Số đơn chờ hiện trên tiêu đề tab
+  useEffect(() => {
+    const pending = isAdmin ? orders.filter(o => o.status === 'pending').length : 0;
+    document.title = pending ? `(${pending}) CongCa Coffee` : 'CongCa Coffee';
+  }, [orders, isAdmin]);
+
+  const handleOrdersUpdate = (list) => {
+    const prev = prevStatusRef.current;
+    prevStatusRef.current = Object.fromEntries(list.map(o => [o.id, o.status]));
+    setOrders(list);
+    if (!prev) return;
+
+    if (isAdmin) {
+      const fresh = list.filter(o => !(o.id in prev) && o.status === 'pending');
+      if (fresh.length) {
+        const first = fresh[0];
+        const body = `${first.customerName}: ${first.items.map(it => `${it.quantity}x ${it.name}`).join(', ')}`;
+        alertUser('🔔 Có đơn mới!', body);
+        setToast({ title: fresh.length > 1 ? `🔔 Có ${fresh.length} đơn mới!` : '🔔 Có đơn mới!', body });
+      }
+    } else {
+      const done = list.find(o => o.status === 'completed' && prev[o.id] && prev[o.id] !== 'completed');
+      if (done) {
+        alertUser('☕ Đồ uống đã pha xong!', 'Mời bạn ra lấy nhé.');
+        setToast({ title: '☕ Đồ uống đã pha xong!', body: 'Mời bạn ra lấy nhé.' });
+      }
+    }
+  };
+
+  const handleEnableNotifications = async () => {
+    unlockAudio();
+    if (permission === 'unsupported') {
+      window.alert(isIosBrowser()
+        ? 'Trên iPhone: bấm nút Chia sẻ của Safari → "Thêm vào MH chính", rồi mở app từ màn hình chính và bấm "Bật thông báo".'
+        : 'Trình duyệt này không hỗ trợ thông báo.');
+      return;
+    }
+    const result = await requestNotificationPermission();
+    setPermission(result);
+    if (result === 'granted') registerPush(phone).catch(err => console.error('push', err));
+  };
+
+  // Đã cấp quyền từ trước: làm mới token mỗi lần mở app
+  useEffect(() => {
+    if (currentUser && permission === 'granted') registerPush(phone).catch(err => console.error('push', err));
+  }, [phone, !!currentUser]);
+
   useEffect(() => {
     if (!currentUser) return;
+    prevStatusRef.current = null;
     const unsubs = [
       watchMenu(setMenu, showError),
-      watchOrders(phone, isAdmin, setOrders, showError),
+      watchOrders(phone, isAdmin, handleOrdersUpdate, showError),
     ];
     if (isAdmin) {
       unsubs.push(watchTransactions(setTransactions, showError));
@@ -350,14 +417,40 @@ function MainApp({ phone, onLock }) {
           </div>
         </div>
 
-        <button
-          onClick={onLock}
-          className="text-slate-400 hover:text-rose-400 p-2 rounded-lg bg-slate-800/50 hover:bg-slate-800 text-xs flex items-center gap-1 border border-slate-700/50"
-        >
-          <LogOut className="w-3.5 h-3.5" />
-          <span>Khóa</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {(permission === 'default' || (permission === 'unsupported' && isIosBrowser())) && (
+            <button
+              onClick={handleEnableNotifications}
+              className="text-amber-400 p-2 rounded-lg bg-amber-500/10 text-xs flex items-center gap-1 border border-amber-500/30"
+            >
+              <Bell className="w-3.5 h-3.5" />
+              <span>Bật thông báo</span>
+            </button>
+          )}
+          {permission === 'denied' && (
+            <span title="Thông báo đang bị chặn trong cài đặt trình duyệt" className="text-slate-500 p-2">
+              <BellOff className="w-3.5 h-3.5" />
+            </span>
+          )}
+          <button
+            onClick={onLock}
+            className="text-slate-400 hover:text-rose-400 p-2 rounded-lg bg-slate-800/50 hover:bg-slate-800 text-xs flex items-center gap-1 border border-slate-700/50"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Khóa</span>
+          </button>
+        </div>
       </header>
+
+      {toast && (
+        <button
+          onClick={() => setToast(null)}
+          className="fixed top-16 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-md bg-amber-500 text-slate-950 rounded-xl p-3 shadow-2xl text-left"
+        >
+          <span className="font-bold block text-sm">{toast.title}</span>
+          <span className="text-xs">{toast.body}</span>
+        </button>
+      )}
 
       <main className="flex-1 max-w-2xl w-full mx-auto p-4 pb-24">
         {isAdmin ? (
