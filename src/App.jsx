@@ -1,8 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Coffee, History, BarChart3, Wallet, User,
-  Trash2, Plus, Edit, X, LogOut, Lock, Search
+import {
+  Coffee, History, BarChart3, Wallet, User, Users,
+  Trash2, Plus, Edit, X, LogOut, Lock, Search, Copy, KeyRound
 } from 'lucide-react';
+import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
+import { auth } from './firebase';
+import {
+  getSetup, bootstrapAdmin, getUser, watchDevice, unlockDevice, lockDevice,
+  watchMenu, watchOrders, watchTransactions, watchUsers, watchUser,
+  saveMenuItem, deleteMenuItem, seedMenu, createOrder, updateOrder,
+  addTransaction, deleteTransaction, collectDebt,
+  createCustomer, updateUserName, setPin as savePin, deleteCustomer,
+} from './db';
 
 // --- INITIAL MOCK DATA ---
 const INITIAL_MENU = [
@@ -11,7 +20,6 @@ const INITIAL_MENU = [
   { id: '3', name: 'Bạc xỉu', price: 35000, cost: 12000, active: true, image: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=300' },
 ];
 
-const ADMIN_PHONE = '0900000000'; // SĐT Mặc định của Chủ quán
 
 const STATUS_LABELS = {
   pending: 'Chờ xử lý',
@@ -27,9 +35,8 @@ const STATUS_STYLES = {
   cancelled: 'bg-rose-900/40 text-rose-400',
 };
 
-const genId = (prefix) => `${prefix}-${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).slice(2, 5).toUpperCase()}`;
+const shortId = (id) => id.slice(-6).toUpperCase();
 
-// Đơn/giao dịch tạo trước bản này không có createdAt nên không lọc được theo kỳ
 const getTimestamp = (record) => (record.createdAt ? new Date(record.createdAt).getTime() : null);
 
 const formatDateTime = (record) => {
@@ -54,133 +61,283 @@ const inPeriod = (record, period) => {
 
 const itemsCost = (items) => items.reduce((sum, it) => sum + (it.cost || 0) * (it.quantity || 1), 0);
 
+const LAST_PHONE_KEY = 'coffee_last_phone';
+
+const readLastPhone = () => {
+  try { return localStorage.getItem(LAST_PHONE_KEY); } catch { return null; }
+};
+
+const saveLastPhone = (phone) => {
+  try { localStorage.setItem(LAST_PHONE_KEY, phone); } catch { /* bỏ qua chế độ ẩn danh */ }
+};
+
+const showError = (err) => {
+  console.error(err);
+  window.alert(`Có lỗi khi lưu dữ liệu: ${err.code || err.message}`);
+};
+
+function CenteredCard({ children }) {
+  return (
+    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+      <div className="bg-slate-800 border border-slate-700 text-white rounded-2xl p-6 w-full max-w-md shadow-xl text-center">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function LockIcon() {
+  return (
+    <div className="w-16 h-16 bg-amber-500/10 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-amber-500/20">
+      <Lock className="w-8 h-8" />
+    </div>
+  );
+}
+
 export default function App() {
-  // --- STATE SYSTEM ---
-  const [menu, setMenu] = useState(() => JSON.parse(localStorage.getItem('coffee_menu')) || INITIAL_MENU);
-  const [orders, setOrders] = useState(() => JSON.parse(localStorage.getItem('coffee_orders')) || []);
-  const [transactions, setTransactions] = useState(() => JSON.parse(localStorage.getItem('coffee_wallet')) || []);
-  const [users, setUsers] = useState(() => JSON.parse(localStorage.getItem('coffee_users')) || {
-    [ADMIN_PHONE]: { name: 'Chủ Quán', pin: '0000', role: 'admin' },
-    '0912345678': { name: 'Khách A (Đồng nghiệp)', pin: '5678', role: 'customer' }
-  });
+  // stage: loading | error | setup | no-link | unknown-user | locked | ready
+  const [stage, setStage] = useState('loading');
+  const [errorText, setErrorText] = useState('');
+  const [uid, setUid] = useState(null);
+  const [phone, setPhone] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [device, setDevice] = useState(undefined);
 
-  // Current Auth State
-  const [currentUser, setCurrentUser] = useState(() => JSON.parse(localStorage.getItem('coffee_current_user')) || null);
-  const [isPinVerified, setIsPinVerified] = useState(() => JSON.parse(localStorage.getItem('coffee_pin_verified')) || false);
-  
-  // Auth Form State
-  const [inputPin, setInputPin] = useState('');
-  const [pinError, setPinError] = useState('');
-
-  // Local URL Auto Detect Customer Link (eg: ?user=khacha or ?user=0912345678)
+  // 1. Đăng nhập ẩn danh, đọc cấu hình quán và xác định SĐT từ đường link
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const userParam = params.get('user') || params.get('c');
-
-    if (userParam) {
-      const cleanPhone = userParam.toLowerCase() === 'admin' ? ADMIN_PHONE : userParam;
-      
-      let targetUser = users[cleanPhone];
-      if (!targetUser) {
-        targetUser = { 
-          name: cleanPhone.length === 10 ? `Khách (${cleanPhone.slice(-4)})` : userParam, 
-          pin: cleanPhone.length >= 4 ? cleanPhone.slice(-4) : '1234',
-          role: cleanPhone === ADMIN_PHONE ? 'admin' : 'customer' 
-        };
-        const updatedUsers = { ...users, [cleanPhone]: targetUser };
-        setUsers(updatedUsers);
-        localStorage.setItem('coffee_users', JSON.stringify(updatedUsers));
+    let cancelled = false;
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        signInAnonymously(auth).catch((err) => { setErrorText(err.code || err.message); setStage('error'); });
+        return;
       }
+      try {
+        const setup = await getSetup();
+        if (cancelled) return;
+        setUid(user.uid);
+        if (!setup) return setStage('setup');
 
-      if (!currentUser || currentUser.phone !== cleanPhone) {
-        const userObj = { phone: cleanPhone, ...targetUser };
-        setCurrentUser(userObj);
-        setIsPinVerified(false);
-        localStorage.setItem('coffee_current_user', JSON.stringify(userObj));
-        localStorage.setItem('coffee_pin_verified', 'false');
+        const params = new URLSearchParams(window.location.search);
+        const userParam = (params.get('user') || params.get('c') || '').trim();
+        const target = userParam
+          ? (userParam.toLowerCase() === 'admin' ? setup.adminPhone : userParam)
+          : readLastPhone();
+        if (!target) return setStage('no-link');
+
+        const found = await getUser(target);
+        if (cancelled) return;
+        if (!found) { setPhone(target); return setStage('unknown-user'); }
+        saveLastPhone(target);
+        setPhone(target);
+        setProfile(found);
+      } catch (err) {
+        setErrorText(err.code || err.message);
+        setStage('error');
       }
-    }
+    });
+    return () => { cancelled = true; unsub(); };
   }, []);
 
-  // Sync LocalStorage
-  useEffect(() => { localStorage.setItem('coffee_menu', JSON.stringify(menu)); }, [menu]);
-  useEffect(() => { localStorage.setItem('coffee_orders', JSON.stringify(orders)); }, [orders]);
-  useEffect(() => { localStorage.setItem('coffee_wallet', JSON.stringify(transactions)); }, [transactions]);
-  useEffect(() => { localStorage.setItem('coffee_users', JSON.stringify(users)); }, [users]);
+  // 2. Theo dõi thiết bị này đã mở khóa cho SĐT nào
+  useEffect(() => {
+    if (!uid || !phone || !profile) return;
+    return watchDevice(uid, setDevice, (err) => { setErrorText(err.code); setStage('error'); });
+  }, [uid, phone, profile]);
 
-  // PIN Verification
-  const handleVerifyPin = (e) => {
+  useEffect(() => {
+    if (device === undefined || !profile) return;
+    setStage(device && device.phone === phone ? 'ready' : 'locked');
+  }, [device, phone, profile]);
+
+  const handleUnlock = async (pin) => {
+    // Thiết bị đang mở khóa cho SĐT khác thì khóa lại trước
+    if (device) await lockDevice(uid);
+    await unlockDevice(uid, phone, pin);
+  };
+
+  const handleLock = () => lockDevice(uid).catch(showError);
+
+  if (stage === 'loading') {
+    return (
+      <CenteredCard>
+        <Coffee className="w-10 h-10 text-amber-500 mx-auto mb-3 animate-pulse" />
+        <p className="text-slate-400 text-sm">Đang kết nối...</p>
+      </CenteredCard>
+    );
+  }
+
+  if (stage === 'error') {
+    return (
+      <CenteredCard>
+        <h1 className="text-lg font-bold mb-2">Không kết nối được</h1>
+        <p className="text-slate-400 text-sm mb-4">Vui lòng kiểm tra mạng và thử lại.</p>
+        <p className="text-[11px] text-slate-500 mb-4">Mã lỗi: {errorText}</p>
+        <button onClick={() => window.location.reload()} className="w-full bg-amber-500 text-slate-950 font-semibold py-3 rounded-xl">Thử lại</button>
+      </CenteredCard>
+    );
+  }
+
+  if (stage === 'setup') return <SetupScreen uid={uid} />;
+
+  if (stage === 'no-link' || stage === 'unknown-user') {
+    return (
+      <CenteredCard>
+        <LockIcon />
+        <h1 className="text-xl font-bold mb-2">CongCa Coffee</h1>
+        <p className="text-slate-400 text-sm">
+          {stage === 'no-link'
+            ? 'Vui lòng mở đường link cá nhân mà quán đã gửi cho bạn để đặt món.'
+            : 'Đường link này chưa được quán kích hoạt. Vui lòng liên hệ chủ quán để nhận link mới.'}
+        </p>
+      </CenteredCard>
+    );
+  }
+
+  if (stage === 'locked') return <PinScreen profile={profile} onUnlock={handleUnlock} />;
+
+  return <MainApp phone={phone} onLock={handleLock} />;
+}
+
+function SetupScreen({ uid }) {
+  const [phone, setPhone] = useState('');
+  const [name, setName] = useState('Chủ Quán');
+  const [pin, setPin] = useState('');
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!currentUser) return;
-    
-    // Lấy PIN mới nhất trong danh sách user (khách có thể đã đổi PIN)
-    const expectedPin = users[currentUser.phone]?.pin ?? currentUser.pin;
-    if (inputPin === expectedPin) {
-      setIsPinVerified(true);
-      localStorage.setItem('coffee_pin_verified', 'true');
-      setPinError('');
-      setInputPin('');
-    } else {
-      setPinError('Mã PIN không đúng! Vui lòng thử 4 số cuối SĐT.');
+    if (!/^\d{9,11}$/.test(phone)) return setError('SĐT chủ quán phải gồm 9 đến 11 chữ số.');
+    if (!/^\d{4}$/.test(pin)) return setError('Mã PIN phải gồm đúng 4 chữ số.');
+    setSaving(true);
+    try {
+      await bootstrapAdmin(uid, { phone, name: name.trim() || 'Chủ Quán', pin });
+      saveLastPhone(phone);
+      window.location.replace(`${window.location.pathname}?user=admin`);
+    } catch (err) {
+      setSaving(false);
+      setError(`Không thiết lập được: ${err.code || err.message}`);
     }
   };
 
-  // Thoát = khóa lại thiết bị, giữ tài khoản để lần sau chỉ cần nhập PIN
-  const handleLogout = () => {
-    setIsPinVerified(false);
-    setInputPin('');
-    setPinError('');
-    localStorage.setItem('coffee_pin_verified', 'false');
+  const inputClass = 'w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500';
+
+  return (
+    <CenteredCard>
+      <Coffee className="w-10 h-10 text-amber-500 mx-auto mb-3" />
+      <h1 className="text-xl font-bold mb-1">Thiết lập quán lần đầu</h1>
+      <p className="text-slate-400 text-sm mb-5">Tạo tài khoản chủ quán. Bước này chỉ làm một lần duy nhất.</p>
+      <form onSubmit={handleSubmit} className="space-y-3 text-left">
+        <div>
+          <label className="text-xs text-slate-400 block mb-1">SĐT chủ quán</label>
+          <input type="tel" inputMode="numeric" value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))} className={inputClass} />
+        </div>
+        <div>
+          <label className="text-xs text-slate-400 block mb-1">Tên hiển thị</label>
+          <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} />
+        </div>
+        <div>
+          <label className="text-xs text-slate-400 block mb-1">Mã PIN chủ quán (4 số)</label>
+          <input type="password" inputMode="numeric" maxLength={4} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))} className={inputClass} />
+        </div>
+        {error && <p className="text-rose-400 text-xs">{error}</p>}
+        <button type="submit" disabled={saving} className="w-full bg-amber-500 text-slate-950 font-semibold py-3 rounded-xl disabled:opacity-60">
+          {saving ? 'Đang lưu...' : 'Tạo tài khoản chủ quán'}
+        </button>
+      </form>
+    </CenteredCard>
+  );
+}
+
+function PinScreen({ profile, onUnlock }) {
+  const [inputPin, setInputPin] = useState('');
+  const [pinError, setPinError] = useState('');
+  const [checking, setChecking] = useState(false);
+
+  const handleVerifyPin = async (e) => {
+    e.preventDefault();
+    if (inputPin.length !== 4) return setPinError('Mã PIN gồm 4 chữ số.');
+    setChecking(true);
+    try {
+      await onUnlock(inputPin);
+    } catch (err) {
+      setPinError(err.code === 'permission-denied' ? 'Mã PIN không đúng!' : `Lỗi: ${err.code || err.message}`);
+      setInputPin('');
+      setChecking(false);
+    }
   };
 
-  // --- UNVERIFIED PIN SCREEN ---
-  if (!currentUser || !isPinVerified) {
-    return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-        <div className="bg-slate-800 border border-slate-700 text-white rounded-2xl p-6 w-full max-w-md shadow-xl text-center">
-          <div className="w-16 h-16 bg-amber-500/10 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-amber-500/20">
-            <Lock className="w-8 h-8" />
-          </div>
-          <h1 className="text-xl font-bold mb-1">Xác thực Quyền truy cập</h1>
-          <p className="text-slate-400 text-sm mb-6">
-            {currentUser
-              ? `Xin chào ${currentUser.name}! Vui lòng nhập mã PIN để tiếp tục.`
-              : 'Vui lòng mở đường link cá nhân mà quán đã gửi cho bạn để đặt món.'}
-          </p>
+  return (
+    <CenteredCard>
+      <LockIcon />
+      <h1 className="text-xl font-bold mb-1">Xác thực Quyền truy cập</h1>
+      <p className="text-slate-400 text-sm mb-6">Xin chào {profile.name}! Vui lòng nhập mã PIN để tiếp tục.</p>
 
-          {currentUser && (
-          <form onSubmit={handleVerifyPin} className="space-y-4">
-            <input
-              type="password"
-              inputMode="numeric"
-              maxLength={4}
-              autoFocus
-              placeholder="Nhập mã PIN (4 số)"
-              value={inputPin}
-              onChange={(e) => setInputPin(e.target.value.replace(/\D/g, ''))}
-              className="w-full text-center text-2xl tracking-widest bg-slate-900 border border-slate-700 rounded-xl py-3 text-white focus:outline-none focus:border-amber-500"
-            />
-            {pinError && <p className="text-rose-400 text-xs">{pinError}</p>}
-            <button
-              type="submit"
-              className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold py-3 rounded-xl transition-all"
-            >
-              Mở khóa
-            </button>
-          </form>
-          )}
+      <form onSubmit={handleVerifyPin} className="space-y-4">
+        <input
+          type="password"
+          inputMode="numeric"
+          maxLength={4}
+          autoFocus
+          placeholder="Nhập mã PIN (4 số)"
+          value={inputPin}
+          onChange={(e) => setInputPin(e.target.value.replace(/\D/g, ''))}
+          className="w-full text-center text-2xl tracking-widest bg-slate-900 border border-slate-700 rounded-xl py-3 text-white focus:outline-none focus:border-amber-500"
+        />
+        {pinError && <p className="text-rose-400 text-xs">{pinError}</p>}
+        <button
+          type="submit"
+          disabled={checking}
+          className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold py-3 rounded-xl transition-all disabled:opacity-60"
+        >
+          {checking ? 'Đang kiểm tra...' : 'Mở khóa'}
+        </button>
+      </form>
 
-          <div className="mt-6 pt-4 border-t border-slate-700/50 text-xs text-slate-500">
-            Mã PIN mặc định là 4 số cuối SĐT cá nhân của bạn.
-          </div>
-        </div>
+      <div className="mt-6 pt-4 border-t border-slate-700/50 text-xs text-slate-500">
+        Mã PIN mặc định là 4 số cuối SĐT của bạn.
       </div>
+    </CenteredCard>
+  );
+}
+
+// Sau khi mở khóa: tải dữ liệu realtime theo vai trò
+function MainApp({ phone, onLock }) {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [menu, setMenu] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [transactions, setTransactions] = useState([]);
+  const [users, setUsers] = useState({});
+
+  useEffect(() => watchUser(phone, setCurrentUser, showError), [phone]);
+
+  const isAdmin = currentUser?.role === 'admin';
+
+  useEffect(() => {
+    if (!currentUser) return;
+    const unsubs = [
+      watchMenu(setMenu, showError),
+      watchOrders(phone, isAdmin, setOrders, showError),
+    ];
+    if (isAdmin) {
+      unsubs.push(watchTransactions(setTransactions, showError));
+      unsubs.push(watchUsers(setUsers, showError));
+    }
+    return () => unsubs.forEach(u => u());
+  }, [phone, isAdmin, !!currentUser]);
+
+  if (!currentUser) {
+    return (
+      <CenteredCard>
+        <Coffee className="w-10 h-10 text-amber-500 mx-auto mb-3 animate-pulse" />
+        <p className="text-slate-400 text-sm">Đang tải dữ liệu...</p>
+      </CenteredCard>
     );
   }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
-      <header className="bg-slate-900/80 border-b border-slate-800 px-4 py-3 sticky top-0 z-50 backdrop-blur-md flex justify-between items-center">
+      <header className="bg-slate-900/80 border-b border-slate-800 px-4 py-3 sticky top-0 z-40 backdrop-blur-md flex justify-between items-center">
         <div className="flex items-center gap-2">
           <div className="bg-amber-500/20 p-2 rounded-lg border border-amber-500/30">
             <Coffee className="w-5 h-5 text-amber-500" />
@@ -188,13 +345,13 @@ export default function App() {
           <div>
             <span className="font-bold text-base text-slate-100 block leading-tight">CongCa Coffee</span>
             <span className="text-[10px] text-amber-400 font-medium uppercase tracking-wider">
-              {currentUser.role === 'admin' ? 'Quyền Chủ Quán' : `Khách: ${currentUser.name}`}
+              {isAdmin ? 'Quyền Chủ Quán' : `Khách: ${currentUser.name}`}
             </span>
           </div>
         </div>
 
-        <button 
-          onClick={handleLogout}
+        <button
+          onClick={onLock}
           className="text-slate-400 hover:text-rose-400 p-2 rounded-lg bg-slate-800/50 hover:bg-slate-800 text-xs flex items-center gap-1 border border-slate-700/50"
         >
           <LogOut className="w-3.5 h-3.5" />
@@ -203,19 +360,10 @@ export default function App() {
       </header>
 
       <main className="flex-1 max-w-2xl w-full mx-auto p-4 pb-24">
-        {currentUser.role === 'admin' ? (
-          <AdminDashboard 
-            menu={menu} setMenu={setMenu} 
-            orders={orders} setOrders={setOrders} 
-            transactions={transactions} setTransactions={setTransactions}
-            users={users}
-          />
+        {isAdmin ? (
+          <AdminDashboard menu={menu} orders={orders} transactions={transactions} users={users} />
         ) : (
-          <CustomerDashboard 
-            currentUser={currentUser} setCurrentUser={setCurrentUser}
-            menu={menu} orders={orders} setOrders={setOrders} 
-            users={users} setUsers={setUsers}
-          />
+          <CustomerDashboard currentUser={currentUser} menu={menu} orders={orders} />
         )}
       </main>
     </div>
@@ -223,18 +371,19 @@ export default function App() {
 }
 
 // ADMIN DASHBOARD
-function AdminDashboard({ menu, setMenu, orders, setOrders, transactions, setTransactions, users }) {
+function AdminDashboard({ menu, orders, transactions, users }) {
   const [activeTab, setActiveTab] = useState('orders');
   const pendingCount = orders.filter(o => o.status === 'pending').length;
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-4 gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
+      <div className="grid grid-cols-5 gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
         {[
-          { id: 'menu', label: '1. Menu', icon: Coffee },
-          { id: 'orders', label: '2. Đơn hàng', icon: History, badge: pendingCount },
-          { id: 'reports', label: '3. Báo cáo', icon: BarChart3 },
-          { id: 'wallet', label: '4. Sổ Thu Chi', icon: Wallet },
+          { id: 'orders', label: 'Đơn hàng', icon: History, badge: pendingCount },
+          { id: 'menu', label: 'Menu', icon: Coffee },
+          { id: 'customers', label: 'Khách', icon: Users },
+          { id: 'reports', label: 'Báo cáo', icon: BarChart3 },
+          { id: 'wallet', label: 'Thu Chi', icon: Wallet },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -242,14 +391,14 @@ function AdminDashboard({ menu, setMenu, orders, setOrders, transactions, setTra
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`relative flex flex-col items-center justify-center py-2 rounded-lg text-xs font-medium transition-all ${
+              className={`relative flex flex-col items-center justify-center py-2 rounded-lg text-[11px] font-medium transition-all ${
                 isActive ? 'bg-amber-500 text-slate-950 font-bold shadow-md' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               <Icon className="w-4 h-4 mb-1" />
               <span>{tab.label}</span>
               {tab.badge > 0 && (
-                <span className="absolute top-1 right-2 bg-rose-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center">
+                <span className="absolute top-0.5 right-1 bg-rose-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center">
                   {tab.badge}
                 </span>
               )}
@@ -258,39 +407,35 @@ function AdminDashboard({ menu, setMenu, orders, setOrders, transactions, setTra
         })}
       </div>
 
-      {activeTab === 'menu' && <AdminMenuTab menu={menu} setMenu={setMenu} />}
-      {activeTab === 'orders' && <AdminOrdersTab orders={orders} setOrders={setOrders} />}
+      {activeTab === 'menu' && <AdminMenuTab menu={menu} />}
+      {activeTab === 'orders' && <AdminOrdersTab orders={orders} />}
+      {activeTab === 'customers' && <AdminCustomersTab users={users} orders={orders} />}
       {activeTab === 'reports' && <AdminReportsTab orders={orders} transactions={transactions} />}
-      {activeTab === 'wallet' && (
-        <AdminWalletTab
-          transactions={transactions} setTransactions={setTransactions}
-          orders={orders} setOrders={setOrders} users={users}
-        />
-      )}
+      {activeTab === 'wallet' && <AdminWalletTab transactions={transactions} orders={orders} users={users} />}
     </div>
   );
 }
 
-function AdminMenuTab({ menu, setMenu }) {
+function AdminMenuTab({ menu }) {
   // null: đóng form, {}: thêm món mới, item: sửa món
   const [editingItem, setEditingItem] = useState(null);
 
-  const toggleActive = (id) => {
-    setMenu(menu.map(item => item.id === id ? { ...item, active: !item.active } : item));
+  const toggleActive = (item) => {
+    saveMenuItem({ id: item.id, active: !item.active }).catch(showError);
   };
 
-  const handleSave = (data) => {
-    if (data.id) {
-      setMenu(menu.map(item => item.id === data.id ? { ...item, ...data } : item));
-    } else {
-      setMenu([...menu, { ...data, id: genId('M'), active: true }]);
+  const handleSave = async ({ id, name, price, cost, image }) => {
+    try {
+      await saveMenuItem({ id, name, price, cost, image });
+      setEditingItem(null);
+    } catch (err) {
+      showError(err);
     }
-    setEditingItem(null);
   };
 
   const handleDelete = (item) => {
     if (!window.confirm(`Xóa món "${item.name}" khỏi menu?`)) return;
-    setMenu(menu.filter(m => m.id !== item.id));
+    deleteMenuItem(item.id).catch(showError);
   };
 
   return (
@@ -306,7 +451,14 @@ function AdminMenuTab({ menu, setMenu }) {
       </div>
 
       <div className="space-y-3">
-        {menu.length === 0 && <div className="text-center py-8 text-slate-500 text-sm">Menu đang trống.</div>}
+        {menu.length === 0 && (
+          <div className="text-center py-8 text-slate-500 text-sm space-y-3">
+            <p>Menu đang trống.</p>
+            <button onClick={() => seedMenu(INITIAL_MENU).catch(showError)} className="bg-slate-800 border border-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs">
+              Thêm 3 món mẫu
+            </button>
+          </div>
+        )}
         {menu.map((item) => (
           <div key={item.id} className="bg-slate-900 border border-slate-800 rounded-xl p-3 flex gap-3 items-center">
             {item.image ? (
@@ -326,7 +478,7 @@ function AdminMenuTab({ menu, setMenu }) {
               <p className="text-xs text-amber-400 font-semibold mt-1">{item.price.toLocaleString()}đ <span className="text-slate-500 font-normal">(Vốn: {item.cost.toLocaleString()}đ)</span></p>
             </div>
             <div className="flex flex-col gap-1">
-              <button onClick={() => toggleActive(item.id)} className="px-2 py-1 rounded bg-slate-800 text-slate-300 hover:text-white text-xs">
+              <button onClick={() => toggleActive(item)} className="px-2 py-1 rounded bg-slate-800 text-slate-300 hover:text-white text-xs">
                 {item.active ? 'Ẩn' : 'Hiện'}
               </button>
               <div className="flex gap-1">
@@ -398,15 +550,15 @@ function MenuItemForm({ item, onClose, onSave }) {
   );
 }
 
-function AdminOrdersTab({ orders, setOrders }) {
+function AdminOrdersTab({ orders }) {
   const [statusFilter, setStatusFilter] = useState('active');
 
   const updateOrderStatus = (orderId, newStatus) => {
-    setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+    updateOrder(orderId, { status: newStatus }).catch(showError);
   };
 
-  const togglePayment = (orderId) => {
-    setOrders(orders.map(o => o.id === orderId ? { ...o, paid: !o.paid } : o));
+  const togglePayment = (order) => {
+    updateOrder(order.id, { paid: !order.paid }).catch(showError);
   };
 
   const filteredOrders = orders.filter(o => {
@@ -439,7 +591,7 @@ function AdminOrdersTab({ orders, setOrders }) {
             <div className="flex justify-between items-start border-b border-slate-800 pb-2">
               <div>
                 <span className="font-bold text-slate-100">{order.customerName}</span>
-                <span className="text-xs text-slate-500 block">{formatDateTime(order)} · {order.id}</span>
+                <span className="text-xs text-slate-500 block">{formatDateTime(order)} · #{shortId(order.id)}</span>
               </div>
               <div className="flex flex-col items-end gap-1">
                 <select
@@ -455,7 +607,7 @@ function AdminOrdersTab({ orders, setOrders }) {
 
                 {order.status !== 'cancelled' && (
                   <button
-                    onClick={() => togglePayment(order.id)}
+                    onClick={() => togglePayment(order)}
                     className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
                       order.paid
                         ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
@@ -485,6 +637,104 @@ function AdminOrdersTab({ orders, setOrders }) {
           </div>
         ))
       )}
+    </div>
+  );
+}
+
+function AdminCustomersTab({ users, orders }) {
+  const [phone, setPhone] = useState('');
+  const [name, setName] = useState('');
+  const [error, setError] = useState('');
+  const [copied, setCopied] = useState('');
+
+  const customers = Object.values(users)
+    .filter(u => u.role === 'customer')
+    .sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+
+  const debtOf = (p) => orders
+    .filter(o => o.customerPhone === p && !o.paid && o.status !== 'cancelled')
+    .reduce((sum, o) => sum + o.totalAmount, 0);
+
+  const linkOf = (p) => `${window.location.origin}${window.location.pathname}?user=${p}`;
+
+  const handleAdd = async (e) => {
+    e.preventDefault();
+    if (!/^\d{9,11}$/.test(phone)) return setError('SĐT phải gồm 9 đến 11 chữ số.');
+    if (users[phone]) return setError('SĐT này đã có trong danh sách.');
+    try {
+      await createCustomer({ phone, name: name.trim() || `Khách (${phone.slice(-4)})`, pin: phone.slice(-4) });
+      setPhone('');
+      setName('');
+      setError('');
+    } catch (err) {
+      setError(`Không thêm được: ${err.code || err.message}`);
+    }
+  };
+
+  const handleCopy = async (p) => {
+    try {
+      await navigator.clipboard.writeText(linkOf(p));
+      setCopied(p);
+      setTimeout(() => setCopied(''), 2000);
+    } catch {
+      window.prompt('Copy đường link này gửi cho khách:', linkOf(p));
+    }
+  };
+
+  const handleResetPin = (u) => {
+    if (!window.confirm(`Đặt lại PIN của ${u.name} về 4 số cuối SĐT (${u.phone.slice(-4)})?`)) return;
+    savePin(u.phone, u.phone.slice(-4)).catch(showError);
+  };
+
+  const handleDelete = (u) => {
+    if (debtOf(u.phone) > 0) return window.alert('Khách này còn nợ, hãy thu nợ trước khi xóa.');
+    if (!window.confirm(`Xóa khách ${u.name}? Đường link của khách sẽ không dùng được nữa.`)) return;
+    deleteCustomer(u.phone).catch(showError);
+  };
+
+  const inputClass = 'w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-amber-500';
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-lg font-bold text-amber-500">Khách hàng</h2>
+
+      <form onSubmit={handleAdd} className="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-2">
+        <div className="grid grid-cols-2 gap-2">
+          <input type="tel" inputMode="numeric" placeholder="SĐT khách" value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))} className={inputClass} />
+          <input type="text" placeholder="Tên hiển thị" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} />
+        </div>
+        {error && <p className="text-rose-400 text-xs">{error}</p>}
+        <button type="submit" className="w-full bg-amber-500 text-slate-950 font-bold py-2 rounded-lg text-xs flex items-center justify-center gap-1">
+          <Plus className="w-4 h-4" /> Thêm khách (PIN mặc định = 4 số cuối SĐT)
+        </button>
+      </form>
+
+      <div className="space-y-2">
+        {customers.length === 0 && <div className="text-center py-6 text-slate-500 text-xs">Chưa có khách nào.</div>}
+        {customers.map((u) => {
+          const debt = debtOf(u.phone);
+          return (
+            <div key={u.phone} className="bg-slate-900 border border-slate-800 p-3 rounded-lg flex justify-between items-center gap-2 text-xs">
+              <div className="min-w-0">
+                <span className="font-semibold block text-slate-200 truncate">{u.name}</span>
+                <span className="text-[10px] text-slate-500">{u.phone}</span>
+                {debt > 0 && <span className="text-[10px] text-rose-400 font-semibold ml-2">Nợ {debt.toLocaleString()}đ</span>}
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                <button onClick={() => handleCopy(u.phone)} className="px-2 py-1 rounded bg-slate-800 text-slate-300 hover:text-amber-400 flex items-center gap-1">
+                  <Copy className="w-3.5 h-3.5" /> {copied === u.phone ? 'Đã copy' : 'Link'}
+                </button>
+                <button onClick={() => handleResetPin(u)} className="p-1.5 rounded bg-slate-800 text-slate-300 hover:text-amber-400" aria-label="Đặt lại PIN">
+                  <KeyRound className="w-3.5 h-3.5" />
+                </button>
+                <button onClick={() => handleDelete(u)} className="p-1.5 rounded bg-slate-800 text-slate-300 hover:text-rose-400" aria-label="Xóa khách">
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -554,7 +804,7 @@ function AdminReportsTab({ orders, transactions }) {
   );
 }
 
-function AdminWalletTab({ transactions, setTransactions, orders, setOrders, users }) {
+function AdminWalletTab({ transactions, orders, users }) {
   const [type, setType] = useState('expense');
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
@@ -586,48 +836,45 @@ function AdminWalletTab({ transactions, setTransactions, orders, setOrders, user
     setDebtorPhone('');
   };
 
-  const handleAdd = (e) => {
+  const handleAdd = async (e) => {
     e.preventDefault();
     if (!(Number(amount) > 0)) return;
 
-    const now = new Date();
-    const newTx = {
-      id: genId('TX'),
-      type,
-      amount: Number(amount),
-      description: quickCategory ? `[${quickCategory}] ${description}`.trim() : description,
-      date: now.toLocaleDateString('vi-VN'),
-      createdAt: now.toISOString(),
-    };
-
-    setTransactions([newTx, ...transactions]);
-    resetForm();
+    try {
+      await addTransaction({
+        type,
+        amount: Number(amount),
+        description: quickCategory ? `[${quickCategory}] ${description}`.trim() : description,
+      });
+      resetForm();
+    } catch (err) {
+      showError(err);
+    }
   };
 
-  const handleCollectDebt = () => {
+  const handleCollectDebt = async () => {
     if (!selectedDebtor) return;
     if (!window.confirm(`Thu đủ ${selectedDebtor.total.toLocaleString()}đ của ${selectedDebtor.name} và đánh dấu ${selectedDebtor.count} đơn là đã thanh toán?`)) return;
 
-    const now = new Date();
-    setOrders(orders.map(o => (o.customerPhone === selectedDebtor.phone && !o.paid && o.status !== 'cancelled' ? { ...o, paid: true } : o)));
-    setTransactions([
-      {
-        id: genId('TX'),
+    const orderIds = orders
+      .filter(o => o.customerPhone === selectedDebtor.phone && !o.paid && o.status !== 'cancelled')
+      .map(o => o.id);
+    try {
+      await collectDebt(orderIds, {
         type: 'income',
         amount: selectedDebtor.total,
         description: `[Thu nợ] ${selectedDebtor.name} (${selectedDebtor.count} đơn)`,
         customerPhone: selectedDebtor.phone,
-        date: now.toLocaleDateString('vi-VN'),
-        createdAt: now.toISOString(),
-      },
-      ...transactions,
-    ]);
-    resetForm();
+      });
+      resetForm();
+    } catch (err) {
+      showError(err);
+    }
   };
 
   const handleDelete = (tx) => {
     if (!window.confirm(`Xóa giao dịch "${tx.description || 'Giao dịch'}"?`)) return;
-    setTransactions(transactions.filter(t => t.id !== tx.id));
+    deleteTransaction(tx.id).catch(showError);
   };
 
   const keyword = search.trim().toLowerCase();
@@ -773,39 +1020,47 @@ function AdminWalletTab({ transactions, setTransactions, orders, setOrders, user
 }
 
 // CUSTOMER DASHBOARD
-function CustomerDashboard({ currentUser, setCurrentUser, menu, orders, setOrders, users, setUsers }) {
+function CustomerDashboard({ currentUser, menu, orders }) {
   const [activeTab, setActiveTab] = useState('menu');
   const [cart, setCart] = useState([]);
   const [note, setNote] = useState('');
 
-  const myOrders = orders.filter(o => o.customerPhone === currentUser.phone);
+  // orders đã được lọc theo khách ở tầng dữ liệu
+  const myOrders = orders;
   const unpaidOrders = myOrders.filter(o => !o.paid && o.status !== 'cancelled');
   const debtTotal = unpaidOrders.reduce((sum, o) => sum + o.totalAmount, 0);
 
+  const [placing, setPlacing] = useState(false);
+
   const addToCart = (item, options) => {
-    setCart([...cart, { ...item, ...options, cartId: Date.now().toString() }]);
+    setCart([...cart, {
+      menuId: item.id, name: item.name, price: item.price, cost: item.cost || 0,
+      ...options, cartId: `${Date.now()}${Math.random()}`,
+    }]);
   };
 
-  const handlePlaceOrder = () => {
-    if (cart.length === 0) return;
+  const handlePlaceOrder = async () => {
+    if (cart.length === 0 || placing) return;
 
-    const newOrder = {
-      id: genId('ORD'),
-      customerPhone: currentUser.phone,
-      customerName: currentUser.name,
-      items: cart,
-      note,
-      totalAmount: cart.reduce((sum, i) => sum + (i.price * (i.quantity || 1)), 0),
-      status: 'pending',
-      paid: false,
-      time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
-      createdAt: new Date().toISOString(),
-    };
-
-    setOrders([newOrder, ...orders]);
-    setCart([]);
-    setNote('');
-    setActiveTab('history');
+    setPlacing(true);
+    try {
+      await createOrder({
+        customerPhone: currentUser.phone,
+        customerName: currentUser.name,
+        items: cart.map(({ cartId, ...it }) => it),
+        note,
+        totalAmount: cart.reduce((sum, i) => sum + (i.price * (i.quantity || 1)), 0),
+        status: 'pending',
+        paid: false,
+      });
+      setCart([]);
+      setNote('');
+      setActiveTab('history');
+    } catch (err) {
+      showError(err);
+    } finally {
+      setPlacing(false);
+    }
   };
 
   return (
@@ -842,22 +1097,17 @@ function CustomerDashboard({ currentUser, setCurrentUser, menu, orders, setOrder
       {activeTab === 'menu' && (
         <CustomerMenuTab 
           menu={menu} cart={cart} setCart={setCart} 
-          addToCart={addToCart} onPlaceOrder={handlePlaceOrder}
+          addToCart={addToCart} onPlaceOrder={handlePlaceOrder} placing={placing}
           note={note} setNote={setNote}
         />
       )}
       {activeTab === 'history' && <CustomerHistoryTab orders={myOrders} />}
-      {activeTab === 'profile' && (
-        <CustomerProfileTab 
-          currentUser={currentUser} setCurrentUser={setCurrentUser}
-          users={users} setUsers={setUsers}
-        />
-      )}
+      {activeTab === 'profile' && <CustomerProfileTab currentUser={currentUser} />}
     </div>
   );
 }
 
-function CustomerMenuTab({ menu, cart, setCart, addToCart, onPlaceOrder, note, setNote }) {
+function CustomerMenuTab({ menu, cart, setCart, addToCart, onPlaceOrder, placing, note, setNote }) {
   const [selectedItem, setSelectedItem] = useState(null);
 
   return (
@@ -912,9 +1162,10 @@ function CustomerMenuTab({ menu, cart, setCart, addToCart, onPlaceOrder, note, s
 
           <button
             onClick={onPlaceOrder}
-            className="w-full bg-amber-500 text-slate-950 font-bold py-2.5 rounded-lg text-sm shadow-lg"
+            disabled={placing}
+            className="w-full bg-amber-500 text-slate-950 font-bold py-2.5 rounded-lg text-sm shadow-lg disabled:opacity-60"
           >
-            Gửi Đặt Hàng ({cart.reduce((s, i) => s + (i.price * i.quantity), 0).toLocaleString()}đ)
+            {placing ? 'Đang gửi... ' : 'Gửi Đặt Hàng '} ({cart.reduce((s, i) => s + (i.price * i.quantity), 0).toLocaleString()}đ)
           </button>
         </div>
       )}
@@ -1012,9 +1263,21 @@ function CustomerHistoryTab({ orders }) {
             </div>
 
             <div className="flex justify-between items-center pt-2 border-t border-slate-800 text-xs">
-              <span className={`font-semibold ${o.paid ? 'text-emerald-400' : 'text-rose-400'}`}>
-                {o.paid ? 'Đã thanh toán' : 'Ghi nợ'}
-              </span>
+              <div className="flex items-center gap-2">
+                {o.status !== 'cancelled' && (
+                  <span className={`font-semibold ${o.paid ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    {o.paid ? 'Đã thanh toán' : 'Ghi nợ'}
+                  </span>
+                )}
+                {o.status === 'pending' && (
+                  <button
+                    onClick={() => window.confirm('Hủy đơn này?') && updateOrder(o.id, { status: 'cancelled' }).catch(showError)}
+                    className="text-[11px] text-slate-400 underline hover:text-rose-400"
+                  >
+                    Hủy đơn
+                  </button>
+                )}
+              </div>
               <span className="font-bold text-amber-500">{o.totalAmount.toLocaleString()}đ</span>
             </div>
           </div>
@@ -1024,23 +1287,24 @@ function CustomerHistoryTab({ orders }) {
   );
 }
 
-function CustomerProfileTab({ currentUser, setCurrentUser, users, setUsers }) {
+function CustomerProfileTab({ currentUser }) {
   const [name, setName] = useState(currentUser.name);
-  const [pin, setPin] = useState(currentUser.pin);
+  // PIN không đọc được từ máy chủ; để trống nghĩa là giữ PIN cũ
+  const [pin, setPin] = useState('');
   const [msg, setMsg] = useState(null);
 
-  const handleUpdate = (e) => {
+  const handleUpdate = async (e) => {
     e.preventDefault();
     if (!name.trim()) return setMsg({ ok: false, text: 'Tên hiển thị không được để trống.' });
-    if (!/^\d{4}$/.test(pin)) return setMsg({ ok: false, text: 'Mã PIN phải gồm đúng 4 chữ số.' });
-    const updatedUser = { ...currentUser, name: name.trim(), pin };
-    const updatedUsers = { ...users, [currentUser.phone]: updatedUser };
-
-    setCurrentUser(updatedUser);
-    setUsers(updatedUsers);
-    localStorage.setItem('coffee_current_user', JSON.stringify(updatedUser));
-    localStorage.setItem('coffee_users', JSON.stringify(updatedUsers));
-    setMsg({ ok: true, text: 'Đã cập nhật thông tin thành công!' });
+    if (pin && !/^\d{4}$/.test(pin)) return setMsg({ ok: false, text: 'Mã PIN phải gồm đúng 4 chữ số.' });
+    try {
+      if (name.trim() !== currentUser.name) await updateUserName(currentUser.phone, name.trim());
+      if (pin) await savePin(currentUser.phone, pin);
+      setPin('');
+      setMsg({ ok: true, text: 'Đã cập nhật thông tin thành công!' });
+    } catch (err) {
+      setMsg({ ok: false, text: `Không lưu được: ${err.code || err.message}` });
+    }
   };
 
   return (
@@ -1064,7 +1328,7 @@ function CustomerProfileTab({ currentUser, setCurrentUser, users, setUsers }) {
         </div>
 
         <div>
-          <label className="text-xs text-slate-400 block mb-1">Mã PIN bảo mật (4 số):</label>
+          <label className="text-xs text-slate-400 block mb-1">Đổi mã PIN (4 số, để trống nếu giữ nguyên):</label>
           <input
             type="password"
             inputMode="numeric"

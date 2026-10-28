@@ -1,19 +1,44 @@
 # CongCa Coffee
 
-Web app đặt café cho quán CongCa (React + Vite + Tailwind).
+Web app đặt café cho quán CongCa (React + Vite + Tailwind + Firebase).
 
-## Chạy thử
+## Cách hoạt động
+
+- Dữ liệu (menu, đơn hàng, khách, sổ thu chi) lưu trên Firestore, đồng bộ realtime giữa các điện thoại.
+- Mỗi điện thoại đăng nhập ẩn danh với Firebase. Khi nhập đúng PIN, thiết bị được "mở khóa"
+  cho đúng SĐT đó. PIN được kiểm tra bởi quy tắc bảo mật phía server (`firestore.rules`),
+  app không đọc được PIN.
+- Chủ quán thêm khách trong tab **Khách**, rồi gửi link `?user=<SĐT>` cho khách.
+  PIN mặc định của khách là 4 số cuối SĐT; khách tự đổi được trong tab Tài khoản.
+- Lần đầu mở app sẽ hiện màn **Thiết lập quán** để tạo tài khoản chủ quán. Sau đó chủ quán
+  vào bằng link `?user=admin`.
+
+## Triển khai lên Firebase
+
+Cần Node.js 18+ trên máy tính.
 
 ```bash
 npm install
+npm run build
+npx firebase-tools login
+npx firebase-tools deploy
+```
+
+Lệnh `deploy` đưa cả quy tắc bảo mật Firestore và trang web lên Firebase Hosting
+(địa chỉ dạng `https://coong-59ede.web.app`).
+
+Nếu chỉ muốn cập nhật quy tắc bằng tay: Firebase Console → Firestore → tab Rules,
+dán nội dung `firestore.rules` rồi bấm Publish.
+
+## Chạy thử trên máy
+
+```bash
 npm run dev
 ```
 
-Mở `http://localhost:5173/?user=admin` (PIN `0000`) để vào giao diện chủ quán,
-hoặc `http://localhost:5173/?user=0912345678` (PIN `5678`) để vào giao diện khách.
+Chạy với trình giả lập Firebase (không đụng vào dữ liệu thật):
 
-## Lưu ý
-
-Dữ liệu hiện vẫn lưu trong `localStorage` của từng trình duyệt, nên chủ quán và khách
-chưa thấy chung đơn hàng khi dùng trên hai thiết bị khác nhau. Bước tiếp theo là chuyển
-sang Firebase (Firestore + đăng nhập phía server).
+```bash
+npx firebase-tools emulators:start --only auth,firestore
+VITE_USE_EMULATOR=1 npm run dev
+```

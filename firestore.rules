@@ -1,0 +1,106 @@
+rules_version = '2';
+
+// Quy tắc bảo mật Firestore cho CongCa Coffee.
+// Mỗi điện thoại đăng nhập ẩn danh (có uid riêng). Khi nhập đúng PIN, app tạo
+// devices/{uid} = { phone, pin }; quy tắc bên dưới tự so PIN với pins/{phone}
+// (collection pins không ai đọc được từ app), nên PIN được kiểm tra phía server.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function hasDevice() {
+      return signedIn() && exists(/databases/$(database)/documents/devices/$(request.auth.uid));
+    }
+
+    function myPhone() {
+      return get(/databases/$(database)/documents/devices/$(request.auth.uid)).data.phone;
+    }
+
+    function isAdmin() {
+      return hasDevice() && get(/databases/$(database)/documents/users/$(myPhone())).data.role == 'admin';
+    }
+
+    function isOwner(phone) {
+      return hasDevice() && myPhone() == phone;
+    }
+
+    function validPin(pin) {
+      return pin is string && pin.matches('^[0-9]{4}$');
+    }
+
+    // Lần thiết lập đầu tiên: tạo meta/setup, tài khoản chủ quán, PIN và thiết bị
+    // trong cùng một batch. Chỉ chạy được khi meta/setup chưa tồn tại.
+    function isBootstrap(phone) {
+      return signedIn()
+        && !exists(/databases/$(database)/documents/meta/setup)
+        && getAfter(/databases/$(database)/documents/meta/setup).data.adminPhone == phone;
+    }
+
+    match /meta/setup {
+      allow read: if true;
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['adminPhone', 'createdAt'])
+        && request.resource.data.adminPhone is string
+        && request.resource.data.adminPhone.size() >= 4;
+      allow update, delete: if false;
+    }
+
+    match /users/{phone} {
+      // get một người cụ thể: để màn PIN chào đúng tên. list cả danh sách: chỉ chủ quán.
+      allow get: if signedIn();
+      allow list: if isAdmin();
+      allow create: if request.resource.data.name is string
+        && ((isAdmin() && request.resource.data.role == 'customer')
+          || (isBootstrap(phone) && request.resource.data.role == 'admin'));
+      allow update: if (isAdmin() && request.resource.data.role == resource.data.role)
+        || (isOwner(phone) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name'])
+          && request.resource.data.name is string && request.resource.data.name.size() > 0);
+      allow delete: if isAdmin() && resource.data.role != 'admin';
+    }
+
+    match /pins/{phone} {
+      allow read: if false;
+      allow create: if validPin(request.resource.data.pin) && (isAdmin() || isBootstrap(phone));
+      allow update: if validPin(request.resource.data.pin) && (isAdmin() || isOwner(phone));
+      allow delete: if isAdmin();
+    }
+
+    match /devices/{uid} {
+      allow read, delete: if signedIn() && request.auth.uid == uid;
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.phone is string
+        && validPin(request.resource.data.pin)
+        && existsAfter(/databases/$(database)/documents/pins/$(request.resource.data.phone))
+        && getAfter(/databases/$(database)/documents/pins/$(request.resource.data.phone)).data.pin == request.resource.data.pin;
+      allow update: if false;
+    }
+
+    match /menu/{itemId} {
+      allow read: if hasDevice();
+      allow write: if isAdmin();
+    }
+
+    match /orders/{orderId} {
+      allow read: if isAdmin() || (hasDevice() && resource.data.customerPhone == myPhone());
+      allow create: if hasDevice()
+        && request.resource.data.customerPhone == myPhone()
+        && request.resource.data.status == 'pending'
+        && request.resource.data.paid == false
+        && request.resource.data.totalAmount is number;
+      // Chủ quán sửa mọi thứ; khách chỉ được tự hủy đơn đang chờ của mình
+      allow update: if isAdmin()
+        || (isOwner(resource.data.customerPhone)
+          && resource.data.status == 'pending'
+          && request.resource.data.status == 'cancelled'
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']));
+      allow delete: if isAdmin();
+    }
+
+    match /transactions/{txId} {
+      allow read, write: if isAdmin();
+    }
+  }
+}
