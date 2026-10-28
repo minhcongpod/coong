@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Coffee, ShoppingBag, History, BarChart3, Wallet, User, 
-  Trash2, Plus, Edit, Check, X, ShieldAlert, LogOut, KeyRound, Lock, Search, Filter
+  Coffee, History, BarChart3, Wallet, User,
+  Trash2, Plus, Edit, X, LogOut, Lock, Search
 } from 'lucide-react';
 
 // --- INITIAL MOCK DATA ---
@@ -12,6 +12,47 @@ const INITIAL_MENU = [
 ];
 
 const ADMIN_PHONE = '0900000000'; // SĐT Mặc định của Chủ quán
+
+const STATUS_LABELS = {
+  pending: 'Chờ xử lý',
+  brewing: 'Đang pha...',
+  completed: 'Hoàn thành',
+  cancelled: 'Đã hủy ❌',
+};
+
+const STATUS_STYLES = {
+  pending: 'bg-slate-700/60 text-slate-300',
+  brewing: 'bg-amber-500/20 text-amber-400',
+  completed: 'bg-emerald-500/20 text-emerald-400',
+  cancelled: 'bg-rose-900/40 text-rose-400',
+};
+
+const genId = (prefix) => `${prefix}-${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).slice(2, 5).toUpperCase()}`;
+
+// Đơn/giao dịch tạo trước bản này không có createdAt nên không lọc được theo kỳ
+const getTimestamp = (record) => (record.createdAt ? new Date(record.createdAt).getTime() : null);
+
+const formatDateTime = (record) => {
+  if (!record.createdAt) return record.time || record.date || '';
+  return new Date(record.createdAt).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+};
+
+// Mốc bắt đầu của kỳ báo cáo: hôm nay / tuần từ thứ Hai / đầu tháng / đầu năm
+const getPeriodStart = (period) => {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  if (period === 'week') d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  if (period === 'month') d.setDate(1);
+  if (period === 'year') d.setMonth(0, 1);
+  return d.getTime();
+};
+
+const inPeriod = (record, period) => {
+  const ts = getTimestamp(record);
+  return ts !== null && ts >= getPeriodStart(period);
+};
+
+const itemsCost = (items) => items.reduce((sum, it) => sum + (it.cost || 0) * (it.quantity || 1), 0);
 
 export default function App() {
   // --- STATE SYSTEM ---
@@ -72,20 +113,24 @@ export default function App() {
     e.preventDefault();
     if (!currentUser) return;
     
-    if (inputPin === currentUser.pin) {
+    // Lấy PIN mới nhất trong danh sách user (khách có thể đã đổi PIN)
+    const expectedPin = users[currentUser.phone]?.pin ?? currentUser.pin;
+    if (inputPin === expectedPin) {
       setIsPinVerified(true);
       localStorage.setItem('coffee_pin_verified', 'true');
       setPinError('');
+      setInputPin('');
     } else {
       setPinError('Mã PIN không đúng! Vui lòng thử 4 số cuối SĐT.');
     }
   };
 
+  // Thoát = khóa lại thiết bị, giữ tài khoản để lần sau chỉ cần nhập PIN
   const handleLogout = () => {
-    setCurrentUser(null);
     setIsPinVerified(false);
-    localStorage.removeItem('coffee_current_user');
-    localStorage.removeItem('coffee_pin_verified');
+    setInputPin('');
+    setPinError('');
+    localStorage.setItem('coffee_pin_verified', 'false');
   };
 
   // --- UNVERIFIED PIN SCREEN ---
@@ -98,16 +143,21 @@ export default function App() {
           </div>
           <h1 className="text-xl font-bold mb-1">Xác thực Quyền truy cập</h1>
           <p className="text-slate-400 text-sm mb-6">
-            {currentUser ? `Xin chào ${currentUser.name}! Vui lòng nhập 4 số cuối SĐT để tiếp tục.` : 'Nhập mã PIN để mở khóa đường link cá nhân.'}
+            {currentUser
+              ? `Xin chào ${currentUser.name}! Vui lòng nhập mã PIN để tiếp tục.`
+              : 'Vui lòng mở đường link cá nhân mà quán đã gửi cho bạn để đặt món.'}
           </p>
 
+          {currentUser && (
           <form onSubmit={handleVerifyPin} className="space-y-4">
             <input
               type="password"
+              inputMode="numeric"
               maxLength={4}
+              autoFocus
               placeholder="Nhập mã PIN (4 số)"
               value={inputPin}
-              onChange={(e) => setInputPin(e.target.value)}
+              onChange={(e) => setInputPin(e.target.value.replace(/\D/g, ''))}
               className="w-full text-center text-2xl tracking-widest bg-slate-900 border border-slate-700 rounded-xl py-3 text-white focus:outline-none focus:border-amber-500"
             />
             {pinError && <p className="text-rose-400 text-xs">{pinError}</p>}
@@ -118,6 +168,7 @@ export default function App() {
               Mở khóa
             </button>
           </form>
+          )}
 
           <div className="mt-6 pt-4 border-t border-slate-700/50 text-xs text-slate-500">
             Mã PIN mặc định là 4 số cuối SĐT cá nhân của bạn.
@@ -147,7 +198,7 @@ export default function App() {
           className="text-slate-400 hover:text-rose-400 p-2 rounded-lg bg-slate-800/50 hover:bg-slate-800 text-xs flex items-center gap-1 border border-slate-700/50"
         >
           <LogOut className="w-3.5 h-3.5" />
-          <span>Thoát</span>
+          <span>Khóa</span>
         </button>
       </header>
 
@@ -156,7 +207,8 @@ export default function App() {
           <AdminDashboard 
             menu={menu} setMenu={setMenu} 
             orders={orders} setOrders={setOrders} 
-            transactions={transactions} setTransactions={setTransactions} 
+            transactions={transactions} setTransactions={setTransactions}
+            users={users}
           />
         ) : (
           <CustomerDashboard 
@@ -171,15 +223,16 @@ export default function App() {
 }
 
 // ADMIN DASHBOARD
-function AdminDashboard({ menu, setMenu, orders, setOrders, transactions, setTransactions }) {
+function AdminDashboard({ menu, setMenu, orders, setOrders, transactions, setTransactions, users }) {
   const [activeTab, setActiveTab] = useState('orders');
+  const pendingCount = orders.filter(o => o.status === 'pending').length;
 
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-4 gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
         {[
           { id: 'menu', label: '1. Menu', icon: Coffee },
-          { id: 'orders', label: '2. Đơn hàng', icon: History },
+          { id: 'orders', label: '2. Đơn hàng', icon: History, badge: pendingCount },
           { id: 'reports', label: '3. Báo cáo', icon: BarChart3 },
           { id: 'wallet', label: '4. Sổ Thu Chi', icon: Wallet },
         ].map((tab) => {
@@ -189,12 +242,17 @@ function AdminDashboard({ menu, setMenu, orders, setOrders, transactions, setTra
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-col items-center justify-center py-2 rounded-lg text-xs font-medium transition-all ${
+              className={`relative flex flex-col items-center justify-center py-2 rounded-lg text-xs font-medium transition-all ${
                 isActive ? 'bg-amber-500 text-slate-950 font-bold shadow-md' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               <Icon className="w-4 h-4 mb-1" />
               <span>{tab.label}</span>
+              {tab.badge > 0 && (
+                <span className="absolute top-1 right-2 bg-rose-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center">
+                  {tab.badge}
+                </span>
+              )}
             </button>
           );
         })}
@@ -203,49 +261,146 @@ function AdminDashboard({ menu, setMenu, orders, setOrders, transactions, setTra
       {activeTab === 'menu' && <AdminMenuTab menu={menu} setMenu={setMenu} />}
       {activeTab === 'orders' && <AdminOrdersTab orders={orders} setOrders={setOrders} />}
       {activeTab === 'reports' && <AdminReportsTab orders={orders} transactions={transactions} />}
-      {activeTab === 'wallet' && <AdminWalletTab transactions={transactions} setTransactions={setTransactions} />}
+      {activeTab === 'wallet' && (
+        <AdminWalletTab
+          transactions={transactions} setTransactions={setTransactions}
+          orders={orders} setOrders={setOrders} users={users}
+        />
+      )}
     </div>
   );
 }
 
 function AdminMenuTab({ menu, setMenu }) {
+  // null: đóng form, {}: thêm món mới, item: sửa món
+  const [editingItem, setEditingItem] = useState(null);
+
   const toggleActive = (id) => {
     setMenu(menu.map(item => item.id === id ? { ...item, active: !item.active } : item));
+  };
+
+  const handleSave = (data) => {
+    if (data.id) {
+      setMenu(menu.map(item => item.id === data.id ? { ...item, ...data } : item));
+    } else {
+      setMenu([...menu, { ...data, id: genId('M'), active: true }]);
+    }
+    setEditingItem(null);
+  };
+
+  const handleDelete = (item) => {
+    if (!window.confirm(`Xóa món "${item.name}" khỏi menu?`)) return;
+    setMenu(menu.filter(m => m.id !== item.id));
   };
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-bold text-amber-500">Quản lý Menu món</h2>
-        <button className="bg-amber-500 text-slate-950 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1">
+        <button
+          onClick={() => setEditingItem({})}
+          className="bg-amber-500 text-slate-950 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1"
+        >
           <Plus className="w-4 h-4" /> Thêm món mới
         </button>
       </div>
 
       <div className="space-y-3">
+        {menu.length === 0 && <div className="text-center py-8 text-slate-500 text-sm">Menu đang trống.</div>}
         {menu.map((item) => (
           <div key={item.id} className="bg-slate-900 border border-slate-800 rounded-xl p-3 flex gap-3 items-center">
-            <img src={item.image} alt={item.name} className="w-16 h-16 rounded-lg object-cover" />
-            <div className="flex-1">
-              <div className="flex justify-between items-start">
-                <h3 className="font-bold text-slate-100">{item.name}</h3>
-                <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${item.active ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-500'}`}>
+            {item.image ? (
+              <img src={item.image} alt={item.name} className="w-16 h-16 rounded-lg object-cover" />
+            ) : (
+              <div className="w-16 h-16 rounded-lg bg-slate-800 flex items-center justify-center">
+                <Coffee className="w-6 h-6 text-slate-600" />
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <div className="flex justify-between items-start gap-2">
+                <h3 className="font-bold text-slate-100 truncate">{item.name}</h3>
+                <span className={`shrink-0 text-[10px] px-2 py-0.5 rounded-full font-semibold ${item.active ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-500'}`}>
                   {item.active ? 'Đang bán' : 'Hết hàng'}
                 </span>
               </div>
               <p className="text-xs text-amber-400 font-semibold mt-1">{item.price.toLocaleString()}đ <span className="text-slate-500 font-normal">(Vốn: {item.cost.toLocaleString()}đ)</span></p>
             </div>
-            <button onClick={() => toggleActive(item.id)} className="p-1.5 rounded bg-slate-800 text-slate-300 hover:text-white text-xs">
-              {item.active ? 'Ẩn' : 'Hiện'}
-            </button>
+            <div className="flex flex-col gap-1">
+              <button onClick={() => toggleActive(item.id)} className="px-2 py-1 rounded bg-slate-800 text-slate-300 hover:text-white text-xs">
+                {item.active ? 'Ẩn' : 'Hiện'}
+              </button>
+              <div className="flex gap-1">
+                <button onClick={() => setEditingItem(item)} className="p-1 rounded bg-slate-800 text-slate-300 hover:text-amber-400" aria-label="Sửa món">
+                  <Edit className="w-3.5 h-3.5" />
+                </button>
+                <button onClick={() => handleDelete(item)} className="p-1 rounded bg-slate-800 text-slate-300 hover:text-rose-400" aria-label="Xóa món">
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
           </div>
         ))}
       </div>
+
+      {editingItem && (
+        <MenuItemForm item={editingItem} onClose={() => setEditingItem(null)} onSave={handleSave} />
+      )}
+    </div>
+  );
+}
+
+function MenuItemForm({ item, onClose, onSave }) {
+  const [name, setName] = useState(item.name || '');
+  const [price, setPrice] = useState(item.price ?? '');
+  const [cost, setCost] = useState(item.cost ?? '');
+  const [image, setImage] = useState(item.image || '');
+  const [error, setError] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!name.trim()) return setError('Vui lòng nhập tên món.');
+    if (!(Number(price) > 0)) return setError('Giá bán phải lớn hơn 0.');
+    if (Number(cost) < 0) return setError('Giá vốn không được âm.');
+    onSave({ ...item, name: name.trim(), price: Number(price), cost: Number(cost) || 0, image: image.trim() });
+  };
+
+  const inputClass = 'w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-amber-500';
+
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+      <form onSubmit={handleSubmit} className="bg-slate-900 border border-slate-800 rounded-2xl p-4 w-full max-w-sm space-y-3">
+        <h3 className="font-bold text-amber-500">{item.id ? 'Sửa món' : 'Thêm món mới'}</h3>
+        <div>
+          <label className="text-xs text-slate-400 block mb-1">Tên món</label>
+          <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} autoFocus />
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="text-xs text-slate-400 block mb-1">Giá bán (đ)</label>
+            <input type="number" inputMode="numeric" min="0" value={price} onChange={(e) => setPrice(e.target.value)} className={inputClass} />
+          </div>
+          <div>
+            <label className="text-xs text-slate-400 block mb-1">Giá vốn (đ)</label>
+            <input type="number" inputMode="numeric" min="0" value={cost} onChange={(e) => setCost(e.target.value)} className={inputClass} />
+          </div>
+        </div>
+        <div>
+          <label className="text-xs text-slate-400 block mb-1">Link ảnh (không bắt buộc)</label>
+          <input type="url" value={image} onChange={(e) => setImage(e.target.value)} placeholder="https://..." className={inputClass} />
+        </div>
+        {error && <p className="text-rose-400 text-xs">{error}</p>}
+        <div className="flex gap-2 pt-1">
+          <button type="button" onClick={onClose} className="flex-1 py-2 text-xs bg-slate-800 text-slate-400 rounded-lg">Hủy</button>
+          <button type="submit" className="flex-1 py-2 text-xs bg-amber-500 text-slate-950 font-bold rounded-lg">Lưu món</button>
+        </div>
+      </form>
     </div>
   );
 }
 
 function AdminOrdersTab({ orders, setOrders }) {
+  const [statusFilter, setStatusFilter] = useState('active');
+
   const updateOrderStatus = (orderId, newStatus) => {
     setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
   };
@@ -254,18 +409,37 @@ function AdminOrdersTab({ orders, setOrders }) {
     setOrders(orders.map(o => o.id === orderId ? { ...o, paid: !o.paid } : o));
   };
 
+  const filteredOrders = orders.filter(o => {
+    if (statusFilter === 'active') return o.status === 'pending' || o.status === 'brewing';
+    if (statusFilter === 'unpaid') return !o.paid && o.status !== 'cancelled';
+    return true;
+  });
+
   return (
     <div className="space-y-3">
-      <h2 className="text-lg font-bold text-amber-500">Quản lý Đơn hàng</h2>
-      {orders.length === 0 ? (
-        <div className="text-center py-8 text-slate-500 text-sm">Chưa có đơn hàng nào.</div>
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-bold text-amber-500">Quản lý Đơn hàng</h2>
+        <div className="flex gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800">
+          {[['active', 'Đang làm'], ['unpaid', 'Chưa trả'], ['all', 'Tất cả']].map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setStatusFilter(key)}
+              className={`px-2 py-1 text-xs rounded ${statusFilter === key ? 'bg-amber-500 text-slate-950 font-bold' : 'text-slate-400'}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+      {filteredOrders.length === 0 ? (
+        <div className="text-center py-8 text-slate-500 text-sm">Không có đơn hàng nào.</div>
       ) : (
-        orders.map((order) => (
+        filteredOrders.map((order) => (
           <div key={order.id} className={`bg-slate-900 border rounded-xl p-4 space-y-3 ${order.status === 'cancelled' ? 'border-rose-900/50 opacity-60' : 'border-slate-800'}`}>
             <div className="flex justify-between items-start border-b border-slate-800 pb-2">
               <div>
                 <span className="font-bold text-slate-100">{order.customerName}</span>
-                <span className="text-xs text-slate-500 block">{order.time}</span>
+                <span className="text-xs text-slate-500 block">{formatDateTime(order)} · {order.id}</span>
               </div>
               <div className="flex flex-col items-end gap-1">
                 <select
@@ -283,8 +457,8 @@ function AdminOrdersTab({ orders, setOrders }) {
                   <button
                     onClick={() => togglePayment(order.id)}
                     className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
-                      order.paid 
-                        ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' 
+                      order.paid
+                        ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
                         : 'bg-rose-500/20 text-rose-400 border-rose-500/30'
                     }`}
                   >
@@ -315,80 +489,153 @@ function AdminOrdersTab({ orders, setOrders }) {
   );
 }
 
+const PERIOD_LABELS = { day: 'Ngày', week: 'Tuần', month: 'Tháng', year: 'Năm' };
+
 function AdminReportsTab({ orders, transactions }) {
   const [filter, setFilter] = useState('day');
-  const validOrders = orders.filter(o => o.status !== 'cancelled');
-  
-  const totalOrders = validOrders.length;
-  const totalRevenue = validOrders.reduce((sum, o) => sum + o.totalAmount, 0);
-  const totalDebt = validOrders.filter(o => !o.paid).reduce((sum, o) => sum + o.totalAmount, 0);
-  const totalExpense = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+
+  const periodOrders = orders.filter(o => o.status !== 'cancelled' && inPeriod(o, filter));
+  const periodTx = transactions.filter(t => inPeriod(t, filter));
+
+  const totalOrders = periodOrders.length;
+  const totalRevenue = periodOrders.reduce((sum, o) => sum + o.totalAmount, 0);
+  const totalCogs = periodOrders.reduce((sum, o) => sum + itemsCost(o.items), 0);
+  const grossProfit = totalRevenue - totalCogs;
+  const totalExpense = periodTx.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+  const totalIncome = periodTx.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+  // Lợi nhuận ròng = doanh thu bán hàng − các khoản chi thực tế trong sổ thu chi
   const netProfit = totalRevenue - totalExpense;
+  // Công nợ là số dư hiện tại, không phụ thuộc kỳ lọc
+  const totalDebt = orders.filter(o => o.status !== 'cancelled' && !o.paid).reduce((sum, o) => sum + o.totalAmount, 0);
+  const legacyCount = orders.filter(o => !o.createdAt).length;
+
+  const cards = [
+    { label: 'Số đơn (không tính hủy)', value: totalOrders, color: 'text-white', raw: true },
+    { label: 'Doanh thu', value: totalRevenue, color: 'text-white' },
+    { label: 'Giá vốn món đã bán', value: totalCogs, color: 'text-slate-300' },
+    { label: 'Lãi gộp (theo giá vốn)', value: grossProfit, color: 'text-emerald-400' },
+    { label: 'Tổng Chi (sổ thu chi)', value: totalExpense, color: 'text-amber-400' },
+    { label: 'Lợi nhuận Ròng', value: netProfit, color: netProfit >= 0 ? 'text-emerald-400' : 'text-rose-400' },
+    { label: 'Tiền mặt thu vào', value: totalIncome, color: 'text-sky-400' },
+    { label: 'Công nợ khách (hiện tại)', value: totalDebt, color: 'text-rose-400' },
+  ];
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-bold text-amber-500">Báo cáo Doanh thu</h2>
         <div className="flex gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800">
-          {['day', 'week', 'month'].map((f) => (
+          {Object.entries(PERIOD_LABELS).map(([f, label]) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
               className={`px-2 py-1 text-xs rounded ${filter === f ? 'bg-amber-500 text-slate-950 font-bold' : 'text-slate-400'}`}
             >
-              {f === 'day' ? 'Ngày' : f === 'week' ? 'Tuần' : 'Tháng'}
+              {label}
             </button>
           ))}
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-slate-900 border border-slate-800 p-3 rounded-xl">
-          <span className="text-xs text-slate-400 block">Số đơn hoàn thành</span>
-          <span className="text-xl font-bold text-white mt-1 block">{totalOrders}</span>
-        </div>
-        <div className="bg-slate-900 border border-slate-800 p-3 rounded-xl">
-          <span className="text-xs text-slate-400 block">Công nợ (Chưa thu)</span>
-          <span className="text-xl font-bold text-rose-400 mt-1 block">{totalDebt.toLocaleString()}đ</span>
-        </div>
-        <div className="bg-slate-900 border border-slate-800 p-3 rounded-xl">
-          <span className="text-xs text-slate-400 block">Tổng Chi tiêu</span>
-          <span className="text-xl font-bold text-amber-400 mt-1 block">{totalExpense.toLocaleString()}đ</span>
-        </div>
-        <div className="bg-slate-900 border border-slate-800 p-3 rounded-xl">
-          <span className="text-xs text-slate-400 block">Lợi nhuận Ròng</span>
-          <span className="text-xl font-bold text-emerald-400 mt-1 block">{netProfit.toLocaleString()}đ</span>
-        </div>
+        {cards.map((c) => (
+          <div key={c.label} className="bg-slate-900 border border-slate-800 p-3 rounded-xl">
+            <span className="text-xs text-slate-400 block">{c.label}</span>
+            <span className={`text-xl font-bold mt-1 block ${c.color}`}>{c.raw ? c.value : `${c.value.toLocaleString()}đ`}</span>
+          </div>
+        ))}
       </div>
+
+      <p className="text-[11px] text-slate-500 leading-relaxed">
+        Lợi nhuận ròng = Doanh thu − Tổng chi trong sổ thu chi. Lãi gộp dùng giá vốn khai báo cho từng món, để tham khảo.
+        {legacyCount > 0 && ` Có ${legacyCount} đơn cũ không có ngày nên không được tính vào báo cáo theo kỳ.`}
+      </p>
     </div>
   );
 }
 
-function AdminWalletTab({ transactions, setTransactions }) {
+function AdminWalletTab({ transactions, setTransactions, orders, setOrders, users }) {
   const [type, setType] = useState('expense');
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [quickCategory, setQuickCategory] = useState('');
+  const [debtorPhone, setDebtorPhone] = useState('');
+  const [search, setSearch] = useState('');
+  const [listFilter, setListFilter] = useState('all');
 
   const QUICK_EXPENSES = ['Cà phê', 'Sữa tươi', 'Sữa đặc', 'Cốc & Nắp', 'Ống hút', 'Khác'];
 
-  const handleAdd = (e) => {
-    e.preventDefault();
-    if (!amount) return;
+  // Danh sách khách đang nợ, để thu nợ và gạch nợ luôn các đơn
+  const debtors = Object.values(
+    orders
+      .filter(o => !o.paid && o.status !== 'cancelled')
+      .reduce((acc, o) => {
+        const entry = acc[o.customerPhone] || { phone: o.customerPhone, name: users[o.customerPhone]?.name || o.customerName, total: 0, count: 0 };
+        entry.total += o.totalAmount;
+        entry.count += 1;
+        acc[o.customerPhone] = entry;
+        return acc;
+      }, {})
+  );
+  const selectedDebtor = debtors.find(d => d.phone === debtorPhone);
 
-    const newTx = {
-      id: Date.now().toString(),
-      type,
-      amount: Number(amount),
-      description: quickCategory ? `[${quickCategory}] ${description}` : description,
-      date: new Date().toLocaleDateString('vi-VN'),
-    };
-
-    setTransactions([newTx, ...transactions]);
+  const resetForm = () => {
     setAmount('');
     setDescription('');
     setQuickCategory('');
+    setDebtorPhone('');
   };
+
+  const handleAdd = (e) => {
+    e.preventDefault();
+    if (!(Number(amount) > 0)) return;
+
+    const now = new Date();
+    const newTx = {
+      id: genId('TX'),
+      type,
+      amount: Number(amount),
+      description: quickCategory ? `[${quickCategory}] ${description}`.trim() : description,
+      date: now.toLocaleDateString('vi-VN'),
+      createdAt: now.toISOString(),
+    };
+
+    setTransactions([newTx, ...transactions]);
+    resetForm();
+  };
+
+  const handleCollectDebt = () => {
+    if (!selectedDebtor) return;
+    if (!window.confirm(`Thu đủ ${selectedDebtor.total.toLocaleString()}đ của ${selectedDebtor.name} và đánh dấu ${selectedDebtor.count} đơn là đã thanh toán?`)) return;
+
+    const now = new Date();
+    setOrders(orders.map(o => (o.customerPhone === selectedDebtor.phone && !o.paid && o.status !== 'cancelled' ? { ...o, paid: true } : o)));
+    setTransactions([
+      {
+        id: genId('TX'),
+        type: 'income',
+        amount: selectedDebtor.total,
+        description: `[Thu nợ] ${selectedDebtor.name} (${selectedDebtor.count} đơn)`,
+        customerPhone: selectedDebtor.phone,
+        date: now.toLocaleDateString('vi-VN'),
+        createdAt: now.toISOString(),
+      },
+      ...transactions,
+    ]);
+    resetForm();
+  };
+
+  const handleDelete = (tx) => {
+    if (!window.confirm(`Xóa giao dịch "${tx.description || 'Giao dịch'}"?`)) return;
+    setTransactions(transactions.filter(t => t.id !== tx.id));
+  };
+
+  const keyword = search.trim().toLowerCase();
+  const visibleTx = transactions.filter(t =>
+    (listFilter === 'all' || t.type === listFilter) &&
+    (!keyword || (t.description || '').toLowerCase().includes(keyword))
+  );
+  const visibleTotal = visibleTx.reduce((sum, t) => sum + (t.type === 'income' ? t.amount : -t.amount), 0);
 
   return (
     <div className="space-y-4">
@@ -418,7 +665,7 @@ function AdminWalletTab({ transactions, setTransactions }) {
               <button
                 key={cat}
                 type="button"
-                onClick={() => setQuickCategory(cat)}
+                onClick={() => setQuickCategory(quickCategory === cat ? '' : cat)}
                 className={`text-[10px] px-2 py-1 rounded border ${quickCategory === cat ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-slate-800 text-slate-400 border-slate-700'}`}
               >
                 {cat}
@@ -427,8 +674,31 @@ function AdminWalletTab({ transactions, setTransactions }) {
           </div>
         )}
 
+        {type === 'income' && debtors.length > 0 && (
+          <div className="bg-slate-800/60 border border-slate-700 rounded-lg p-2 space-y-2">
+            <label className="text-[11px] text-slate-400 block">Thu nợ khách (gạch nợ luôn các đơn):</label>
+            <select
+              value={debtorPhone}
+              onChange={(e) => setDebtorPhone(e.target.value)}
+              className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs text-white focus:outline-none"
+            >
+              <option value="">-- Chọn khách đang nợ --</option>
+              {debtors.map(d => (
+                <option key={d.phone} value={d.phone}>{d.name}: {d.total.toLocaleString()}đ ({d.count} đơn)</option>
+              ))}
+            </select>
+            {selectedDebtor && (
+              <button type="button" onClick={handleCollectDebt} className="w-full bg-emerald-500 text-slate-950 font-bold py-2 rounded-lg text-xs">
+                Thu đủ {selectedDebtor.total.toLocaleString()}đ
+              </button>
+            )}
+          </div>
+        )}
+
         <input
           type="number"
+          inputMode="numeric"
+          min="0"
           placeholder="Số tiền (VNĐ)"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
@@ -449,16 +719,52 @@ function AdminWalletTab({ transactions, setTransactions }) {
       </form>
 
       <div className="space-y-2">
-        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Lịch sử Giao dịch</h3>
-        {transactions.map((tx) => (
-          <div key={tx.id} className="bg-slate-900 border border-slate-800 p-3 rounded-lg flex justify-between items-center text-xs">
-            <div>
-              <span className="font-semibold block text-slate-200">{tx.description || 'Giao dịch'}</span>
-              <span className="text-[10px] text-slate-500">{tx.date}</span>
+        <div className="flex justify-between items-center">
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Lịch sử Giao dịch</h3>
+          <span className={`text-xs font-bold ${visibleTotal >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+            {visibleTotal >= 0 ? '+' : ''}{visibleTotal.toLocaleString()}đ
+          </span>
+        </div>
+
+        <div className="flex gap-2">
+          <div className="flex-1 flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-lg px-2">
+            <Search className="w-3.5 h-3.5 text-slate-500" />
+            <input
+              type="text"
+              placeholder="Tìm theo mô tả, tên..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="flex-1 bg-transparent py-1.5 text-xs text-white focus:outline-none"
+            />
+          </div>
+          <div className="flex gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800">
+            {[['all', 'Tất cả'], ['income', 'Thu'], ['expense', 'Chi']].map(([key, label]) => (
+              <button
+                key={key}
+                onClick={() => setListFilter(key)}
+                className={`px-2 py-1 text-xs rounded ${listFilter === key ? 'bg-amber-500 text-slate-950 font-bold' : 'text-slate-400'}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {visibleTx.length === 0 && <div className="text-center py-6 text-slate-500 text-xs">Không có giao dịch nào.</div>}
+        {visibleTx.map((tx) => (
+          <div key={tx.id} className="bg-slate-900 border border-slate-800 p-3 rounded-lg flex justify-between items-center gap-2 text-xs">
+            <div className="min-w-0">
+              <span className="font-semibold block text-slate-200 truncate">{tx.description || 'Giao dịch'}</span>
+              <span className="text-[10px] text-slate-500">{formatDateTime(tx)}</span>
             </div>
-            <span className={`font-bold ${tx.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}`}>
-              {tx.type === 'income' ? '+' : '-'}{tx.amount.toLocaleString()}đ
-            </span>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className={`font-bold ${tx.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                {tx.type === 'income' ? '+' : '-'}{tx.amount.toLocaleString()}đ
+              </span>
+              <button onClick={() => handleDelete(tx)} className="text-slate-500 hover:text-rose-400 p-1" aria-label="Xóa giao dịch">
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -484,7 +790,7 @@ function CustomerDashboard({ currentUser, setCurrentUser, menu, orders, setOrder
     if (cart.length === 0) return;
 
     const newOrder = {
-      id: 'ORD-' + Date.now().toString().slice(-4),
+      id: genId('ORD'),
       customerPhone: currentUser.phone,
       customerName: currentUser.name,
       items: cart,
@@ -492,7 +798,8 @@ function CustomerDashboard({ currentUser, setCurrentUser, menu, orders, setOrder
       totalAmount: cart.reduce((sum, i) => sum + (i.price * (i.quantity || 1)), 0),
       status: 'pending',
       paid: false,
-      time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+      time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+      createdAt: new Date().toISOString(),
     };
 
     setOrders([newOrder, ...orders]);
@@ -689,12 +996,9 @@ function CustomerHistoryTab({ orders }) {
         orders.map((o) => (
           <div key={o.id} className="bg-slate-900 border border-slate-800 rounded-xl p-3 space-y-2">
             <div className="flex justify-between items-center text-xs border-b border-slate-800 pb-2">
-              <span className="text-slate-400">{o.time}</span>
-              <span className={`px-2 py-0.5 rounded font-bold ${
-                o.status === 'cancelled' ? 'bg-rose-900/40 text-rose-400' :
-                o.status === 'completed' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'
-              }`}>
-                {o.status === 'cancelled' ? 'Đã hủy ❌' : o.status === 'completed' ? 'Hoàn thành' : 'Đang pha...'}
+              <span className="text-slate-400">{formatDateTime(o)}</span>
+              <span className={`px-2 py-0.5 rounded font-bold ${STATUS_STYLES[o.status] || STATUS_STYLES.pending}`}>
+                {STATUS_LABELS[o.status] || o.status}
               </span>
             </div>
 
@@ -723,18 +1027,20 @@ function CustomerHistoryTab({ orders }) {
 function CustomerProfileTab({ currentUser, setCurrentUser, users, setUsers }) {
   const [name, setName] = useState(currentUser.name);
   const [pin, setPin] = useState(currentUser.pin);
-  const [msg, setMsg] = useState('');
+  const [msg, setMsg] = useState(null);
 
   const handleUpdate = (e) => {
     e.preventDefault();
-    const updatedUser = { ...currentUser, name, pin };
+    if (!name.trim()) return setMsg({ ok: false, text: 'Tên hiển thị không được để trống.' });
+    if (!/^\d{4}$/.test(pin)) return setMsg({ ok: false, text: 'Mã PIN phải gồm đúng 4 chữ số.' });
+    const updatedUser = { ...currentUser, name: name.trim(), pin };
     const updatedUsers = { ...users, [currentUser.phone]: updatedUser };
 
     setCurrentUser(updatedUser);
     setUsers(updatedUsers);
     localStorage.setItem('coffee_current_user', JSON.stringify(updatedUser));
     localStorage.setItem('coffee_users', JSON.stringify(updatedUsers));
-    setMsg('Đã cập nhật thông tin thành công!');
+    setMsg({ ok: true, text: 'Đã cập nhật thông tin thành công!' });
   };
 
   return (
@@ -761,14 +1067,15 @@ function CustomerProfileTab({ currentUser, setCurrentUser, users, setUsers }) {
           <label className="text-xs text-slate-400 block mb-1">Mã PIN bảo mật (4 số):</label>
           <input
             type="password"
+            inputMode="numeric"
             maxLength={4}
             value={pin}
-            onChange={(e) => setPin(e.target.value)}
+            onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
             className="w-full bg-slate-800 text-white p-2 rounded text-sm border border-slate-700 focus:outline-none"
           />
         </div>
 
-        {msg && <p className="text-emerald-400 text-xs">{msg}</p>}
+        {msg && <p className={`text-xs ${msg.ok ? 'text-emerald-400' : 'text-rose-400'}`}>{msg.text}</p>}
 
         <button type="submit" className="w-full bg-amber-500 text-slate-950 font-bold py-2 rounded-lg text-xs">
           Cập nhật Hồ sơ
