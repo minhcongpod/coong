@@ -1,0 +1,942 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>Coong Cà Phê Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap">
+<style>
+/* Layout: two full-viewport screens, each holding a 390×844 design stage scaled to fit; a top fx layer carries shared-element transitions. */
+:root{
+  color-scheme:dark;
+  --ink:#000; --paper:#fff; --mute:rgba(255,255,255,.5); --yellow:#fc0; --gray:#8e8e93;
+  --font:'Space Grotesk',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+  --ease-out:cubic-bezier(.22,1,.36,1); --ease-io:cubic-bezier(.65,0,.35,1);
+}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--ink);color:var(--paper);font-family:var(--font);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
+button:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
+p{margin:0}
+.screen{position:absolute;inset:0;overflow:hidden}
+.stage{position:absolute;left:50%;top:50%;width:390px;height:calc(844px + var(--dh,0px));transform-origin:50% 50%}
+/* fixed 390×660 mobile frame, scaled to fit the window; on a larger window it sits centred with rounded corners */
+#device{position:fixed;left:50%;top:50%;width:390px;height:660px;transform:translate(-50%,-50%)}
+#app{position:absolute;inset:0;overflow:hidden;background:#000;isolation:isolate}
+body.dev{background:#0d0d0d}
+body.dev #app{border-radius:34px;clip-path:inset(0 round 34px)}
+.abs{position:absolute}
+.circ{display:flex;align-items:center;justify-content:center;border-radius:100px}
+svg{display:block}
+
+/* ---------- Order history & account tabs ---------- */
+.tab{position:absolute;inset:0}
+.tab.off{visibility:hidden;pointer-events:none}
+.ptitle{left:24px;top:38px;margin:0;font-size:32px;line-height:46px;font-weight:700}
+.hlist{left:24px;top:92px;width:342px;height:460px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
+.hlist::-webkit-scrollbar{display:none}
+.hrow{flex:none;background:rgba(255,255,255,.1);border-radius:100px;padding:12px 24px;display:flex;flex-direction:column;gap:4px;line-height:normal}
+.hrow .t{display:flex;align-items:center;gap:11px;font-weight:700;white-space:nowrap}
+.hrow .n{flex:1;display:flex;gap:7px;font-size:16px}
+.hrow .st{font-size:12px}
+.hrow small{font-size:12px;color:#727272}
+.st.wait{color:var(--yellow)}.st.done{color:#34c759}.st.brew{color:#00c0e8}
+.acc{left:24px;top:92px;width:342px;line-height:normal;font-weight:700}
+.stats{display:flex;gap:8px}
+.stat{flex:1;background:rgba(255,255,255,.1);border-radius:40px;padding:16px 24px;display:flex;flex-direction:column;gap:4px}
+.stat b{font-size:18px}.stat small{font-size:12px;white-space:nowrap}
+.stat .paid{color:#34c759}.stat .due{color:var(--yellow)}
+.arows{margin-top:38px;display:flex;flex-direction:column;gap:8px}
+.arow{background:rgba(255,255,255,.1);border-radius:100px;padding:16px 24px;display:flex;gap:7px;font-size:18px;color:#fff;text-align:left}
+.arow span{flex:1}
+.aname{flex:1;min-width:0;background:none;border:0;outline:0;padding:0;margin:0;font:inherit;color:inherit;text-align:right;caret-color:var(--yellow)}
+.aname:focus{color:var(--yellow)}.arow .r{text-align:right}.arow .y{color:var(--yellow)}
+.logout{width:100%;padding:12px 24px;text-align:center;color:#ff383c;font-size:18px;font-weight:700}
+button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
+.arow,.logout,.hrow{transition:transform .25s var(--ease-out)}
+
+/* ---------- Cart ---------- */
+#cart{visibility:hidden;background:#000;--fg:#fff;--lblc:rgba(255,255,255,.8)}
+.cclose{left:24px;top:23px;width:52px;height:52px;background:rgba(255,255,255,.2);color:#fff}
+.cclose svg{width:32px;height:32px}
+.clist{left:27px;top:94px;width:342px;height:366px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
+.clist::-webkit-scrollbar{display:none}
+.citem{display:flex;align-items:center;gap:24px;height:104px;padding:12px 0;box-sizing:border-box;overflow:hidden}
+.cthumb{position:relative;flex:none;width:80px;height:80px;border-radius:100px;background:rgba(255,255,255,.1);overflow:hidden}
+.cthumb img{position:absolute;left:50%;top:12px;width:66px;height:auto;transform:translateX(-50%)}
+.cinfo{flex:1;display:flex;flex-direction:column;gap:8px;line-height:normal;font-weight:700}
+.cname{font-size:24px}
+.crow{display:flex;align-items:center;justify-content:space-between}
+.cqty{display:flex;align-items:center;gap:15px;font-size:18px}
+.cqty span{min-width:10px;text-align:center;font-variant-numeric:tabular-nums}
+.cpm{width:31.8px;height:32px;border-radius:100px;background:rgba(255,255,255,.2);color:#fff;display:flex;align-items:center;justify-content:center;touch-action:manipulation;transition:transform .25s var(--ease-out)}
+.cpm:active{transform:scale(.88)}
+.cpm svg{width:19.7px;height:19.7px}
+.cprice{font-size:18px;line-height:23px;font-variant-numeric:tabular-nums}
+.cempty{left:0;width:390px;top:230px;text-align:center;font-size:18px;font-weight:700;color:rgba(255,255,255,.4);opacity:0;transition:opacity .3s}
+#cart.empty .cempty{opacity:1}
+#cart.empty #cAdd{opacity:.35;pointer-events:none}
+.ctotal{left:22px;top:476px;width:346px;height:60px;box-sizing:border-box;border-radius:100px;background:rgba(255,255,255,.1);padding:0 24px;display:flex;align-items:center;gap:4px;font-weight:700;line-height:normal}
+.ctotal span{flex:1;font-size:18px}.ctotal b{font-size:24px;font-variant-numeric:tabular-nums}
+#cAdd{bottom:39.44px}
+
+/* ---------- Home ---------- */
+#home{background:#000}
+.hello{left:24px;top:27px;width:266px}
+.hello small{display:block;font-size:16px;color:var(--mute);line-height:23px}
+.hello b{display:block;font-size:32px;line-height:46px;font-weight:700;margin-top:-12px}
+.cartbtn{width:52px;height:52px;background:rgba(255,255,255,.1);top:25px;left:314px;color:#fff}
+.cartbtn svg{width:28px;height:28px}
+.badge{position:absolute;top:-2px;right:-2px;min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:20px;background:var(--yellow);color:#000;font-size:12px;font-weight:700;line-height:20px;text-align:center;transform:scale(0);transition:transform .35s var(--ease-out)}
+.badge.on{transform:scale(1)}
+.order{left:24px;top:94px;width:342px;height:57px;box-sizing:border-box;border:1px solid rgba(255,255,255,.2);border-radius:100px;padding:0 24px;display:flex;align-items:center;gap:11px;font-size:18px;font-weight:700}
+.order span{flex:1}
+.order button{color:var(--yellow);font-weight:700}
+
+#carousel{left:0;top:82px;width:390px;height:480px;touch-action:pan-y}
+.card{position:absolute;left:60px;top:96px;width:270px;height:360px;will-change:transform;cursor:pointer}
+.card .surf{position:absolute;inset:0;width:270px;height:360px;overflow:visible}
+.card .cup{position:absolute;left:92px;top:66px;height:245px;transform:rotate(11.7deg);pointer-events:none}
+.card .cup img{height:100%;display:block}
+.card[data-id=den] .cup{top:78px}
+.card[data-id=nau] .cup{top:74px}
+.card[data-id=bac] .cup{top:74px}
+/* soft white outer glow, breathing slowly with a small swell */
+.card .cup img,.spin{--glow:rgba(255,255,255,.62);--glow0:rgba(255,255,255,.42);filter:drop-shadow(0 0 22px var(--glow0));animation:beat 4.8s ease-in-out infinite}
+/* pause the glow while screens morph, so the transition gets the whole frame budget */
+.moving .card .cup img,.moving .spin,.moving .glint{animation-play-state:paused}
+/* blurring whatever is behind a moving layer is the costliest thing on phones, so skip it while screens morph */
+.moving .pricebar,.moving .add,.moving .toast{-webkit-backdrop-filter:none;backdrop-filter:none}
+@keyframes beat{
+  0%,100%{filter:drop-shadow(0 0 22px var(--glow0))}
+  50%{filter:drop-shadow(0 0 30px var(--glow))}
+}
+@media (prefers-reduced-motion:reduce){.card .cup img,.spin{animation:none;filter:drop-shadow(0 0 26px var(--glow))}}
+.card .top{position:absolute;left:24px;right:20px;top:21px;display:flex;gap:8px;align-items:flex-start}
+.card .top h3{flex:1;margin:0;font-size:32px;line-height:40px;font-weight:700}
+.card[data-id=bac] .top{flex-direction:column}
+.card .row{display:flex;gap:10px;align-items:center;width:100%}
+.card .ico{display:flex;gap:8px}
+.card .ico span{width:36px;height:36px}
+.card .ico svg{width:16px;height:16px}
+.rec{display:flex;gap:3px;align-items:center;height:24px;padding:0 8px 0 7px;background:#fff;border-radius:100px;color:#f90;font-size:12px;font-weight:700;letter-spacing:.02em}
+.rec svg{width:13px;height:13px}
+.pricebar{position:absolute;left:16px;right:16px;bottom:16px;height:62px;box-sizing:border-box;border-radius:100px;background:rgba(255,255,255,.2);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);display:flex;align-items:center;padding:4px 4px 4px 20px;gap:10px}
+.pricebar{overflow:hidden}
+.pricebar b{flex:1;font-size:18px;position:relative}
+.pricebar span{position:relative}
+/* light band sweeping left→right across the pill, in step with the text sheen on the slide-to-add bar */
+.glint{position:absolute;left:0;top:0;bottom:0;width:100%;pointer-events:none;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.09) 50%,rgba(255,255,255,0));transform:translateX(-100%) skewX(-30deg);will-change:transform;animation:glint 4.4s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes glint{0%{transform:translateX(-100%) skewX(-30deg)}55%,100%{transform:translateX(210%) skewX(-30deg)}}
+@media (prefers-reduced-motion:reduce){.glint{animation:none;display:none}}
+/* glass pills: 1px inside stroke, white → 10% → white, at 80% (Figma linear stroke) */
+.pricebar::before,.add::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:var(--bw,1px);background:linear-gradient(90deg,rgba(255,255,255,.8),rgba(255,255,255,.08) 50%,rgba(255,255,255,.8));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;z-index:3}
+.pricebar span{height:52px;padding:0 24px;background:#000;border-radius:100px;display:flex;align-items:center;color:#fff}
+.pricebar svg{width:24px;height:24px}
+.card[data-id=den]{--t:#fff;--ib:rgba(255,255,255,.1);--ic:#8e8e93}
+.card[data-id=nau]{--t:#895200;--ib:rgba(255,255,255,.3);--ic:#cc803c}
+.card[data-id=bac]{--t:#000;--ib:rgba(255,255,255,.3);--ic:#8e8e93}
+.card h3{color:var(--t)}
+.card .ico span{background:var(--ib);color:var(--ic)}
+.card[data-id=den] .pricebar b{color:#fff}
+.card[data-id=nau] .pricebar b,.card[data-id=bac] .pricebar b{color:#000}
+
+.dots{left:0;width:390px;bottom:101px;display:flex;justify-content:center;gap:6px}
+.dots i{width:6px;height:6px;border-radius:6px;background:rgba(255,255,255,.25);transition:width .4s var(--ease-out),background .4s}
+.dots i.on{width:18px;background:#fff}
+.nav{left:24px;width:342px;bottom:31px;height:48px;display:flex;gap:16px}
+.nav button{flex:1;display:flex;align-items:center;justify-content:center;opacity:.2;color:#fff}
+.nav button.on{opacity:1}
+.nav svg{width:28px;height:28px}
+
+/* ---------- Detail ---------- */
+#detail{visibility:hidden;background:linear-gradient(180deg,var(--bg1),var(--bg2))}
+#detail[data-id=bac]{background:linear-gradient(0deg,#d9d0b7 42.61%,#e2e2e2 100%)}
+#detail[data-id=den]{background:linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)}
+#detail[data-id=den]{--bg1:#3e3e3e;--bg2:#1e1e1e;--fg:#fff;--title:#fff;--btn:rgba(255,255,255,.1);--chip:rgba(255,255,255,.1);--chipT:#fff;--xOn:#000;--valOn:#000;--bulge:rgba(255,255,255,.1);--round:rgba(0,0,0,.2);--price:#000;--priceT:#fff;--lblc:rgba(255,255,255,.8);--pm:#fff}
+#detail[data-id=nau]{--bg1:#fed3a1;--bg2:#ffc077;--fg:#111;--title:#663d00;--btn:rgba(255,255,255,.3);--chip:rgba(255,255,255,.3);--chipT:#000;--xOn:#000;--valOn:#000;--bulge:rgba(255,255,255,.3);--round:rgba(0,0,0,.1);--price:#fff;--priceT:#000;--lblc:rgba(17,17,17,.8);--pm:#111}
+#detail[data-id=bac]{--bg1:#edecea;--bg2:#d6d3c9;--fg:#000;--title:#000;--btn:rgba(255,255,255,.3);--chip:rgba(255,255,255,.3);--chipT:#000;--xOn:#000;--valOn:#000;--bulge:rgba(255,255,255,.3);--round:rgba(0,0,0,.08);--price:#fff;--priceT:#000;--lblc:rgba(17,17,17,.8);--pm:#000}
+#detail .stage{color:var(--fg)}
+.back{left:24px;top:22px;width:52px;height:52px;background:var(--btn);color:var(--fg)}
+.back svg{width:28px;height:28px}
+#detail .cartbtn{top:22px;background:var(--btn);color:var(--fg)}
+#detail[data-id=nau] .back,#detail[data-id=nau] .cartbtn,#detail[data-id=bac] .back,#detail[data-id=bac] .cartbtn{top:23px}
+.dtitle{left:27px;top:94px;font-size:42px;line-height:46px;font-weight:700;color:var(--title);margin:0}
+.opts{left:27px;top:159px;display:flex;flex-direction:column}
+.opt[data-k=sweet]{margin-top:15px}.opt[data-k=cafe]{margin-top:17px}
+.opt label{display:block;font-size:16px;line-height:20px;margin-bottom:4px}
+.opt div{display:flex;gap:8px}
+.chip{width:40px;height:40px;border-radius:100px;background:var(--chip);color:var(--chipT);font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background .3s,color .3s,opacity .3s,transform .3s var(--ease-out)}
+.chip svg{width:40px;height:40px}
+.chip.on{background:#fff;color:var(--xOn)}
+.chip.on.val{color:var(--valOn)}
+.chip:active{transform:scale(.92)}
+.spin2{position:absolute;inset:0;background-repeat:no-repeat;background-size:2400% 100%;pointer-events:none;opacity:0}
+.spin{left:145px;top:100px;height:310px;background-repeat:no-repeat;background-size:2400% 100%;cursor:grab;touch-action:none;}
+.bulge{bottom:104px;width:84px;height:155px;color:var(--bulge)}
+.bulge svg{width:84px;height:155px}
+.bulge.r{left:calc(306.2px + var(--gx,0px));transform:scaleX(-1)}
+.bulge.l{left:calc(-1*var(--gx,0px))}
+.pm{bottom:155px;width:51.7px;height:52px;background:var(--round);color:var(--pm)}
+.pm svg{width:32px;height:32px}
+.pm:active{transform:scale(.92)}
+.pm{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.pm.minus{left:calc(22.5px - var(--gx,0px))}.pm.plus{left:calc(315.7px + var(--gx,0px))}
+.qty{left:130px;width:134px;bottom:168px;height:58px;overflow:hidden;text-align:center;font-size:44px;font-weight:500;line-height:58px;font-variant-numeric:tabular-nums}
+.qty span{position:absolute;left:0;right:0}
+.dprice{left:197px;bottom:126px;transform:translateX(-50%);background:var(--price);color:var(--priceT,#fff);border-radius:100px;padding:9px 21px 8px;font-size:18px;font-weight:700;line-height:23px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.add{left:22px;bottom:27.44px;width:346px;height:68.56px;box-sizing:border-box;border-radius:100px;background:rgba(255,255,255,.1);--bw:1.2px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);touch-action:none;overflow:hidden}
+.add .lbl{position:absolute;left:92px;right:76px;top:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--lblc,var(--fg));white-space:nowrap}
+.add .chev{position:absolute;right:30px;top:26.34px;width:30px;height:16px;color:var(--fg)}
+/* slide-to-unlock sheen: a bright band sweeps left→right across the label and the arrows */
+.add .shine{position:absolute;inset:0;pointer-events:none;-webkit-mask-image:linear-gradient(90deg,rgba(0,0,0,.38) 0 38%,#000 50%,rgba(0,0,0,.38) 62% 100%);mask-image:linear-gradient(90deg,rgba(0,0,0,.38) 0 38%,#000 50%,rgba(0,0,0,.38) 62% 100%);-webkit-mask-size:300% 100%;mask-size:300% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;animation:sheen 4.4s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes sheen{0%{-webkit-mask-position:100% 0;mask-position:100% 0}55%,100%{-webkit-mask-position:0 0;mask-position:0 0}}
+@keyframes bpulse{0%,100%{opacity:1}50%{opacity:.25}}
+.add::before,.pricebar::before{animation:bpulse 3s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.add::before,.pricebar::before{animation:none}}
+@keyframes chev{0%,100%{opacity:.25}40%{opacity:1}}
+.knob{position:absolute;left:4px;top:4.28px;width:79px;height:60px;border-radius:100px;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;cursor:grab;z-index:2}
+.knob svg{width:24px;height:24px}
+.fill{position:absolute;left:0;top:0;bottom:0;width:87px;border-radius:100px;background:transparent;pointer-events:none}
+
+/* ---------- FX ---------- */
+#fx{position:fixed;inset:0;pointer-events:none;z-index:50}
+#fx .veil{position:absolute;inset:0}
+#fx .fly{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+.toast{position:absolute;left:50%;top:22px;transform:translate(-50%,-80px);background:#111;color:#fff;border-radius:100px;padding:12px 18px;font-size:15px;font-weight:700;display:flex;gap:8px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.35);white-space:nowrap}
+.toast svg{width:18px;height:18px;color:var(--yellow)}
+@media (prefers-reduced-motion:reduce){.add .shine{animation:none;-webkit-mask-image:none;mask-image:none}}
+</style>
+<style>html,body{margin:0;height:100%;background:#000}</style>
+</head>
+<body>
+
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-bag" viewBox="0 0 28 28"><path fill-rule="evenodd" fill="currentColor" d="M8.05298 9.04406H19.9472L19.9895 9.04009C20.1798 9.01631 20.9383 8.87093 20.9383 8.05288C20.9383 4.58638 18.1274 1.77539 14.6609 1.77539C14.2208 1.77539 13.7767 1.77539 13.3366 1.77539C11.6728 1.77539 10.0763 2.43618 8.90011 3.6137C7.72259 4.78991 7.0618 6.38637 7.0618 8.05023C7.0618 8.98194 8.05298 9.04406 8.05298 9.04406ZM18.841 7.06169H9.16046C9.34152 6.29254 9.73403 5.58285 10.301 5.01457C11.1058 4.20973 12.1988 3.75775 13.3366 3.75775H14.6609C16.6921 3.75775 18.393 5.16788 18.841 7.06169Z"/><path fill-rule="evenodd" fill="currentColor" d="M23.8693 9.23047C23.7973 8.01198 22.8302 7.06177 21.6621 7.06177C18.4398 7.06177 9.56039 7.06177 6.33807 7.06177C5.16999 7.06177 4.20291 8.01198 4.13085 9.23047C3.90963 12.923 3.25732 19.8692 3.02472 23.7678C2.98679 24.4048 3.2017 25.0299 3.62014 25.4951C4.03857 25.9603 4.62135 26.2246 5.23193 26.2246H22.7683C23.3789 26.2246 23.9616 25.9603 24.3801 25.4951C24.7985 25.0299 25.0134 24.4048 24.9755 23.7678L23.8693 9.23047ZM17.4765 12.6785C17.4765 13.1992 17.3185 13.6855 17.0467 14.1058C16.4399 15.0441 15.2959 15.652 14.0001 15.652C12.7043 15.652 11.5603 15.0441 10.9535 14.1058C10.6817 13.6855 10.5237 13.1992 10.5237 12.6785C10.5237 12.1313 10.0989 11.6873 9.57556 11.6873C9.0522 11.6873 8.62745 12.1313 8.62745 12.6785C8.62745 13.6022 8.90051 14.4692 9.38215 15.2159C10.3075 16.6472 12.023 17.6344 14.0001 17.6344C15.9772 17.6344 17.6927 16.6472 18.6181 15.2159C19.0997 14.4692 19.3728 13.6022 19.3728 12.6785C19.3728 12.1313 18.948 11.6873 18.4246 11.6873C17.9013 11.6873 17.4765 12.1313 17.4765 12.6785Z"/></symbol>
+    <symbol id="i-snow" viewBox="0 0 20 20"><path fill="currentColor" d="M18.8627 11.3286C19.0111 11.694 18.8352 12.1106 18.4698 12.2591L16.4851 13.0662L18.322 14.17C18.6645 14.3656 18.7836 14.8019 18.588 15.1445C18.3924 15.4871 17.9561 15.6061 17.6135 15.4105C17.6043 15.4053 17.5952 15.3998 17.5862 15.3941L15.7495 14.2905L15.9686 16.4226C16.0026 16.8157 15.7115 17.1618 15.3185 17.1958C14.9343 17.229 14.5932 16.9513 14.5477 16.5685L14.2191 13.3709L10.709 11.2623V15.3571L13.2805 17.2857C13.5961 17.5224 13.66 17.9701 13.4233 18.2857C13.1866 18.6013 12.7389 18.6652 12.4233 18.4285L10.709 17.1428V19.2857C10.709 19.6802 10.3892 20 9.99468 20C9.60021 20 9.28039 19.6802 9.28039 19.2857V17.1428L7.56607 18.4285C7.25048 18.6652 6.80276 18.6013 6.56605 18.2857C6.32934 17.9701 6.3933 17.5224 6.70889 17.2857L9.28033 15.3571V11.2623L5.77058 13.3714L5.44199 16.5689C5.40802 16.962 5.06188 17.2531 4.66884 17.2191C4.2758 17.1851 3.98472 16.839 4.01869 16.446C4.01937 16.4384 4.02012 16.4307 4.02105 16.4231L4.24022 14.291L2.40347 15.3946C2.06997 15.6053 1.62878 15.5058 1.41807 15.1723C1.20737 14.8388 1.3069 14.3976 1.64041 14.1869C1.64937 14.1812 1.65851 14.1757 1.66772 14.1705L3.50459 13.0667L1.51985 12.2596C1.15679 12.1052 0.987581 11.6858 1.14192 11.3227C1.29278 10.9678 1.69814 10.7968 2.05765 10.9362L5.0352 12.1471L8.60803 9.99991L5.03488 7.85299L2.05734 9.06421C1.68956 9.20692 1.27574 9.0244 1.13303 8.65661C0.993553 8.2971 1.16463 7.89174 1.51954 7.74089L3.50428 6.93371L1.66753 5.82974C1.32494 5.63409 1.20587 5.19781 1.40146 4.85529C1.59711 4.5127 2.03339 4.39363 2.37592 4.58921C2.38512 4.5945 2.39421 4.59998 2.40323 4.60564L4.23997 5.70924L4.0208 3.57712C3.98055 3.1847 4.26603 2.8339 4.65845 2.79365C5.05087 2.7534 5.40167 3.03888 5.44192 3.4313L5.77051 6.62882L9.28051 8.73773V4.64284L6.70907 2.71427C6.39336 2.47769 6.32922 2.03003 6.5658 1.71431C6.80239 1.3986 7.25005 1.33446 7.56576 1.57105C7.56595 1.57117 7.56607 1.57129 7.56626 1.57142L9.28057 2.85711V0.714293C9.28051 0.31982 9.60033 0 9.9948 0C10.3893 0 10.7091 0.31982 10.7091 0.714293V2.85717L12.4234 1.57148C12.739 1.33477 13.1867 1.39872 13.4234 1.71431C13.6601 2.0299 13.5962 2.47763 13.2806 2.71434L10.7092 4.6429V8.73773L14.2191 6.62857L14.5477 3.43106C14.5942 3.03932 14.9496 2.7595 15.3413 2.80603C15.7242 2.85151 16.0018 3.19267 15.9686 3.57681L15.7495 5.70893L17.5862 4.60533C17.9197 4.39462 18.3609 4.49416 18.5716 4.82773C18.7823 5.16123 18.6827 5.60242 18.3492 5.81313C18.3402 5.81879 18.3312 5.82426 18.3219 5.82955L16.485 6.93328L18.4697 7.74045C18.8328 7.89479 19.002 8.31421 18.8476 8.67727C18.6968 9.03217 18.2914 9.20325 17.9319 9.06378L14.9544 7.85293L11.3815 10.0001L14.9547 12.147L17.9322 10.9362C18.297 10.7874 18.7134 10.9625 18.8621 11.3273C18.8623 11.3277 18.8625 11.3281 18.8627 11.3286Z"/></symbol>
+    <symbol id="i-steam" viewBox="0 0 20 20"><path fill="currentColor" d="M3.73777 15.8344C3.33604 16.1026 3.23014 16.6328 3.49077 17.0238C3.74243 17.4011 4.29314 17.5135 4.67261 17.26C4.81118 17.1678 6.03323 16.308 6.36351 14.5467C6.6525 13.0062 6.15924 11.3132 4.8977 9.51419C2.40371 5.95828 4.43567 4.33738 4.67584 4.16398C5.06464 3.89689 5.16659 3.36951 4.90883 2.98358C4.78246 2.79403 4.59004 2.66515 4.36674 2.62027C4.31073 2.60914 4.25437 2.60376 4.19801 2.60376C4.03143 2.60376 3.8688 2.65258 3.727 2.74736C3.58842 2.83962 2.36674 3.698 2.0361 5.4607C1.7471 7.00154 2.24037 8.69423 3.5019 10.4928C5.99804 14.052 3.97614 15.6621 3.73741 15.8341L3.73777 15.8344Z"/><path fill="currentColor" d="M9.53463 18.1001C9.3379 18.2315 9.20902 18.4239 9.1645 18.6472C9.11998 18.8705 9.16486 19.0974 9.29159 19.2869C9.54325 19.6642 10.0929 19.7773 10.4738 19.5231C10.649 19.4061 12.2006 18.3129 12.6224 16.0624C12.9961 14.0706 12.3488 11.8674 10.6985 9.51416C7.15337 4.45941 10.1255 2.14815 10.4759 1.90116C10.8651 1.63586 10.9681 1.10776 10.7096 0.720401C10.5829 0.530847 10.3905 0.401966 10.1672 0.357449C10.1108 0.34632 10.0545 0.340576 9.99846 0.340576C9.83188 0.340576 9.66926 0.389401 9.52745 0.484177C9.3519 0.601212 7.80101 1.69258 7.37846 3.94496C7.00474 5.9367 7.65202 8.1399 9.30236 10.4928C12.85 15.5511 9.8843 17.8538 9.53427 18.0997L9.53463 18.1001Z"/><path fill="currentColor" d="M15.3382 15.8343C15.1382 15.9682 15.0089 16.1606 14.9644 16.3839C14.9196 16.6072 14.9644 16.8345 15.0912 17.0237C15.3432 17.401 15.8939 17.5134 16.273 17.2599C16.4116 17.1676 17.6336 16.3093 17.9639 14.5466C18.2529 13.0061 17.7596 11.313 16.4981 9.51408C14.0045 5.95888 16.0361 4.33727 16.2759 4.16423C16.665 3.89677 16.767 3.36976 16.5096 2.98347C16.3832 2.79392 16.1904 2.66503 15.9675 2.62052C15.9115 2.60939 15.8551 2.604 15.7991 2.604C15.6325 2.604 15.4695 2.65319 15.3277 2.7476C15.1895 2.83987 13.9671 3.69968 13.6372 5.46094C13.3482 7.00142 13.8415 8.69448 15.103 10.4931C17.5991 14.0522 15.5772 15.6624 15.3385 15.8343H15.3382Z"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path fill="currentColor" d="m12 2.5 2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5-4.8-4.6 6.6-.9Z"/></symbol>
+    <symbol id="i-close" viewBox="0 0 28 28"><path d="M8.5 8.5L19.5 19.5M19.5 8.5L8.5 19.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-back" viewBox="0 0 28 28"><path d="M12.444 5.83325L4.66626 13.9999L12.444 22.1666M4.66626 13.9999L23.3329 13.9999" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-sizeL" viewBox="0 0 40 40"><path fill="currentColor" d="M27.5305 12.7014C27.3308 14.608 25.1614 29.9221 25.1614 29.9221H14.8391C14.8391 29.9221 12.6697 14.6084 12.47 12.7014H27.5305ZM17.9124 17.4514V24.5276H22.4817V23.3147H19.2473V17.4514H17.9124Z"/></symbol>
+    <symbol id="i-sizeXL" viewBox="0 0 40 40"><path fill="currentColor" d="M29.3293 9.51221C29.0827 11.8673 26.4048 32.0036 26.3938 32.0864H13.6057C13.5948 32.0041 10.9168 11.8674 10.6702 9.51221H29.3293ZM14.1624 17.4194L16.2493 20.9868L14.1418 24.6157H15.6838L17.134 21.9536H17.3186L18.7688 24.6157H20.3108L18.2034 20.9868L20.2903 17.4194H18.7483L17.3186 20.02H17.134L15.7043 17.4194H14.1624ZM21.2112 17.4185V24.6157H25.8586V23.3823H22.5686V17.4185H21.2112Z"/></symbol>
+    <symbol id="i-x" viewBox="0 0 20 20"><path d="M16.6666 3.33325L3.33331 16.6666M16.6666 16.6666L3.33331 3.33325" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-check" viewBox="10 10 20 20"><path fill="currentColor" d="M27.1574 12.436C27.4753 11.9844 28.0993 11.8759 28.5509 12.1938C29.0024 12.5117 29.1107 13.1349 28.7931 13.5864L19.2511 27.1401C18.4504 28.2774 16.7621 28.2702 15.9709 27.1264L11.2023 20.229C10.8882 19.7747 11.0019 19.1514 11.4562 18.8374C11.9104 18.5237 12.5328 18.6373 12.8468 19.0913L17.6154 25.9887L27.1574 12.436Z"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 32 32"><path d="M16 6.3999L16 25.5999M25.6 15.9999L6.40002 15.9999" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 32 32"><path d="M6.39998 16L25.6 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 32 32"><path fill="currentColor" d="M28.4875 5.22321V6.17469C28.4875 6.51495 28.186 6.79072 27.814 6.79072H4.186C3.814 6.79072 3.5125 6.51495 3.5125 6.17469V5.22321C3.5125 4.88295 3.814 4.60718 4.186 4.60718H27.814C28.186 4.60718 28.4875 4.88295 28.4875 5.22321Z"/><path fill="currentColor" d="M25.99 7.82715L23.5173 31.4428C23.4843 31.7588 23.1938 32 22.8468 32H9.15276C8.80551 32 8.51526 31.7588 8.48226 31.4428L6.00951 7.82715H25.99Z"/><path fill="currentColor" d="M26.0235 3.57069H5.97649C5.98774 3.52998 5.99374 3.48745 5.99374 3.44332V0.616073C5.99374 0.250205 6.34024 -0.0349427 6.73799 0.00347339L25.4032 1.80354C25.746 1.8367 26.0062 2.10104 26.0062 2.41614V3.44332C26.0062 3.48745 26.0122 3.52998 26.0235 3.57069Z"/></symbol>
+    <symbol id="i-list" viewBox="0 0 32 32"><path fill="currentColor" d="M8.71375 0V1.14258C8.71391 2.79713 10.0601 4.14355 11.7147 4.14355H20.286C21.9405 4.14338 23.2868 2.79703 23.287 1.14258V0H28.7225C29.275 0 29.7225 0.447594 29.7225 1V31C29.7225 31.5524 29.2749 32 28.7225 32H3.27723C2.72486 32 2.27728 31.5524 2.27723 31V1C2.27726 0.44761 2.72484 2.64761e-05 3.27723 0H8.71375ZM21.286 1.56836C21.2858 2.15743 20.8078 2.63477 20.2186 2.63477H11.6425C11.0535 2.63462 10.5763 2.15734 10.5761 1.56836V0H21.286V1.56836Z"/></symbol>
+    <symbol id="i-user" viewBox="0 0 29 32"><path fill="currentColor" d="M14.4001 16C18.8183 16 22.4001 12.4183 22.4001 8C22.4001 3.58172 18.8183 0 14.4001 0C9.98178 0 6.40005 3.58172 6.40005 8C6.40005 12.4183 9.98178 16 14.4001 16Z"/><path fill="currentColor" d="M14.4 17.6001C6.46016 17.6001 0 23.3423 0 30.4001C0 31.2845 0.716406 32.0001 1.6 32.0001H27.2C28.0844 32.0001 28.8 31.2845 28.8 30.4001C28.8 23.3423 22.3406 17.6001 14.4 17.6001Z"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 34 18"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path stroke-opacity=".2" d="M0.75 0.75L8.58057 8.75L0.75 16.75"/><path stroke-opacity=".5" d="M12.5806 0.75L20.4111 8.75L12.5806 16.75"/><path d="M24.4111 0.75L32.2417 8.75L24.4111 16.75"/></g></symbol>
+    <symbol id="i-bulge" viewBox="0 0 84 155"><path fill="currentColor" d="M83.8007 77.377C83.8007 96.1547 68.6652 111.377 49.9946 111.377C27.4296 114.17 8.45482 129.633 1.16438 151.17L0 154.61V0L1.14951 2.96868C8.64484 22.3262 24.9998 36.8923 45.0925 42.1052C48.3474 42.9497 51.716 43.2528 55.0411 43.7533C71.318 46.2036 83.8007 60.3242 83.8007 77.377Z"/></symbol>
+  </defs>
+</svg>
+
+<div id="device"><div id="app">
+<div id="home" class="screen" aria-label="Trang chủ">
+  <div class="stage">
+    <div class="tab" id="tOrder">
+    <div class="abs hello"><small>Hê lô,</small><b id="helloName">LieuNT</b></div>
+    <button class="abs circ cartbtn" aria-label="Giỏ hàng"><svg><use href="#i-bag"/></svg><span class="badge"></span></button>
+    <div class="abs order"><span id="orderTxt">01 x Đen</span><button id="reorder">ĐẶT LẠI</button></div>
+    <div id="carousel" class="abs"></div>
+    <div class="abs dots" id="dots" hidden></div>
+    </div>
+    <div class="tab off" id="tHist" aria-label="Lịch sử đơn hàng">
+      <h2 class="abs ptitle">Order</h2>
+      <div class="abs hlist" id="hlist">
+        <div class="hrow"><div class="t"><span class="n"><b>01 x</b><b>Đen</b></span><span class="st wait">CHỜ XÁC NHẬN</span></div><small>Today</small></div>
+        <div class="hrow"><div class="t"><span class="n"><b>01 x</b><b>Đen</b></span><span class="st done">HOÀN THÀNH</span></div><small>28/10/2026</small></div>
+        <div class="hrow"><div class="t"><span class="n"><b>01 x</b><b>Đen</b></span><span class="st brew">ĐANG PHA CHẾ</span></div><small>28/10/2026</small></div>
+        <div class="hrow"><div class="t"><span class="n"><b>01 x</b><b>Đen</b></span><span class="st done">HOÀN THÀNH</span></div><small>28/10/2026</small></div>
+        <div class="hrow"><div class="t"><span class="n"><b>01 x</b><b>Đen</b></span><span class="st done">HOÀN THÀNH</span></div><small>28/10/2026</small></div>
+        <div class="hrow"><div class="t"><span class="n"><b>01 x</b><b>Đen</b></span><span class="st done">HOÀN THÀNH</span></div><small>28/10/2026</small></div>
+      </div>
+    </div>
+    <div class="tab off" id="tAcc" aria-label="Tài khoản">
+      <h2 class="abs ptitle">Tài khoản</h2>
+      <div class="abs acc">
+        <div class="stats">
+          <div class="stat"><b id="nPaid">02</b><small class="paid">ĐÃ THANH TOÁN</small></div>
+          <div class="stat"><b id="nDue">03</b><small class="due">CHƯA THANH TOÁN</small></div>
+        </div>
+        <div class="arows">
+          <label class="arow"><span>Tên đặt hàng</span><input class="r aname" id="aName" value="LieuNT" maxlength="16" enterkeyhint="done" autocomplete="nickname" aria-label="Tên đặt hàng"></label>
+          <button class="arow" id="resetPw"><span>Mật khẩu</span><span class="r y">Reset</span></button>
+          <button class="logout" id="logout">Đăng xuất</button>
+        </div>
+      </div>
+    </div>
+    <nav class="abs nav">
+      <button class="on" aria-label="Đồ uống"><svg><use href="#i-cup"/></svg></button>
+      <button aria-label="Đơn hàng"><svg><use href="#i-list"/></svg></button>
+      <button aria-label="Tài khoản"><svg><use href="#i-user"/></svg></button>
+    </nav>
+  </div>
+</div>
+
+<div id="detail" class="screen" data-id="den" aria-label="Chi tiết đồ uống">
+  <div class="stage">
+    <div class="abs bulge l" data-a="l"><svg><use href="#i-bulge"/></svg></div>
+    <div class="abs bulge r" data-a="r"><svg><use href="#i-bulge"/></svg></div>
+    <button class="abs circ back" id="back" aria-label="Đóng" data-a="pop"><svg><use href="#i-close"/></svg></button>
+    <button class="abs circ cartbtn" id="dCart" aria-label="Giỏ hàng" data-a="pop"><svg><use href="#i-bag"/></svg><span class="badge"></span></button>
+    <h1 class="abs dtitle" id="dTitle" data-a="left">Đen</h1>
+    <div class="abs opts" id="opts">
+      <div class="opt" data-a="left" data-k="upsize"><div><button class="chip on" data-v="0" aria-label="Size L"><svg><use href="#i-sizeL"/></svg></button><button class="chip val" data-v="1" aria-label="Size XL"><svg><use href="#i-sizeXL"/></svg></button></div></div>
+      <div class="opt" data-a="left" data-k="sweet"><label>Ngọt</label><div><button class="chip on" data-v="0" aria-label="Ngọt 100">100</button><button class="chip val" data-v="50" aria-label="Độ ngọt">50</button></div></div>
+      <div class="opt" data-a="left" data-k="cafe"><label>Cafe</label><div><button class="chip on" data-v="0" aria-label="Cafe 100">100</button><button class="chip val" data-v="50" aria-label="Lượng cafe">50</button></div></div>
+    </div>
+    <div class="abs spin" id="spin" aria-label="Kéo để xoay cốc"></div>
+    <button class="abs circ pm minus" id="minus" aria-label="Giảm" data-a="l"><svg><use href="#i-minus"/></svg></button>
+    <button class="abs circ pm plus" id="plus" aria-label="Tăng" data-a="r"><svg><use href="#i-plus"/></svg></button>
+    <div class="abs qty" id="qty" data-a="up"><span>01</span></div>
+    <div class="abs dprice" id="dPrice" data-a="up">20.000</div>
+    <div class="abs add" id="add" data-a="rise">
+      <div class="fill" id="fill"></div>
+      <i class="glint"></i>
+      <div class="shine"><div class="lbl" id="addLbl">Thêm vào giỏ hàng</div>
+      <svg class="chev"><use href="#i-chev"/></svg></div>
+      <div class="knob" id="knob" role="button" aria-label="Kéo để thêm vào giỏ"><svg><use href="#i-bag"/></svg></div>
+    </div>
+  </div>
+</div>
+
+</div></div>
+<div id="cart" class="screen empty" aria-label="Giỏ hàng">
+  <div class="stage">
+    <button class="abs circ cclose" id="cClose" aria-label="Đóng giỏ hàng"><svg><use href="#i-close"/></svg></button>
+    <div class="abs clist" id="clist"></div>
+    <div class="abs cempty">Giỏ hàng trống</div>
+    <div class="abs ctotal"><span>Tổng</span><b id="cTotal">0 VNĐ</b></div>
+    <div class="abs add" id="cAdd">
+      <div class="fill"></div>
+      <i class="glint"></i>
+      <div class="shine"><div class="lbl">Thanh toán</div>
+      <svg class="chev"><use href="#i-chev"/></svg></div>
+      <div class="knob" role="button" aria-label="Kéo để thanh toán"><svg><use href="#i-bag"/></svg></div>
+    </div>
+  </div>
+</div>
+
+<div id="fx"></div>
+
+<script>
+(()=>{
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const T = ms => RM ? Math.min(ms, 120) : ms;
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+
+const DRINKS = [
+  {id:'bac', name:'Bạc', price:20000, aspect:316/540, rec:true,  stops:[[0,'#e2e2e2'],[.5739,'#d9d0b7']], edge:.35, card:'linear-gradient(0deg,#d9d0b7 42.61%,#e2e2e2 100%)', bg:'linear-gradient(0deg,#d9d0b7 42.61%,#e2e2e2 100%)'},
+  {id:'den', name:'Đen', price:20000, aspect:341/540,            stops:[[0,'#484848'],[.5739,'#1e1e1e']], edge:.12, card:'linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)', bg:'linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)'},
+  {id:'nau', name:'Nâu', price:20000, aspect:339/540,            stops:[[0,'#fed9ae'],[.574,'#ffc077']], edge:.35, card:'linear-gradient(180deg,#fed9ae 0%,#ffc077 57.4%)', bg:'linear-gradient(180deg,#fed3a1,#ffc077)'},
+];
+const N = DRINKS.length, FRAMES = 24;
+const GLOW = {den:'rgba(255,255,255,.55)', nau:'rgba(255,255,255,.55)', bac:'rgba(255,255,255,.55)'};
+const fmt = n => n.toLocaleString('vi-VN').replace(/,/g,'.');
+const pad = n => String(n).padStart(2,'0');
+
+/* preload sprites so the detail spin is ready */
+DRINKS.forEach(d => { const i = new Image(); i.src = d.id + '-spin.webp'; if (i.decode) i.decode().catch(() => {}); });
+const nextFrame = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+/* ---------- stage scaling ---------- */
+let S = 1, K = 1, DH = 0, DEV = false;
+const app = $('#app'), device = $('#device');
+const FW = 390, FH = 660;
+function fit(){
+  const st = Math.min(innerWidth/FW, innerHeight/FH);
+  DEV = Math.abs(innerWidth - FW*st) > 1 || Math.abs(innerHeight - FH*st) > 1;   /* letterboxed → show the frame */
+  document.body.classList.toggle('dev', DEV);
+  device.style.width = FW*st + 'px'; device.style.height = FH*st + 'px';
+  K = 1; S = st; DH = FH - 844;
+  const GX = Math.max(0, (app.clientWidth/st - 390)/2);   /* extra room beside the stage, so edge pieces can stay on the screen edge */
+  $$('.stage').forEach(s => { s.style.transform = `translate(-50%,-50%) scale(${st})`; s.style.setProperty('--dh', DH + 'px'); s.style.setProperty('--gx', GX + 'px'); });
+  try { sizeSpin(); } catch (e) {}  /* detail state not ready on first call */
+}
+const scr = () => app.getBoundingClientRect();
+const scrRad = () => DEV ? 34*S : 0;
+const clipOf = (r, rad) => `inset(${r.top}px ${innerWidth-r.right}px ${innerHeight-r.bottom}px ${r.left}px round ${rad}px)`;
+const fullClip = () => clipOf(scr(), scrRad());
+/* a copy of the card's price pill that sits above the flying cup, so the pill never jumps from under the cup to over it */
+function pillClone(card, r){
+  const w = document.createElement('div'); w.className = 'card'; w.dataset.id = card.dataset.id;
+  Object.assign(w.style, {left:r.left+'px', top:r.top+'px', width:r.width+'px', height:r.height+'px', transform:'none', pointerEvents:'none', cursor:'default'});
+  w.appendChild($('.pricebar', card).cloneNode(true));
+  return w;
+}
+const EASE_MORPH = 'cubic-bezier(.32,.72,0,1)';
+function placeVeil(v, s){ Object.assign(v.style, {inset:'auto', left:s.left+'px', top:s.top+'px', width:s.width+'px', height:s.height+'px', transformOrigin:'0 0', overflow:'hidden', willChange:'transform,opacity'}); }
+/* keyframes that grow the screen-sized veil out of the card's box; radii are pre-divided so corners stay round while scaled */
+function veilKF(r, s, rad0, rad1){
+  const sx = r.width/s.width, sy = r.height/s.height;
+  return [{transform:`translate(${r.left-s.left}px,${r.top-s.top}px) scale(${sx},${sy})`, borderRadius:`${rad0/sx}px / ${rad0/sy}px`},
+          {transform:'translate(0px,0px) scale(1,1)', borderRadius:`${rad1}px / ${rad1}px`}];
+}
+function statusColor(c){ app.style.setProperty('--sb', c); }
+addEventListener('resize', fit); fit();
+
+/* ---------- carousel ---------- */
+const car = $('#carousel'), dots = $('#dots');
+const cards = DRINKS.map((d,i) => {
+  const el = document.createElement('div');
+  el.className = 'card'; el.dataset.id = d.id; el.dataset.i = i;
+  el.setAttribute('role','button'); el.setAttribute('aria-label', 'Xem ' + d.name);
+  const icons = `<div class="ico"><span class="circ"><svg><use href="#i-snow"/></svg></span><span class="circ"><svg><use href="#i-steam"/></svg></span></div>`;
+  el.innerHTML = `<svg class="surf" viewBox="0 0 270 360" aria-hidden="true"><defs><linearGradient id="g-${d.id}" x1="0" y1="0" x2="0" y2="1">${d.stops.map(([o,c]) => `<stop offset="${o}" stop-color="${c}"/>`).join('')}</linearGradient><linearGradient id="e-${d.id}" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#fff"/><stop offset=".5" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><rect width="270" height="360" rx="40" fill="url(#g-${d.id})"/><rect x=".75" y=".75" width="268.5" height="358.5" rx="39.25" fill="none" stroke="url(#e-${d.id})" stroke-opacity="${d.edge}" stroke-width="1.5"/></svg>
+    <div class="cup"${d.id === 'bac' ? '' : ` style="left:${(135 - 245*d.aspect/2).toFixed(1)}px"`}><img src="${d.id}.webp" alt="" draggable="false"></div>
+    <div class="top">${d.rec
+      ? `<div class="row"><h3>${d.name}</h3><span class="rec"><svg><use href="#i-star"/></svg>RECOMMEND</span></div>${icons}`
+      : `<h3>${d.name}</h3>${icons}`}</div>
+    <div class="pricebar"><i class="glint"></i><b>${fmt(d.price)} VNĐ</b><span><svg><use href="#i-bag"/></svg></span></div>`;
+  car.appendChild(el);
+  const dot = document.createElement('i'); dots.appendChild(dot);
+  return el;
+});
+
+let pos = 1, target = 1, vel = 0, raf = 0;
+const CARD_S = 1;
+const ARC_R = 1364,   /* neighbours sit 302px off-centre for the 270px card */ ARC_STEP = 12.79, ARC_PX = ARC_R*ARC_STEP*Math.PI/180;
+const wrap = o => { o = ((o % N) + N) % N; return o >= N/2 ? o - N : o; };
+const active = () => ((Math.round(pos) % N) + N) % N;
+
+function layout(){
+  const t = performance.now()/1000;
+  cards.forEach((el,i) => {
+    const o = wrap(i - pos), a = Math.abs(o);
+    /* cards ride a wheel whose hub sits above the stage: neighbours rise and tilt inward, with a gap between them */
+    const ang = o*ARC_STEP*Math.PI/180;
+    const x = ARC_R*Math.sin(ang), y = -ARC_R*(1 - Math.cos(ang)), r = -o*8;
+    const s = CARD_S;
+    el.style.transform = `translate(${x}px,${y}px) rotate(${r}deg) scale(${s})`;
+    el.style.opacity = a > 1 ? Math.max(0, 1 - (a-1)*2.2) : 1;
+    el.style.zIndex = 10 - Math.round(a*3);
+    const cup = el.firstElementChild.nextElementSibling;
+    const bob = RM ? 0 : Math.sin(t*1.6 + i)*4*(1-Math.min(a,1));
+    cup.style.transform = `translate(${-o*26}px,${bob}px) rotate(${11.7 + o*6}deg)`;
+  });
+  const ai = active();
+  [...dots.children].forEach((d,i) => d.classList.toggle('on', i === ai));
+}
+function settle(to){
+  target = to;
+  cancelAnimationFrame(raf);
+  const step = () => {
+    vel = vel*0.74 + (target - pos)*0.085;
+    pos += vel;
+    if (Math.abs(target-pos) < 0.0008 && Math.abs(vel) < 0.0008) { pos = target; vel = 0; }
+    layout();
+    if (pos !== target || !RM) raf = requestAnimationFrame(step);
+  };
+  raf = requestAnimationFrame(step);
+}
+function idle(){ cancelAnimationFrame(raf); const loop = () => { layout(); raf = requestAnimationFrame(loop); }; if (!RM) raf = requestAnimationFrame(loop); else layout(); }
+layout(); idle();
+
+let drag = null;
+car.addEventListener('pointerdown', e => {
+  if (busy) return;
+  drag = {x:e.clientX, y:e.clientY, p:pos, t:performance.now(), lx:e.clientX, lt:performance.now(), v:0, moved:false, card:e.target.closest('.card')};
+  car.setPointerCapture(e.pointerId);
+});
+car.addEventListener('pointermove', e => {
+  if (!drag) return;
+  const dx = (e.clientX - drag.x)/S;
+  if (Math.abs(dx) > 6) drag.moved = true;
+  if (!drag.moved) return;
+  const now = performance.now();
+  drag.v = ((e.clientX - drag.lx)/S) / Math.max(1, now - drag.lt);
+  drag.lx = e.clientX; drag.lt = now;
+  cancelAnimationFrame(raf); vel = 0;
+  pos = drag.p - dx/ARC_PX; layout();
+});
+const endDrag = e => {
+  if (!drag) return;
+  const d = drag; drag = null;
+  if (!d.moved) {
+    if (!d.card) return idle();
+    const i = +d.card.dataset.i, o = Math.round(wrap(i - pos));
+    if (o === 0) return openDetail(i);
+    return settle(Math.round(pos) + o);
+  }
+  const fling = -d.v*0.9;
+  let to = Math.round(pos + fling);
+  to = Math.max(Math.round(d.p)-1, Math.min(Math.round(d.p)+1, to));
+  settle(to);
+};
+car.addEventListener('pointerup', endDrag);
+car.addEventListener('pointercancel', endDrag);
+car.addEventListener('keydown', e => { if (e.key === 'ArrowRight') settle(Math.round(pos)+1); if (e.key === 'ArrowLeft') settle(Math.round(pos)-1); });
+
+/* go to a drink then open it */
+function goAndOpen(i){
+  if (busy) return;
+  const o = Math.round(wrap(i - pos));
+  if (o === 0) return openDetail(i);
+  settle(Math.round(pos) + o);
+  setTimeout(() => openDetail(i), T(520));
+}
+let lastOrder = 1;
+$('#reorder').addEventListener('click', () => goAndOpen(lastOrder));
+
+/* ---------- detail state ---------- */
+const detail = $('#detail'), spin = $('#spin');
+let cur = 1, qty = 1, frame = 0, cart = 0;
+const opts = {upsize:0, sweet:0, cafe:0};
+const unit = () => DRINKS[cur].price + (opts.upsize ? 5000 : 0);
+
+function sizeSpin(){
+  const d = DRINKS[cur], h = 310, w = h*d.aspect;
+  spin.style.height = h + 'px'; spin.style.width = w + 'px'; spin.style.left = (261 - w/2) + 'px';
+}
+const spin2 = document.createElement('i'); spin2.className = 'spin2'; spin.appendChild(spin2);
+function setFrame(f){
+  frame = ((f % FRAMES) + FRAMES) % FRAMES;
+  /* blend the two neighbouring frames so slow turns glide instead of stepping */
+  const i0 = Math.floor(frame), t = frame - i0;
+  spin.style.backgroundPosition = `${i0 % FRAMES/(FRAMES-1)*100}% 0`;
+  spin2.style.backgroundPosition = `${(i0 + 1) % FRAMES/(FRAMES-1)*100}% 0`;
+  spin2.style.opacity = t;
+}
+function fillDetail(i){
+  cur = i; const d = DRINKS[i];
+  detail.dataset.id = d.id;
+  $('#dTitle').textContent = d.name;
+  spin.style.backgroundImage = spin2.style.backgroundImage = `url(${d.id}-spin.webp)`;
+  sizeSpin();
+  setFrame(0);
+  qty = 1; Object.keys(opts).forEach(k => opts[k] = 0);
+  $$('.opt').forEach(g => { $$('.chip', g).forEach(c => c.classList.toggle('on', c.dataset.v === '0')); const v = $('.val', g); if (v && g.dataset.k !== 'upsize') { v.textContent = '50'; v.dataset.v = '50'; } });
+  $('#qty').innerHTML = `<span>${pad(qty)}</span>`;
+  $('#dPrice').textContent = fmt(unit()*qty);
+  resetKnob(true);
+}
+
+/* options */
+$$('.opt').forEach(g => {
+  const k = g.dataset.k;
+  g.addEventListener('click', e => {
+    const c = e.target.closest('.chip'); if (!c) return;
+    const wasOn = c.classList.contains('on');
+    c.animate([{transform:'scale(.8)'},{transform:'scale(1)'}], {duration:T(380), easing:'cubic-bezier(.34,1.56,.64,1)'});
+    if (c.classList.contains('val') && wasOn && k !== 'upsize') {
+      const seq = [30,50,70,100], n = seq[(seq.indexOf(+c.dataset.v)+1) % seq.length];
+      c.dataset.v = n; c.textContent = n;
+    }
+    $$('.chip', g).forEach(x => x.classList.toggle('on', x === c));
+    opts[k] = +c.dataset.v;
+    updatePrice();
+  });
+});
+
+/* quantity */
+function setQty(n){
+  n = Math.max(1, Math.min(99, n)); if (n === qty) return;
+  const dir = n > qty ? 1 : -1; qty = n;
+  const box = $('#qty');
+  /* rapid taps: drop numbers still leaving, so only one old and one new digit ever animate */
+  while (box.children.length > 1) box.firstElementChild.remove();
+  const old = box.firstElementChild, nu = document.createElement('span');
+  old.getAnimations().forEach(x => x.cancel());
+  nu.textContent = pad(qty); box.appendChild(nu);
+  old.animate([{transform:'translateY(0)',opacity:1},{transform:`translateY(${-dir*40}px)`,opacity:0}], {duration:T(320), easing:'cubic-bezier(.22,1,.36,1)'}).onfinish = () => old.remove();
+  nu.animate([{transform:`translateY(${dir*40}px)`,opacity:0},{transform:'translateY(0)',opacity:1}], {duration:T(320), easing:'cubic-bezier(.22,1,.36,1)'});
+  updatePrice();
+}
+function updatePrice(){
+  const p = $('#dPrice'); p.textContent = fmt(unit()*qty);
+  p.animate([{transform:'translateX(-50%) scale(1.08)'},{transform:'translateX(-50%) scale(1)'}], {duration:T(260), easing:'ease-out'});
+}
+/* tap = ±1, press and hold = keep counting */
+function holdStep(btn, d){
+  let t = 0, iv = 0, held = false;
+  const stop = () => { clearTimeout(t); clearInterval(iv); };
+  btn.addEventListener('pointerdown', () => { held = false; stop(); t = setTimeout(() => { held = true; setQty(qty + d); iv = setInterval(() => setQty(qty + d), 110); }, 380); });
+  ['pointerup','pointerleave','pointercancel'].forEach(ev => btn.addEventListener(ev, stop));
+  btn.addEventListener('contextmenu', e => e.preventDefault());
+  btn.addEventListener('click', () => { if (held) { held = false; return; } setQty(qty + d); });
+}
+holdStep($('#minus'), -1); holdStep($('#plus'), 1);
+
+/* drag-to-rotate cup */
+let sd = null, spinAnim = 0;
+spin.addEventListener('pointerdown', e => { cancelAnimationFrame(spinAnim); sd = {x:e.clientX, f:frame, lx:e.clientX, v:0}; spin.setPointerCapture(e.pointerId); spin.style.cursor='grabbing'; });
+spin.addEventListener('pointermove', e => { if (!sd) return; sd.v = (e.clientX - sd.lx)/S; sd.lx = e.clientX; setFrame(sd.f + (e.clientX - sd.x)/S/9); });
+const spinEnd = () => { if (!sd) return; let v = sd.v/9; sd = null; spin.style.cursor='';
+  const coast = () => { v *= 0.93; setFrame(frame + v); if (Math.abs(v) > 0.02) spinAnim = requestAnimationFrame(coast); }; spinAnim = requestAnimationFrame(coast); };
+spin.addEventListener('pointerup', spinEnd); spin.addEventListener('pointercancel', spinEnd);
+/* after the intro spin the cup keeps turning slowly, left to right, until it is touched */
+function autoSpin(){
+  if (RM) return; cancelAnimationFrame(spinAnim);
+  let last = performance.now();
+  const go = now => { setFrame(frame + 2*(now - last)/1000); last = now; spinAnim = requestAnimationFrame(go); };
+  spinAnim = requestAnimationFrame(go);
+}
+function spinOnce(ms){
+  if (RM) return Promise.resolve();
+  return new Promise(res => { const t0 = performance.now(), f0 = frame;
+    const go = now => { const k = Math.min(1, (now-t0)/ms), e = 1 - Math.pow(1-k, 3); setFrame(f0 + e*FRAMES); if (k < 1) spinAnim = requestAnimationFrame(go); else { setFrame(0); res(); } };
+    spinAnim = requestAnimationFrame(go); });
+}
+
+/* ---------- transitions ---------- */
+let busy = false;
+const fx = $('#fx');
+const clipFx = () => { fx.style.clipPath = DEV ? fullClip() : ''; };
+addEventListener('resize', clipFx); clipFx();
+const rectOf = el => el.getBoundingClientRect();
+function untransformedRect(el){
+  const prev = el.style.transform; el.style.transform = 'none';
+  const r = el.getBoundingClientRect(); el.style.transform = prev; return r;
+}
+const homeParts = () => [$('.hello'), $('#home .cartbtn'), $('.order'), $('#dots'), $('.nav')];
+const detailParts = () => $$('#detail [data-a]');
+function pre(el){
+  const a = el.dataset.a;
+  return a === 'left' ? 'translateX(-36px)' : a === 'l' ? 'translateX(-70px)' : a === 'r' ? (el.classList.contains('bulge') ? 'scaleX(-1) translateX(-70px)' : 'translateX(70px)')
+       : a === 'up' ? (el.id === 'dPrice' ? 'translate(-50%,24px)' : 'translateY(24px)') : a === 'rise' ? 'translateY(90px)' : 'scale(.6)';
+}
+function rest(el){ return el.classList.contains('bulge') && el.dataset.a === 'r' ? 'scaleX(-1)' : el.id === 'dPrice' ? 'translateX(-50%)' : 'none'; }
+
+async function openDetail(i){
+  if (busy) return; busy = true;
+  cancelAnimationFrame(raf); pos = Math.round(pos); vel = 0; layout();
+  const card = cards[i], d = DRINKS[i];
+  const cupEl = $('.cup', card);
+  cupEl.style.transform = 'none';
+  const from = rectOf(cupEl);
+  cupEl.style.transform = 'rotate(11.7deg)';
+  const cardR = rectOf(card);
+
+  fillDetail(i);
+  /* keep the detail screen painted (but transparent) under the veil, so its first paint and sprite decode happen before the morph, not after */
+  detail.style.visibility = 'visible'; detail.style.opacity = '0';
+  const parts = detailParts();
+  [...parts, spin].forEach(el => el.getAnimations().forEach(x => x.cancel()));
+  parts.forEach(el => { el.style.opacity = 0; el.style.transform = pre(el); });
+  $('#dTitle').style.opacity = 0;
+  spin.style.opacity = 0;
+  const to = untransformedRect(spin);
+
+  /* veil: card surface expanding into the full-screen background */
+  const veil = document.createElement('div'); veil.className = 'veil';
+  veil.innerHTML = `<div style="position:absolute;inset:0;background:${d.card}"></div><div class="vb" style="position:absolute;inset:0;background:${d.bg};opacity:0"></div>`;
+  const sr = scr(); placeVeil(veil, sr);
+  fx.appendChild(veil);
+  document.body.classList.add('moving');
+  const pill = pillClone(card, cardR);
+
+  /* flying cup */
+  const fly = document.createElement('img'); fly.className = 'fly'; fly.src = d.id + '.webp';
+  fly.style.width = to.width + 'px'; fly.style.height = to.height + 'px';
+  fly.style.filter = `drop-shadow(0 0 22px ${GLOW[d.id]})`;
+  fx.appendChild(fly);
+  const sx = from.width/to.width;
+  const fromT = `translate(${from.left}px,${from.top}px) translate(${from.width/2}px,${from.height/2}px) rotate(11.7deg) translate(${-from.width/2}px,${-from.height/2}px) scale(${sx})`;
+  const midT = `translate(${(from.left+to.left)/2}px,${Math.min(from.top,to.top)-30*S}px) scale(${(sx+1)/2*1.04})`;
+  const toT = `translate(${to.left}px,${to.top}px)`;
+  fx.appendChild(pill);
+  pill.animate([{opacity:1},{opacity:0}], {duration:T(160), fill:'forwards'});
+  cupEl.style.visibility = 'hidden';
+
+  await nextFrame();
+  const D = T(760);
+  /* transform + opacity only, so the browser can run it on the compositor */
+  const veilA = veil.animate(veilKF(cardR, sr, 40*CARD_S*S, scrRad()), {duration:D*0.9, easing:EASE_MORPH, fill:'forwards'});
+  veil.animate([{opacity:0},{opacity:1, offset:.4},{opacity:1}], {duration:D*0.9, easing:'ease-out', fill:'forwards'});
+  veil.querySelector('.vb').animate([{opacity:0},{opacity:1}], {duration:D*0.7, delay:D*0.1, easing:'ease-in-out', fill:'forwards'});
+  fly.animate([{transform:fromT},{transform:midT, offset:.45},{transform:toT}], {duration:D, easing:'cubic-bezier(.5,0,.15,1)', fill:'forwards'});
+
+  /* home recedes */
+  homeParts().forEach((el,k) => el.animate([{opacity:1,transform:'none'},{opacity:0,transform:k>=3?'translateY(30px)':'translateY(-24px)'}], {duration:T(320), delay:k*25, easing:'ease-in', fill:'forwards'}));
+  cards.forEach((c,k) => { if (k===i) { $$('.top,.pricebar', c).forEach(el => el.animate([{opacity:1},{opacity:0}], {duration:T(160), fill:'forwards'})); return; }
+    const o = Math.sign(wrap(k - pos)) || 1;
+    c.animate([{opacity:c.style.opacity, translate:'0 0'},{opacity:0, translate:`${o*160}px 0`}], {duration:T(420), easing:'cubic-bezier(.4,0,.2,1)', fill:'forwards'}); });
+
+  await veilA.finished;
+  detail.style.opacity = '';
+  veil.remove(); pill.remove();
+  document.body.classList.remove('moving');
+
+  /* detail UI enters, staggered */
+  const order = ['back','dCart','dTitle','opts','l','r','qty','dPrice','add'];
+  parts.forEach(el => {
+    const key = order.includes(el.id) ? el.id : el.classList.contains('opt') ? 'opts' : el.dataset.a;
+    if (el.classList.contains('opt')) {
+      /* options pop in one circle at a time, left to right, row by row, with a bouncy overshoot */
+      const row = [...el.parentNode.children].indexOf(el);
+      $$('.chip', el).forEach((c, n) => c.animate([{opacity:0, transform:'scale(.2)'},{opacity:1, transform:'scale(1)'}], {duration:T(640), delay:T(190 + (row*2 + n)*100), easing:'cubic-bezier(.34,1.75,.5,1)', fill:'backwards'}));
+      $('label', el)?.animate([{opacity:0, transform:'translateX(-14px)'},{opacity:1, transform:'none'}], {duration:T(420), delay:T(190 + row*200), easing:'cubic-bezier(.22,1,.36,1)', fill:'backwards'});
+      el.style.opacity = ''; el.style.transform = '';
+      return;
+    }
+    let k = order.indexOf(key);
+    el.animate([{opacity:0, transform:pre(el)},{opacity:1, transform:rest(el)}], {duration:T(560), delay:T(40 + k*45), easing:'cubic-bezier(.22,1,.36,1)', fill:'backwards'});
+    el.style.opacity = ''; el.style.transform = '';
+  });
+  const title = $('#dTitle'); title.style.opacity = '';
+  await new Promise(r => setTimeout(r, Math.max(0, D - D*0.9)));
+  spin.style.opacity = ''; fly.remove();
+  syncBadges();
+  await spinOnce(1300);
+  busy = false;
+}
+
+async function closeDetail(){
+  if (busy) return; busy = true;
+  cancelAnimationFrame(spinAnim);
+  const i = cur, d = DRINKS[i], card = cards[i];
+  /* turn the cup back to its front face first */
+  if (Math.round(frame) % FRAMES !== 0 && !RM) {
+    await new Promise(res => { const f0 = frame, delta = (frame > FRAMES/2 ? FRAMES - frame : -frame), t0 = performance.now();
+      const go = now => { const k = Math.min(1,(now-t0)/T(260)); setFrame(f0 + delta*(1-Math.pow(1-k,3))); if (k<1) requestAnimationFrame(go); else { setFrame(0); res(); } }; requestAnimationFrame(go); });
+  }
+  setFrame(0);
+  const from = untransformedRect(spin);
+  const cupEl = $('.cup', card);
+  cupEl.style.transform = 'none'; const to = rectOf(cupEl); cupEl.style.transform = 'rotate(11.7deg)';
+  const cardR = rectOf(card);
+
+  const parts = detailParts().reverse();
+  parts.forEach((el,k) => el.animate([{opacity:1, transform:rest(el)},{opacity:0, transform:pre(el)}], {duration:T(260), delay:k*18, easing:'cubic-bezier(.4,0,1,1)', fill:'forwards'}));
+  $('#dTitle').animate([{opacity:1},{opacity:0}], {duration:T(200), fill:'forwards'});
+
+  const veil = document.createElement('div'); veil.className = 'veil';
+  veil.innerHTML = `<div style="position:absolute;inset:0;background:${d.card}"></div><div class="vb" style="position:absolute;inset:0;background:${d.bg}"></div>`;
+  const sr = scr(); placeVeil(veil, sr);
+
+  const fly = document.createElement('img'); fly.className = 'fly'; fly.src = d.id + '.webp';
+  fly.style.width = from.width + 'px'; fly.style.height = from.height + 'px';
+  fly.style.filter = `drop-shadow(0 0 22px ${GLOW[d.id]})`;
+  const sx = to.width/from.width;
+  const toT = `translate(${to.left}px,${to.top}px) translate(${to.width/2}px,${to.height/2}px) rotate(11.7deg) translate(${-to.width/2}px,${-to.height/2}px) scale(${sx})`;
+  const fromT = `translate(${from.left}px,${from.top}px)`;
+  await new Promise(r => setTimeout(r, T(160)));
+  const pill = pillClone(card, cardR);
+  fx.appendChild(veil); fx.appendChild(fly); fx.appendChild(pill);
+  pill.animate([{opacity:0, transform:'translateY(10px)'},{opacity:1, transform:'none'}], {duration:T(400), delay:T(720)*0.7, easing:'ease-out', fill:'backwards'});
+  spin.style.opacity = 0;
+  detail.style.visibility = 'hidden';
+
+  /* home comes back underneath */
+  homeParts().forEach(el => el.getAnimations().forEach(a => a.cancel()));
+  cards.forEach(c => { c.getAnimations().forEach(a => a.cancel()); $$('.top,.pricebar', c).forEach(el => el.getAnimations().forEach(a => a.cancel())); });
+  await nextFrame();
+  const D = T(720);
+  homeParts().forEach((el,k) => el.animate([{opacity:0,transform:k>=3?'translateY(30px)':'translateY(-24px)'},{opacity:1,transform:'none'}], {duration:T(520), delay:D*0.45 + k*40, easing:'cubic-bezier(.22,1,.36,1)', fill:'backwards'}));
+  cards.forEach((c,k) => { if (k===i) { $$('.top,.pricebar', c).forEach(el => el.animate([{opacity:0, transform:'translateY(10px)'},{opacity:1, transform:'none'}], {duration:T(400), delay:D*0.7, easing:'ease-out', fill:'backwards'})); return; }
+    const o = Math.sign(wrap(k - pos)) || 1;
+    c.animate([{opacity:0, translate:`${o*160}px 0`},{opacity:c.style.opacity, translate:'0 0'}], {duration:T(620), delay:D*0.35, easing:'cubic-bezier(.22,1,.36,1)', fill:'backwards'}); });
+
+  veil.querySelector('.vb').animate([{opacity:1},{opacity:0}], {duration:D*0.7, easing:'ease-in-out', fill:'forwards'});
+  document.body.classList.add('moving');
+  const veilA = veil.animate(veilKF(cardR, sr, 40*CARD_S*S, scrRad()).reverse(), {duration:D, easing:EASE_MORPH, fill:'forwards'});
+  veil.animate([{opacity:1},{opacity:1, offset:.55},{opacity:0}], {duration:D, easing:'ease-in', fill:'forwards'});
+  const midT = `translate(${(from.left+to.left)/2}px,${Math.min(from.top,to.top)-24*S}px) scale(${(sx+1)/2*1.04})`;
+  fly.animate([{transform:fromT},{transform:midT, offset:.5},{transform:toT}], {duration:D, easing:'cubic-bezier(.65,0,.25,1)', fill:'forwards'});
+  await veilA.finished;
+  cupEl.style.visibility = '';
+  veil.remove(); fly.remove(); pill.remove();
+  document.body.classList.remove('moving');
+  spin.style.opacity = '';
+  syncBadges();
+  busy = false; idle();
+}
+$('#back').addEventListener('click', closeDetail);
+/* swipe down anywhere on the detail (not on the slider or buttons) to go back */
+(() => {
+  const det = $('#detail'); let sw = null;
+  det.style.touchAction = 'none';
+  det.addEventListener('pointerdown', e => { sw = e.target.closest('.add,.pm,.chip,button') ? null : {x:e.clientX, y:e.clientY}; });
+  det.addEventListener('pointermove', e => { if (!sw) return; const dy = (e.clientY - sw.y)/S, dx = (e.clientX - sw.x)/S; if (dy > 70 && dy > Math.abs(dx)*1.4) { sw = null; closeDetail(); } });
+  ['pointerup','pointercancel'].forEach(ev => det.addEventListener(ev, () => { sw = null; }));
+})();
+
+/* ---------- swipe-to-add ---------- */
+const add = $('#add'), knob = $('#knob'), fill = $('#fill'), lbl = $('#addLbl');
+const MAX = 346 - 8 - 79;
+let kx = 0, kd = null, adding = false;
+function placeKnob(x){ kx = Math.max(0, Math.min(MAX, x)); knob.style.transform = `translateX(${kx}px)`; fill.style.width = (kx + 87) + 'px'; lbl.style.opacity = 1 - kx/MAX*0.9; }
+function resetKnob(now){
+  if (now) { placeKnob(0); lbl.textContent = 'Thêm vào giỏ hàng'; lbl.style.opacity = 1; return; }
+  const x0 = kx, t0 = performance.now();
+  const go = t => { const k = Math.min(1,(t-t0)/T(420)), e = 1 - Math.pow(1-k,3); placeKnob(x0*(1-e)); if (k<1) requestAnimationFrame(go); }; requestAnimationFrame(go);
+}
+add.addEventListener('pointerdown', e => { if (adding || busy) return; kd = {x:e.clientX, k:kx, moved:false}; add.setPointerCapture(e.pointerId); });
+add.addEventListener('pointermove', e => { if (!kd) return; const dx = (e.clientX - kd.x)/S; if (Math.abs(dx) > 4) kd.moved = true; placeKnob(kd.k + dx); });
+const kEnd = () => { if (!kd) return; const m = kd.moved; kd = null;
+  if (!m || kx > MAX*0.62) { completeAdd(); } else resetKnob(); };
+add.addEventListener('pointerup', kEnd); add.addEventListener('pointercancel', kEnd);
+knob.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); completeAdd(); } });
+knob.tabIndex = 0;
+
+async function completeAdd(){
+  if (adding) return; adding = true;
+  const x0 = kx, t0 = performance.now();
+  await new Promise(res => { const go = t => { const k = Math.min(1,(t-t0)/T(260)), e = 1-Math.pow(1-k,3); placeKnob(x0 + (MAX-x0)*e); if (k<1) requestAnimationFrame(go); else res(); }; requestAnimationFrame(go); });
+
+  /* the cup (current angle) flies into the cart */
+  const r = rectOf(spin), c = rectOf($('#dCart'));
+  const ghost = document.createElement('div'); ghost.className = 'fly';
+  Object.assign(ghost.style, {width:r.width+'px', height:r.height+'px', backgroundImage:spin.style.backgroundImage, backgroundSize:'2400% 100%', backgroundPosition:spin.style.backgroundPosition, filter:`drop-shadow(0 0 12px ${GLOW[DRINKS[cur].id]})`});
+  fx.appendChild(ghost);
+  const s = 34*S/r.height;
+  const ex = c.left + c.width/2 - r.width*s/2, ey = c.top + c.height/2 - r.height*s/2;
+  const a = ghost.animate([
+    {transform:`translate(${r.left}px,${r.top}px) scale(1)`, opacity:1},
+    {transform:`translate(${(r.left+ex)/2 + 20*S}px,${Math.min(r.top,ey) - 50*S}px) scale(${(1+s)/2}) rotate(-12deg)`, opacity:1, offset:.5},
+    {transform:`translate(${ex}px,${ey}px) scale(${s}) rotate(-20deg)`, opacity:.4}
+  ], {duration:T(820), easing:'cubic-bezier(.5,0,.3,1)', fill:'forwards'});
+  spin.animate([{opacity:1, transform:'scale(1)'},{opacity:.35, transform:'scale(.94)', offset:.3},{opacity:1, transform:'scale(1)'}], {duration:T(900), easing:'ease-in-out'});
+  await a.finished; ghost.remove();
+
+  addToCart(DRINKS[cur].id, qty, unit()); lastOrder = cur;
+  $('#orderTxt').textContent = `${pad(qty)} x ${DRINKS[cur].name}`;
+  syncBadges(true);
+  $('#dCart').animate([{transform:'scale(1)'},{transform:'scale(1.22)'},{transform:'scale(.95)'},{transform:'scale(1)'}], {duration:T(480), easing:'ease-out'});
+  lbl.textContent = 'Đã thêm vào giỏ'; lbl.style.opacity = 1;
+  toast(`Đã thêm ${pad(qty)} ${DRINKS[cur].name} · ${fmt(unit()*qty)} VNĐ`);
+  setTimeout(() => { resetKnob(); setTimeout(() => { lbl.textContent = 'Thêm vào giỏ hàng'; lbl.style.opacity = 1; adding = false; }, T(450)); }, T(900));
+}
+function syncBadges(pop){
+  $$('.badge').forEach(b => { b.textContent = cart; b.classList.toggle('on', cart > 0);
+    if (pop && cart) b.animate([{transform:'scale(1.5)'},{transform:'scale(1)'}], {duration:T(360), easing:'cubic-bezier(.34,1.56,.64,1)'}); });
+}
+/* bottom nav: Order (drinks) · History · Account */
+const tabs = [$('#tOrder'), $('#tHist'), $('#tAcc')], navBtns = $$('.nav button');
+let tab = 0;
+function showTab(i){
+  if (i === tab || busy) return;
+  const from = tabs[tab], to = tabs[i], dir = i > tab ? 1 : -1; tab = i;
+  navBtns.forEach((b, k) => b.classList.toggle('on', k === i));
+  from.getAnimations().forEach(a => a.cancel());
+  from.animate([{opacity:1, transform:'none'},{opacity:0, transform:`translateX(${-dir*28}px)`}], {duration:T(220), easing:'ease-in'}).onfinish = () => { if (tabs[tab] !== from) from.classList.add('off'); };
+  to.classList.remove('off');
+  to.animate([{opacity:0, transform:`translateX(${dir*28}px)`},{opacity:1, transform:'none'}], {duration:T(420), delay:T(90), easing:'cubic-bezier(.22,1,.36,1)', fill:'backwards'});
+  $$('.hrow,.stat,.arow,.logout', to).forEach((r, k) => r.animate([{opacity:0, transform:'translateY(16px) scale(.96)'},{opacity:1, transform:'none'}], {duration:T(520), delay:T(140 + k*50), easing:'cubic-bezier(.34,1.45,.64,1)', fill:'backwards'}));
+}
+navBtns.forEach((b, i) => b.addEventListener('click', () => showTab(i)));
+/* order name is edited in place; the greeting follows it */
+const aName = $('#aName');
+aName.addEventListener('input', () => { $('#helloName').textContent = aName.value.trim() || 'Bạn'; });
+aName.addEventListener('keydown', e => { if (e.key === 'Enter') aName.blur(); });
+let savedName = aName.value;
+aName.addEventListener('blur', () => { aName.value = aName.value.trim() || 'Bạn'; $('#helloName').textContent = aName.value; if (aName.value !== savedName) { savedName = aName.value; toast('Đã lưu tên đặt hàng'); } });
+$('#resetPw').addEventListener('click', () => toast('Đã gửi link đặt lại mật khẩu'));
+$('#logout').addEventListener('click', () => toast('Đây là bản demo, chưa đăng xuất thật'));
+function addHistory(q, name){
+  const r = document.createElement('div'); r.className = 'hrow';
+  r.innerHTML = `<div class="t"><span class="n"><b></b><b></b></span><span class="st wait">CHỜ XÁC NHẬN</span></div><small>Today</small>`;
+  const b = r.querySelectorAll('b'); b[0].textContent = `${pad(q)} x`; b[1].textContent = name;
+  $('#hlist').prepend(r);
+  const n = $('#nDue'); n.textContent = pad(+n.textContent + 1);
+}
+/* ---------- cart sheet ---------- */
+const cartItems = [];   /* {id, qty, unit} */
+const cartEl = $('#cart'), clist = $('#clist');
+function addToCart(id, q, u){
+  const it = cartItems.find(x => x.id === id && x.unit === u);
+  if (it) it.qty = Math.min(99, it.qty + q); else cartItems.push({id, qty:q, unit:u});
+  cart = cartItems.reduce((n, x) => n + x.qty, 0);
+  renderCart();
+}
+function cartTotal(){ return cartItems.reduce((n, x) => n + x.qty*x.unit, 0); }
+function renderCart(){
+  clist.innerHTML = '';
+  cartItems.forEach((it, i) => {
+    const d = DRINKS.find(x => x.id === it.id);
+    const row = document.createElement('div'); row.className = 'citem';
+    row.innerHTML = `<div class="cthumb"><img src="${d.id}.webp" alt="" draggable="false"></div>
+      <div class="cinfo"><span class="cname"></span><div class="crow">
+        <div class="cqty"><button class="cpm" data-d="-1" aria-label="Giảm"><svg><use href="#i-minus"/></svg></button><span>${it.qty}</span><button class="cpm" data-d="1" aria-label="Tăng"><svg><use href="#i-plus"/></svg></button></div>
+        <span class="cprice">${fmt(it.qty*it.unit)} VNĐ</span></div></div>`;
+    $('.cname', row).textContent = d.name;
+    $$('.cpm', row).forEach(b => b.addEventListener('click', () => changeItem(i, +b.dataset.d, row)));
+    clist.appendChild(row);
+  });
+  $('#cTotal').textContent = fmt(cartTotal()) + ' VNĐ';
+  cartEl.classList.toggle('empty', !cartItems.length);
+}
+function changeItem(i, d, row){
+  const it = cartItems[i]; if (!it) return;
+  it.qty += d;
+  if (it.qty <= 0) {
+    cartItems.splice(i, 1); cart = cartItems.reduce((n, x) => n + x.qty, 0); syncBadges();
+    row.animate([{opacity:1, height:'104px'},{opacity:0, height:'0px', paddingTop:'0px', paddingBottom:'0px'}], {duration:T(320), easing:'cubic-bezier(.4,0,.2,1)'}).onfinish = renderCart;
+    $('#cTotal').textContent = fmt(cartTotal()) + ' VNĐ';
+    return;
+  }
+  it.qty = Math.min(99, it.qty);
+  cart = cartItems.reduce((n, x) => n + x.qty, 0); syncBadges();
+  const q = $('.cqty span', row); q.textContent = it.qty;
+  q.animate([{transform:`translateY(${d*-10}px)`, opacity:0},{transform:'none', opacity:1}], {duration:T(260), easing:'cubic-bezier(.22,1,.36,1)'});
+  $('.cprice', row).textContent = fmt(it.qty*it.unit) + ' VNĐ';
+  const t = $('#cTotal'); t.textContent = fmt(cartTotal()) + ' VNĐ';
+  t.animate([{transform:'scale(1.06)'},{transform:'scale(1)'}], {duration:T(260), easing:'ease-out'});
+}
+let cartOpen = false;
+function openCart(){
+  if (cartOpen || busy || adding) return; cartOpen = true;
+  renderCart(); cResetKnob(true);
+  cartEl.style.visibility = 'visible';
+  cartEl.animate([{transform:'translateY(100%)'},{transform:'none'}], {duration:T(520), easing:'cubic-bezier(.22,1,.36,1)'});
+  $$('.citem,.ctotal,#cAdd', cartEl).forEach((r, k) => r.animate([{opacity:0, transform:'translateY(24px)'},{opacity:1, transform:'none'}], {duration:T(520), delay:T(120 + k*60), easing:'cubic-bezier(.34,1.4,.64,1)', fill:'backwards'}));
+}
+function closeCart(){
+  if (!cartOpen) return; cartOpen = false;
+  cartEl.animate([{transform:'none'},{transform:'translateY(100%)'}], {duration:T(360), easing:'cubic-bezier(.4,0,.6,1)'}).onfinish = () => { cartEl.style.visibility = ''; };
+}
+$$('#home .cartbtn, #dCart').forEach(b => b.addEventListener('click', openCart));
+$('#cClose').addEventListener('click', closeCart);
+/* swipe the sheet down to close it */
+(() => { let sw = null;
+  cartEl.style.touchAction = 'none';
+  cartEl.addEventListener('pointerdown', e => { sw = e.target.closest('#cAdd,button') || (e.target.closest('.clist') && clist.scrollTop > 0) ? null : {x:e.clientX, y:e.clientY}; });
+  cartEl.addEventListener('pointermove', e => { if (!sw) return; const dy = (e.clientY - sw.y)/S, dx = (e.clientX - sw.x)/S; if (dy > 70 && dy > Math.abs(dx)*1.4) { sw = null; closeCart(); } });
+  ['pointerup','pointercancel'].forEach(ev => cartEl.addEventListener(ev, () => { sw = null; }));
+})();
+/* slide to pay */
+const cAdd = $('#cAdd'), cKnob = $('.knob', cAdd), cFill = $('.fill', cAdd), cLbl = $('.lbl', cAdd);
+let ckx = 0, ckd = null, paying = false;
+function cPlace(x){ ckx = Math.max(0, Math.min(MAX, x)); cKnob.style.transform = `translateX(${ckx}px)`; cFill.style.width = (ckx + 87) + 'px'; cLbl.style.opacity = 1 - ckx/MAX*0.9; }
+function cResetKnob(now){
+  if (now) { cPlace(0); cLbl.textContent = 'Thanh toán'; cLbl.style.opacity = 1; return; }
+  const x0 = ckx, t0 = performance.now();
+  const go = t => { const k = Math.min(1,(t-t0)/T(420)), e = 1 - Math.pow(1-k,3); cPlace(x0*(1-e)); if (k<1) requestAnimationFrame(go); }; requestAnimationFrame(go);
+}
+cAdd.addEventListener('pointerdown', e => { if (paying || !cartItems.length) return; ckd = {x:e.clientX, k:ckx, moved:false}; cAdd.setPointerCapture(e.pointerId); });
+cAdd.addEventListener('pointermove', e => { if (!ckd) return; const dx = (e.clientX - ckd.x)/S; if (Math.abs(dx) > 4) ckd.moved = true; cPlace(ckd.k + dx); });
+const cEnd = () => { if (!ckd) return; const m = ckd.moved; ckd = null; if (!m || ckx > MAX*0.62) checkout(); else cResetKnob(); };
+cAdd.addEventListener('pointerup', cEnd); cAdd.addEventListener('pointercancel', cEnd);
+async function checkout(){
+  if (paying || !cartItems.length) return; paying = true;
+  const x0 = ckx, t0 = performance.now();
+  await new Promise(res => { const go = t => { const k = Math.min(1,(t-t0)/T(260)), e = 1-Math.pow(1-k,3); cPlace(x0 + (MAX-x0)*e); if (k<1) requestAnimationFrame(go); else res(); }; requestAnimationFrame(go); });
+  const total = cartTotal();
+  [...cartItems].reverse().forEach(it => addHistory(it.qty, DRINKS.find(x => x.id === it.id).name));
+  cartItems.length = 0; cart = 0; syncBadges();
+  cLbl.textContent = 'Đã đặt hàng'; cLbl.style.opacity = 1;
+  $$('.citem', clist).forEach((r, k) => r.animate([{opacity:1, transform:'none'},{opacity:0, transform:'translateX(40px)'}], {duration:T(300), delay:T(k*60), fill:'forwards'}));
+  toast(`Đã đặt hàng · ${fmt(total)} VNĐ`);
+  setTimeout(() => { closeCart(); setTimeout(() => { renderCart(); cResetKnob(true); paying = false; }, T(400)); }, T(900));
+}
+function toast(msg){
+  const t = document.createElement('div'); t.className = 'toast';
+  t.innerHTML = `<svg viewBox="10 10 20 20"><use href="#i-check"/></svg><span></span>`; t.lastChild.textContent = msg;
+  const r = scr(); t.style.left = (r.left + r.width/2) + 'px'; t.style.top = (r.top + 18*S) + 'px';
+  fx.appendChild(t);
+  t.animate([{transform:'translate(-50%,-80px)'},{transform:'translate(-50%,0)', offset:.15},{transform:'translate(-50%,0)', offset:.85},{transform:'translate(-50%,-80px)'}], {duration:T(2400) < 600 ? 1600 : 2400, easing:'cubic-bezier(.22,1,.36,1)'}).onfinish = () => t.remove();
+}
+})();
+</script>
+
+</body>
+</html>
