@@ -65,7 +65,7 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 .cclose svg{width:32px;height:32px}
 .clist{left:27px;top:94px;width:342px;height:366px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
 .clist::-webkit-scrollbar{display:none}
-.citem{display:flex;align-items:center;gap:24px;height:104px;padding:12px 0;box-sizing:border-box;overflow:hidden}
+.citem{display:flex;align-items:center;gap:24px;height:112px;padding:12px 0;box-sizing:border-box;overflow:hidden}
 .cthumb{position:relative;flex:none;width:80px;height:80px;border-radius:100px;background:rgba(255,255,255,.1);overflow:hidden}
 .cthumb img{position:absolute;left:50%;top:12px;width:66px;height:auto;transform:translateX(-50%)}
 .cinfo{flex:1;display:flex;flex-direction:column;gap:8px;line-height:normal;font-weight:700}
@@ -77,16 +77,180 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 .cpm:active{transform:scale(.88)}
 .cpm svg{width:19.7px;height:19.7px}
 .cprice{font-size:18px;line-height:23px;font-variant-numeric:tabular-nums}
-.cempty{left:0;width:390px;top:230px;text-align:center;font-size:18px;font-weight:700;color:rgba(255,255,255,.4);opacity:0;transition:opacity .3s}
-#cart.empty .cempty{opacity:1}
-#cart.empty #cAdd{opacity:.35;pointer-events:none}
+.copt{font-size:14px;font-weight:500;color:rgba(255,255,255,.5);margin-top:-6px;white-space:nowrap}
+.cempty{left:0;width:390px;top:130px;opacity:0;pointer-events:none;transition:opacity .3s}
+#cart.empty .cempty{opacity:1;pointer-events:auto}
+#cart.empty #cAdd,#cart.empty .ctotal{opacity:0;pointer-events:none}
+.ctotal,#cAdd{transition:opacity .3s}
+
+/* ---------- Extra screens: pages, auth, payment, order, notifications, states ---------- */
+input{user-select:text;-webkit-user-select:text}
+.page{visibility:hidden;background:#000}
+.pback{left:24px;top:23px;width:52px;height:52px;background:rgba(255,255,255,.2);color:#fff}
+.pback svg{width:28px;height:28px}
+.pt{left:24px;top:94px;margin:0;font-size:32px;line-height:46px;font-weight:700}
+.btn{display:flex;align-items:center;justify-content:center;width:100%;height:60px;border-radius:100px;background:#fff;color:#000;font-size:18px;font-weight:700;transition:transform .25s var(--ease-out),opacity .25s}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:rgba(255,255,255,.1);color:#fff}
+.btn.danger{background:rgba(255,56,60,.16);color:#ff383c}
+.btn.sm{width:auto;height:52px;padding:0 28px;font-size:16px}
+.estate{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;line-height:normal}
+.estate[hidden]{display:none}
+.eico{width:96px;height:96px;border-radius:100px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+.eico svg{width:44px;height:44px}
+.estate h3{margin:0;font-size:22px;font-weight:700}
+.estate p{font-size:15px;color:var(--mute);font-weight:500;max-width:290px;line-height:1.45}
+.estate .btn{margin-top:14px}
+.card2{background:rgba(255,255,255,.1);border-radius:32px;padding:16px 20px;box-sizing:border-box;line-height:normal}
+.kv{display:flex;justify-content:space-between;gap:12px;font-size:15px;font-weight:700;padding:5px 0}
+.kv span{color:rgba(255,255,255,.6);font-weight:500}
+.kv.tot{font-size:18px;padding-top:12px;margin-top:6px;border-top:1px solid rgba(255,255,255,.1)}
+.kv.tot b{font-size:22px;font-variant-numeric:tabular-nums}
+.g{color:#34c759}.yl{color:var(--yellow)}.rd{color:#ff383c}
+.shake{animation:shake .4s}
+@keyframes shake{20%{translate:-8px 0}40%{translate:7px 0}60%{translate:-5px 0}80%{translate:3px 0}}
+
+/* home header bell */
+.bellbtn{width:52px;height:52px;background:rgba(255,255,255,.1);top:25px;left:254px;color:#fff}
+.bellbtn svg{width:26px;height:26px}
+.nbadge{position:absolute;top:-2px;right:-2px;min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:20px;background:var(--yellow);color:#000;font-size:12px;font-weight:700;line-height:20px;text-align:center;transform:scale(0);transition:transform .35s var(--ease-out)}
+.nbadge.on{transform:scale(1)}
+.hrow{width:100%;text-align:left;color:#fff}
+.st.cancel{color:#ff383c}
+.hempty{left:0;width:390px;top:150px}
+
+/* splash */
+#splash{visibility:visible;z-index:90;background:#000}
+.scups{left:0;top:118px;width:390px;height:270px}
+.scups img{position:absolute;bottom:0;filter:drop-shadow(0 0 26px rgba(255,255,255,.38))}
+.scups img:nth-child(1){left:42px;height:196px;rotate:-14deg}
+.scups img:nth-child(2){left:116px;height:250px;z-index:2}
+.scups img:nth-child(3){left:224px;height:196px;rotate:14deg}
+.sword{left:0;width:390px;top:418px;text-align:center;font-size:54px;font-weight:700;letter-spacing:-.02em;line-height:1}
+.sword i{color:var(--yellow);font-style:normal}
+.stag{left:0;width:390px;top:482px;text-align:center;font-size:15px;color:var(--mute);font-weight:500}
+
+/* auth */
+.adeco{left:262px;top:-8px;height:190px;rotate:14deg;filter:drop-shadow(0 0 24px rgba(255,255,255,.35));pointer-events:none}
+.aform{left:24px;top:94px;width:342px;height:566px;margin:0;display:flex;flex-direction:column}
+.aform.off{display:none}
+.atitle{margin:0;font-size:32px;line-height:46px;font-weight:700}
+.asub{margin-top:2px;font-size:15px;color:var(--mute);font-weight:500;line-height:1.4;max-width:236px}
+.fields{margin-top:28px;display:flex;flex-direction:column;gap:8px}
+.field{display:flex;align-items:center;gap:10px;height:56px;box-sizing:border-box;border-radius:100px;background:rgba(255,255,255,.1);padding:0 24px;transition:box-shadow .25s}
+.field input{flex:1;min-width:0;width:100%;background:none;border:0;outline:0;padding:0;margin:0;font:inherit;font-size:18px;font-weight:700;color:#fff;caret-color:var(--yellow)}
+.field input::placeholder{color:rgba(255,255,255,.4)}
+.field:focus-within{box-shadow:inset 0 0 0 1.5px var(--yellow)}
+.field.err{box-shadow:inset 0 0 0 1.5px #ff383c}
+.peek,.alink{color:var(--yellow);font-weight:700;font-size:15px}
+.alink.right{align-self:flex-end;margin-top:14px}
+.aerr{min-height:20px;margin-top:10px;font-size:14px;font-weight:700;color:#ff383c}
+.ahint{margin-top:12px;font-size:13px;color:#727272;font-weight:500}
+.afoot{margin-top:auto;padding-bottom:36px;display:flex;flex-direction:column;gap:16px;align-items:center}
+.aswitch{font-size:15px;color:var(--mute);font-weight:500}
+.otp{display:flex;gap:8px}
+.otp .field{flex:1;padding:0;justify-content:center}
+.otp input{text-align:center;font-size:22px}
+.step2{display:none}.aform.s2 .step1{display:none}.aform.s2 .step2{display:flex}
+
+/* notifications */
+.plist{left:24px;top:152px;width:342px;height:484px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
+.plist::-webkit-scrollbar,.oscroll::-webkit-scrollbar,.psum::-webkit-scrollbar{display:none}
+.nrow{flex:none;position:relative;display:flex;gap:14px;align-items:flex-start;padding:16px 36px 16px 18px;border-radius:32px;background:rgba(255,255,255,.1);text-align:left;color:#fff;line-height:normal;transition:transform .25s var(--ease-out)}
+.nrow:active{transform:scale(.97)}
+.nrow .ni{flex:none;width:40px;height:40px;border-radius:100px;display:flex;align-items:center;justify-content:center;background:rgba(255,204,0,.16);color:var(--yellow)}
+.nrow .ni svg{width:20px;height:20px}
+.nrow.brew .ni{background:rgba(0,192,232,.16);color:#00c0e8}
+.nrow.done .ni{background:rgba(52,199,89,.16);color:#34c759}
+.nrow.cancel .ni{background:rgba(255,56,60,.16);color:#ff383c}
+.nrow.info .ni{background:rgba(255,255,255,.12);color:#fff}
+.nrow b{display:block;font-size:16px}
+.nrow p{font-size:14px;color:rgba(255,255,255,.6);margin-top:2px;font-weight:500;line-height:1.35}
+.nrow small{display:block;font-size:12px;color:#727272;margin-top:6px;font-weight:700}
+.nrow.new::after{content:"";position:absolute;right:18px;top:22px;width:8px;height:8px;border-radius:8px;background:var(--yellow);transition:opacity .5s}
+.nrow.seen::after{opacity:0}
+.nempty{left:0;width:390px;top:170px}
+
+/* order detail */
+.odate{left:24px;top:140px;font-size:14px;color:var(--mute);font-weight:500}
+.oscroll{left:24px;top:174px;width:342px;height:356px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain;display:flex;flex-direction:column;gap:8px}
+.oscroll>*{flex:none}
+.otl{position:relative;display:flex;justify-content:space-between;padding:20px 8px 18px}
+.otl::before,.otl .bar{content:"";position:absolute;left:50px;top:29px;height:2px;border-radius:2px}
+.otl::before{right:50px;background:rgba(255,255,255,.15)}
+.otl .bar{width:0;background:var(--c);transition:width .7s var(--ease-out)}
+.ostep{position:relative;width:84px;display:flex;flex-direction:column;align-items:center;gap:9px;font-size:12px;font-weight:700;color:rgba(255,255,255,.4);text-align:center}
+.ostep i{width:20px;height:20px;border-radius:20px;background:#3a3a3a;transition:background .4s}
+.ostep.on{color:#fff}.ostep.on i{background:var(--c)}
+.ostep.cur{color:var(--c)}
+.ostep.cur i{animation:opulse 1.6s ease-out infinite}
+@keyframes opulse{0%{box-shadow:0 0 0 0 var(--cg)}100%{box-shadow:0 0 0 12px rgba(0,0,0,0)}}
+.oitem{display:flex;align-items:center;gap:14px;padding:6px 0}
+.oth{position:relative;flex:none;width:48px;height:48px;border-radius:100px;background:rgba(255,255,255,.1);overflow:hidden}
+.oth img{position:absolute;left:50%;top:7px;width:40px;transform:translateX(-50%)}
+.oitem .nm{flex:1;min-width:0}
+.oitem b{display:block;font-size:16px}
+.oitem small{font-size:13px;color:rgba(255,255,255,.5);font-weight:500}
+.oitem .pr{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
+.obar{left:24px;width:342px;bottom:39px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.onote{font-size:14px;color:var(--mute);font-weight:500;text-align:center}
+
+/* payment */
+#pay{--fg:#fff;--lblc:rgba(255,255,255,.8)}
+.psum{left:24px;top:148px;width:342px;max-height:104px;overflow-y:auto;scrollbar-width:none;padding:6px 20px}
+.prow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 0;line-height:normal}
+.prow b{display:block;font-size:16px}.prow small{font-size:13px;color:rgba(255,255,255,.5);font-weight:500}
+.prow .pr{font-weight:700;font-size:16px;font-variant-numeric:tabular-nums}
+.plabel{left:24px;top:266px;font-size:16px;font-weight:700;color:var(--mute)}
+.pmeth{left:24px;top:296px;width:342px;display:flex;flex-direction:column;gap:8px}
+.mrow{height:52px;box-sizing:border-box;border-radius:100px;background:rgba(255,255,255,.1);display:flex;align-items:center;gap:12px;padding:0 16px 0 20px;color:#fff;text-align:left;line-height:normal;transition:background .3s,color .3s,transform .25s var(--ease-out)}
+.mrow:active{transform:scale(.97)}
+.mrow svg{width:24px;height:24px;flex:none}
+.mrow span{flex:1;font-size:16px;font-weight:700}
+.mrow small{font-size:12px;opacity:.55;font-weight:700;margin-right:4px}
+.mrow i{flex:none;width:22px;height:22px;border-radius:22px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.3);transition:box-shadow .3s}
+.mrow.on{background:#fff;color:#000}
+.mrow.on i{box-shadow:inset 0 0 0 7px #000}
+#pAdd{bottom:39.44px}
+.psheet{position:absolute;left:0;top:0;width:390px;height:100%;visibility:hidden;z-index:5}
+.psheet .sb{position:absolute;inset:0;background:rgba(0,0,0,.62)}
+.psheet .sp{position:absolute;left:0;right:0;bottom:0;background:#1c1c1e;border-radius:34px 34px 0 0;padding:26px 24px 30px;display:flex;flex-direction:column;align-items:center;gap:12px;line-height:normal}
+.sp h3{margin:0;font-size:22px;font-weight:700}
+.sp .amt{font-size:32px;font-weight:700;color:var(--yellow);font-variant-numeric:tabular-nums}
+.qrbox{width:176px;height:176px;padding:12px;background:#fff;border-radius:24px}
+.qrbox svg{width:100%;height:100%}
+.bankl{width:100%}
+.bankl .kv button{color:var(--yellow);font-size:13px;font-weight:700;margin-left:8px}
+.sp .demo{font-size:12px;color:#727272;font-weight:500}
+.sp .alink{margin-top:2px}
+
+/* success */
+#success{background:radial-gradient(120% 55% at 50% 22%,#262007 0%,#000 62%)}
+.sok{left:135px;top:78px;width:120px;height:120px}
+.sok .ring{position:absolute;inset:0;border-radius:200px;background:rgba(255,204,0,.18)}
+.sok svg{position:absolute;inset:0;width:120px;height:120px}
+.stitle{left:0;width:390px;top:222px;text-align:center;margin:0;font-size:28px;font-weight:700;line-height:36px}
+.smsg{left:40px;width:310px;top:266px;text-align:center;font-size:15px;color:var(--mute);font-weight:500;line-height:1.45}
+.scard{left:24px;top:330px;width:342px}
+.sbtns{left:24px;width:342px;bottom:36px;display:flex;flex-direction:column;gap:8px}
+
+/* offline + dialog */
+.oestate{left:0;width:390px;top:140px}
+#dlg{visibility:hidden}
+.dback{position:absolute;inset:0;background:rgba(0,0,0,.62)}
+#dlg .stage{pointer-events:none}
+.dbox{left:24px;top:200px;width:342px;box-sizing:border-box;background:#1c1c1e;border-radius:34px;padding:28px 24px 24px;pointer-events:auto;text-align:center;line-height:normal}
+.dbox h3{margin:0;font-size:22px;font-weight:700}
+.dbox p{margin-top:8px;font-size:15px;color:rgba(255,255,255,.6);font-weight:500;line-height:1.45}
+.dbtns{display:flex;gap:8px;margin-top:22px}
+.dbtns .btn{height:52px;font-size:16px}
 .ctotal{left:22px;top:476px;width:346px;height:60px;box-sizing:border-box;border-radius:100px;background:rgba(255,255,255,.1);padding:0 24px;display:flex;align-items:center;gap:4px;font-weight:700;line-height:normal}
 .ctotal span{flex:1;font-size:18px}.ctotal b{font-size:24px;font-variant-numeric:tabular-nums}
 #cAdd{bottom:39.44px}
 
 /* ---------- Home ---------- */
 #home{background:#000}
-.hello{left:24px;top:27px;width:266px}
+.hello{left:24px;top:27px;width:222px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hello small{display:block;font-size:16px;color:var(--mute);line-height:23px}
 .hello b{display:block;font-size:32px;line-height:46px;font-weight:700;margin-top:-12px}
 .cartbtn{width:52px;height:52px;background:rgba(255,255,255,.1);top:25px;left:314px;color:#fff}
@@ -169,6 +333,8 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 .opts{left:27px;top:159px;display:flex;flex-direction:column}
 .opt[data-k=sweet]{margin-top:15px}.opt[data-k=cafe]{margin-top:17px}
 .opt label{display:block;font-size:16px;line-height:20px;margin-bottom:4px}
+#detail[data-id=den] .opt label{color:#fff}
+#detail[data-id=nau] .opt label,#detail[data-id=bac] .opt label{color:#000}
 .opt div{display:flex;gap:8px}
 .chip{width:40px;height:40px;border-radius:100px;background:var(--chip);color:var(--chipT);font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background .3s,color .3s,opacity .3s,transform .3s var(--ease-out)}
 .chip svg{width:40px;height:40px}
@@ -215,7 +381,6 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 </head>
 <body>
 
-
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
     <symbol id="i-bag" viewBox="0 0 28 28"><path fill-rule="evenodd" fill="currentColor" d="M8.05298 9.04406H19.9472L19.9895 9.04009C20.1798 9.01631 20.9383 8.87093 20.9383 8.05288C20.9383 4.58638 18.1274 1.77539 14.6609 1.77539C14.2208 1.77539 13.7767 1.77539 13.3366 1.77539C11.6728 1.77539 10.0763 2.43618 8.90011 3.6137C7.72259 4.78991 7.0618 6.38637 7.0618 8.05023C7.0618 8.98194 8.05298 9.04406 8.05298 9.04406ZM18.841 7.06169H9.16046C9.34152 6.29254 9.73403 5.58285 10.301 5.01457C11.1058 4.20973 12.1988 3.75775 13.3366 3.75775H14.6609C16.6921 3.75775 18.393 5.16788 18.841 7.06169Z"/><path fill-rule="evenodd" fill="currentColor" d="M23.8693 9.23047C23.7973 8.01198 22.8302 7.06177 21.6621 7.06177C18.4398 7.06177 9.56039 7.06177 6.33807 7.06177C5.16999 7.06177 4.20291 8.01198 4.13085 9.23047C3.90963 12.923 3.25732 19.8692 3.02472 23.7678C2.98679 24.4048 3.2017 25.0299 3.62014 25.4951C4.03857 25.9603 4.62135 26.2246 5.23193 26.2246H22.7683C23.3789 26.2246 23.9616 25.9603 24.3801 25.4951C24.7985 25.0299 25.0134 24.4048 24.9755 23.7678L23.8693 9.23047ZM17.4765 12.6785C17.4765 13.1992 17.3185 13.6855 17.0467 14.1058C16.4399 15.0441 15.2959 15.652 14.0001 15.652C12.7043 15.652 11.5603 15.0441 10.9535 14.1058C10.6817 13.6855 10.5237 13.1992 10.5237 12.6785C10.5237 12.1313 10.0989 11.6873 9.57556 11.6873C9.0522 11.6873 8.62745 12.1313 8.62745 12.6785C8.62745 13.6022 8.90051 14.4692 9.38215 15.2159C10.3075 16.6472 12.023 17.6344 14.0001 17.6344C15.9772 17.6344 17.6927 16.6472 18.6181 15.2159C19.0997 14.4692 19.3728 13.6022 19.3728 12.6785C19.3728 12.1313 18.948 11.6873 18.4246 11.6873C17.9013 11.6873 17.4765 12.1313 17.4765 12.6785Z"/></symbol>
@@ -235,6 +400,11 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
     <symbol id="i-user" viewBox="0 0 29 32"><path fill="currentColor" d="M14.4001 16C18.8183 16 22.4001 12.4183 22.4001 8C22.4001 3.58172 18.8183 0 14.4001 0C9.98178 0 6.40005 3.58172 6.40005 8C6.40005 12.4183 9.98178 16 14.4001 16Z"/><path fill="currentColor" d="M14.4 17.6001C6.46016 17.6001 0 23.3423 0 30.4001C0 31.2845 0.716406 32.0001 1.6 32.0001H27.2C28.0844 32.0001 28.8 31.2845 28.8 30.4001C28.8 23.3423 22.3406 17.6001 14.4 17.6001Z"/></symbol>
     <symbol id="i-chev" viewBox="0 0 34 18"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path stroke-opacity=".2" d="M0.75 0.75L8.58057 8.75L0.75 16.75"/><path stroke-opacity=".5" d="M12.5806 0.75L20.4111 8.75L12.5806 16.75"/><path d="M24.4111 0.75L32.2417 8.75L24.4111 16.75"/></g></symbol>
     <symbol id="i-bulge" viewBox="0 0 84 155"><path fill="currentColor" d="M83.8007 77.377C83.8007 96.1547 68.6652 111.377 49.9946 111.377C27.4296 114.17 8.45482 129.633 1.16438 151.17L0 154.61V0L1.14951 2.96868C8.64484 22.3262 24.9998 36.8923 45.0925 42.1052C48.3474 42.9497 51.716 43.2528 55.0411 43.7533C71.318 46.2036 83.8007 60.3242 83.8007 77.377Z"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 28 28"><path fill="currentColor" d="M14 2.8a1.6 1.6 0 0 1 1.6 1.6v.7A7.4 7.4 0 0 1 21.4 12.3v4.4l1.9 2.8a1.1 1.1 0 0 1-.9 1.7H5.6a1.1 1.1 0 0 1-.9-1.7l1.9-2.8v-4.4a7.4 7.4 0 0 1 5.8-7.2v-.7A1.6 1.6 0 0 1 14 2.8ZM10.8 22.6h6.4a3.2 3.2 0 0 1-6.4 0Z"/></symbol>
+    <symbol id="i-wifioff" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 18.5a27 27 0 0 1 38 0M11.5 25.5a18 18 0 0 1 25 0M18 32.5a8.6 8.6 0 0 1 12 0M8 8l32 32"/></g><circle cx="24" cy="39" r="2.6" fill="currentColor"/></symbol>
+    <symbol id="i-cash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="3"/><circle cx="12" cy="12" r="2.6"/></g></symbol>
+    <symbol id="i-bank" viewBox="0 0 24 24"><path d="M3 9.5 12 4l9 5.5M5.5 10.5v6.5M9.8 10.5v6.5M14.2 10.5v6.5M18.5 10.5v6.5M3 20h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-qr" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1.5"/><rect x="14" y="3.5" width="6.5" height="6.5" rx="1.5"/><rect x="3.5" y="14" width="6.5" height="6.5" rx="1.5"/></g><path fill="currentColor" d="M14 14h2.8v2.8H14zM17.7 17.7h2.8v2.8h-2.8zM14 19h2v1.5h-2zM19 14h1.5v2H19z"/></symbol>
   </defs>
 </svg>
 
@@ -244,19 +414,19 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
     <div class="tab" id="tOrder">
     <div class="abs hello"><small>Hê lô,</small><b id="helloName">LieuNT</b></div>
     <button class="abs circ cartbtn" aria-label="Giỏ hàng"><svg><use href="#i-bag"/></svg><span class="badge"></span></button>
+    <button class="abs circ bellbtn" id="bell" aria-label="Thông báo"><svg><use href="#i-bell"/></svg><span class="nbadge"></span></button>
     <div class="abs order"><span id="orderTxt">01 x Đen</span><button id="reorder">ĐẶT LẠI</button></div>
     <div id="carousel" class="abs"></div>
     <div class="abs dots" id="dots" hidden></div>
     </div>
     <div class="tab off" id="tHist" aria-label="Lịch sử đơn hàng">
       <h2 class="abs ptitle">Order</h2>
-      <div class="abs hlist" id="hlist">
-        <div class="hrow"><div class="t"><span class="n"><b>01 x</b><b>Đen</b></span><span class="st wait">CHỜ XÁC NHẬN</span></div><small>Today</small></div>
-        <div class="hrow"><div class="t"><span class="n"><b>01 x</b><b>Đen</b></span><span class="st done">HOÀN THÀNH</span></div><small>28/10/2026</small></div>
-        <div class="hrow"><div class="t"><span class="n"><b>01 x</b><b>Đen</b></span><span class="st brew">ĐANG PHA CHẾ</span></div><small>28/10/2026</small></div>
-        <div class="hrow"><div class="t"><span class="n"><b>01 x</b><b>Đen</b></span><span class="st done">HOÀN THÀNH</span></div><small>28/10/2026</small></div>
-        <div class="hrow"><div class="t"><span class="n"><b>01 x</b><b>Đen</b></span><span class="st done">HOÀN THÀNH</span></div><small>28/10/2026</small></div>
-        <div class="hrow"><div class="t"><span class="n"><b>01 x</b><b>Đen</b></span><span class="st done">HOÀN THÀNH</span></div><small>28/10/2026</small></div>
+      <div class="abs hlist" id="hlist"></div>
+      <div class="abs estate hempty" id="hEmpty" hidden>
+        <div class="eico"><svg><use href="#i-list"/></svg></div>
+        <h3>Chưa có đơn nào</h3>
+        <p>Đơn bạn đặt sẽ hiện ở đây để theo dõi và đặt lại.</p>
+        <button class="btn sm" id="hGo">Đặt ly đầu tiên</button>
       </div>
     </div>
     <div class="tab off" id="tAcc" aria-label="Tài khoản">
@@ -308,12 +478,16 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
   </div>
 </div>
 
-</div></div>
 <div id="cart" class="screen empty" aria-label="Giỏ hàng">
   <div class="stage">
     <button class="abs circ cclose" id="cClose" aria-label="Đóng giỏ hàng"><svg><use href="#i-close"/></svg></button>
     <div class="abs clist" id="clist"></div>
-    <div class="abs cempty">Giỏ hàng trống</div>
+    <div class="abs estate cempty">
+      <div class="eico"><svg><use href="#i-bag"/></svg></div>
+      <h3>Giỏ hàng trống</h3>
+      <p>Chọn một ly cà phê, vuốt thanh “Thêm vào giỏ hàng” là xong.</p>
+      <button class="btn sm" id="cGo">Chọn đồ uống</button>
+    </div>
     <div class="abs ctotal"><span>Tổng</span><b id="cTotal">0 VNĐ</b></div>
     <div class="abs add" id="cAdd">
       <div class="fill"></div>
@@ -324,6 +498,147 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
     </div>
   </div>
 </div>
+
+<div id="notif" class="screen page" data-how="right" aria-label="Thông báo">
+  <div class="stage">
+    <button class="abs circ pback" data-back aria-label="Quay lại"><svg><use href="#i-back"/></svg></button>
+    <h2 class="abs pt" data-s>Thông báo</h2>
+    <div class="abs plist" id="nlist"></div>
+    <div class="abs estate nempty" id="nEmpty" hidden>
+      <div class="eico"><svg><use href="#i-bell"/></svg></div>
+      <h3>Chưa có thông báo</h3>
+      <p>Trạng thái đơn hàng sẽ được báo ở đây.</p>
+    </div>
+  </div>
+</div>
+
+<div id="order" class="screen page" data-how="right" aria-label="Chi tiết đơn hàng">
+  <div class="stage">
+    <button class="abs circ pback" data-back aria-label="Quay lại"><svg><use href="#i-back"/></svg></button>
+    <h2 class="abs pt" id="oTitle" data-s>Đơn</h2>
+    <div class="abs odate" id="oDate" data-s></div>
+    <div class="abs oscroll" id="oBody"></div>
+    <div class="abs obar" id="oBar"></div>
+  </div>
+</div>
+
+<div id="pay" class="screen page" data-how="right" aria-label="Thanh toán">
+  <div class="stage">
+    <button class="abs circ pback" data-back aria-label="Quay lại giỏ hàng"><svg><use href="#i-back"/></svg></button>
+    <h2 class="abs pt" data-s>Thanh toán</h2>
+    <div class="abs card2 psum" id="pSum" data-s></div>
+    <div class="abs plabel" data-s>Phương thức thanh toán</div>
+    <div class="abs pmeth" id="pMeth">
+      <button class="mrow on" data-m="cash" data-s><svg><use href="#i-cash"/></svg><span>Tiền mặt</span><small>Trả tại quầy</small><i></i></button>
+      <button class="mrow" data-m="bank" data-s><svg><use href="#i-bank"/></svg><span>Chuyển khoản</span><small>Ngân hàng</small><i></i></button>
+      <button class="mrow" data-m="qr" data-s><svg><use href="#i-qr"/></svg><span>Quét mã QR</span><small>App ngân hàng</small><i></i></button>
+    </div>
+    <div class="abs ctotal" data-s><span>Tổng</span><b id="pTotal">0 VNĐ</b></div>
+    <div class="abs add" id="pAdd" data-s>
+      <div class="fill"></div>
+      <i class="glint"></i>
+      <div class="shine"><div class="lbl">Đặt hàng</div>
+      <svg class="chev"><use href="#i-chev"/></svg></div>
+      <div class="knob" role="button" tabindex="0" aria-label="Kéo để đặt hàng"><svg><use href="#i-bag"/></svg></div>
+    </div>
+    <div class="psheet" id="pSheet">
+      <div class="sb"></div>
+      <div class="sp" id="pSp"></div>
+    </div>
+  </div>
+</div>
+
+<div id="success" class="screen page" data-how="fade" aria-label="Đặt hàng thành công">
+  <div class="stage">
+    <div class="abs sok"><div class="ring"></div><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="46" fill="#fc0"/><path d="M40 61l13 13 27-29" fill="none" stroke="#000" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/></svg></div>
+    <h2 class="abs stitle" data-s>Đặt hàng thành công</h2>
+    <p class="abs smsg" id="sMsg" data-s></p>
+    <div class="abs card2 scard" id="sCard" data-s></div>
+    <div class="abs sbtns">
+      <button class="btn" id="sTrack" data-s>Theo dõi đơn hàng</button>
+      <button class="btn ghost" id="sHome" data-s>Về trang chủ</button>
+    </div>
+  </div>
+</div>
+
+<div id="auth" class="screen page" data-how="fade" aria-label="Tài khoản Coong">
+  <div class="stage">
+    <img class="abs adeco" src="den.webp" alt="" draggable="false">
+    <button class="abs circ pback" id="aBack" data-back aria-label="Quay lại"><svg><use href="#i-back"/></svg></button>
+    <form class="abs aform" data-m="login" novalidate>
+      <h2 class="atitle" data-s>Đăng nhập</h2>
+      <p class="asub" data-s>Chào bạn quay lại Coong, ly quen đang chờ.</p>
+      <div class="fields">
+        <label class="field" data-s><input name="phone" type="tel" inputmode="numeric" placeholder="Số điện thoại" autocomplete="tel" maxlength="12"></label>
+        <label class="field" data-s><input name="pw" type="password" placeholder="Mật khẩu" autocomplete="current-password"><button type="button" class="peek">Hiện</button></label>
+      </div>
+      <button type="button" class="alink right" data-go="forgot" data-s>Quên mật khẩu?</button>
+      <p class="aerr" aria-live="polite"></p>
+      <div class="afoot">
+        <button type="submit" class="btn" data-s>Đăng nhập</button>
+        <p class="aswitch" data-s>Chưa có tài khoản? <button type="button" class="alink" data-go="register">Đăng ký</button></p>
+      </div>
+    </form>
+    <form class="abs aform off" data-m="register" novalidate>
+      <h2 class="atitle" data-s>Tạo tài khoản</h2>
+      <p class="asub" data-s>Một phút thôi, lần sau đặt chỉ cần vuốt.</p>
+      <div class="fields">
+        <label class="field" data-s><input name="name" placeholder="Tên đặt hàng" autocomplete="nickname" maxlength="16"></label>
+        <label class="field" data-s><input name="phone" type="tel" inputmode="numeric" placeholder="Số điện thoại" autocomplete="tel" maxlength="12"></label>
+        <label class="field" data-s><input name="pw" type="password" placeholder="Mật khẩu (từ 6 ký tự)" autocomplete="new-password"><button type="button" class="peek">Hiện</button></label>
+      </div>
+      <p class="aerr" aria-live="polite"></p>
+      <div class="afoot">
+        <button type="submit" class="btn" data-s>Đăng ký</button>
+        <p class="aswitch" data-s>Đã có tài khoản? <button type="button" class="alink" data-go="login">Đăng nhập</button></p>
+      </div>
+    </form>
+    <form class="abs aform off" data-m="forgot" novalidate>
+      <h2 class="atitle" data-s>Quên mật khẩu</h2>
+      <p class="asub step1" data-s>Nhập số điện thoại, Coong gửi mã để đặt lại.</p>
+      <p class="asub step2" id="fSent">Nhập mã 4 số vừa gửi và mật khẩu mới.</p>
+      <div class="fields step1">
+        <label class="field" data-s><input name="phone" type="tel" inputmode="numeric" placeholder="Số điện thoại" autocomplete="tel" maxlength="12"></label>
+      </div>
+      <div class="fields step2" style="flex-direction:column">
+        <div class="otp"><label class="field"><input name="o1" inputmode="numeric" maxlength="1" aria-label="Số 1"></label><label class="field"><input name="o2" inputmode="numeric" maxlength="1" aria-label="Số 2"></label><label class="field"><input name="o3" inputmode="numeric" maxlength="1" aria-label="Số 3"></label><label class="field"><input name="o4" inputmode="numeric" maxlength="1" aria-label="Số 4"></label></div>
+        <label class="field"><input name="pw" type="password" placeholder="Mật khẩu mới" autocomplete="new-password"><button type="button" class="peek">Hiện</button></label>
+      </div>
+      <p class="ahint step2">Bản demo: nhập 4 số bất kỳ. &nbsp;<button type="button" class="alink" id="fResend">Gửi lại mã</button></p>
+      <p class="aerr" aria-live="polite"></p>
+      <div class="afoot">
+        <button type="submit" class="btn" data-s id="fBtn">Gửi mã</button>
+        <p class="aswitch" data-s id="fSwitch">Nhớ ra rồi? <button type="button" class="alink" data-go="login">Đăng nhập</button></p>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="offline" class="screen page" data-how="fade" aria-label="Mất kết nối">
+  <div class="stage">
+    <div class="abs estate oestate">
+      <div class="eico" style="color:var(--yellow)"><svg><use href="#i-wifioff"/></svg></div>
+      <h3 data-s>Mất kết nối mạng</h3>
+      <p data-s>Kiểm tra Wi‑Fi hoặc 4G rồi thử lại. Giỏ hàng của bạn vẫn được giữ nguyên.</p>
+      <button class="btn sm" id="retry" data-s>Thử lại</button>
+    </div>
+  </div>
+</div>
+
+<div id="dlg" class="screen" role="dialog" aria-modal="true">
+  <div class="dback"></div>
+  <div class="stage"><div class="abs dbox"><h3></h3><p></p><div class="dbtns"><button class="btn ghost"></button><button class="btn"></button></div></div></div>
+</div>
+
+<div id="splash" class="screen" aria-label="Coong">
+  <div class="stage">
+    <div class="abs scups"><img src="bac.webp" alt=""><img src="den.webp" alt=""><img src="nau.webp" alt=""></div>
+    <div class="abs sword">Coong<i>.</i></div>
+    <p class="abs stag">Cà phê pha mỗi ngày</p>
+  </div>
+</div>
+
+</div></div>
 
 <div id="fx"></div>
 
@@ -343,6 +658,7 @@ const N = DRINKS.length, FRAMES = 24;
 const GLOW = {den:'rgba(255,255,255,.55)', nau:'rgba(255,255,255,.55)', bac:'rgba(255,255,255,.55)'};
 const fmt = n => n.toLocaleString('vi-VN').replace(/,/g,'.');
 const pad = n => String(n).padStart(2,'0');
+let Z = 10;   /* stacking order for screens opened on top of each other */
 
 /* preload sprites so the detail spin is ready */
 DRINKS.forEach(d => { const i = new Image(); i.src = d.id + '-spin.webp'; if (i.decode) i.decode().catch(() => {}); });
@@ -597,7 +913,7 @@ function untransformedRect(el){
   const prev = el.style.transform; el.style.transform = 'none';
   const r = el.getBoundingClientRect(); el.style.transform = prev; return r;
 }
-const homeParts = () => [$('.hello'), $('#home .cartbtn'), $('.order'), $('#dots'), $('.nav')];
+const homeParts = () => [$('.hello'), $('#home .cartbtn'), $('#bell'), $('.order'), $('#dots'), $('.nav')];
 const detailParts = () => $$('#detail [data-a]');
 function pre(el){
   const a = el.dataset.a;
@@ -656,7 +972,7 @@ async function openDetail(i){
   fly.animate([{transform:fromT},{transform:midT, offset:.45},{transform:toT}], {duration:D, easing:'cubic-bezier(.5,0,.15,1)', fill:'forwards'});
 
   /* home recedes */
-  homeParts().forEach((el,k) => el.animate([{opacity:1,transform:'none'},{opacity:0,transform:k>=3?'translateY(30px)':'translateY(-24px)'}], {duration:T(320), delay:k*25, easing:'ease-in', fill:'forwards'}));
+  homeParts().forEach((el,k) => el.animate([{opacity:1,transform:'none'},{opacity:0,transform:k>=4?'translateY(30px)':'translateY(-24px)'}], {duration:T(320), delay:k*25, easing:'ease-in', fill:'forwards'}));
   cards.forEach((c,k) => { if (k===i) { $$('.top,.pricebar', c).forEach(el => el.animate([{opacity:1},{opacity:0}], {duration:T(160), fill:'forwards'})); return; }
     const o = Math.sign(wrap(k - pos)) || 1;
     c.animate([{opacity:c.style.opacity, translate:'0 0'},{opacity:0, translate:`${o*160}px 0`}], {duration:T(420), easing:'cubic-bezier(.4,0,.2,1)', fill:'forwards'}); });
@@ -731,7 +1047,7 @@ async function closeDetail(){
   cards.forEach(c => { c.getAnimations().forEach(a => a.cancel()); $$('.top,.pricebar', c).forEach(el => el.getAnimations().forEach(a => a.cancel())); });
   await nextFrame();
   const D = T(720);
-  homeParts().forEach((el,k) => el.animate([{opacity:0,transform:k>=3?'translateY(30px)':'translateY(-24px)'},{opacity:1,transform:'none'}], {duration:T(520), delay:D*0.45 + k*40, easing:'cubic-bezier(.22,1,.36,1)', fill:'backwards'}));
+  homeParts().forEach((el,k) => el.animate([{opacity:0,transform:k>=4?'translateY(30px)':'translateY(-24px)'},{opacity:1,transform:'none'}], {duration:T(520), delay:D*0.45 + k*40, easing:'cubic-bezier(.22,1,.36,1)', fill:'backwards'}));
   cards.forEach((c,k) => { if (k===i) { $$('.top,.pricebar', c).forEach(el => el.animate([{opacity:0, transform:'translateY(10px)'},{opacity:1, transform:'none'}], {duration:T(400), delay:D*0.7, easing:'ease-out', fill:'backwards'})); return; }
     const o = Math.sign(wrap(k - pos)) || 1;
     c.animate([{opacity:0, translate:`${o*160}px 0`},{opacity:c.style.opacity, translate:'0 0'}], {duration:T(620), delay:D*0.35, easing:'cubic-bezier(.22,1,.36,1)', fill:'backwards'}); });
@@ -798,7 +1114,7 @@ async function completeAdd(){
   spin.animate([{opacity:1, transform:'scale(1)'},{opacity:.35, transform:'scale(.94)', offset:.3},{opacity:1, transform:'scale(1)'}], {duration:T(900), easing:'ease-in-out'});
   await a.finished; ghost.remove();
 
-  addToCart(DRINKS[cur].id, qty, unit()); lastOrder = cur;
+  addToCart(DRINKS[cur].id, qty, unit(), {...opts}); lastOrder = cur;
   $('#orderTxt').textContent = `${pad(qty)} x ${DRINKS[cur].name}`;
   syncBadges(true);
   $('#dCart').animate([{transform:'scale(1)'},{transform:'scale(1.22)'},{transform:'scale(.95)'},{transform:'scale(1)'}], {duration:T(480), easing:'ease-out'});
@@ -830,21 +1146,13 @@ aName.addEventListener('input', () => { $('#helloName').textContent = aName.valu
 aName.addEventListener('keydown', e => { if (e.key === 'Enter') aName.blur(); });
 let savedName = aName.value;
 aName.addEventListener('blur', () => { aName.value = aName.value.trim() || 'Bạn'; $('#helloName').textContent = aName.value; if (aName.value !== savedName) { savedName = aName.value; toast('Đã lưu tên đặt hàng'); } });
-$('#resetPw').addEventListener('click', () => toast('Đã gửi link đặt lại mật khẩu'));
-$('#logout').addEventListener('click', () => toast('Đây là bản demo, chưa đăng xuất thật'));
-function addHistory(q, name){
-  const r = document.createElement('div'); r.className = 'hrow';
-  r.innerHTML = `<div class="t"><span class="n"><b></b><b></b></span><span class="st wait">CHỜ XÁC NHẬN</span></div><small>Today</small>`;
-  const b = r.querySelectorAll('b'); b[0].textContent = `${pad(q)} x`; b[1].textContent = name;
-  $('#hlist').prepend(r);
-  const n = $('#nDue'); n.textContent = pad(+n.textContent + 1);
-}
 /* ---------- cart sheet ---------- */
 const cartItems = [];   /* {id, qty, unit} */
 const cartEl = $('#cart'), clist = $('#clist');
-function addToCart(id, q, u){
-  const it = cartItems.find(x => x.id === id && x.unit === u);
-  if (it) it.qty = Math.min(99, it.qty + q); else cartItems.push({id, qty:q, unit:u});
+const optText = o => `${o.upsize ? 'XL' : 'L'} / ${o.sweet || 100} ngọt / ${o.cafe || 100} đá`;
+function addToCart(id, q, u, o = {upsize:0, sweet:0, cafe:0}){
+  const it = cartItems.find(x => x.id === id && x.unit === u && optText(x.o) === optText(o));
+  if (it) it.qty = Math.min(99, it.qty + q); else cartItems.push({id, qty:q, unit:u, o:{...o}});
   cart = cartItems.reduce((n, x) => n + x.qty, 0);
   renderCart();
 }
@@ -855,10 +1163,10 @@ function renderCart(){
     const d = DRINKS.find(x => x.id === it.id);
     const row = document.createElement('div'); row.className = 'citem';
     row.innerHTML = `<div class="cthumb"><img src="${d.id}.webp" alt="" draggable="false"></div>
-      <div class="cinfo"><span class="cname"></span><div class="crow">
+      <div class="cinfo"><span class="cname"></span><span class="copt"></span><div class="crow">
         <div class="cqty"><button class="cpm" data-d="-1" aria-label="Giảm"><svg><use href="#i-minus"/></svg></button><span>${it.qty}</span><button class="cpm" data-d="1" aria-label="Tăng"><svg><use href="#i-plus"/></svg></button></div>
         <span class="cprice">${fmt(it.qty*it.unit)} VNĐ</span></div></div>`;
-    $('.cname', row).textContent = d.name;
+    $('.cname', row).textContent = d.name; $('.copt', row).textContent = optText(it.o);
     $$('.cpm', row).forEach(b => b.addEventListener('click', () => changeItem(i, +b.dataset.d, row)));
     clist.appendChild(row);
   });
@@ -870,7 +1178,7 @@ function changeItem(i, d, row){
   it.qty += d;
   if (it.qty <= 0) {
     cartItems.splice(i, 1); cart = cartItems.reduce((n, x) => n + x.qty, 0); syncBadges();
-    row.animate([{opacity:1, height:'104px'},{opacity:0, height:'0px', paddingTop:'0px', paddingBottom:'0px'}], {duration:T(320), easing:'cubic-bezier(.4,0,.2,1)'}).onfinish = renderCart;
+    row.animate([{opacity:1, height:row.offsetHeight + 'px'},{opacity:0, height:'0px', paddingTop:'0px', paddingBottom:'0px'}], {duration:T(320), easing:'cubic-bezier(.4,0,.2,1)'}).onfinish = renderCart;
     $('#cTotal').textContent = fmt(cartTotal()) + ' VNĐ';
     return;
   }
@@ -886,7 +1194,8 @@ let cartOpen = false;
 function openCart(){
   if (cartOpen || busy || adding) return; cartOpen = true;
   renderCart(); cResetKnob(true);
-  cartEl.style.visibility = 'visible';
+  cartEl.getAnimations().forEach(a => a.cancel());
+  cartEl.style.zIndex = ++Z; cartEl.style.visibility = 'visible';
   cartEl.animate([{transform:'translateY(100%)'},{transform:'none'}], {duration:T(520), easing:'cubic-bezier(.22,1,.36,1)'});
   $$('.citem,.ctotal,#cAdd', cartEl).forEach((r, k) => r.animate([{opacity:0, transform:'translateY(24px)'},{opacity:1, transform:'none'}], {duration:T(520), delay:T(120 + k*60), easing:'cubic-bezier(.34,1.4,.64,1)', fill:'backwards'}));
 }
@@ -920,13 +1229,9 @@ async function checkout(){
   if (paying || !cartItems.length) return; paying = true;
   const x0 = ckx, t0 = performance.now();
   await new Promise(res => { const go = t => { const k = Math.min(1,(t-t0)/T(260)), e = 1-Math.pow(1-k,3); cPlace(x0 + (MAX-x0)*e); if (k<1) requestAnimationFrame(go); else res(); }; requestAnimationFrame(go); });
-  const total = cartTotal();
-  [...cartItems].reverse().forEach(it => addHistory(it.qty, DRINKS.find(x => x.id === it.id).name));
-  cartItems.length = 0; cart = 0; syncBadges();
-  cLbl.textContent = 'Đã đặt hàng'; cLbl.style.opacity = 1;
-  $$('.citem', clist).forEach((r, k) => r.animate([{opacity:1, transform:'none'},{opacity:0, transform:'translateX(40px)'}], {duration:T(300), delay:T(k*60), fill:'forwards'}));
-  toast(`Đã đặt hàng · ${fmt(total)} VNĐ`);
-  setTimeout(() => { closeCart(); setTimeout(() => { renderCart(); cResetKnob(true); paying = false; }, T(400)); }, T(900));
+  cLbl.textContent = 'Chọn cách trả'; cLbl.style.opacity = 1;
+  openPay();
+  setTimeout(() => { cResetKnob(true); paying = false; }, T(700));
 }
 function toast(msg){
   const t = document.createElement('div'); t.className = 'toast';
@@ -935,6 +1240,462 @@ function toast(msg){
   fx.appendChild(t);
   t.animate([{transform:'translate(-50%,-80px)'},{transform:'translate(-50%,0)', offset:.15},{transform:'translate(-50%,0)', offset:.85},{transform:'translate(-50%,-80px)'}], {duration:T(2400) < 600 ? 1600 : 2400, easing:'cubic-bezier(.22,1,.36,1)'}).onfinish = () => t.remove();
 }
+
+/* ---------- screens opened on top: push from the right, fade, or sheet ---------- */
+const drink = id => DRINKS.find(x => x.id === id);
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v){ try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
+};
+const wait = ms => new Promise(r => setTimeout(r, ms));
+function stagger(el, base = 120){
+  $$('[data-s]', el).forEach((r, k) => {
+    r.animate([{opacity:0, transform:'translateY(16px) scale(.97)'},{opacity:1, transform:'none'}], {duration:T(520), delay:T(base + k*45), easing:'cubic-bezier(.34,1.4,.64,1)', fill:'backwards'}); });
+}
+const KF = {
+  right:[{transform:'translateX(100%)'},{transform:'none'}],
+  up:[{transform:'translateY(100%)'},{transform:'none'}],
+  fade:[{opacity:0, transform:'scale(1.04)'},{opacity:1, transform:'none'}]
+};
+function showPage(el, how = el.dataset.how || 'right'){
+  el.getAnimations().forEach(a => a.cancel());
+  el.style.zIndex = ++Z; el.style.visibility = 'visible'; el.classList.add('open');
+  el.animate(KF[how], {duration:T(how === 'fade' ? 440 : 500), easing:'cubic-bezier(.22,1,.36,1)'});
+  stagger(el);
+}
+function hidePage(el, how = el.dataset.how || 'right', instant){
+  el.classList.remove('open');
+  el.getAnimations().forEach(a => a.cancel());
+  if (instant || el.style.visibility !== 'visible') { el.style.visibility = ''; return Promise.resolve(); }
+  const kf = how === 'fade' ? [{opacity:1, transform:'none'},{opacity:0, transform:'scale(.98)'}] : [...KF[how]].reverse();
+  const a = el.animate(kf, {duration:T(340), easing:'cubic-bezier(.4,0,.6,1)', fill:'forwards'});
+  return a.finished.then(() => { if (!el.classList.contains('open')) el.style.visibility = ''; a.cancel(); }).catch(() => {});
+}
+const isOpen = el => el.classList.contains('open');
+/* back buttons, and a swipe from the left edge on pages that slide in from the right */
+$$('.page').forEach(p => {
+  p.goBack = () => hidePage(p);
+  $$('[data-back]', p).forEach(b => b.addEventListener('click', () => p.goBack()));
+  let sw = null;
+  p.addEventListener('pointerdown', e => { const r = scr(); sw = p.dataset.how === 'right' && (e.clientX - r.left)/S < 40 ? {x:e.clientX, y:e.clientY} : null; });
+  p.addEventListener('pointermove', e => { if (!sw) return; const dx = (e.clientX - sw.x)/S, dy = (e.clientY - sw.y)/S; if (dx > 70 && dx > Math.abs(dy)*1.4) { sw = null; p.goBack(); } });
+  ['pointerup','pointercancel'].forEach(ev => p.addEventListener(ev, () => { sw = null; }));
+});
+
+/* confirm dialog */
+const dlg = $('#dlg');
+function ask({title, text, ok, cancel = 'Thôi', danger}){
+  return new Promise(res => {
+    $('h3', dlg).textContent = title; $('p', dlg).textContent = text;
+    const [b0, b1] = $$('.dbtns button', dlg); b0.textContent = cancel; b1.textContent = ok; b1.classList.toggle('danger', !!danger);
+    dlg.getAnimations().forEach(a => a.cancel());
+    dlg.style.zIndex = ++Z; dlg.style.visibility = 'visible';
+    $('.dback', dlg).animate([{opacity:0},{opacity:1}], {duration:T(240)});
+    $('.dbox', dlg).animate([{opacity:0, transform:'scale(.9)'},{opacity:1, transform:'none'}], {duration:T(440), easing:'cubic-bezier(.34,1.45,.64,1)'});
+    const done = v => { b0.onclick = b1.onclick = $('.dback', dlg).onclick = null;
+      const a = dlg.animate([{opacity:1},{opacity:0}], {duration:T(200), fill:'forwards'});
+      a.finished.then(() => { dlg.style.visibility = ''; a.cancel(); }); res(v); };
+    b0.onclick = () => done(false); b1.onclick = () => done(true); $('.dback', dlg).onclick = () => done(false);
+  });
+}
+
+/* ---------- orders ---------- */
+const PAY = {cash:'Tiền mặt', bank:'Chuyển khoản', qr:'Quét mã QR'};
+const ST = {wait:'CHỜ XÁC NHẬN', brew:'ĐANG PHA CHẾ', done:'HOÀN THÀNH', cancel:'ĐÃ HUỶ'};
+const daysAgo = (n, h = 8, m = 30) => { const d = new Date(); d.setDate(d.getDate() - n); if (n) d.setHours(h, m); return d; };
+const O0 = {upsize:0, sweet:0, cafe:0};
+const line = (id, qty = 1, o = O0) => ({id, qty, unit:drink(id).price + (o.upsize ? 5000 : 0), o:{...o}});
+const seedOrders = () => [
+  {code:'CG1029', items:[line('den')], status:'wait', pay:'cash', paid:false, at:new Date(Date.now() - 6*60000)},
+  {code:'CG1028', items:[line('den')], status:'brew', pay:'qr', paid:true, at:new Date(Date.now() - 14*60000)},
+  {code:'CG1027', items:[line('den'), line('bac', 1, {upsize:1, sweet:50, cafe:0})], status:'done', pay:'bank', paid:true, at:daysAgo(1, 8, 12)},
+  {code:'CG1026', items:[line('den')], status:'done', pay:'cash', paid:true, at:daysAgo(1, 7, 45)},
+  {code:'CG1025', items:[line('nau', 2)], status:'done', pay:'cash', paid:true, at:daysAgo(2, 9, 5)},
+  {code:'CG1024', items:[line('den')], status:'cancel', pay:'cash', paid:false, at:daysAgo(3, 8, 20)},
+];
+let orders = seedOrders(), seq = 1029, curOrder = null, lastPlaced = null;
+const oQty = o => o.items.reduce((n, x) => n + x.qty, 0);
+const oTotal = o => o.items.reduce((n, x) => n + x.qty*x.unit, 0);
+const oNames = o => [...new Set(o.items.map(x => drink(x.id).name))].join(', ');
+const sameDay = (a, b) => a.toDateString() === b.toDateString();
+const hm = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const dmy = d => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+const listDate = d => sameDay(d, new Date()) ? 'Today' : dmy(d);
+function ago(d){
+  const m = Math.round((Date.now() - d)/60000);
+  if (m < 1) return 'Vừa xong'; if (m < 60) return `${m} phút trước`;
+  if (sameDay(d, new Date())) return `Hôm nay, ${hm(d)}`;
+  return `${dmy(d)}, ${hm(d)}`;
+}
+const hlist = $('#hlist');
+function renderHistory(){
+  hlist.innerHTML = '';
+  orders.forEach(o => {
+    const r = document.createElement('button'); r.className = 'hrow';
+    r.innerHTML = `<div class="t"><span class="n"><b></b><b></b></span><span class="st ${o.status}">${ST[o.status]}</span></div><small>${listDate(o.at)}</small>`;
+    const b = r.querySelectorAll('b'); b[0].textContent = `${pad(oQty(o))} x`; b[1].textContent = oNames(o);
+    r.addEventListener('click', () => openOrder(o));
+    hlist.appendChild(r);
+  });
+  $('#hEmpty').hidden = orders.length > 0;
+  $('#nPaid').textContent = pad(orders.filter(o => o.paid && o.status !== 'cancel').length);
+  $('#nDue').textContent = pad(orders.filter(o => !o.paid && o.status !== 'cancel').length);
+}
+$('#hGo').addEventListener('click', () => showTab(0));
+
+/* demo: a new order moves on by itself, so tracking and notifications can be seen */
+function track(o){
+  setTimeout(() => { if (o.status !== 'wait') return; setStatus(o, 'brew');
+    notify(`Đơn #${o.code} đang được pha`, 'Quán đã nhận đơn và bắt đầu pha chế.', o, 'brew');
+    setTimeout(() => { if (o.status !== 'brew') return; o.paid = true; setStatus(o, 'done');
+      notify(`Đơn #${o.code} đã xong`, 'Mời bạn ra quầy nhận đồ nhé.', o, 'done'); }, 20000);
+  }, 15000);
+}
+function setStatus(o, s){ o.status = s; renderHistory(); if (curOrder === o && isOpen(orderEl)) renderOrder(o); }
+
+/* ---------- order detail ---------- */
+const orderEl = $('#order');
+const SC = {wait:['#fc0','rgba(255,204,0,.45)'], brew:['#00c0e8','rgba(0,192,232,.45)'], done:['#34c759','rgba(52,199,89,.45)'], cancel:['#ff383c','rgba(255,56,60,.45)']};
+function itemRow(x, cls = 'oitem'){
+  const d = drink(x.id), r = document.createElement('div'); r.className = cls;
+  r.innerHTML = `<div class="oth"><img src="${d.id}.webp" alt="" draggable="false"></div><div class="nm"><b></b><small></small></div><span class="pr">${fmt(x.qty*x.unit)}</span>`;
+  $('b', r).textContent = `${pad(x.qty)} x ${d.name}`; $('small', r).textContent = optText(x.o);
+  return r;
+}
+function renderOrder(o){
+  $('#oTitle').textContent = `Đơn #${o.code}`;
+  $('#oDate').textContent = `${hm(o.at)} · ${dmy(o.at)} · ${o.items.length > 1 ? o.items.length + ' món' : '1 món'}`;
+  const body = $('#oBody'), prev = body.querySelector('.bar');
+  const prevW = prev ? prev.style.width : '0px';
+  body.innerHTML = '';
+  const steps = o.status === 'cancel' ? ['Đã đặt', 'Đã huỷ'] : ['Chờ xác nhận', 'Đang pha chế', 'Hoàn thành'];
+  const idx = o.status === 'cancel' ? 1 : {wait:0, brew:1, done:2}[o.status];
+  const tl = document.createElement('div'); tl.className = 'card2 otl';
+  tl.style.setProperty('--c', SC[o.status][0]); tl.style.setProperty('--cg', SC[o.status][1]);
+  tl.innerHTML = `<span class="bar"></span>` + steps.map((t, k) => `<div class="ostep${k <= idx ? ' on' : ''}${k === idx && o.status !== 'done' && o.status !== 'cancel' ? ' cur' : ''}"><i></i>${t}</div>`).join('');
+  body.appendChild(tl);
+  const items = document.createElement('div'); items.className = 'card2';
+  o.items.forEach(x => items.appendChild(itemRow(x)));
+  body.appendChild(items);
+  const sum = document.createElement('div'); sum.className = 'card2';
+  const payState = o.status === 'cancel' ? (o.paid ? ['Hoàn tiền trong 24h', 'yl'] : ['Không thu tiền', '']) : o.paid ? ['Đã thanh toán', 'g'] : ['Trả khi nhận đồ', 'yl'];
+  sum.innerHTML = `<div class="kv"><span>Phương thức</span><b>${PAY[o.pay]}</b></div><div class="kv"><span>Thanh toán</span><b class="${payState[1]}">${payState[0]}</b></div><div class="kv tot"><span>Tổng</span><b>${fmt(oTotal(o))} VNĐ</b></div>`;
+  body.appendChild(sum);
+  const bar = $('.bar', tl);
+  requestAnimationFrame(() => { const st = $$('.ostep i', tl), a = st[0], z = st[idx];
+    bar.style.transition = 'none'; bar.style.width = prevW; bar.offsetWidth; bar.style.transition = '';
+    bar.style.width = (z.getBoundingClientRect().left - a.getBoundingClientRect().left)/S + 'px'; });
+  const ob = $('#oBar'); ob.innerHTML = '';
+  if (o.status === 'wait') {
+    const b = document.createElement('button'); b.className = 'btn danger'; b.textContent = 'Huỷ đơn';
+    b.addEventListener('click', () => cancelOrder(o)); ob.appendChild(b);
+    ob.insertAdjacentHTML('beforeend', '<p class="onote">Bạn có thể huỷ khi quán chưa xác nhận.</p>');
+  } else if (o.status === 'brew') {
+    ob.innerHTML = '<p class="onote">Quán đang pha cho bạn, đơn này không huỷ được nữa.</p>';
+  } else {
+    const b = document.createElement('button'); b.className = 'btn'; b.textContent = 'Đặt lại đơn này';
+    b.addEventListener('click', () => { o.items.forEach(x => addToCart(x.id, x.qty, x.unit, x.o)); syncBadges(true); openCart(); });
+    ob.appendChild(b);
+  }
+}
+function openOrder(o){ curOrder = o; const prev = $('#oBody .bar'); if (prev) prev.remove(); renderOrder(o); showPage(orderEl); }
+async function cancelOrder(o){
+  if (!await ask({title:'Huỷ đơn này?', text:`Đơn #${o.code} · ${fmt(oTotal(o))} VNĐ sẽ được huỷ.${o.paid ? ' Tiền sẽ hoàn lại trong 24 giờ.' : ''}`, ok:'Huỷ đơn', cancel:'Giữ lại', danger:true})) return;
+  if (o.status !== 'wait') { toast('Quán vừa nhận đơn, không huỷ được nữa'); return; }
+  setStatus(o, 'cancel');
+  notify(`Đã huỷ đơn #${o.code}`, o.paid ? 'Tiền sẽ được hoàn lại trong 24 giờ.' : 'Bạn chưa bị thu tiền cho đơn này.', o, 'cancel', false);
+  toast(`Đã huỷ đơn #${o.code}`);
+}
+
+/* ---------- notifications ---------- */
+const notifEl = $('#notif'), nlist = $('#nlist');
+let notifs = [];
+const seedNotifs = () => [
+  {title:'Đơn #CG1029 đang chờ xác nhận', body:'Quán sẽ xác nhận trong ít phút.', at:new Date(Date.now() - 6*60000), read:false, order:'CG1029', kind:'wait'},
+  {title:'Đơn #CG1028 đang được pha', body:'Quán đã nhận đơn và bắt đầu pha chế.', at:new Date(Date.now() - 12*60000), read:false, order:'CG1028', kind:'brew'},
+  {title:'Đơn #CG1027 đã xong', body:'Cảm ơn bạn đã ghé Coong hôm qua.', at:daysAgo(1, 8, 20), read:true, order:'CG1027', kind:'done'},
+  {title:'Chào mừng đến Coong', body:'Vuốt thẻ để chọn ly, giữ nút + để thêm nhanh nhiều ly.', at:daysAgo(3, 8, 0), read:true, kind:'info'},
+];
+function notify(title, body, o, kind, pop = true){
+  notifs.unshift({title, body, at:new Date(), read:false, order:o && o.code, kind});
+  renderNotifs(); if (pop) toast(title);
+  const b = $('#bell'); b.animate([{transform:'rotate(0)'},{transform:'rotate(14deg)'},{transform:'rotate(-12deg)'},{transform:'rotate(6deg)'},{transform:'rotate(0)'}], {duration:T(620), easing:'ease-out'});
+}
+function renderNotifs(){
+  nlist.innerHTML = '';
+  notifs.forEach(n => {
+    const r = document.createElement('button'); r.className = `nrow ${n.kind}${n.read ? '' : ' new'}`;
+    r.innerHTML = `<span class="ni"><svg><use href="#${n.kind === 'info' ? 'i-star' : n.kind === 'cancel' ? 'i-x' : 'i-cup'}"/></svg></span><div><b></b><p></p><small>${ago(n.at)}</small></div>`;
+    $('b', r).textContent = n.title; $('p', r).textContent = n.body;
+    if (n.order) r.addEventListener('click', () => { const o = orders.find(x => x.code === n.order); if (o) openOrder(o); });
+    nlist.appendChild(r);
+  });
+  $('#nEmpty').hidden = notifs.length > 0;
+  const un = notifs.filter(n => !n.read).length, nb = $('#bell .nbadge');
+  nb.textContent = un; nb.classList.toggle('on', un > 0);
+}
+$('#bell').addEventListener('click', () => {
+  if (busy) return;
+  renderNotifs(); showPage(notifEl);
+  setTimeout(() => { notifs.forEach(n => n.read = true); $$('.nrow.new', nlist).forEach(r => r.classList.add('seen')); const nb = $('#bell .nbadge'); nb.classList.remove('on'); }, 1400);
+});
+
+/* ---------- payment ---------- */
+const payEl = $('#pay'), pSheet = $('#pSheet');
+let payM = 'cash';
+function setPay(m){
+  payM = m; $$('.mrow', payEl).forEach(r => r.classList.toggle('on', r.dataset.m === m));
+  pSlide.label(m === 'cash' ? 'Đặt hàng' : 'Tiếp tục thanh toán');
+}
+$$('.mrow', payEl).forEach(r => r.addEventListener('click', () => {
+  r.animate([{transform:'scale(.95)'},{transform:'scale(1)'}], {duration:T(380), easing:'cubic-bezier(.34,1.56,.64,1)'});
+  setPay(r.dataset.m);
+}));
+function openPay(){
+  const sum = $('#pSum'); sum.innerHTML = '';
+  cartItems.forEach(x => { const r = itemRow(x, 'prow'); r.querySelector('.oth').remove(); sum.appendChild(r); });
+  $('#pTotal').textContent = fmt(cartTotal()) + ' VNĐ';
+  pSlide.reset(true); setPay(payM);
+  showPage(payEl);
+}
+/* slide-to-confirm, the same control as add-to-cart */
+function slider(el, onDone){
+  const k = $('.knob', el), f = $('.fill', el), l = $('.lbl', el); let x = 0, d = null, on = false, text = l.textContent;
+  const place = v => { x = Math.max(0, Math.min(MAX, v)); k.style.transform = `translateX(${x}px)`; f.style.width = (x + 87) + 'px'; l.style.opacity = 1 - x/MAX*0.9; };
+  const reset = now => { on = false; l.textContent = text;
+    if (now) { place(0); l.style.opacity = 1; return; }
+    const x0 = x, t0 = performance.now(); const go = t => { const q = Math.min(1, (t - t0)/T(420)), e = 1 - Math.pow(1 - q, 3); place(x0*(1 - e)); if (q < 1) requestAnimationFrame(go); }; requestAnimationFrame(go); };
+  const finish = async () => { if (on) return; on = true; const x0 = x, t0 = performance.now();
+    await new Promise(res => { const go = t => { const q = Math.min(1, (t - t0)/T(260)), e = 1 - Math.pow(1 - q, 3); place(x0 + (MAX - x0)*e); if (q < 1) requestAnimationFrame(go); else res(); }; requestAnimationFrame(go); });
+    onDone(); };
+  el.addEventListener('pointerdown', e => { if (on) return; d = {x:e.clientX, k:x, moved:false}; el.setPointerCapture(e.pointerId); });
+  el.addEventListener('pointermove', e => { if (!d) return; const dx = (e.clientX - d.x)/S; if (Math.abs(dx) > 4) d.moved = true; place(d.k + dx); });
+  const end = () => { if (!d) return; const m = d.moved; d = null; if (!m || x > MAX*0.62) finish(); else reset(); };
+  el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+  k.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); finish(); } });
+  return {reset, label:t => { text = t; if (!on) l.textContent = t; }};
+}
+const pSlide = slider($('#pAdd'), () => { if (!cartItems.length) return pSlide.reset(); payM === 'cash' ? placeOrder(false) : openSheet(payM); });
+/* a stand-in QR: finder squares plus a pattern seeded from the order code */
+function qrSvg(seed){
+  const n = 25; let h = 0; for (const c of seed) h = (h*31 + c.charCodeAt(0)) >>> 0;
+  const rnd = () => (h = (h*1103515245 + 12345) >>> 0) / 4294967296;
+  const finder = (x, y) => `<rect x="${x}" y="${y}" width="7" height="7" rx="1.6"/><rect x="${x+1}" y="${y+1}" width="5" height="5" rx="1" fill="#fff"/><rect x="${x+2}" y="${y+2}" width="3" height="3" rx=".6"/>`;
+  const inF = (x, y) => (x < 8 && y < 8) || (x > n - 9 && y < 8) || (x < 8 && y > n - 9);
+  let cells = '';
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (!inF(x, y) && rnd() < .48) cells += `<rect x="${x}" y="${y}" width="1" height="1"/>`;
+  return `<svg viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges">${finder(0,0)}${finder(n-7,0)}${finder(0,n-7)}${cells}</svg>`;
+}
+function openSheet(m){
+  const code = 'CG' + (seq + 1), amt = fmt(cartTotal()) + ' VNĐ', sp = $('#pSp');
+  sp.innerHTML = m === 'qr'
+    ? `<h3>Quét mã để thanh toán</h3><div class="qrbox">${qrSvg(code + amt)}</div><div class="amt">${amt}</div><div class="demo">Nội dung: ${code} · mã QR minh hoạ của bản demo</div>`
+    : `<h3>Chuyển khoản</h3><div class="amt">${amt}</div><div class="card2 bankl">
+        <div class="kv"><span>Ngân hàng</span><b>Ngân hàng Demo</b></div>
+        <div class="kv"><span>Số tài khoản</span><b>0000 1234 5678<button data-copy="000012345678">Sao chép</button></b></div>
+        <div class="kv"><span>Chủ tài khoản</span><b>COONG CA PHE</b></div>
+        <div class="kv"><span>Nội dung</span><b>${code}<button data-copy="${code}">Sao chép</button></b></div></div>
+        <div class="demo">Thông tin minh hoạ của bản demo</div>`;
+  sp.insertAdjacentHTML('beforeend', `<button class="btn" id="sPaid">Tôi đã thanh toán</button><button class="alink" id="sAlt">Đổi phương thức</button>`);
+  $$('[data-copy]', sp).forEach(b => b.addEventListener('click', () => { try { navigator.clipboard.writeText(b.dataset.copy); } catch (e) {} toast('Đã sao chép'); }));
+  $('#sPaid').addEventListener('click', () => { hideSheet(); placeOrder(true); });
+  $('#sAlt').addEventListener('click', () => { hideSheet(); pSlide.reset(); });
+  pSheet.getAnimations().forEach(a => a.cancel());
+  pSheet.style.visibility = 'visible';
+  $('.sb', pSheet).animate([{opacity:0},{opacity:1}], {duration:T(260)});
+  sp.animate([{transform:'translateY(100%)'},{transform:'none'}], {duration:T(520), easing:'cubic-bezier(.22,1,.36,1)'});
+  [...sp.children].forEach((c, k) => c.animate([{opacity:0, transform:'translateY(18px)'},{opacity:1, transform:'none'}], {duration:T(480), delay:T(120 + k*50), easing:'cubic-bezier(.34,1.4,.64,1)', fill:'backwards'}));
+}
+function hideSheet(instant){
+  if (pSheet.style.visibility !== 'visible') return;
+  if (instant) { pSheet.style.visibility = ''; return; }
+  $('.sb', pSheet).animate([{opacity:1},{opacity:0}], {duration:T(300), fill:'forwards'});
+  const a = $('#pSp').animate([{transform:'none'},{transform:'translateY(100%)'}], {duration:T(320), easing:'cubic-bezier(.4,0,.6,1)', fill:'forwards'});
+  a.finished.then(() => { pSheet.style.visibility = ''; pSheet.getAnimations({subtree:true}).forEach(x => x.cancel()); });
+}
+$('.sb', pSheet).addEventListener('click', () => { hideSheet(); pSlide.reset(); });
+/* swipe the payment sheet down to dismiss */
+(() => { let sw = null; const sp = $('#pSp');
+  sp.addEventListener('pointerdown', e => { sw = e.target.closest('button') ? null : {y:e.clientY}; });
+  sp.addEventListener('pointermove', e => { if (sw && (e.clientY - sw.y)/S > 60) { sw = null; hideSheet(); pSlide.reset(); } });
+  ['pointerup','pointercancel'].forEach(ev => sp.addEventListener(ev, () => { sw = null; }));
+})();
+
+function placeOrder(paid){
+  const o = {code:'CG' + (++seq), items:cartItems.map(x => ({...x, o:{...x.o}})), status:'wait', pay:payM, paid, at:new Date()};
+  orders.unshift(o); lastPlaced = o;
+  cartItems.length = 0; cart = 0; syncBadges(); renderCart(); renderHistory();
+  notify(`Đơn #${o.code} đang chờ xác nhận`, 'Quán sẽ xác nhận trong ít phút.', o, 'wait', false);
+  track(o);
+  openSuccess(o);
+}
+
+/* ---------- order placed ---------- */
+const successEl = $('#success');
+function openSuccess(o){
+  $('#sMsg').textContent = `Mã đơn #${o.code}. Coong sẽ báo bạn khi ly đã sẵn sàng.`;
+  $('#sCard').innerHTML = `<div class="kv"><span>Đồ uống</span><b>${pad(oQty(o))} x ${oNames(o)}</b></div><div class="kv"><span>Phương thức</span><b>${PAY[o.pay]}</b></div><div class="kv tot"><span>Tổng</span><b>${fmt(oTotal(o))} VNĐ</b></div>`;
+  showPage(successEl);
+  const ok = $('.sok', successEl), path = $('path', ok);
+  $('circle', ok).animate([{transform:'scale(0)'},{transform:'scale(1)'}], {duration:T(560), easing:'cubic-bezier(.34,1.7,.5,1)', fill:'backwards'});
+  $('circle', ok).style.transformOrigin = '60px 60px';
+  path.animate([{strokeDashoffset:100},{strokeDashoffset:0}], {duration:T(460), delay:T(280), easing:'cubic-bezier(.65,0,.35,1)', fill:'both'});
+  $('.ring', ok).animate([{transform:'scale(.6)', opacity:1},{transform:'scale(1.6)', opacity:0}], {duration:T(1400), delay:T(300), easing:'ease-out', iterations:RM ? 1 : 3, fill:'both'});
+}
+/* leave the order flow: close what sits under the success screen without animating it */
+function dropFlow(){
+  hideSheet(true); hidePage(payEl, 'right', true);
+  cartOpen = false; cartEl.getAnimations().forEach(a => a.cancel()); cartEl.style.visibility = '';
+  if (detail.style.visibility === 'visible') {
+    cancelAnimationFrame(spinAnim);
+    detail.style.visibility = 'hidden';
+    homeParts().forEach(el => el.getAnimations().forEach(a => a.cancel()));
+    cards.forEach(c => { c.getAnimations().forEach(a => a.cancel()); $$('.top,.pricebar', c).forEach(el => el.getAnimations().forEach(a => a.cancel())); $('.cup', c).style.visibility = ''; });
+    busy = false; idle();
+  }
+}
+$('#sHome').addEventListener('click', () => { dropFlow(); if (tab !== 0) showTab(0); hidePage(successEl); });
+$('#sTrack').addEventListener('click', () => { dropFlow(); if (tab !== 1) showTab(1); openOrder(lastPlaced); setTimeout(() => hidePage(successEl, 'fade', true), T(520)); });
+
+/* empty cart → go pick a drink */
+$('#cGo').addEventListener('click', () => { closeCart(); if (detail.style.visibility !== 'visible' && tab !== 0) showTab(0); });
+
+/* ---------- sign in / sign up / forgot password ---------- */
+const authEl = $('#auth'), forms = $$('.aform', authEl);
+let authMode = 'login', authAsPage = false;
+const formOf = m => forms.find(f => f.dataset.m === m);
+function setName(n){ $('#helloName').textContent = n; aName.value = n; savedName = n; store.set('coong.name', n); }
+function setMode(m, anim = true){
+  const from = formOf(authMode), to = formOf(m); authMode = m;
+  $('#aBack').style.visibility = authAsPage || m !== 'login' ? '' : 'hidden';
+  $('.adeco', authEl).style.opacity = m === 'login' ? 1 : .0;
+  forms.forEach(f => { $$('.err', f).forEach(x => x.classList.remove('err')); $('.aerr', f).textContent = ''; });
+  if (m === 'forgot') { to.classList.remove('s2'); $('#fBtn').textContent = 'Gửi mã'; }
+  if (from === to || !anim) { forms.forEach(f => f.classList.toggle('off', f !== to)); return; }
+  from.animate([{opacity:1, transform:'none'},{opacity:0, transform:'translateX(-24px)'}], {duration:T(180), easing:'ease-in'}).onfinish = () => {
+    from.classList.add('off'); to.classList.remove('off');
+    to.animate([{opacity:0, transform:'translateX(24px)'},{opacity:1, transform:'none'}], {duration:T(420), easing:'cubic-bezier(.22,1,.36,1)'});
+    stagger(to, 60);
+  };
+}
+function openAuth(m, asPage){
+  authAsPage = !!asPage; authEl.dataset.how = asPage ? 'right' : 'fade';
+  forms.forEach(f => f.reset());
+  setMode(m, false); showPage(authEl);
+}
+authEl.goBack = () => { if (authAsPage && (authMode === 'forgot' || authMode === 'login')) return hidePage(authEl); if (authMode !== 'login') setMode('login'); };
+$$('[data-go]', authEl).forEach(b => b.addEventListener('click', () => setMode(b.dataset.go)));
+$$('.peek', authEl).forEach(b => b.addEventListener('click', () => { const i = b.previousElementSibling; i.type = i.type === 'password' ? 'text' : 'password'; b.textContent = i.type === 'password' ? 'Hiện' : 'Ẩn'; }));
+$$('.field input', authEl).forEach(i => i.addEventListener('input', () => { i.closest('.field').classList.remove('err'); i.form.querySelector('.aerr').textContent = ''; }));
+/* one digit per box: typing moves on, backspace moves back */
+const otp = $$('.otp input', authEl);
+otp.forEach((i, k) => {
+  i.addEventListener('input', () => { i.value = i.value.replace(/\D/g, '').slice(-1); if (i.value && otp[k+1]) otp[k+1].focus(); });
+  i.addEventListener('keydown', e => { if (e.key === 'Backspace' && !i.value && otp[k-1]) otp[k-1].focus(); });
+});
+function bad(form, inputs, msg){
+  inputs.forEach(i => { const f = i.closest('.field'); f.classList.add('err'); f.classList.remove('shake'); f.offsetWidth; f.classList.add('shake'); });
+  $('.aerr', form).textContent = msg; inputs[0].focus();
+  return false;
+}
+const digits = v => v.replace(/\D/g, '');
+function check(form, names){
+  const g = n => form.elements[n];
+  for (const n of names) {
+    const i = g(n), v = i.value.trim();
+    if (n === 'name' && !v) return bad(form, [i], 'Nhập tên để quán gọi bạn nhé.');
+    if (n === 'phone' && digits(v).length < 9) return bad(form, [i], 'Số điện thoại chưa đúng, cần ít nhất 9 số.');
+    if (n === 'pw' && v.length < 6) return bad(form, [i], 'Mật khẩu cần ít nhất 6 ký tự.');
+  }
+  return true;
+}
+async function submitBtn(form, label, ms = 700){
+  const b = $('[type=submit]', form), t = b.textContent; b.textContent = label; b.style.opacity = .6; b.disabled = true;
+  await wait(T(ms)); b.textContent = t; b.style.opacity = ''; b.disabled = false;
+}
+function signedIn(){
+  store.set('coong.auth', '1');
+  hidePage(authEl);
+  if (tab !== 0) showTab(0);
+  homeParts().forEach((el, k) => el.animate([{opacity:0, transform:'translateY(14px)'},{opacity:1, transform:'none'}], {duration:T(520), delay:T(180 + k*50), easing:'cubic-bezier(.22,1,.36,1)', fill:'backwards'}));
+}
+formOf('login').addEventListener('submit', async e => {
+  e.preventDefault(); const f = e.target;
+  if (!check(f, ['phone', 'pw'])) return;
+  await submitBtn(f, 'Đang đăng nhập…');
+  if (!orders.length) { orders = seedOrders(); notifs = seedNotifs(); renderHistory(); renderNotifs(); }
+  setName(store.get('coong.name') || 'LieuNT');
+  signedIn(); toast(`Chào ${$('#helloName').textContent}!`);
+});
+formOf('register').addEventListener('submit', async e => {
+  e.preventDefault(); const f = e.target;
+  if (!check(f, ['name', 'phone', 'pw'])) return;
+  await submitBtn(f, 'Đang tạo tài khoản…', 900);
+  /* a new account starts with no orders, which shows the empty history */
+  orders = []; notifs = [{title:'Chào mừng đến Coong', body:'Vuốt thẻ để chọn ly, giữ nút + để thêm nhanh nhiều ly.', at:new Date(), read:false, kind:'info'}];
+  renderHistory(); renderNotifs();
+  setName(f.elements.name.value.trim());
+  signedIn(); toast('Đã tạo tài khoản');
+});
+formOf('forgot').addEventListener('submit', async e => {
+  e.preventDefault(); const f = e.target;
+  if (!f.classList.contains('s2')) {
+    if (!check(f, ['phone'])) return;
+    await submitBtn(f, 'Đang gửi…');
+    const p = digits(f.elements.phone.value);
+    $('#fSent').textContent = `Nhập mã 4 số vừa gửi tới ••• ${p.slice(-3)} và mật khẩu mới.`;
+    f.classList.add('s2'); $('#fBtn').textContent = 'Đặt lại mật khẩu';
+    stagger(f, 0); setTimeout(() => otp[0].focus(), T(300));
+    return;
+  }
+  const empty = otp.filter(i => !i.value);
+  if (empty.length) return bad(f, empty, 'Nhập đủ 4 số của mã.');
+  if (!check(f, ['pw'])) return;
+  await submitBtn(f, 'Đang lưu…');
+  toast('Đã đổi mật khẩu');
+  if (authAsPage) hidePage(authEl); else setMode('login');
+});
+$('#fResend').addEventListener('click', () => toast('Đã gửi lại mã'));
+
+/* account actions */
+$('#resetPw').addEventListener('click', () => openAuth('forgot', true));
+$('#logout').addEventListener('click', async () => {
+  if (!await ask({title:'Đăng xuất?', text:'Giỏ hàng chưa đặt sẽ bị xoá. Bạn có thể đăng nhập lại bất cứ lúc nào.', ok:'Đăng xuất', danger:true})) return;
+  store.set('coong.auth', null);
+  cartItems.length = 0; cart = 0; syncBadges(); renderCart();
+  openAuth('login');
+});
+
+/* ---------- offline ---------- */
+const offEl = $('#offline');
+function setOffline(on){
+  if (on && !isOpen(offEl)) { showPage(offEl); offEl.style.zIndex = 99; }
+  if (!on && isOpen(offEl)) hidePage(offEl);
+}
+addEventListener('offline', () => setOffline(true));
+addEventListener('online', () => { if (isOpen(offEl)) { setOffline(false); toast('Đã kết nối lại'); } });
+$('#retry').addEventListener('click', async () => {
+  const b = $('#retry'); b.textContent = 'Đang thử…'; await wait(T(700)); b.textContent = 'Thử lại';
+  if (navigator.onLine) { setOffline(false); toast('Đã kết nối lại'); }
+  else { b.classList.remove('shake'); b.offsetWidth; b.classList.add('shake'); toast('Vẫn chưa có mạng'); }
+});
+
+/* ---------- splash, then sign-in or home ---------- */
+renderHistory(); notifs = seedNotifs(); renderNotifs();
+setName(store.get('coong.name') || aName.value);
+(async () => {
+  const sp = $('#splash'), cups = $$('.scups img', sp);
+  cups.forEach((c, k) => c.animate([{opacity:0, transform:'translateY(60px) scale(.9)'},{opacity:1, transform:'none'}], {duration:T(900), delay:T(80 + [1, 0, 2][k]*120), easing:'cubic-bezier(.34,1.45,.64,1)', fill:'backwards'}));
+  $('.sword', sp).animate([{opacity:0, transform:'translateY(18px)', letterSpacing:'.12em'},{opacity:1, transform:'none', letterSpacing:'-.02em'}], {duration:T(800), delay:T(420), easing:'cubic-bezier(.22,1,.36,1)', fill:'backwards'});
+  $('.stag', sp).animate([{opacity:0},{opacity:1}], {duration:T(600), delay:T(700), fill:'backwards'});
+  await wait(T(2000));
+  const go = location.hash.slice(1);
+  if (go === 'login' || go === 'register' || !store.get('coong.auth')) openAuth(go === 'register' ? 'register' : 'login');
+  sp.style.zIndex = ++Z;
+  const a = sp.animate([{opacity:1, transform:'none'},{opacity:0, transform:'scale(1.06)'}], {duration:T(480), easing:'cubic-bezier(.4,0,.2,1)', fill:'forwards'});
+  await a.finished; sp.style.visibility = 'hidden'; a.cancel();
+  if (go === 'offline' || !navigator.onLine) setOffline(true);
+})();
 })();
 </script>
 
