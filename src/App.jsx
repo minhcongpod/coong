@@ -97,7 +97,7 @@ function LockIcon() {
 }
 
 export default function App() {
-  // stage: loading | error | setup | no-link | unknown-user | locked | ready
+  // stage: loading | error | setup | phone | locked | ready
   const [stage, setStage] = useState('loading');
   const [errorText, setErrorText] = useState('');
   const [uid, setUid] = useState(null);
@@ -105,7 +105,7 @@ export default function App() {
   const [profile, setProfile] = useState(null);
   const [device, setDevice] = useState(undefined);
 
-  // 1. Đăng nhập ẩn danh, đọc cấu hình quán và xác định SĐT từ đường link
+  // 1. Đăng nhập ẩn danh, đọc cấu hình quán và SĐT đã đăng nhập trên máy này
   useEffect(() => {
     let cancelled = false;
     const unsub = onAuthStateChanged(auth, async (user) => {
@@ -119,16 +119,12 @@ export default function App() {
         setUid(user.uid);
         if (!setup) return setStage('setup');
 
-        const params = new URLSearchParams(window.location.search);
-        const userParam = (params.get('user') || params.get('c') || '').trim();
-        const target = userParam
-          ? (userParam.toLowerCase() === 'admin' ? setup.adminPhone : userParam)
-          : readLastPhone();
-        if (!target) return setStage('no-link');
+        const target = readLastPhone();
+        if (!target) return setStage('phone');
 
         const found = await getUser(target);
         if (cancelled) return;
-        if (!found) { setPhone(target); return setStage('unknown-user'); }
+        if (!found) return setStage('phone');
         saveLastPhone(target);
         setPhone(target);
         setProfile(found);
@@ -159,6 +155,24 @@ export default function App() {
 
   const handleLock = () => lockDevice(uid).catch(showError);
 
+  // Khách mở link gốc: nhập SĐT, tìm tài khoản rồi sang màn PIN
+  const handlePhone = async (target) => {
+    const found = await getUser(target);
+    if (!found) return false;
+    saveLastPhone(target);
+    setDevice(undefined);
+    setPhone(target);
+    setProfile(found);
+    return true;
+  };
+
+  const handleOtherPhone = () => {
+    setProfile(null);
+    setPhone(null);
+    setDevice(undefined);
+    setStage('phone');
+  };
+
   if (stage === 'loading') {
     return (
       <CenteredCard>
@@ -181,21 +195,9 @@ export default function App() {
 
   if (stage === 'setup') return <SetupScreen uid={uid} />;
 
-  if (stage === 'no-link' || stage === 'unknown-user') {
-    return (
-      <CenteredCard>
-        <LockIcon />
-        <h1 className="text-xl font-bold mb-2">CongCa Coffee</h1>
-        <p className="text-slate-400 text-sm">
-          {stage === 'no-link'
-            ? 'Vui lòng mở đường link cá nhân mà quán đã gửi cho bạn để đặt món.'
-            : 'Đường link này chưa được quán kích hoạt. Vui lòng liên hệ chủ quán để nhận link mới.'}
-        </p>
-      </CenteredCard>
-    );
-  }
+  if (stage === 'phone') return <PhoneScreen onSubmit={handlePhone} />;
 
-  if (stage === 'locked') return <PinScreen profile={profile} onUnlock={handleUnlock} />;
+  if (stage === 'locked') return <PinScreen profile={profile} onUnlock={handleUnlock} onOtherPhone={handleOtherPhone} />;
 
   return <MainApp phone={phone} onLock={handleLock} />;
 }
@@ -215,7 +217,7 @@ function SetupScreen({ uid }) {
     try {
       await bootstrapAdmin(uid, { phone, name: name.trim() || 'Chủ Quán', pin });
       saveLastPhone(phone);
-      window.location.replace(`${window.location.pathname}?user=admin`);
+      window.location.reload();
     } catch (err) {
       setSaving(false);
       setError(`Không thiết lập được: ${err.code || err.message}`);
@@ -251,7 +253,56 @@ function SetupScreen({ uid }) {
   );
 }
 
-function PinScreen({ profile, onUnlock }) {
+function PhoneScreen({ onSubmit }) {
+  const [phone, setPhone] = useState('');
+  const [error, setError] = useState('');
+  const [checking, setChecking] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!/^\d{9,11}$/.test(phone)) return setError('Số điện thoại gồm 9 đến 11 chữ số.');
+    setChecking(true);
+    try {
+      if (!(await onSubmit(phone))) {
+        setError('Số này chưa có tài khoản. Vui lòng liên hệ chủ quán để được tạo.');
+        setChecking(false);
+      }
+    } catch (err) {
+      setError(`Lỗi: ${err.code || err.message}`);
+      setChecking(false);
+    }
+  };
+
+  return (
+    <CenteredCard>
+      <Coffee className="w-10 h-10 text-amber-500 mx-auto mb-3" />
+      <h1 className="text-xl font-bold mb-1">CongCa Coffee</h1>
+      <p className="text-slate-400 text-sm mb-6">Nhập số điện thoại để đặt món.</p>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          type="tel"
+          inputMode="numeric"
+          autoFocus
+          placeholder="Số điện thoại"
+          value={phone}
+          onChange={(e) => { setPhone(e.target.value.replace(/\D/g, '')); setError(''); }}
+          className="w-full text-center text-xl tracking-wider bg-slate-900 border border-slate-700 rounded-xl py-3 text-white focus:outline-none focus:border-amber-500"
+        />
+        {error && <p className="text-rose-400 text-xs">{error}</p>}
+        <button
+          type="submit"
+          disabled={checking}
+          className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold py-3 rounded-xl transition-all disabled:opacity-60"
+        >
+          {checking ? 'Đang kiểm tra...' : 'Tiếp tục'}
+        </button>
+      </form>
+    </CenteredCard>
+  );
+}
+
+function PinScreen({ profile, onUnlock, onOtherPhone }) {
   const [inputPin, setInputPin] = useState('');
   const [pinError, setPinError] = useState('');
   const [checking, setChecking] = useState(false);
@@ -298,6 +349,7 @@ function PinScreen({ profile, onUnlock }) {
 
       <div className="mt-6 pt-4 border-t border-slate-700/50 text-xs text-slate-500">
         Mã PIN mặc định là 4 số cuối SĐT của bạn.
+        <button type="button" onClick={onOtherPhone} className="block mx-auto mt-3 text-amber-500 font-semibold">Dùng số khác</button>
       </div>
     </CenteredCard>
   );
@@ -748,7 +800,8 @@ function AdminCustomersTab({ users, orders }) {
     .filter(o => o.customerPhone === p && !o.paid && o.status !== 'cancelled')
     .reduce((sum, o) => sum + o.totalAmount, 0);
 
-  const linkOf = (p) => `${window.location.origin}${window.location.pathname}?user=${p}`;
+  // Khách nào cũng dùng chung link gốc, vào bằng SĐT + PIN
+  const appLink = `${window.location.origin}/`;
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -764,13 +817,13 @@ function AdminCustomersTab({ users, orders }) {
     }
   };
 
-  const handleCopy = async (p) => {
+  const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(linkOf(p));
-      setCopied(p);
+      await navigator.clipboard.writeText(appLink);
+      setCopied('app');
       setTimeout(() => setCopied(''), 2000);
     } catch {
-      window.prompt('Copy đường link này gửi cho khách:', linkOf(p));
+      window.prompt('Copy đường link này gửi cho khách:', appLink);
     }
   };
 
@@ -781,7 +834,7 @@ function AdminCustomersTab({ users, orders }) {
 
   const handleDelete = (u) => {
     if (debtOf(u.phone) > 0) return window.alert('Khách này còn nợ, hãy thu nợ trước khi xóa.');
-    if (!window.confirm(`Xóa khách ${u.name}? Đường link của khách sẽ không dùng được nữa.`)) return;
+    if (!window.confirm(`Xóa khách ${u.name}? Khách sẽ không đăng nhập được nữa.`)) return;
     deleteCustomer(u.phone).catch(showError);
   };
 
@@ -789,7 +842,12 @@ function AdminCustomersTab({ users, orders }) {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-bold text-amber-500">Khách hàng</h2>
+      <div className="flex justify-between items-center gap-2">
+        <h2 className="text-lg font-bold text-amber-500">Khách hàng</h2>
+        <button onClick={handleCopy} className="px-2 py-1 rounded bg-slate-800 text-slate-300 hover:text-amber-400 flex items-center gap-1 text-xs">
+          <Copy className="w-3.5 h-3.5" /> {copied === 'app' ? 'Đã copy' : 'Link app khách'}
+        </button>
+      </div>
 
       <form onSubmit={handleAdd} className="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-2">
         <div className="grid grid-cols-2 gap-2">
@@ -814,9 +872,6 @@ function AdminCustomersTab({ users, orders }) {
                 {debt > 0 && <span className="text-[10px] text-rose-400 font-semibold ml-2">Nợ {debt.toLocaleString()}đ</span>}
               </div>
               <div className="flex items-center gap-1 shrink-0">
-                <button onClick={() => handleCopy(u.phone)} className="px-2 py-1 rounded bg-slate-800 text-slate-300 hover:text-amber-400 flex items-center gap-1">
-                  <Copy className="w-3.5 h-3.5" /> {copied === u.phone ? 'Đã copy' : 'Link'}
-                </button>
                 <button onClick={() => handleResetPin(u)} className="p-1.5 rounded bg-slate-800 text-slate-300 hover:text-amber-400" aria-label="Đặt lại PIN">
                   <KeyRound className="w-3.5 h-3.5" />
                 </button>

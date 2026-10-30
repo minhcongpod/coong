@@ -43,7 +43,20 @@ const mk = async (phone, pin) => {
 };
 await t('admin tạo khách A', assertSucceeds(mk(A, '1111')));
 await t('admin tạo khách B', assertSucceeds(mk(B, '2222')));
-await t('khách lạ không tự tạo tài khoản', assertFails(setDoc(doc(evilDb, 'users', '0933333333'), { name: 'x', role: 'customer' })));
+await t('khách lạ không tạo tài khoản lẻ (thiếu PIN và thiết bị)', assertFails(setDoc(doc(evilDb, 'users', '0933333333'), { name: 'x', role: 'customer' })));
+const signup = (db, uid, phone, pin, role = 'customer', devPin = pin) => {
+  const batch = writeBatch(db);
+  batch.set(doc(db, 'users', phone), { name: 'Mới', role });
+  batch.set(doc(db, 'pins', phone), { pin });
+  batch.set(doc(db, 'devices', uid), { phone, pin: devPin, createdAt: 'x' });
+  return batch.commit();
+};
+const cDb = env.authenticatedContext('uid-c').firestore();
+await t('khách mới tự đăng ký', assertSucceeds(signup(cDb, 'uid-c', '0933333333', '3333')));
+await t('không đăng ký đè SĐT đã có', assertFails(signup(evilDb, 'uid-evil', A, '0000')));
+await t('không tự đăng ký quyền admin', assertFails(signup(evilDb, 'uid-evil', '0944444444', '4444', 'admin')));
+await t('đăng ký với PIN thiết bị khác PIN tạo bị chặn', assertFails(signup(evilDb, 'uid-evil', '0955555555', '5555', 'customer', '0000')));
+await t('khách mới đọc menu sau đăng ký', assertSucceeds(getDocs(collection(cDb, 'menu'))));
 
 await t('PIN sai bị chặn', assertFails(setDoc(doc(evilDb, 'devices/uid-evil'), { phone: A, pin: '0000', createdAt: 'x' })));
 await t('mở khóa thiết bị cho SĐT admin bằng PIN sai bị chặn', assertFails(setDoc(doc(evilDb, 'devices/uid-evil'), { phone: ADMIN, pin: '0000', createdAt: 'x' })));
@@ -66,6 +79,10 @@ await t('khách A đọc đơn của mình', assertSucceeds(getDocs(query(collec
 await t('khách A không đọc toàn bộ đơn', assertFails(getDocs(collection(aDb, 'orders'))));
 await t('khách A không đọc đơn của B', assertFails(getDoc(doc(aDb, 'orders/o4'))));
 await t('khách A không tự đánh dấu đã trả', assertFails(updateDoc(doc(aDb, 'orders/o1'), { paid: true })));
+await t('khách A đặt đơn báo đã chuyển khoản', assertSucceeds(setDoc(doc(aDb, 'orders/o5'), { ...order(A), paymentStatus: 'awaiting' })));
+await t('khách A không tự đặt trạng thái đã xác nhận', assertFails(setDoc(doc(aDb, 'orders/o6'), { ...order(A), paymentStatus: 'confirmed' })));
+await t('khách A báo đã chuyển khoản cho đơn ghi nợ', assertSucceeds(updateDoc(doc(aDb, 'orders/o1'), { paymentStatus: 'awaiting' })));
+await t('khách A không báo hộ đơn của B', assertFails(updateDoc(doc(aDb, 'orders/o4'), { paymentStatus: 'awaiting' })));
 await t('khách B tự hủy đơn đang chờ', assertSucceeds(updateDoc(doc(bDb, 'orders/o4'), { status: 'cancelled' })));
 await t('admin đọc toàn bộ đơn', assertSucceeds(getDocs(collection(adminDb, 'orders'))));
 await t('admin chuyển trạng thái đơn', assertSucceeds(updateDoc(doc(adminDb, 'orders/o1'), { status: 'brewing' })));
