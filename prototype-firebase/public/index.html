@@ -37,8 +37,13 @@ svg{display:block}
 .tab{position:absolute;inset:0}
 .tab.off{visibility:hidden;pointer-events:none}
 .ptitle{left:24px;top:38px;margin:0;font-size:32px;line-height:46px;font-weight:700}
-.hlist{left:24px;top:92px;width:342px;height:460px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
+.hlist{left:24px;top:140px;width:342px;height:412px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
 .hlist::-webkit-scrollbar{display:none}
+#hSeg{position:absolute;left:24px;top:92px;width:342px;height:40px;padding:3px}
+#hSeg i{left:0;top:3px;bottom:3px;width:0;transition:transform .35s var(--ease-out),width .35s var(--ease-out)}
+#hSeg button{flex:auto;white-space:nowrap;font-size:14px;padding:0 10px}
+.hnone{left:24px;top:170px;width:342px;text-align:center;font-size:15px;color:rgba(255,255,255,.5);font-weight:500}
+.hnone[hidden]{display:none}
 .hrow{flex:none;background:rgba(255,255,255,.1);border-radius:32px;padding:16px 24px;display:flex;flex-direction:column;gap:6px;line-height:normal}
 .hrow .t{display:flex;align-items:center;gap:11px;font-weight:700;white-space:nowrap}
 .hrow .n{flex:1;display:flex;gap:7px;font-size:16px}
@@ -58,6 +63,7 @@ svg{display:block}
 .seg{position:relative;display:flex;width:160px;height:32px;box-sizing:border-box;border-radius:100px;background:rgba(255,255,255,.1);padding:2.7px}
 .seg button{position:relative;z-index:1;flex:1;font-size:12.5px;font-weight:700;color:rgba(255,255,255,.6);transition:color .25s}
 .seg button.on{color:#000}
+.seg[hidden]{display:none}
 .seg i{position:absolute;left:2.7px;top:2.7px;bottom:2.7px;width:calc((100% - 5.4px)/3);border-radius:100px;background:#fff;transition:transform .35s var(--ease-out)}
 .aspent{display:flex;align-items:center;gap:10px;height:28px}
 .aspent>small{flex:1}
@@ -71,7 +77,7 @@ svg{display:block}
 .adebt small{white-space:nowrap;font-size:14px;color:rgba(255,255,255,.5);font-weight:500}
 .adebt .btn{width:auto;min-width:0;height:44px;padding:0 24px;font-size:15px;margin:0;flex:none;background:var(--yellow);color:#000}
 .adebt.clear{display:none}
-.arows{display:flex;flex-direction:column;gap:16px}
+.arows{display:flex;flex-direction:column;gap:8px}
 .arow{background:rgba(255,255,255,.1);border-radius:32px;padding:16px 24px;display:flex;gap:10px;font-size:18px;color:#fff;text-align:left}
 .arow span{flex:1}.arow .y{flex:none}
 .aname{flex:1;min-width:0;background:none;border:0;outline:0;padding:0;margin:0;font:inherit;color:inherit;text-align:right;caret-color:var(--yellow)}
@@ -93,7 +99,8 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 .cname{font-size:24px}
 .copt{display:flex;align-items:center;gap:8px;padding:0;text-align:left;color:inherit}
 .copt b{font-size:14px;color:var(--yellow)}
-.esp{gap:16px}
+.esp{gap:8px}
+.esp .btn{margin-top:8px}
 .ehead{display:flex;align-items:center;gap:16px}
 .ehead b{display:block;font-size:24px}.ehead small{font-size:14px;color:rgba(255,255,255,.5);font-weight:500}
 .egroup{display:flex;flex-direction:column;gap:8px}
@@ -192,7 +199,7 @@ input{user-select:text;-webkit-user-select:text}
 /* notifications */
 .plist{left:24px;top:152px;width:342px;height:484px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
 .plist::-webkit-scrollbar,.oscroll::-webkit-scrollbar,.psum::-webkit-scrollbar{display:none}
-.nrow{flex:none;position:relative;display:flex;gap:16px;align-items:flex-start;padding:16px 40px 16px 24px;border-radius:32px;background:rgba(255,255,255,.1);text-align:left;color:#fff;line-height:normal;transition:transform .25s var(--ease-out)}
+.nrow{flex:none;position:relative;display:flex;gap:8px;align-items:flex-start;padding:16px 40px 16px 24px;border-radius:32px;background:rgba(255,255,255,.1);text-align:left;color:#fff;line-height:normal;transition:transform .25s var(--ease-out)}
 .nrow:active{transform:scale(.97)}
 .nrow .ni{flex:none;width:40px;height:40px;border-radius:100px;display:flex;align-items:center;justify-content:center;background:rgba(255,204,0,.16);color:var(--yellow)}
 .nrow .ni svg{width:20px;height:20px}
@@ -250,7 +257,7 @@ input{user-select:text;-webkit-user-select:text}
 #pAdd{bottom:39.44px}
 .psheet{position:absolute;left:0;top:0;width:390px;height:100%;visibility:hidden;z-index:5}
 .psheet .sb{position:absolute;inset:0;background:rgba(0,0,0,.62)}
-.psheet .sp{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(rgba(255,255,255,.1),rgba(255,255,255,.1)),#000;border-radius:32px 32px 0 0;padding:32px 24px 30px;display:flex;flex-direction:column;align-items:stretch;gap:16px;line-height:normal}
+.psheet .sp{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(rgba(255,255,255,.1),rgba(255,255,255,.1)),#000;border-radius:32px 32px 0 0;padding:32px 24px 30px;display:flex;flex-direction:column;align-items:stretch;gap:8px;line-height:normal}
 .psheet .sp::before{content:"";position:absolute;left:170px;top:9px;width:50px;height:7px;border-radius:7px;background:#fff}
 .qrcard{display:flex;align-items:center;gap:16px;height:168px;box-sizing:border-box;padding:10px;border-radius:32px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
 .qri{display:flex;flex-direction:column;font-size:15px;font-weight:700}
@@ -473,7 +480,9 @@ input{user-select:text;-webkit-user-select:text}
     </div>
     <div class="tab off" id="tHist" aria-label="Lịch sử đơn hàng">
       <h2 class="abs ptitle">Đơn hàng</h2>
+      <div class="abs seg wide" id="hSeg" role="tablist"><i></i><button class="on" data-f="all">Tất cả</button><button data-f="paid">Đã thanh toán</button><button data-f="due">Chưa thanh toán</button></div>
       <div class="abs hlist" id="hlist"></div>
+      <p class="abs hnone" id="hNone" hidden>Không có đơn nào ở mục này.</p>
       <div class="abs estate hempty" id="hEmpty" hidden>
         <div class="eico"><svg><use href="#i-list"/></svg></div>
         <h3>Chưa có đơn nào</h3>
@@ -1442,9 +1451,14 @@ function ago(d){
   return `${dmy(d)}, ${hm(d)}`;
 }
 const hlist = $('#hlist');
+let hFilter = 'all';
+/* the white pill follows the chosen filter, whose width depends on its label */
+function hPill(){ const b = $('#hSeg button.on'), i = $('#hSeg i'); if (!b || !b.offsetWidth) return; i.style.width = b.offsetWidth + 'px'; i.style.transform = `translateX(${b.offsetLeft}px)`; }
+const hMatch = o => hFilter === 'all' || (hFilter === 'paid' ? o.paid : !o.paid && o.status !== 'cancel');
 function renderHistory(){
   hlist.innerHTML = '';
-  orders.forEach(o => {
+  const shown = orders.filter(hMatch);
+  shown.forEach(o => {
     const r = document.createElement('button'); r.className = 'hrow';
     r.innerHTML = `<div class="t"><span class="n"><b></b><b></b></span><span class="st ${o.status}">${ST[o.status]}</span></div><div class="t"><small>${listDate(o.at)}</small><span class="hp">${fmt(oTotal(o))}<svg class="${o.paid ? 'paid' : 'due'}"><use href="#${o.paid ? 'i-paid' : 'i-due'}"/></svg></span></div>`;
     const b = r.querySelectorAll('b'); b[0].textContent = `${pad(oQty(o))} x`; b[1].textContent = oNames(o);
@@ -1452,9 +1466,19 @@ function renderHistory(){
     hlist.appendChild(r);
   });
   $('#hEmpty').hidden = orders.length > 0;
+  $('#hSeg').hidden = !orders.length;
+  $('#hNone').hidden = !orders.length || shown.length > 0;
+  hPill();
   renderAccount();
 }
 $('#hGo').addEventListener('click', () => showTab(0));
+/* filter: all, paid, unpaid (unpaid leaves out cancelled orders) */
+$$('#hSeg button').forEach((b, k) => b.addEventListener('click', () => {
+  hFilter = b.dataset.f; $$('#hSeg button').forEach(x => x.classList.toggle('on', x === b));
+  hPill();
+  renderHistory(); hlist.scrollTop = 0;
+  $$('.hrow', hlist).forEach((r, j) => r.animate([{opacity:0, transform:'translateY(10px)'},{opacity:1, transform:'none'}], {duration:T(360), delay:T(j*30), easing:'cubic-bezier(.22,1,.36,1)', fill:'backwards'}));
+}));
 
 /* ---------- account: orders this week / month / year, unpaid money ---------- */
 let period = 'week';
