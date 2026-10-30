@@ -100,12 +100,14 @@ service cloud.firestore {
 
     match /orders/{orderId} {
       allow read: if isAdmin() || (hasDevice() && resource.data.customerPhone == myPhone());
-      allow create: if hasDevice()
-        && request.resource.data.customerPhone == myPhone()
-        && request.resource.data.status == 'pending'
-        && request.resource.data.paid == false
-        && request.resource.data.totalAmount is number
-        && (!('paymentStatus' in request.resource.data) || request.resource.data.paymentStatus == 'awaiting');
+      // Chủ quán đặt đơn hộ khách (gán số điện thoại của khách), có thể đã thanh toán ngay
+      allow create: if (isAdmin() && request.resource.data.totalAmount is number && request.resource.data.customerPhone is string)
+        || (hasDevice()
+          && request.resource.data.customerPhone == myPhone()
+          && request.resource.data.status == 'pending'
+          && request.resource.data.paid == false
+          && request.resource.data.totalAmount is number
+          && (!('paymentStatus' in request.resource.data) || request.resource.data.paymentStatus == 'awaiting'));
       // Chủ quán sửa mọi thứ; khách chỉ được tự hủy đơn đang chờ của mình,
       // hoặc báo "đã chuyển khoản" (paymentStatus 'awaiting') cho đơn chưa trả để quán xác nhận
       allow update: if isAdmin()

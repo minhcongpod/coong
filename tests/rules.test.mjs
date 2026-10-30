@@ -75,6 +75,7 @@ await t('khách A đặt đơn', assertSucceeds(setDoc(doc(aDb, 'orders/o1'), or
 await t('khách A không đặt đơn hộ B', assertFails(setDoc(doc(aDb, 'orders/o2'), order(B))));
 await t('khách A không tự đặt đơn đã thanh toán', assertFails(setDoc(doc(aDb, 'orders/o3'), { ...order(A), paid: true })));
 await t('khách B đặt đơn', assertSucceeds(setDoc(doc(bDb, 'orders/o4'), order(B))));
+await t('admin đặt đơn hộ khách A, đã thanh toán ngay', assertSucceeds(setDoc(doc(adminDb, 'orders/o7'), { ...order(A), paid: true, paymentStatus: 'confirmed', payMethod: 'cash' })));
 await t('khách A đọc đơn của mình', assertSucceeds(getDocs(query(collection(aDb, 'orders'), where('customerPhone', '==', A)))));
 await t('khách A không đọc toàn bộ đơn', assertFails(getDocs(collection(aDb, 'orders'))));
 await t('khách A không đọc đơn của B', assertFails(getDoc(doc(aDb, 'orders/o4'))));
