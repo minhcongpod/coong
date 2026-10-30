@@ -243,7 +243,7 @@ input{user-select:text;-webkit-user-select:text}
 
 /* payment */
 #pay{--fg:#fff;--lblc:rgba(255,255,255,.8)}
-.psum{left:24px;top:148px;width:342px;max-height:104px;overflow-y:auto;scrollbar-width:none;padding:10px 24px}
+.psum{left:24px;top:148px;width:342px;max-height:134px;box-sizing:border-box;overflow-y:auto;scrollbar-width:none;padding:10px 24px}
 .prow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 0;line-height:normal}
 .prow b{display:block;font-size:16px}.prow small{font-size:13px;color:rgba(255,255,255,.5);font-weight:500}
 .prow .pr{font-weight:700;font-size:16px;font-variant-numeric:tabular-nums}
@@ -313,8 +313,10 @@ input{user-select:text;-webkit-user-select:text}
 .cartbtn svg{width:28px;height:28px}
 .badge{position:absolute;top:-2px;right:-2px;min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:20px;background:var(--yellow);color:#000;font-size:12px;font-weight:700;line-height:20px;text-align:center;transform:scale(0);transition:transform .35s var(--ease-out)}
 .badge.on{transform:scale(1)}
-.order{left:24px;top:94px;width:342px;height:57px;box-sizing:border-box;border:1px solid rgba(255,255,255,.2);border-radius:32px;padding:0 24px;display:flex;align-items:center;gap:11px;font-size:18px;font-weight:700}
-.order span{flex:1}
+.order{z-index:2;left:24px;top:94px;width:342px;box-sizing:border-box;background:rgba(255,255,255,.1);border-radius:32px;padding:16px 24px;display:flex;align-items:center;gap:12px;font-size:16px;font-weight:700;line-height:20px}
+.order span{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.order b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.order small{font-size:13px;font-weight:500;line-height:17px;color:rgba(255,255,255,.5)}
 .order button{color:var(--yellow);font-weight:700}
 
 #carousel{left:0;top:82px;width:390px;height:480px;touch-action:pan-y}
@@ -486,7 +488,7 @@ input{user-select:text;-webkit-user-select:text}
     <div class="abs hello"><small>Hê lô,</small><b id="helloName">LieuNT</b></div>
     <button class="abs circ cartbtn" aria-label="Giỏ hàng"><svg><use href="#i-bag"/></svg><span class="badge"></span></button>
     <button class="abs circ bellbtn" id="bell" aria-label="Thông báo"><svg><use href="#i-bell"/></svg><span class="nbadge"></span></button>
-    <div class="abs order"><span id="orderTxt">01 x Đen</span><button id="reorder">ĐẶT LẠI</button></div>
+    <div class="abs order"><span><b id="orderTxt">01 x Đen</b><small id="orderWhen" hidden></small></span><button id="reorder">ĐẶT LẠI</button></div>
     <div id="carousel" class="abs"></div>
     <div class="abs dots" id="dots" hidden></div>
     </div>
@@ -890,7 +892,15 @@ function goAndOpen(i){
   setTimeout(() => openDetail(i), T(520));
 }
 let lastOrder = 1;
-$('#reorder').addEventListener('click', () => goAndOpen(lastOrder));
+/* reorder the latest order: its drinks go into the cart and payment opens */
+const lastPlacedOrder = () => orders.find(o => o.status !== 'cancel');
+function renderLast(){
+  const o = lastPlacedOrder(), w = $('#orderWhen');
+  if (o) { $('#orderTxt').textContent = `${pad(oQty(o))} x ${oNames(o)}`; w.textContent = listDate(o.at); }
+  w.hidden = !o;
+}
+function reorder(o){ o.items.forEach(x => addToCart(x.id, x.qty, x.unit, x.o)); syncBadges(true); openPay(); }
+$('#reorder').addEventListener('click', () => { if (busy) return; const o = lastPlacedOrder(); o ? reorder(o) : goAndOpen(lastOrder); });
 
 /* ---------- detail state ---------- */
 const detail = $('#detail'), spin = $('#spin');
@@ -1191,7 +1201,7 @@ async function completeAdd(){
   await a.finished; ghost.remove();
 
   addToCart(DRINKS[cur].id, qty, unit(), {...opts}); lastOrder = cur;
-  $('#orderTxt').textContent = `${pad(qty)} x ${DRINKS[cur].name}`;
+  if (!lastPlacedOrder()) $('#orderTxt').textContent = `${pad(qty)} x ${DRINKS[cur].name}`;
   syncBadges(true);
   $('#dCart').animate([{transform:'scale(1)'},{transform:'scale(1.22)'},{transform:'scale(.95)'},{transform:'scale(1)'}], {duration:T(480), easing:'ease-out'});
   toast(`Đã thêm ${pad(qty)} ${DRINKS[cur].name} · ${fmt(unit()*qty)}`);
@@ -1458,6 +1468,7 @@ let hFilter = 'all';
 function hPill(){ const b = $('#hSeg button.on'), i = $('#hSeg i'); if (!b || !b.offsetWidth) return; i.style.width = b.offsetWidth + 'px'; i.style.transform = `translateX(${b.offsetLeft}px)`; }
 const hMatch = o => hFilter === 'all' || (hFilter === 'paid' ? o.paid : !o.paid && o.status !== 'cancel');
 function renderHistory(){
+  renderLast();
   hlist.innerHTML = '';
   const shown = orders.filter(hMatch);
   shown.forEach(o => {
@@ -1566,7 +1577,7 @@ function renderOrder(o){
     /* brewing: nothing to do but wait */
   } else {
     const b = document.createElement('button'); b.className = 'btn'; b.textContent = 'Đặt lại đơn này';
-    b.addEventListener('click', () => { o.items.forEach(x => addToCart(x.id, x.qty, x.unit, x.o)); syncBadges(true); openCart(); });
+    b.addEventListener('click', () => reorder(o));
     ob.appendChild(b);
   }
 }
@@ -1724,7 +1735,7 @@ function openSuccess(o){
 }
 /* leave the order flow: close what sits under the success screen without animating it */
 function dropFlow(){
-  hideSheet(true); hidePage(payEl, 'right', true);
+  hideSheet(true); hidePage(payEl, 'right', true); hidePage(orderEl, 'right', true);
   cartOpen = false; cartEl.getAnimations().forEach(a => a.cancel()); cartEl.style.visibility = '';
   if (detail.style.visibility === 'visible') {
     cancelAnimationFrame(spinAnim);
