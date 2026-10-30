@@ -8,7 +8,7 @@ Web app đặt café cho quán CongCa (React + Vite + Tailwind + Firebase).
 - Mỗi điện thoại đăng nhập ẩn danh với Firebase. Khi nhập đúng PIN, thiết bị được "mở khóa"
   cho đúng SĐT đó. PIN được kiểm tra bởi quy tắc bảo mật phía server (`firestore.rules`),
   app không đọc được PIN.
-- Chủ quán thêm khách trong tab **Khách**, rồi gửi link gốc https://coong-59ede.web.app cho khách.
+- Chủ quán thêm khách trong tab **Khách**, rồi gửi link gốc https://coongcafe.web.app cho khách.
   Khách mở link, nhập SĐT rồi nhập PIN. Máy nhớ SĐT cho lần sau.
   PIN mặc định của khách là 4 số cuối SĐT; khách tự đổi được trong tab Tài khoản.
 - Lần đầu mở app sẽ hiện màn **Thiết lập quán** để tạo tài khoản chủ quán. Sau đó chủ quán
@@ -35,7 +35,7 @@ npx firebase-tools deploy
 ```
 
 Lệnh `deploy` đưa quy tắc bảo mật Firestore, Cloud Functions (cần gói Blaze) và trang web lên Firebase Hosting
-(địa chỉ dạng `https://coong-59ede.web.app`).
+(địa chỉ dạng `https://coongcafe.web.app`).
 
 Nếu chỉ muốn cập nhật quy tắc bằng tay: Firebase Console → Firestore → tab Rules,
 dán nội dung `firestore.rules` rồi bấm Publish.

@@ -11,7 +11,7 @@ const db = getFirestore();
 // Trigger Firestore phải chạy cùng vùng với database (đã chọn asia-southeast1 khi tạo Firestore)
 setGlobalOptions({ region: 'asia-southeast1', maxInstances: 2 });
 
-const APP_URL = 'https://coong-59ede.web.app';
+const APP_URL = 'https://coongcafe.web.app';
 
 // Lỗi này nghĩa là token đã hết hạn hoặc người dùng gỡ app: xóa khỏi danh sách
 const STALE_TOKEN_ERRORS = new Set([
