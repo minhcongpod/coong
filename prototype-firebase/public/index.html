@@ -48,17 +48,33 @@ svg{display:block}
 .hrow .hp .paid{color:#34c759}.hrow .hp .due{color:var(--yellow)}
 .hrow small{flex:1;font-size:14px;color:#727272;font-weight:400}
 .st.wait{color:var(--yellow)}.st.done{color:#34c759}.st.brew{color:#00c0e8}
-.acc{left:24px;top:92px;width:342px;line-height:normal;font-weight:700}
-.stats{display:flex;gap:8px}
-.stat{flex:1;background:rgba(255,255,255,.1);border-radius:40px;padding:16px 24px;display:flex;flex-direction:column;gap:4px}
-.stat b{font-size:18px}.stat small{font-size:12px;white-space:nowrap}
-.stat .paid{color:#34c759}.stat .due{color:var(--yellow)}
-.arows{margin-top:38px;display:flex;flex-direction:column;gap:8px}
-.arow{background:rgba(255,255,255,.1);border-radius:100px;padding:16px 24px;display:flex;gap:7px;font-size:18px;color:#fff;text-align:left}
-.arow span{flex:1}
+.acc{left:24px;top:88px;width:342px;bottom:88px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain;line-height:normal;font-weight:700;display:flex;flex-direction:column;gap:8px}
+.acc::-webkit-scrollbar{display:none}
+.acc>*{flex:none}
+.seg{position:relative;display:flex;height:36px;border-radius:100px;background:rgba(255,255,255,.1);padding:3px}
+.seg button{position:relative;z-index:1;flex:1;font-size:14px;font-weight:700;color:rgba(255,255,255,.6);transition:color .25s}
+.seg button.on{color:#000}
+.seg i{position:absolute;left:3px;top:3px;bottom:3px;width:calc((100% - 6px)/3);border-radius:100px;background:#fff;transition:transform .35s var(--ease-out)}
+.astat{padding:12px 12px 14px}
+.anum{display:flex;justify-content:space-between;align-items:flex-end;padding:10px 10px 0}
+.anum b{display:block;font-size:36px;line-height:1;font-variant-numeric:tabular-nums}
+.anum small{display:block;font-size:14px;color:rgba(255,255,255,.5);font-weight:500;margin-top:6px}
+.anum .r{text-align:right}.anum .r small{margin:0 0 6px}.anum .r b{font-size:22px}
+.afav{margin:10px 10px 0;padding-top:10px;border-top:1px solid rgba(255,255,255,.1);font-size:14px;color:rgba(255,255,255,.5);font-weight:500}
+.afav b{color:#fff}
+.adebt{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 24px;border-radius:100px}
+.adebt>div{flex:1;display:flex;flex-direction:column}
+.adebt small{white-space:nowrap;font-size:13px;color:rgba(255,255,255,.5);font-weight:500}
+.adebt b{font-size:22px;color:var(--yellow);font-variant-numeric:tabular-nums}
+.adebt span{font-size:12px;color:rgba(255,255,255,.5);font-weight:500}
+.adebt .btn{width:auto;height:44px;padding:0 18px;font-size:15px;flex:none}
+.adebt.clear b{color:#34c759}.adebt.clear .btn{display:none}
+.arows{display:flex;flex-direction:column;gap:8px}
+.arow{background:rgba(255,255,255,.1);border-radius:100px;padding:14px 24px;display:flex;gap:10px;font-size:18px;color:#fff;text-align:left}
+.arow span{flex:1}.arow .y{flex:none}
 .aname{flex:1;min-width:0;background:none;border:0;outline:0;padding:0;margin:0;font:inherit;color:inherit;text-align:right;caret-color:var(--yellow)}
-.aname:focus{color:var(--yellow)}.arow .r{text-align:right}.arow .y{color:var(--yellow)}
-.logout{width:100%;padding:12px 24px;text-align:center;color:#ff383c;font-size:18px;font-weight:700}
+.aname:focus{color:var(--yellow)}.arow .r{text-align:right}.arow .y{color:var(--yellow)}.arow .m{color:rgba(255,255,255,.5)}
+.logout{right:24px;top:46px;padding:4px 0;text-align:center;color:#ff383c;font-size:18px;font-weight:700}
 button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 .arow,.logout,.hrow{transition:transform .25s var(--ease-out)}
 
@@ -451,17 +467,24 @@ input{user-select:text;-webkit-user-select:text}
     </div>
     <div class="tab off" id="tAcc" aria-label="Tài khoản">
       <h2 class="abs ptitle">Tài khoản</h2>
+      <button class="abs logout" id="logout">Đăng xuất</button>
       <div class="abs acc">
-        <div class="stats">
-          <div class="stat"><b id="nPaid">02</b><small class="paid">ĐÃ THANH TOÁN</small></div>
-          <div class="stat"><b id="nDue">03</b><small class="due">CHƯA THANH TOÁN</small></div>
+        <div class="card2 astat" data-s>
+          <div class="seg" id="aSeg" role="tablist"><i></i><button class="on" data-p="week">Tuần</button><button data-p="month">Tháng</button><button data-p="year">Năm</button></div>
+          <div class="anum"><div><b id="aCount">0</b><small>đơn đã đặt</small></div><div class="r"><small>Đã chi</small><b id="aSpent">0</b></div></div>
+          <p class="afav" id="aFav"></p>
+        </div>
+        <div class="card2 adebt" id="aDebt" data-s>
+          <div><small>Chưa thanh toán</small><b id="aDue">0</b><span id="aDueN"></span></div>
+          <button class="btn sm" id="aPayNow">Thanh toán ngay</button>
         </div>
         <div class="arows">
-          <label class="arow"><span>Tên đặt hàng</span><input class="r aname" id="aName" value="LieuNT" maxlength="16" enterkeyhint="done" autocomplete="nickname" aria-label="Tên đặt hàng"></label>
-          <button class="arow" id="resetPw"><span>Mã PIN</span><span class="r y">Đặt lại</span></button>
-          <button class="logout" id="logout">Đăng xuất</button>
+          <label class="arow" data-s><span>Tên đặt hàng</span><input class="r aname" id="aName" value="LieuNT" maxlength="16" enterkeyhint="done" autocomplete="nickname" aria-label="Tên đặt hàng"></label>
+          <div class="arow" data-s><span>Số điện thoại</span><span class="r m" id="aPhone"></span></div>
+          <button class="arow" id="resetPw" data-s><span>Mã PIN</span><span class="r m">••••</span><span class="y">Đặt lại</span></button>
         </div>
       </div>
+      <div class="psheet" id="aSheet"><div class="sb"></div><div class="sp"></div></div>
     </div>
     <nav class="abs nav">
       <button class="on" aria-label="Đồ uống"><svg><use href="#i-cup"/></svg></button>
@@ -1324,8 +1347,12 @@ const seedOrders = () => [
   {code:'CG1028', items:[line('den')], status:'brew', pay:'bank', paid:true, at:new Date(Date.now() - 14*60000)},
   {code:'CG1027', items:[line('den'), line('bac', 1, {upsize:1, sweet:50, cafe:0})], status:'done', pay:'bank', paid:true, at:daysAgo(1, 8, 12)},
   {code:'CG1026', items:[line('den')], status:'done', pay:'cash', paid:true, at:daysAgo(1, 7, 45)},
-  {code:'CG1025', items:[line('nau', 2)], status:'done', pay:'cash', paid:true, at:daysAgo(2, 9, 5)},
+  {code:'CG1025', items:[line('nau', 2)], status:'done', pay:'debt', paid:false, at:daysAgo(2, 9, 5)},
   {code:'CG1024', items:[line('den')], status:'cancel', pay:'cash', paid:false, at:daysAgo(3, 8, 20)},
+  {code:'CG1023', items:[line('bac', 2)], status:'done', pay:'bank', paid:true, at:daysAgo(12, 8, 40)},
+  {code:'CG1022', items:[line('den', 3)], status:'done', pay:'cash', paid:true, at:daysAgo(24, 7, 55)},
+  {code:'CG1021', items:[line('nau'), line('den')], status:'done', pay:'cash', paid:true, at:daysAgo(70, 9, 10)},
+  {code:'CG1020', items:[line('bac')], status:'done', pay:'bank', paid:true, at:daysAgo(130, 8, 0)},
 ];
 let orders = seedOrders(), seq = 1029, curOrder = null, lastPlaced = null;
 const oQty = o => o.items.reduce((n, x) => n + x.qty, 0);
@@ -1352,16 +1379,52 @@ function renderHistory(){
     hlist.appendChild(r);
   });
   $('#hEmpty').hidden = orders.length > 0;
-  $('#nPaid').textContent = pad(orders.filter(o => o.paid && o.status !== 'cancel').length);
-  $('#nDue').textContent = pad(orders.filter(o => !o.paid && o.status !== 'cancel').length);
+  renderAccount();
 }
 $('#hGo').addEventListener('click', () => showTab(0));
+
+/* ---------- account: orders this week / month / year, unpaid money ---------- */
+let period = 'week';
+function periodStart(p){
+  const d = new Date(); d.setHours(0, 0, 0, 0);
+  if (p === 'week') d.setDate(d.getDate() - (d.getDay() + 6) % 7);   /* weeks start on Monday */
+  else if (p === 'month') d.setDate(1);
+  else d.setMonth(0, 1);
+  return d;
+}
+const dueOrders = () => orders.filter(o => !o.paid && !o.claimed && o.status !== 'cancel');
+function renderAccount(){
+  const from = periodStart(period), list = orders.filter(o => o.status !== 'cancel' && o.at >= from);
+  $('#aCount').textContent = list.length;
+  $('#aSpent').textContent = fmt(list.reduce((n, o) => n + oTotal(o), 0));
+  const cups = {}; list.forEach(o => o.items.forEach(x => cups[x.id] = (cups[x.id] || 0) + x.qty));
+  const top = Object.entries(cups).sort((a, b) => b[1] - a[1])[0];
+  const word = {week:'tuần này', month:'tháng này', year:'năm nay'}[period];
+  $('#aFav').innerHTML = top ? `Hay uống nhất ${word}: <b>${drink(top[0]).name}</b> · ${top[1]} ly` : `Chưa có đơn nào ${word}.`;
+  const due = dueOrders(), sum = due.reduce((n, o) => n + oTotal(o), 0), waiting = orders.filter(o => !o.paid && o.claimed && o.status !== 'cancel').length;
+  $('#aDue').textContent = due.length ? fmt(sum) : 'Không nợ ly nào';
+  $('#aDueN').textContent = due.length ? `${due.length} đơn chưa trả` : waiting ? `${waiting} đơn chờ quán xác nhận` : '';
+  $('#aDebt').classList.toggle('clear', !due.length);
+}
+$$('#aSeg button').forEach((b, k) => b.addEventListener('click', () => {
+  period = b.dataset.p; $$('#aSeg button').forEach(x => x.classList.toggle('on', x === b));
+  $('#aSeg i').style.transform = `translateX(${k*100}%)`;
+  renderAccount();
+  $('#aCount').animate([{opacity:0, transform:'translateY(8px)'},{opacity:1, transform:'none'}], {duration:T(320), easing:'cubic-bezier(.22,1,.36,1)'});
+}));
+/* pay off everything owed by bank transfer; the shop then confirms it */
+const aSheet = $('#aSheet'); sheetDismiss(aSheet);
+$('#aPayNow').addEventListener('click', () => {
+  const due = dueOrders(); if (!due.length) return;
+  qrSheet(aSheet, {amt:due.reduce((n, o) => n + oTotal(o), 0), code:'NO' + due.map(o => o.code.slice(2)).join(''), alt:'Để sau', onAlt:() => {},
+    onPaid:() => { due.forEach(o => o.claimed = true); renderHistory(); toast('Đã gửi, chờ quán xác nhận'); }});
+});
 
 /* demo: a new order moves on by itself, so tracking and notifications can be seen */
 function track(o){
   setTimeout(() => { if (o.status !== 'wait') return; setStatus(o, 'brew');
     notify(`Đơn #${o.code} đang được pha`, 'Quán đã nhận đơn và bắt đầu pha chế.', o, 'brew');
-    setTimeout(() => { if (o.status !== 'brew') return; o.paid = true; setStatus(o, 'done');
+    setTimeout(() => { if (o.status !== 'brew') return; if (o.pay !== 'debt') o.paid = true; setStatus(o, 'done');
       notify(`Đơn #${o.code} đã xong`, 'Mời bạn ra quầy nhận đồ nhé.', o, 'done'); }, 20000);
   }, 15000);
 }
@@ -1500,41 +1563,47 @@ function qrSvg(seed){
   for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (!inF(x, y) && rnd() < .48) cells += `<rect x="${x}" y="${y}" width="1" height="1"/>`;
   return `<svg viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges">${finder(0,0)}${finder(n-7,0)}${finder(0,n-7)}${cells}</svg>`;
 }
-/* bank transfer: QR card with account details */
+/* bank transfer: QR card with account details, shared by checkout and paying an account's debt */
 const BANK = {name:'Trinh Minh Cong', acc:'8456777999'};
-function openSheet(){
-  const code = 'CG' + (seq + 1), amt = fmt(cartTotal()), sp = $('#pSp'), qr = qrSvg(code + amt);
-  sp.innerHTML = `<div class="qrcard"><div class="qrbox">${qr}</div><div class="qri"><span>Chuyển khoản</span><b class="amt">${amt}</b><span>${BANK.name}</span><small>${BANK.acc}</small></div></div>
-    <div class="qact"><button id="qCopy"><svg><use href="#i-copy"/></svg>Sao chép mã</button><i></i><button id="qSave"><svg><use href="#i-down"/></svg>Tải mã</button></div>
-    <button class="btn" id="sPaid">Tôi đã thanh toán</button><button class="salt" id="sAlt">Đổi phương thức</button>`;
-  $('#qCopy').addEventListener('click', () => { try { navigator.clipboard.writeText(BANK.acc); } catch (e) {} toast('Đã sao chép số tài khoản'); });
-  $('#qSave').addEventListener('click', () => {
+function qrSheet(sheet, {amt, code, onPaid, alt, onAlt}){
+  const sp = $('.sp', sheet), qr = qrSvg(code + amt);
+  sp.innerHTML = `<div class="qrcard"><div class="qrbox">${qr}</div><div class="qri"><span>Chuyển khoản</span><b class="amt">${fmt(amt)}</b><span>${BANK.name}</span><small>${BANK.acc}</small></div></div>
+    <div class="qact"><button data-q="copy"><svg><use href="#i-copy"/></svg>Sao chép mã</button><i></i><button data-q="save"><svg><use href="#i-down"/></svg>Tải mã</button></div>
+    <button class="btn" data-q="paid">Tôi đã thanh toán</button><button class="salt" data-q="alt">${alt}</button>`;
+  const q = k => $(`[data-q=${k}]`, sp);
+  q('copy').addEventListener('click', () => { try { navigator.clipboard.writeText(BANK.acc); } catch (e) {} toast('Đã sao chép số tài khoản'); });
+  q('save').addEventListener('click', () => {
     const svg = qr.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" style="background:#fff" ');
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([svg], {type:'image/svg+xml'})); a.download = `coong-${code}.svg`; a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000); toast('Đã tải mã QR');
   });
-  $('#sPaid').addEventListener('click', () => { hideSheet(); placeOrder(false, true); });
-  $('#sAlt').addEventListener('click', () => { hideSheet(); pSlide.reset(); });
-  pSheet.getAnimations().forEach(a => a.cancel());
-  pSheet.style.visibility = 'visible';
-  $('.sb', pSheet).animate([{opacity:0},{opacity:1}], {duration:T(260)});
+  q('paid').addEventListener('click', () => { hideSheet(false, sheet); onPaid(); });
+  q('alt').addEventListener('click', () => { hideSheet(false, sheet); onAlt(); });
+  sheet.onDismiss = onAlt;
+  sheet.getAnimations().forEach(a => a.cancel());
+  sheet.style.visibility = 'visible';
+  $('.sb', sheet).animate([{opacity:0},{opacity:1}], {duration:T(260)});
   sp.animate([{transform:'translateY(100%)'},{transform:'none'}], {duration:T(520), easing:'cubic-bezier(.22,1,.36,1)'});
   [...sp.children].forEach((c, k) => c.animate([{opacity:0, transform:'translateY(18px)'},{opacity:1, transform:'none'}], {duration:T(480), delay:T(120 + k*50), easing:'cubic-bezier(.34,1.4,.64,1)', fill:'backwards'}));
 }
-function hideSheet(instant){
-  if (pSheet.style.visibility !== 'visible') return;
-  if (instant) { pSheet.style.visibility = ''; return; }
-  $('.sb', pSheet).animate([{opacity:1},{opacity:0}], {duration:T(300), fill:'forwards'});
-  const a = $('#pSp').animate([{transform:'none'},{transform:'translateY(100%)'}], {duration:T(320), easing:'cubic-bezier(.4,0,.6,1)', fill:'forwards'});
-  a.finished.then(() => { pSheet.style.visibility = ''; pSheet.getAnimations({subtree:true}).forEach(x => x.cancel()); });
+const openSheet = () => qrSheet(pSheet, {amt:cartTotal(), code:'CG' + (seq + 1), onPaid:() => placeOrder(false, true), alt:'Đổi phương thức', onAlt:() => pSlide.reset()});
+function hideSheet(instant, sheet = pSheet){
+  if (sheet.style.visibility !== 'visible') return;
+  if (instant) { sheet.style.visibility = ''; return; }
+  $('.sb', sheet).animate([{opacity:1},{opacity:0}], {duration:T(300), fill:'forwards'});
+  const a = $('.sp', sheet).animate([{transform:'none'},{transform:'translateY(100%)'}], {duration:T(320), easing:'cubic-bezier(.4,0,.6,1)', fill:'forwards'});
+  a.finished.then(() => { sheet.style.visibility = ''; sheet.getAnimations({subtree:true}).forEach(x => x.cancel()); });
 }
-$('.sb', pSheet).addEventListener('click', () => { hideSheet(); pSlide.reset(); });
-/* swipe the payment sheet down to dismiss */
-(() => { let sw = null; const sp = $('#pSp');
+/* tap the dim or swipe the sheet down to dismiss */
+function sheetDismiss(sheet){
+  const close = () => { hideSheet(false, sheet); sheet.onDismiss && sheet.onDismiss(); };
+  $('.sb', sheet).addEventListener('click', close);
+  let sw = null; const sp = $('.sp', sheet);
   sp.addEventListener('pointerdown', e => { sw = e.target.closest('button') ? null : {y:e.clientY}; });
-  sp.addEventListener('pointermove', e => { if (sw && (e.clientY - sw.y)/S > 60) { sw = null; hideSheet(); pSlide.reset(); } });
+  sp.addEventListener('pointermove', e => { if (sw && (e.clientY - sw.y)/S > 60) { sw = null; close(); } });
   ['pointerup','pointercancel'].forEach(ev => sp.addEventListener(ev, () => { sw = null; }));
-})();
+}
+sheetDismiss(pSheet);
 
 /* paid: the shop has confirmed the money; claimed: the customer says they transferred, waiting for the shop */
 function placeOrder(paid, claimed = false){
@@ -1586,6 +1655,7 @@ const saved = () => { try { return JSON.parse(store.get('coong.accounts') || '{}
 const accounts = () => ({...DEMO, ...saved(), ...MEM});
 function saveAccount(phone, acc){ MEM[phone] = acc; const a = saved(); a[phone] = acc; store.set('coong.accounts', JSON.stringify(a)); }
 function setName(n){ $('#helloName').textContent = n; aName.value = n; savedName = n; store.set('coong.name', n); }
+const prettyPhone = p => p.replace(/^(\d{4})(\d{3})(\d+)$/, '$1 $2 $3');
 const digits = v => v.replace(/\D/g, '');
 const tail = p => '••• ' + p.slice(-3);
 const pinIn = $$('.pinbox input', authEl), otp = $$('.otp:not(.pinbox) input', authEl);
@@ -1707,7 +1777,7 @@ function finish(isNew){
     /* a new account starts with no orders, which shows the empty history */
     orders = []; notifs = [{title:'Chào mừng đến Coong', body:'Vuốt thẻ để chọn ly, giữ nút + để thêm nhanh nhiều ly.', at:new Date(), read:false, kind:'info'}];
   } else if (!orders.length) { orders = seedOrders(); notifs = seedNotifs(); }
-  renderHistory(); renderNotifs(); setName(acc.name);
+  renderHistory(); renderNotifs(); setName(acc.name); $('#aPhone').textContent = prettyPhone(A.phone);
   document.activeElement && document.activeElement.blur();
   hidePage(authEl);
   if (tab !== 0) showTab(0);
@@ -1717,7 +1787,7 @@ function finish(isNew){
 
 /* account actions: resetting the PIN signs out, then the customer verifies the phone and picks a new PIN */
 $('#resetPw').addEventListener('click', async () => {
-  if (!await ask({title:'Đặt lại mã PIN?', text:'Bạn sẽ đăng xuất, xác minh số điện thoại qua SMS rồi tạo mã PIN mới.', ok:'Đặt lại'})) return;
+  if (!await ask({title:'Đặt lại mã PIN?', text:'Bạn cần đăng nhập lại để đổi mã PIN mới. Giỏ hàng chưa đặt vẫn được giữ.', ok:'Đăng nhập lại'})) return;
   store.set('coong.auth', null);
   openAuth('otp');
 });
@@ -1746,6 +1816,7 @@ $('#retry').addEventListener('click', async () => {
 /* ---------- splash, then sign-in or home ---------- */
 renderHistory(); notifs = seedNotifs(); renderNotifs();
 setName(store.get('coong.name') || aName.value);
+$('#aPhone').textContent = prettyPhone(store.get('coong.phone') || '0901234567');
 (async () => {
   const sp = $('#splash'), cups = $$('.scups img', sp);
   cups.forEach((c, k) => c.animate([{opacity:0, transform:'translateY(60px) scale(.9)'},{opacity:1, transform:'none'}], {duration:T(900), delay:T(80 + [1, 0, 2][k]*120), easing:'cubic-bezier(.34,1.45,.64,1)', fill:'backwards'}));
