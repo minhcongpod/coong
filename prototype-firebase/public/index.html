@@ -97,8 +97,8 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 .cthumb img{position:absolute;left:50%;top:12px;width:66px;height:auto;transform:translateX(-50%)}
 .cinfo{flex:1;display:flex;flex-direction:column;gap:8px;line-height:normal;font-weight:700}
 .cname{font-size:24px}
-.copt{display:flex;align-items:center;gap:8px;padding:0;text-align:left;color:inherit}
-.copt b{font-size:14px;color:var(--yellow)}
+.copt{display:flex;align-items:center;gap:4px;padding:0;text-align:left;color:inherit}
+.copt svg{width:16px;height:16px;flex:none}
 .esp{gap:8px}
 .esp .btn{margin-top:8px}
 .ehead{display:flex;align-items:center;gap:16px}
@@ -456,6 +456,7 @@ input{user-select:text;-webkit-user-select:text}
     <symbol id="i-bulge" viewBox="0 0 84 155"><path fill="currentColor" d="M83.8007 77.377C83.8007 96.1547 68.6652 111.377 49.9946 111.377C27.4296 114.17 8.45482 129.633 1.16438 151.17L0 154.61V0L1.14951 2.96868C8.64484 22.3262 24.9998 36.8923 45.0925 42.1052C48.3474 42.9497 51.716 43.2528 55.0411 43.7533C71.318 46.2036 83.8007 60.3242 83.8007 77.377Z"/></symbol>
     <symbol id="i-bell" viewBox="0 0 28 28"><path fill="currentColor" d="M14 2.8a1.6 1.6 0 0 1 1.6 1.6v.7A7.4 7.4 0 0 1 21.4 12.3v4.4l1.9 2.8a1.1 1.1 0 0 1-.9 1.7H5.6a1.1 1.1 0 0 1-.9-1.7l1.9-2.8v-4.4a7.4 7.4 0 0 1 5.8-7.2v-.7A1.6 1.6 0 0 1 14 2.8ZM10.8 22.6h6.4a3.2 3.2 0 0 1-6.4 0Z"/></symbol>
     <symbol id="i-wifioff" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 18.5a27 27 0 0 1 38 0M11.5 25.5a18 18 0 0 1 25 0M18 32.5a8.6 8.6 0 0 1 12 0M8 8l32 32"/></g><circle cx="24" cy="39" r="2.6" fill="currentColor"/></symbol>
+    <symbol id="i-caret" viewBox="0 0 16 16"><path d="M4.5 6.5 8 10l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-debt" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="7.6" cy="12" rx="4.6" ry="6.5"/><ellipse cx="16.4" cy="12" rx="4.6" ry="6.5"/></g><circle cx="5.4" cy="13.6" r="1.7" fill="currentColor"/><circle cx="14.2" cy="13.6" r="1.7" fill="currentColor"/></symbol>
     <symbol id="i-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="8" y="3.5" width="12" height="14" rx="2.5"/><path d="M5 7.5v11a2.5 2.5 0 0 0 2.5 2.5H15"/></g></symbol>
     <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M4.5 20h15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -1281,7 +1282,7 @@ function renderCart(){
     const d = DRINKS.find(x => x.id === it.id);
     const row = document.createElement('div'); row.className = 'citem';
     row.innerHTML = `<div class="cthumb"><img src="${d.id}.webp" alt="" draggable="false"></div>
-      <div class="cinfo"><span class="cname"></span><button class="copt"><span></span><b>Sửa</b></button><div class="crow">
+      <div class="cinfo"><span class="cname"></span><button class="copt" aria-label="Chỉnh món"><span></span><svg><use href="#i-caret"/></svg></button><div class="crow">
         <div class="cqty"><button class="cpm" data-d="-1" aria-label="Giảm"><svg><use href="#i-minus"/></svg></button><span>${it.qty}</span><button class="cpm" data-d="1" aria-label="Tăng"><svg><use href="#i-plus"/></svg></button></div>
         <span class="cprice">${fmt(it.qty*it.unit)}</span></div></div>`;
     $('.cname', row).textContent = d.name; $('.copt span', row).textContent = optText(it.o);
