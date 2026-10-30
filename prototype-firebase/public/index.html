@@ -1706,8 +1706,7 @@ $('#resetPw').addEventListener('click', async () => {
   store.set('coong.auth', null);
   openAuth('otp');
 });
-$('#logout').addEventListener('click', async () => {
-  if (!await ask({title:'Đăng xuất?', text:'Giỏ hàng chưa đặt sẽ bị xoá. Bạn có thể đăng nhập lại bất cứ lúc nào.', ok:'Đăng xuất', danger:true})) return;
+$('#logout').addEventListener('click', () => {
   store.set('coong.auth', null);
   cartItems.length = 0; cart = 0; syncBadges(); renderCart();
   openAuth('phone');
