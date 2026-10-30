@@ -746,7 +746,7 @@ const cards = DRINKS.map((d,i) => {
   el.className = 'card'; el.dataset.id = d.id; el.dataset.i = i;
   el.setAttribute('role','button'); el.setAttribute('aria-label', 'Xem ' + d.name);
   const icons = `<div class="ico"><span class="circ"><svg><use href="#i-snow"/></svg></span><span class="circ"><svg><use href="#i-steam"/></svg></span></div>`;
-  el.innerHTML = `<svg class="surf" viewBox="0 0 270 360" aria-hidden="true"><defs><linearGradient id="g-${d.id}" x1="0" y1="0" x2="0" y2="1">${d.stops.map(([o,c]) => `<stop offset="${o}" stop-color="${c}"/>`).join('')}</linearGradient><linearGradient id="e-${d.id}" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#fff"/><stop offset=".5" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><rect width="270" height="360" rx="40" fill="url(#g-${d.id})"/><rect x=".75" y=".75" width="268.5" height="358.5" rx="39.25" fill="none" stroke="url(#e-${d.id})" stroke-opacity="${d.edge}" stroke-width="1.5"/></svg>
+  el.innerHTML = `<svg class="surf" viewBox="0 0 270 360" aria-hidden="true"><defs><linearGradient id="g-${d.id}" x1="0" y1="0" x2="0" y2="1">${d.stops.map(([o,c]) => `<stop offset="${o}" stop-color="${c}"/>`).join('')}</linearGradient><linearGradient id="e-${d.id}" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#fff"/><stop offset=".5" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><rect width="270" height="360" rx="32" fill="url(#g-${d.id})"/><rect x=".75" y=".75" width="268.5" height="358.5" rx="31.25" fill="none" stroke="url(#e-${d.id})" stroke-opacity="${d.edge}" stroke-width="1.5"/></svg>
     <div class="cup"${d.id === 'bac' ? '' : ` style="left:${(135 - 245*d.aspect/2).toFixed(1)}px"`}><img src="${d.id}.webp" alt="" draggable="false"></div>
     <div class="top">${d.rec
       ? `<div class="row"><h3>${d.name}</h3><span class="rec"><svg><use href="#i-star"/></svg>RECOMMEND</span></div>${icons}`
@@ -1003,7 +1003,7 @@ async function openDetail(i){
   await nextFrame();
   const D = T(760);
   /* transform + opacity only, so the browser can run it on the compositor */
-  const veilA = veil.animate(veilKF(cardR, sr, 40*CARD_S*S, scrRad()), {duration:D*0.9, easing:EASE_MORPH, fill:'forwards'});
+  const veilA = veil.animate(veilKF(cardR, sr, 32*CARD_S*S, scrRad()), {duration:D*0.9, easing:EASE_MORPH, fill:'forwards'});
   veil.animate([{opacity:0},{opacity:1, offset:.4},{opacity:1}], {duration:D*0.9, easing:'ease-out', fill:'forwards'});
   veil.querySelector('.vb').animate([{opacity:0},{opacity:1}], {duration:D*0.7, delay:D*0.1, easing:'ease-in-out', fill:'forwards'});
   fly.animate([{transform:fromT},{transform:midT, offset:.45},{transform:toT}], {duration:D, easing:'cubic-bezier(.5,0,.15,1)', fill:'forwards'});
@@ -1091,7 +1091,7 @@ async function closeDetail(){
 
   veil.querySelector('.vb').animate([{opacity:1},{opacity:0}], {duration:D*0.7, easing:'ease-in-out', fill:'forwards'});
   document.body.classList.add('moving');
-  const veilA = veil.animate(veilKF(cardR, sr, 40*CARD_S*S, scrRad()).reverse(), {duration:D, easing:EASE_MORPH, fill:'forwards'});
+  const veilA = veil.animate(veilKF(cardR, sr, 32*CARD_S*S, scrRad()).reverse(), {duration:D, easing:EASE_MORPH, fill:'forwards'});
   veil.animate([{opacity:1},{opacity:1, offset:.55},{opacity:0}], {duration:D, easing:'ease-in', fill:'forwards'});
   const midT = `translate(${(from.left+to.left)/2}px,${Math.min(from.top,to.top)-24*S}px) scale(${(sx+1)/2*1.04})`;
   fly.animate([{transform:fromT},{transform:midT, offset:.5},{transform:toT}], {duration:D, easing:'cubic-bezier(.65,0,.25,1)', fill:'forwards'});
