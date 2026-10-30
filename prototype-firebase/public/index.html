@@ -39,11 +39,14 @@ svg{display:block}
 .ptitle{left:24px;top:38px;margin:0;font-size:32px;line-height:46px;font-weight:700}
 .hlist{left:24px;top:92px;width:342px;height:460px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
 .hlist::-webkit-scrollbar{display:none}
-.hrow{flex:none;background:rgba(255,255,255,.1);border-radius:100px;padding:12px 24px;display:flex;flex-direction:column;gap:4px;line-height:normal}
+.hrow{flex:none;background:rgba(255,255,255,.1);border-radius:28px;padding:14px 20px;display:flex;flex-direction:column;gap:6px;line-height:normal}
 .hrow .t{display:flex;align-items:center;gap:11px;font-weight:700;white-space:nowrap}
 .hrow .n{flex:1;display:flex;gap:7px;font-size:16px}
-.hrow .st{font-size:12px}
-.hrow small{font-size:12px;color:#727272}
+.hrow .st{font-size:14px}
+.hrow .hp{display:flex;align-items:center;gap:5px;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
+.hrow .hp svg{width:16px;height:16px}
+.hrow .hp .paid{color:#34c759}.hrow .hp .due{color:var(--yellow)}
+.hrow small{flex:1;font-size:14px;color:#727272;font-weight:400}
 .st.wait{color:var(--yellow)}.st.done{color:#34c759}.st.brew{color:#00c0e8}
 .acc{left:24px;top:92px;width:342px;line-height:normal;font-weight:700}
 .stats{display:flex;gap:8px}
@@ -61,7 +64,7 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 
 /* ---------- Cart ---------- */
 #cart{visibility:hidden;background:#000;--fg:#fff;--lblc:rgba(255,255,255,.8)}
-.cclose{left:24px;top:23px;width:52px;height:52px;background:rgba(255,255,255,.2);color:#fff}
+.cclose{left:24px;top:23px;width:52px;height:52px;background:rgba(255,255,255,.1);color:#fff}
 .cclose svg{width:32px;height:32px}
 .clist{left:27px;top:94px;width:342px;height:366px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
 .clist::-webkit-scrollbar{display:none}
@@ -73,7 +76,7 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 .crow{display:flex;align-items:center;justify-content:space-between}
 .cqty{display:flex;align-items:center;gap:15px;font-size:18px}
 .cqty span{min-width:10px;text-align:center;font-variant-numeric:tabular-nums}
-.cpm{width:31.8px;height:32px;border-radius:100px;background:rgba(255,255,255,.2);color:#fff;display:flex;align-items:center;justify-content:center;touch-action:manipulation;transition:transform .25s var(--ease-out)}
+.cpm{width:31.8px;height:32px;border-radius:100px;background:rgba(255,255,255,.1);color:#fff;display:flex;align-items:center;justify-content:center;touch-action:manipulation;transition:transform .25s var(--ease-out)}
 .cpm:active{transform:scale(.88)}
 .cpm svg{width:19.7px;height:19.7px}
 .cprice{font-size:18px;line-height:23px;font-variant-numeric:tabular-nums}
@@ -86,7 +89,7 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 /* ---------- Extra screens: pages, auth, payment, order, notifications, states ---------- */
 input{user-select:text;-webkit-user-select:text}
 .page{visibility:hidden;background:#000}
-.pback{left:24px;top:23px;width:52px;height:52px;background:rgba(255,255,255,.2);color:#fff}
+.pback{left:24px;top:23px;width:52px;height:52px;background:rgba(255,255,255,.1);color:#fff}
 .pback svg{width:28px;height:28px}
 .pt{left:24px;top:94px;margin:0;font-size:32px;line-height:46px;font-weight:700}
 .btn{display:flex;align-items:center;justify-content:center;width:100%;height:60px;border-radius:100px;background:#fff;color:#000;font-size:18px;font-weight:700;transition:transform .25s var(--ease-out),opacity .25s}
@@ -164,7 +167,7 @@ input{user-select:text;-webkit-user-select:text}
 .nrow.brew .ni{background:rgba(0,192,232,.16);color:#00c0e8}
 .nrow.done .ni{background:rgba(52,199,89,.16);color:#34c759}
 .nrow.cancel .ni{background:rgba(255,56,60,.16);color:#ff383c}
-.nrow.info .ni{background:rgba(255,255,255,.12);color:#fff}
+.nrow.info .ni{background:rgba(255,255,255,.1);color:#fff}
 .nrow b{display:block;font-size:16px}
 .nrow p{font-size:14px;color:rgba(255,255,255,.6);margin-top:2px;font-weight:500;line-height:1.35}
 .nrow small{display:block;font-size:12px;color:#727272;margin-top:6px;font-weight:700}
@@ -181,7 +184,7 @@ input{user-select:text;-webkit-user-select:text}
 .otl::before{right:50px;background:rgba(255,255,255,.15)}
 .otl .bar{width:0;background:var(--c);transition:width .7s var(--ease-out)}
 .ostep{position:relative;width:84px;display:flex;flex-direction:column;align-items:center;gap:9px;font-size:12px;font-weight:700;color:rgba(255,255,255,.4);text-align:center}
-.ostep i{width:20px;height:20px;border-radius:20px;background:#3a3a3a;transition:background .4s}
+.ostep i{width:20px;height:20px;border-radius:20px;background:rgba(255,255,255,.1);transition:background .4s}
 .ostep.on{color:#fff}.ostep.on i{background:var(--c)}
 .ostep.cur{color:var(--c)}
 .ostep.cur i{animation:opulse 1.6s ease-out infinite}
@@ -202,8 +205,8 @@ input{user-select:text;-webkit-user-select:text}
 .prow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 0;line-height:normal}
 .prow b{display:block;font-size:16px}.prow small{font-size:13px;color:rgba(255,255,255,.5);font-weight:500}
 .prow .pr{font-weight:700;font-size:16px;font-variant-numeric:tabular-nums}
-.plabel{left:24px;top:266px;font-size:16px;font-weight:700;color:var(--mute)}
-.pmeth{left:24px;top:296px;width:342px;display:flex;flex-direction:column;gap:8px}
+#pTotal{color:var(--yellow)}
+.pmeth{left:24px;top:286px;width:342px;display:flex;flex-direction:column;gap:8px}
 .mrow{height:52px;box-sizing:border-box;border-radius:100px;background:rgba(255,255,255,.1);display:flex;align-items:center;gap:12px;padding:0 16px 0 20px;color:#fff;text-align:left;line-height:normal;transition:background .3s,color .3s,transform .25s var(--ease-out)}
 .mrow:active{transform:scale(.97)}
 .mrow svg{width:24px;height:24px;flex:none}
@@ -215,10 +218,20 @@ input{user-select:text;-webkit-user-select:text}
 #pAdd{bottom:39.44px}
 .psheet{position:absolute;left:0;top:0;width:390px;height:100%;visibility:hidden;z-index:5}
 .psheet .sb{position:absolute;inset:0;background:rgba(0,0,0,.62)}
-.psheet .sp{position:absolute;left:0;right:0;bottom:0;background:#1c1c1e;border-radius:34px 34px 0 0;padding:26px 24px 30px;display:flex;flex-direction:column;align-items:center;gap:12px;line-height:normal}
+.psheet .sp{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(rgba(255,255,255,.1),rgba(255,255,255,.1)),#000;border-radius:34px 34px 0 0;padding:32px 24px 30px;display:flex;flex-direction:column;align-items:stretch;gap:12px;line-height:normal}
+.psheet .sp::before{content:"";position:absolute;left:170px;top:9px;width:50px;height:7px;border-radius:7px;background:#fff}
+.qrcard{display:flex;align-items:center;gap:16px;height:168px;box-sizing:border-box;padding:10px;border-radius:24px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.qri{display:flex;flex-direction:column;font-size:15px;font-weight:700}
+.qri small{font-size:15px;font-weight:400;color:rgba(255,255,255,.6)}
+.qri .amt{margin:4px 0 10px}
+.qact{display:flex;align-items:center;height:48px}
+.qact button{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px;font-weight:700;color:#fff}
+.qact svg{width:22px;height:22px}
+.qact i{width:1px;height:24px;background:rgba(255,255,255,.12)}
+.salt{height:50px;font-size:18px;font-weight:700;color:#fff}
 .sp h3{margin:0;font-size:22px;font-weight:700}
 .sp .amt{font-size:32px;font-weight:700;color:var(--yellow);font-variant-numeric:tabular-nums}
-.qrbox{width:176px;height:176px;padding:12px;background:#fff;border-radius:24px}
+.qrbox{flex:none;width:148px;height:148px;box-sizing:border-box;padding:8px;background:#fff;border-radius:14px}
 .qrbox svg{width:100%;height:100%}
 .bankl{width:100%}
 .bankl .kv button{color:var(--yellow);font-size:13px;font-weight:700;margin-left:8px}
@@ -240,7 +253,7 @@ input{user-select:text;-webkit-user-select:text}
 #dlg{visibility:hidden}
 .dback{position:absolute;inset:0;background:rgba(0,0,0,.62)}
 #dlg .stage{pointer-events:none}
-.dbox{left:24px;top:200px;width:342px;box-sizing:border-box;background:#1c1c1e;border-radius:34px;padding:28px 24px 24px;pointer-events:auto;text-align:center;line-height:normal}
+.dbox{left:24px;top:200px;width:342px;box-sizing:border-box;background:linear-gradient(rgba(255,255,255,.1),rgba(255,255,255,.1)),#000;border-radius:34px;padding:28px 24px 24px;pointer-events:auto;text-align:center;line-height:normal}
 .dbox h3{margin:0;font-size:22px;font-weight:700}
 .dbox p{margin-top:8px;font-size:15px;color:rgba(255,255,255,.6);font-weight:500;line-height:1.45}
 .dbtns{display:flex;gap:8px;margin-top:22px}
@@ -404,6 +417,11 @@ input{user-select:text;-webkit-user-select:text}
     <symbol id="i-bulge" viewBox="0 0 84 155"><path fill="currentColor" d="M83.8007 77.377C83.8007 96.1547 68.6652 111.377 49.9946 111.377C27.4296 114.17 8.45482 129.633 1.16438 151.17L0 154.61V0L1.14951 2.96868C8.64484 22.3262 24.9998 36.8923 45.0925 42.1052C48.3474 42.9497 51.716 43.2528 55.0411 43.7533C71.318 46.2036 83.8007 60.3242 83.8007 77.377Z"/></symbol>
     <symbol id="i-bell" viewBox="0 0 28 28"><path fill="currentColor" d="M14 2.8a1.6 1.6 0 0 1 1.6 1.6v.7A7.4 7.4 0 0 1 21.4 12.3v4.4l1.9 2.8a1.1 1.1 0 0 1-.9 1.7H5.6a1.1 1.1 0 0 1-.9-1.7l1.9-2.8v-4.4a7.4 7.4 0 0 1 5.8-7.2v-.7A1.6 1.6 0 0 1 14 2.8ZM10.8 22.6h6.4a3.2 3.2 0 0 1-6.4 0Z"/></symbol>
     <symbol id="i-wifioff" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 18.5a27 27 0 0 1 38 0M11.5 25.5a18 18 0 0 1 25 0M18 32.5a8.6 8.6 0 0 1 12 0M8 8l32 32"/></g><circle cx="24" cy="39" r="2.6" fill="currentColor"/></symbol>
+    <symbol id="i-debt" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="7.6" cy="12" rx="4.6" ry="6.5"/><ellipse cx="16.4" cy="12" rx="4.6" ry="6.5"/></g><circle cx="5.4" cy="13.6" r="1.7" fill="currentColor"/><circle cx="14.2" cy="13.6" r="1.7" fill="currentColor"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="8" y="3.5" width="12" height="14" rx="2.5"/><path d="M5 7.5v11a2.5 2.5 0 0 0 2.5 2.5H15"/></g></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M4.5 20h15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-paid" viewBox="0 0 16 16"><path d="M15.60 8.00 L13.82 10.41 L13.37 13.37 L10.41 13.82 L8.00 15.60 L5.59 13.82 L2.63 13.37 L2.18 10.41 L0.40 8.00 L2.18 5.59 L2.63 2.63 L5.59 2.18 L8.00 0.40 L10.41 2.18 L13.37 2.63 L13.82 5.59Z" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M4.9 8.1 7 10.2l4.1-4.3" fill="none" stroke="#1c1c1c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-due" viewBox="0 0 16 16"><path d="M3.5 1.5h9M3.5 14.5h9M4.5 1.5c0 3.5 3.5 4.5 3.5 6.5S4.5 11 4.5 14.5h7c0-3.5-3.5-4.5-3.5-6.5s3.5-3 3.5-6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.6 13.4h4.8L8 10.8z" fill="currentColor"/></symbol>
     <symbol id="i-cash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="3"/><circle cx="12" cy="12" r="2.6"/></g></symbol>
     <symbol id="i-bank" viewBox="0 0 24 24"><path d="M3 9.5 12 4l9 5.5M5.5 10.5v6.5M9.8 10.5v6.5M14.2 10.5v6.5M18.5 10.5v6.5M3 20h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-qr" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1.5"/><rect x="14" y="3.5" width="6.5" height="6.5" rx="1.5"/><rect x="3.5" y="14" width="6.5" height="6.5" rx="1.5"/></g><path fill="currentColor" d="M14 14h2.8v2.8H14zM17.7 17.7h2.8v2.8h-2.8zM14 19h2v1.5h-2zM19 14h1.5v2H19z"/></symbol>
@@ -422,13 +440,13 @@ input{user-select:text;-webkit-user-select:text}
     <div class="abs dots" id="dots" hidden></div>
     </div>
     <div class="tab off" id="tHist" aria-label="Lịch sử đơn hàng">
-      <h2 class="abs ptitle">Order</h2>
+      <h2 class="abs ptitle">Đơn hàng</h2>
       <div class="abs hlist" id="hlist"></div>
       <div class="abs estate hempty" id="hEmpty" hidden>
         <div class="eico"><svg><use href="#i-list"/></svg></div>
         <h3>Chưa có đơn nào</h3>
         <p>Đơn bạn đặt sẽ hiện ở đây để theo dõi và đặt lại.</p>
-        <button class="btn sm" id="hGo">Đặt ly đầu tiên</button>
+        <button class="btn sm" id="hGo">Làm tí đê</button>
       </div>
     </div>
     <div class="tab off" id="tAcc" aria-label="Tài khoản">
@@ -488,9 +506,9 @@ input{user-select:text;-webkit-user-select:text}
       <div class="eico"><svg><use href="#i-bag"/></svg></div>
       <h3>Giỏ hàng trống</h3>
       <p>Chọn một ly cà phê, vuốt thanh “Thêm vào giỏ hàng” là xong.</p>
-      <button class="btn sm" id="cGo">Chọn đồ uống</button>
+      <button class="btn sm" id="cGo">Làm tí đê</button>
     </div>
-    <div class="abs ctotal"><span>Tổng</span><b id="cTotal">0 VNĐ</b></div>
+    <div class="abs ctotal"><span>Giá chỉ</span><b id="cTotal">0</b></div>
     <div class="abs add" id="cAdd">
       <div class="fill"></div>
       <i class="glint"></i>
@@ -529,13 +547,12 @@ input{user-select:text;-webkit-user-select:text}
     <button class="abs circ pback" data-back aria-label="Quay lại giỏ hàng"><svg><use href="#i-back"/></svg></button>
     <h2 class="abs pt" data-s>Thanh toán</h2>
     <div class="abs card2 psum" id="pSum" data-s></div>
-    <div class="abs plabel" data-s>Phương thức thanh toán</div>
     <div class="abs pmeth" id="pMeth">
-      <button class="mrow on" data-m="cash" data-s><svg><use href="#i-cash"/></svg><span>Tiền mặt</span><small>Trả tại quầy</small><i></i></button>
-      <button class="mrow" data-m="bank" data-s><svg><use href="#i-bank"/></svg><span>Chuyển khoản</span><small>Ngân hàng</small><i></i></button>
-      <button class="mrow" data-m="qr" data-s><svg><use href="#i-qr"/></svg><span>Quét mã QR</span><small>App ngân hàng</small><i></i></button>
+      <button class="mrow on" data-m="cash" data-s><svg><use href="#i-cash"/></svg><span>Tiền mặt</span><i></i></button>
+      <button class="mrow" data-m="bank" data-s><svg><use href="#i-qr"/></svg><span>Chuyển khoản</span><i></i></button>
+      <button class="mrow" data-m="debt" data-s><svg><use href="#i-debt"/></svg><span>Ghi nợ nhé!</span><i></i></button>
     </div>
-    <div class="abs ctotal" data-s><span>Tổng</span><b id="pTotal">0 VNĐ</b></div>
+    <div class="abs ctotal" data-s><span>Giá chỉ</span><b id="pTotal">0</b></div>
     <div class="abs add" id="pAdd" data-s>
       <div class="fill"></div>
       <i class="glint"></i>
@@ -557,8 +574,8 @@ input{user-select:text;-webkit-user-select:text}
     <p class="abs smsg" id="sMsg" data-s></p>
     <div class="abs card2 scard" id="sCard" data-s></div>
     <div class="abs sbtns">
-      <button class="btn" id="sTrack" data-s>Theo dõi đơn hàng</button>
-      <button class="btn ghost" id="sHome" data-s>Về trang chủ</button>
+      <button class="btn" id="sTrack" data-s>Theo dõi</button>
+      <button class="btn ghost" id="sHome" data-s>Tiếp tục đặt hàng</button>
     </div>
   </div>
 </div>
@@ -618,7 +635,7 @@ input{user-select:text;-webkit-user-select:text}
     <div class="abs estate oestate">
       <div class="eico" style="color:var(--yellow)"><svg><use href="#i-wifioff"/></svg></div>
       <h3 data-s>Mất kết nối mạng</h3>
-      <p data-s>Kiểm tra Wi‑Fi hoặc 4G rồi thử lại. Giỏ hàng của bạn vẫn được giữ nguyên.</p>
+      <p data-s>Kiểm tra Wi‑Fi hoặc 4G rồi thử lại</p>
       <button class="btn sm" id="retry" data-s>Thử lại</button>
     </div>
   </div>
@@ -711,7 +728,7 @@ const cards = DRINKS.map((d,i) => {
     <div class="top">${d.rec
       ? `<div class="row"><h3>${d.name}</h3><span class="rec"><svg><use href="#i-star"/></svg>RECOMMEND</span></div>${icons}`
       : `<h3>${d.name}</h3>${icons}`}</div>
-    <div class="pricebar"><i class="glint"></i><b>${fmt(d.price)} VNĐ</b><span><svg><use href="#i-bag"/></svg></span></div>`;
+    <div class="pricebar"><i class="glint"></i><b>${fmt(d.price)}</b><span><svg><use href="#i-bag"/></svg></span></div>`;
   car.appendChild(el);
   const dot = document.createElement('i'); dots.appendChild(dot);
   return el;
@@ -719,7 +736,7 @@ const cards = DRINKS.map((d,i) => {
 
 let pos = 1, target = 1, vel = 0, raf = 0;
 const CARD_S = 1;
-const ARC_R = 1364,   /* neighbours sit 302px off-centre for the 270px card */ ARC_STEP = 12.79, ARC_PX = ARC_R*ARC_STEP*Math.PI/180;
+const SIDE_SHRINK = .12, SIDE_STEP = 135 + 10 + 135*(1 - SIDE_SHRINK);   /* 270px card, 10px gap, neighbours at 88% */
 const wrap = o => { o = ((o % N) + N) % N; return o >= N/2 ? o - N : o; };
 const active = () => ((Math.round(pos) % N) + N) % N;
 
@@ -727,11 +744,9 @@ function layout(){
   const t = performance.now()/1000;
   cards.forEach((el,i) => {
     const o = wrap(i - pos), a = Math.abs(o);
-    /* cards ride a wheel whose hub sits above the stage: neighbours rise and tilt inward, with a gap between them */
-    const ang = o*ARC_STEP*Math.PI/180;
-    const x = ARC_R*Math.sin(ang), y = -ARC_R*(1 - Math.cos(ang)), r = -o*8;
-    const s = CARD_S;
-    el.style.transform = `translate(${x}px,${y}px) rotate(${r}deg) scale(${s})`;
+    /* cards sit upright in a row: neighbours are smaller, with a 10px gap to the main card */
+    const s = CARD_S*(1 - SIDE_SHRINK*Math.min(a, 1)), x = o*SIDE_STEP;
+    el.style.transform = `translate(${x}px,0) scale(${s})`;
     el.style.opacity = a > 1 ? Math.max(0, 1 - (a-1)*2.2) : 1;
     el.style.zIndex = 10 - Math.round(a*3);
     const cup = el.firstElementChild.nextElementSibling;
@@ -771,7 +786,7 @@ car.addEventListener('pointermove', e => {
   drag.v = ((e.clientX - drag.lx)/S) / Math.max(1, now - drag.lt);
   drag.lx = e.clientX; drag.lt = now;
   cancelAnimationFrame(raf); vel = 0;
-  pos = drag.p - dx/ARC_PX; layout();
+  pos = drag.p - dx/SIDE_STEP; layout();
 });
 const endDrag = e => {
   if (!drag) return;
@@ -1118,7 +1133,7 @@ async function completeAdd(){
   syncBadges(true);
   $('#dCart').animate([{transform:'scale(1)'},{transform:'scale(1.22)'},{transform:'scale(.95)'},{transform:'scale(1)'}], {duration:T(480), easing:'ease-out'});
   lbl.textContent = 'Đã thêm vào giỏ'; lbl.style.opacity = 1;
-  toast(`Đã thêm ${pad(qty)} ${DRINKS[cur].name} · ${fmt(unit()*qty)} VNĐ`);
+  toast(`Đã thêm ${pad(qty)} ${DRINKS[cur].name} · ${fmt(unit()*qty)}`);
   setTimeout(() => { resetKnob(); setTimeout(() => { lbl.textContent = 'Thêm vào giỏ hàng'; lbl.style.opacity = 1; adding = false; }, T(450)); }, T(900));
 }
 function syncBadges(pop){
@@ -1164,12 +1179,12 @@ function renderCart(){
     row.innerHTML = `<div class="cthumb"><img src="${d.id}.webp" alt="" draggable="false"></div>
       <div class="cinfo"><span class="cname"></span><span class="copt"></span><div class="crow">
         <div class="cqty"><button class="cpm" data-d="-1" aria-label="Giảm"><svg><use href="#i-minus"/></svg></button><span>${it.qty}</span><button class="cpm" data-d="1" aria-label="Tăng"><svg><use href="#i-plus"/></svg></button></div>
-        <span class="cprice">${fmt(it.qty*it.unit)} VNĐ</span></div></div>`;
+        <span class="cprice">${fmt(it.qty*it.unit)}</span></div></div>`;
     $('.cname', row).textContent = d.name; $('.copt', row).textContent = optText(it.o);
     $$('.cpm', row).forEach(b => b.addEventListener('click', () => changeItem(i, +b.dataset.d, row)));
     clist.appendChild(row);
   });
-  $('#cTotal').textContent = fmt(cartTotal()) + ' VNĐ';
+  $('#cTotal').textContent = fmt(cartTotal());
   cartEl.classList.toggle('empty', !cartItems.length);
 }
 function changeItem(i, d, row){
@@ -1178,15 +1193,15 @@ function changeItem(i, d, row){
   if (it.qty <= 0) {
     cartItems.splice(i, 1); cart = cartItems.reduce((n, x) => n + x.qty, 0); syncBadges();
     row.animate([{opacity:1, height:row.offsetHeight + 'px'},{opacity:0, height:'0px', paddingTop:'0px', paddingBottom:'0px'}], {duration:T(320), easing:'cubic-bezier(.4,0,.2,1)'}).onfinish = renderCart;
-    $('#cTotal').textContent = fmt(cartTotal()) + ' VNĐ';
+    $('#cTotal').textContent = fmt(cartTotal());
     return;
   }
   it.qty = Math.min(99, it.qty);
   cart = cartItems.reduce((n, x) => n + x.qty, 0); syncBadges();
   const q = $('.cqty span', row); q.textContent = it.qty;
   q.animate([{transform:`translateY(${d*-10}px)`, opacity:0},{transform:'none', opacity:1}], {duration:T(260), easing:'cubic-bezier(.22,1,.36,1)'});
-  $('.cprice', row).textContent = fmt(it.qty*it.unit) + ' VNĐ';
-  const t = $('#cTotal'); t.textContent = fmt(cartTotal()) + ' VNĐ';
+  $('.cprice', row).textContent = fmt(it.qty*it.unit);
+  const t = $('#cTotal'); t.textContent = fmt(cartTotal());
   t.animate([{transform:'scale(1.06)'},{transform:'scale(1)'}], {duration:T(260), easing:'ease-out'});
 }
 let cartOpen = false;
@@ -1299,14 +1314,14 @@ function ask({title, text, ok, cancel = 'Thôi', danger}){
 }
 
 /* ---------- orders ---------- */
-const PAY = {cash:'Tiền mặt', bank:'Chuyển khoản', qr:'Quét mã QR'};
-const ST = {wait:'CHỜ XÁC NHẬN', brew:'ĐANG PHA CHẾ', done:'HOÀN THÀNH', cancel:'ĐÃ HUỶ'};
+const PAY = {cash:'Tiền mặt', bank:'Chuyển khoản', debt:'Ghi nợ'};
+const ST = {wait:'Chờ xác nhận', brew:'Đang chế', done:'Hoàn thành', cancel:'Hủy'};
 const daysAgo = (n, h = 8, m = 30) => { const d = new Date(); d.setDate(d.getDate() - n); if (n) d.setHours(h, m); return d; };
 const O0 = {upsize:0, sweet:0, cafe:0};
 const line = (id, qty = 1, o = O0) => ({id, qty, unit:drink(id).price + (o.upsize ? 5000 : 0), o:{...o}});
 const seedOrders = () => [
   {code:'CG1029', items:[line('den')], status:'wait', pay:'cash', paid:false, at:new Date(Date.now() - 6*60000)},
-  {code:'CG1028', items:[line('den')], status:'brew', pay:'qr', paid:true, at:new Date(Date.now() - 14*60000)},
+  {code:'CG1028', items:[line('den')], status:'brew', pay:'bank', paid:true, at:new Date(Date.now() - 14*60000)},
   {code:'CG1027', items:[line('den'), line('bac', 1, {upsize:1, sweet:50, cafe:0})], status:'done', pay:'bank', paid:true, at:daysAgo(1, 8, 12)},
   {code:'CG1026', items:[line('den')], status:'done', pay:'cash', paid:true, at:daysAgo(1, 7, 45)},
   {code:'CG1025', items:[line('nau', 2)], status:'done', pay:'cash', paid:true, at:daysAgo(2, 9, 5)},
@@ -1319,7 +1334,7 @@ const oNames = o => [...new Set(o.items.map(x => drink(x.id).name))].join(', ');
 const sameDay = (a, b) => a.toDateString() === b.toDateString();
 const hm = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 const dmy = d => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
-const listDate = d => sameDay(d, new Date()) ? 'Today' : dmy(d);
+const listDate = d => { const y = new Date(); if (sameDay(d, y)) return 'Hôm nay'; y.setDate(y.getDate() - 1); return sameDay(d, y) ? 'Hôm qua' : dmy(d); };
 function ago(d){
   const m = Math.round((Date.now() - d)/60000);
   if (m < 1) return 'Vừa xong'; if (m < 60) return `${m} phút trước`;
@@ -1331,7 +1346,7 @@ function renderHistory(){
   hlist.innerHTML = '';
   orders.forEach(o => {
     const r = document.createElement('button'); r.className = 'hrow';
-    r.innerHTML = `<div class="t"><span class="n"><b></b><b></b></span><span class="st ${o.status}">${ST[o.status]}</span></div><small>${listDate(o.at)}</small>`;
+    r.innerHTML = `<div class="t"><span class="n"><b></b><b></b></span><span class="st ${o.status}">${ST[o.status]}</span></div><div class="t"><small>${listDate(o.at)}</small><span class="hp">${fmt(oTotal(o))}<svg class="${o.paid ? 'paid' : 'due'}"><use href="#${o.paid ? 'i-paid' : 'i-due'}"/></svg></span></div>`;
     const b = r.querySelectorAll('b'); b[0].textContent = `${pad(oQty(o))} x`; b[1].textContent = oNames(o);
     r.addEventListener('click', () => openOrder(o));
     hlist.appendChild(r);
@@ -1362,7 +1377,7 @@ function itemRow(x, cls = 'oitem'){
   return r;
 }
 function renderOrder(o){
-  $('#oTitle').textContent = `Đơn #${o.code}`;
+  $('#oTitle').textContent = `#${o.code}`;
   $('#oDate').textContent = `${hm(o.at)} · ${dmy(o.at)} · ${o.items.length > 1 ? o.items.length + ' món' : '1 món'}`;
   const body = $('#oBody'), prev = body.querySelector('.bar');
   const prevW = prev ? prev.style.width : '0px';
@@ -1377,8 +1392,8 @@ function renderOrder(o){
   o.items.forEach(x => items.appendChild(itemRow(x)));
   body.appendChild(items);
   const sum = document.createElement('div'); sum.className = 'card2';
-  const payState = o.status === 'cancel' ? (o.paid ? ['Hoàn tiền trong 24h', 'yl'] : ['Không thu tiền', '']) : o.paid ? ['Đã thanh toán', 'g'] : ['Trả khi nhận đồ', 'yl'];
-  sum.innerHTML = `<div class="kv"><span>Phương thức</span><b>${PAY[o.pay]}</b></div><div class="kv"><span>Thanh toán</span><b class="${payState[1]}">${payState[0]}</b></div><div class="kv tot"><span>Tổng</span><b>${fmt(oTotal(o))} VNĐ</b></div>`;
+  const payState = o.paid ? ['Đã thanh toán', 'g'] : o.claimed ? ['Chờ quán xác nhận', 'yl'] : o.pay === 'debt' ? ['Ghi nợ', 'yl'] : ['Chưa thanh toán', 'yl'];
+  sum.innerHTML = `<div class="kv"><span>Phương thức</span><b>${PAY[o.pay]}</b></div><div class="kv"><span>Thanh toán</span><b class="${payState[1]}">${payState[0]}</b></div><div class="kv tot"><span>Tổng</span><b>${fmt(oTotal(o))}</b></div>`;
   body.appendChild(sum);
   const bar = $('.bar', tl);
   requestAnimationFrame(() => { const st = $$('.ostep i', tl), a = st[0], z = st[idx];
@@ -1390,7 +1405,7 @@ function renderOrder(o){
     b.addEventListener('click', () => cancelOrder(o)); ob.appendChild(b);
     ob.insertAdjacentHTML('beforeend', '<p class="onote">Bạn có thể huỷ khi quán chưa xác nhận.</p>');
   } else if (o.status === 'brew') {
-    ob.innerHTML = '<p class="onote">Quán đang pha cho bạn, đơn này không huỷ được nữa.</p>';
+    /* brewing: nothing to do but wait */
   } else {
     const b = document.createElement('button'); b.className = 'btn'; b.textContent = 'Đặt lại đơn này';
     b.addEventListener('click', () => { o.items.forEach(x => addToCart(x.id, x.qty, x.unit, x.o)); syncBadges(true); openCart(); });
@@ -1399,7 +1414,7 @@ function renderOrder(o){
 }
 function openOrder(o){ curOrder = o; const prev = $('#oBody .bar'); if (prev) prev.remove(); renderOrder(o); showPage(orderEl); }
 async function cancelOrder(o){
-  if (!await ask({title:'Huỷ đơn này?', text:`Đơn #${o.code} · ${fmt(oTotal(o))} VNĐ sẽ được huỷ.${o.paid ? ' Tiền sẽ hoàn lại trong 24 giờ.' : ''}`, ok:'Huỷ đơn', cancel:'Giữ lại', danger:true})) return;
+  if (!await ask({title:'Huỷ đơn này?', text:'Ủa alo???', ok:'Huỷ đơn', cancel:'Giữ lại', danger:true})) return;
   if (o.status !== 'wait') { toast('Quán vừa nhận đơn, không huỷ được nữa'); return; }
   setStatus(o, 'cancel');
   notify(`Đã huỷ đơn #${o.code}`, o.paid ? 'Tiền sẽ được hoàn lại trong 24 giờ.' : 'Bạn chưa bị thu tiền cho đơn này.', o, 'cancel', false);
@@ -1424,8 +1439,8 @@ function renderNotifs(){
   nlist.innerHTML = '';
   notifs.forEach(n => {
     const r = document.createElement('button'); r.className = `nrow ${n.kind}${n.read ? '' : ' new'}`;
-    r.innerHTML = `<span class="ni"><svg><use href="#${n.kind === 'info' ? 'i-star' : n.kind === 'cancel' ? 'i-x' : 'i-cup'}"/></svg></span><div><b></b><p></p><small>${ago(n.at)}</small></div>`;
-    $('b', r).textContent = n.title; $('p', r).textContent = n.body;
+    r.innerHTML = `<span class="ni"><svg><use href="#${n.kind === 'info' ? 'i-star' : n.kind === 'cancel' ? 'i-x' : 'i-cup'}"/></svg></span><div><b></b><small>${ago(n.at)}</small></div>`;
+    $('b', r).textContent = n.title;
     if (n.order) r.addEventListener('click', () => { const o = orders.find(x => x.code === n.order); if (o) openOrder(o); });
     nlist.appendChild(r);
   });
@@ -1444,7 +1459,7 @@ const payEl = $('#pay'), pSheet = $('#pSheet');
 let payM = 'cash';
 function setPay(m){
   payM = m; $$('.mrow', payEl).forEach(r => r.classList.toggle('on', r.dataset.m === m));
-  pSlide.label(m === 'cash' ? 'Đặt hàng' : 'Tiếp tục thanh toán');
+  pSlide.label(m === 'bank' ? 'Tiếp tục thanh toán' : 'Đặt hàng');
 }
 $$('.mrow', payEl).forEach(r => r.addEventListener('click', () => {
   r.animate([{transform:'scale(.95)'},{transform:'scale(1)'}], {duration:T(380), easing:'cubic-bezier(.34,1.56,.64,1)'});
@@ -1453,7 +1468,7 @@ $$('.mrow', payEl).forEach(r => r.addEventListener('click', () => {
 function openPay(){
   const sum = $('#pSum'); sum.innerHTML = '';
   cartItems.forEach(x => { const r = itemRow(x, 'prow'); r.querySelector('.oth').remove(); sum.appendChild(r); });
-  $('#pTotal').textContent = fmt(cartTotal()) + ' VNĐ';
+  $('#pTotal').textContent = fmt(cartTotal());
   pSlide.reset(true); setPay(payM);
   showPage(payEl);
 }
@@ -1474,7 +1489,7 @@ function slider(el, onDone){
   k.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); finish(); } });
   return {reset, label:t => { text = t; if (!on) l.textContent = t; }};
 }
-const pSlide = slider($('#pAdd'), () => { if (!cartItems.length) return pSlide.reset(); payM === 'cash' ? placeOrder(false) : openSheet(payM); });
+const pSlide = slider($('#pAdd'), () => { if (!cartItems.length) return pSlide.reset(); payM === 'bank' ? openSheet() : placeOrder(false); });
 /* a stand-in QR: finder squares plus a pattern seeded from the order code */
 function qrSvg(seed){
   const n = 25; let h = 0; for (const c of seed) h = (h*31 + c.charCodeAt(0)) >>> 0;
@@ -1485,19 +1500,20 @@ function qrSvg(seed){
   for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (!inF(x, y) && rnd() < .48) cells += `<rect x="${x}" y="${y}" width="1" height="1"/>`;
   return `<svg viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges">${finder(0,0)}${finder(n-7,0)}${finder(0,n-7)}${cells}</svg>`;
 }
-function openSheet(m){
-  const code = 'CG' + (seq + 1), amt = fmt(cartTotal()) + ' VNĐ', sp = $('#pSp');
-  sp.innerHTML = m === 'qr'
-    ? `<h3>Quét mã để thanh toán</h3><div class="qrbox">${qrSvg(code + amt)}</div><div class="amt">${amt}</div><div class="demo">Nội dung: ${code} · mã QR minh hoạ của bản demo</div>`
-    : `<h3>Chuyển khoản</h3><div class="amt">${amt}</div><div class="card2 bankl">
-        <div class="kv"><span>Ngân hàng</span><b>Ngân hàng Demo</b></div>
-        <div class="kv"><span>Số tài khoản</span><b>0000 1234 5678<button data-copy="000012345678">Sao chép</button></b></div>
-        <div class="kv"><span>Chủ tài khoản</span><b>COONG CA PHE</b></div>
-        <div class="kv"><span>Nội dung</span><b>${code}<button data-copy="${code}">Sao chép</button></b></div></div>
-        <div class="demo">Thông tin minh hoạ của bản demo</div>`;
-  sp.insertAdjacentHTML('beforeend', `<button class="btn" id="sPaid">Tôi đã thanh toán</button><button class="alink" id="sAlt">Đổi phương thức</button>`);
-  $$('[data-copy]', sp).forEach(b => b.addEventListener('click', () => { try { navigator.clipboard.writeText(b.dataset.copy); } catch (e) {} toast('Đã sao chép'); }));
-  $('#sPaid').addEventListener('click', () => { hideSheet(); placeOrder(true); });
+/* bank transfer: QR card with account details */
+const BANK = {name:'Trinh Minh Cong', acc:'8456777999'};
+function openSheet(){
+  const code = 'CG' + (seq + 1), amt = fmt(cartTotal()), sp = $('#pSp'), qr = qrSvg(code + amt);
+  sp.innerHTML = `<div class="qrcard"><div class="qrbox">${qr}</div><div class="qri"><span>Chuyển khoản</span><b class="amt">${amt}</b><span>${BANK.name}</span><small>${BANK.acc}</small></div></div>
+    <div class="qact"><button id="qCopy"><svg><use href="#i-copy"/></svg>Sao chép mã</button><i></i><button id="qSave"><svg><use href="#i-down"/></svg>Tải mã</button></div>
+    <button class="btn" id="sPaid">Tôi đã thanh toán</button><button class="salt" id="sAlt">Đổi phương thức</button>`;
+  $('#qCopy').addEventListener('click', () => { try { navigator.clipboard.writeText(BANK.acc); } catch (e) {} toast('Đã sao chép số tài khoản'); });
+  $('#qSave').addEventListener('click', () => {
+    const svg = qr.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" style="background:#fff" ');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([svg], {type:'image/svg+xml'})); a.download = `coong-${code}.svg`; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000); toast('Đã tải mã QR');
+  });
+  $('#sPaid').addEventListener('click', () => { hideSheet(); placeOrder(false, true); });
   $('#sAlt').addEventListener('click', () => { hideSheet(); pSlide.reset(); });
   pSheet.getAnimations().forEach(a => a.cancel());
   pSheet.style.visibility = 'visible';
@@ -1520,8 +1536,9 @@ $('.sb', pSheet).addEventListener('click', () => { hideSheet(); pSlide.reset(); 
   ['pointerup','pointercancel'].forEach(ev => sp.addEventListener(ev, () => { sw = null; }));
 })();
 
-function placeOrder(paid){
-  const o = {code:'CG' + (++seq), items:cartItems.map(x => ({...x, o:{...x.o}})), status:'wait', pay:payM, paid, at:new Date()};
+/* paid: the shop has confirmed the money; claimed: the customer says they transferred, waiting for the shop */
+function placeOrder(paid, claimed = false){
+  const o = {code:'CG' + (++seq), items:cartItems.map(x => ({...x, o:{...x.o}})), status:'wait', pay:payM, paid, claimed, at:new Date()};
   orders.unshift(o); lastPlaced = o;
   cartItems.length = 0; cart = 0; syncBadges(); renderCart(); renderHistory();
   notify(`Đơn #${o.code} đang chờ xác nhận`, 'Quán sẽ xác nhận trong ít phút.', o, 'wait', false);
@@ -1532,8 +1549,8 @@ function placeOrder(paid){
 /* ---------- order placed ---------- */
 const successEl = $('#success');
 function openSuccess(o){
-  $('#sMsg').textContent = `Mã đơn #${o.code}. Coong sẽ báo bạn khi ly đã sẵn sàng.`;
-  $('#sCard').innerHTML = `<div class="kv"><span>Đồ uống</span><b>${pad(oQty(o))} x ${oNames(o)}</b></div><div class="kv"><span>Phương thức</span><b>${PAY[o.pay]}</b></div><div class="kv tot"><span>Tổng</span><b>${fmt(oTotal(o))} VNĐ</b></div>`;
+  $('#sMsg').textContent = `Mã đơn #${o.code}. Coong xác nhận đơn của bạn trong ít phút`;
+  $('#sCard').innerHTML = `<div class="kv"><span>Đồ uống</span><b>${pad(oQty(o))} x ${oNames(o)}</b></div><div class="kv"><span>Phương thức</span><b>${PAY[o.pay]}</b></div><div class="kv tot"><span>Tổng</span><b>${fmt(oTotal(o))}</b></div>`;
   showPage(successEl);
   const ok = $('.sok', successEl), path = $('path', ok);
   $('circle', ok).animate([{transform:'scale(0)'},{transform:'scale(1)'}], {duration:T(560), easing:'cubic-bezier(.34,1.7,.5,1)', fill:'backwards'});
@@ -1626,7 +1643,6 @@ formOf('phone').addEventListener('submit', async e => {
 });
 $('#aForgot').addEventListener('click', () => { const p = digits(formOf('phone').elements.phone.value); A.phone = p.length >= 10 ? p : ''; go('forgot'); });
 $('#pForgot').addEventListener('click', () => go('forgot'));
-const weak = p => /^(\d)\1{3}$/.test(p) || '0123456789'.includes(p) || '9876543210'.includes(p);
 /* new customer: order name + PIN on one screen */
 $('#rPeek').addEventListener('click', e => { const i = formOf('reg').elements.pin, show = i.type === 'password'; i.type = show ? 'text' : 'password'; e.target.textContent = show ? 'Ẩn' : 'Hiện'; });
 formOf('reg').elements.pin.addEventListener('input', e => e.target.value = digits(e.target.value).slice(0, 4));
@@ -1634,14 +1650,13 @@ formOf('reg').addEventListener('submit', async e => {
   e.preventDefault(); const f = e.target, n = f.elements.name, pi = f.elements.pin, v = n.value.trim(), p = pi.value;
   if (!v) return bad(f, [n], 'Nhập tên để quán gọi bạn nhé.');
   if (p.length !== 4) return bad(f, [pi], 'Mã PIN cần đủ 4 số.');
-  if (weak(p)) return bad(f, [pi], 'Mã này dễ đoán quá, chọn 4 số khác nhé.');
   await busyBtn(f, 'Đang tạo…');
   A.name = v; saveAccount(A.phone, {name:v, pin:p}); finish(true);
 });
 /* 4 PIN boxes: one digit per box, typing moves on, backspace moves back, the 4th digit submits */
 const PIN = {
   enter:['Nhập mã PIN', 'Lộ ra là mất tiền đấy :) Thật!'],
-  reset:['Mã PIN mới', 'Chọn 4 số mới, đừng dễ đoán quá nhé.'],
+  reset:['Mã PIN mới', 'Chọn 4 số mới bạn dễ nhớ.'],
   reset2:['Nhập lại mã PIN', 'Nhập lại 4 số vừa chọn cho chắc.'],
 };
 function pinView(){
@@ -1667,7 +1682,7 @@ formOf('pin').addEventListener('submit', e => {
   if (p.length < 4) return bad(e.target, pinIn.filter(i => !i.value), 'Nhập đủ 4 số nhé.');
   /* wrong PINs never lock the account; the customer can keep trying or reset */
   if (A.mode === 'enter') return p === acc.pin ? finish(false) : pinErr('Có vậy mà cũng quên...');
-  if (A.mode === 'reset') { if (weak(p)) return pinErr('Mã này dễ đoán quá, chọn 4 số khác nhé.'); A.first = p; A.mode = 'reset2'; pinView(); return stagger(formOf('pin'), 0); }
+  if (A.mode === 'reset') { A.first = p; A.mode = 'reset2'; pinView(); return stagger(formOf('pin'), 0); }
   if (p !== A.first) { A.mode = 'reset'; pinView(); return pinErr('Hai lần nhập chưa khớp, chọn lại nhé.'); }
   saveAccount(A.phone, {name:(acc && acc.name) || A.name || 'Bạn', pin:p}); toast('Đã đổi mã PIN'); finish(false);
 });
