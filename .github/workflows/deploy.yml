@@ -23,3 +23,12 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_COONG_59EDE }}
           projectId: coong-59ede
           channelId: live
+      # Đưa quy tắc bảo mật Firestore (firestore.rules) lên cùng lúc.
+      # Dùng chung service account ở trên, cần có quyền "Firebase Rules Admin".
+      - name: Deploy Firestore rules
+        env:
+          SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_COONG_59EDE }}
+        run: |
+          echo "$SERVICE_ACCOUNT" > "$RUNNER_TEMP/firebase-key.json"
+          GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/firebase-key.json" npx firebase-tools deploy --only firestore:rules --project coong-59ede
+          rm -f "$RUNNER_TEMP/firebase-key.json"
