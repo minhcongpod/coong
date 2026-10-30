@@ -3,7 +3,7 @@ import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { auth } from '../firebase';
 import { getSetup, watchDevice, unlockDevice, lockDevice, watchOrders, watchMenu, watchUsers, watchTransactions } from '../db';
 import './admin.css';
-import { Icon, UIProvider, useUI, errText } from './ui.jsx';
+import { Sym, UIProvider, useUI, errText } from './ui.jsx';
 import OrderTab from './OrderTab.jsx';
 import HistoryTab from './HistoryTab.jsx';
 import WalletTab from './WalletTab.jsx';
@@ -121,10 +121,10 @@ function Login({ onLogin }) {
 
   return (
     <form onSubmit={submit} className="a-tab" style={{ paddingTop: 24 }}>
-      <div style={{ height: 52, display: 'flex', alignItems: 'center', fontSize: 24, fontWeight: 700, letterSpacing: '-.02em' }}>CoonG</div>
+      <div style={{ height: 52, display: 'flex', alignItems: 'center' }}><Sym id="i-logo" size={123} /></div>
       <div style={{ marginTop: 52, display: 'flex', flexDirection: 'column', gap: 24 }}>
         <div>
-          <h1 className="a-title">Chào Coong</h1>
+          <h1 className="a-title" style={{ lineHeight: '40px' }}>Chào bạn quay lại Coong,</h1>
           <p className="a-sub">Nhập mã PIN để quản lý quán</p>
         </div>
         <div style={{ display: 'flex', gap: 8, position: 'relative' }} onClick={() => document.getElementById('a-pin').focus()}>
@@ -142,11 +142,23 @@ function Login({ onLogin }) {
         {error && <p className="a-err" style={{ marginTop: -8 }}>{error}</p>}
         <button type="submit" className="a-btn" disabled={busy}>{busy ? 'Đang kiểm tra...' : 'Đăng nhập'}</button>
       </div>
+      <div className="o-cups login" aria-hidden="true"><img src="/bac.webp" alt="" /><img src="/den.webp" alt="" /><img src="/nau.webp" alt="" /></div>
     </form>
   );
 }
 
-const NAV = [['order', 'coffee', 'Đặt hàng'], ['history', 'list', 'Lịch sử'], ['wallet', 'wallet', 'Ví'], ['settings', 'sliders', 'Cài đặt']];
+const NavIcon = ({ k }) => {
+  if (k === 'order') return <Sym id="i-cup" size={32} />;
+  if (k === 'history') return <Sym id="i-list" size={32} />;
+  if (k === 'wallet') return <span className="a-bars" aria-hidden="true"><i style={{ height: 17 }} /><i style={{ height: 31 }} /><i style={{ height: 22 }} /></span>;
+  return (
+    <svg width="32" height="32" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="currentColor" fillRule="evenodd" stroke="currentColor" strokeWidth="1" strokeLinejoin="round" d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2zM15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+    </svg>
+  );
+};
+
+const NAV = [['order', 'Đặt hàng'], ['history', 'Đơn hàng'], ['wallet', 'Thống kê'], ['settings', 'Cài đặt']];
 
 function Shell({ adminPhone, onLogout }) {
   const { toast } = useUI();
@@ -173,13 +185,13 @@ function Shell({ adminPhone, onLogout }) {
   return (
     <>
       <div className="a-tab" hidden={tab !== 'order'}><OrderTab {...data} /></div>
-      <div className="a-tab" hidden={tab !== 'history'}><HistoryTab {...data} /></div>
+      <div className="a-tab" hidden={tab !== 'history'}><HistoryTab {...data} onGoOrder={() => setTab('order')} /></div>
       <div className="a-tab" hidden={tab !== 'wallet'}><WalletTab {...data} /></div>
       <div className="a-tab" hidden={tab !== 'settings'}><SettingsTab {...data} adminPhone={adminPhone} onLogout={onLogout} /></div>
       <nav className="a-nav" style={{ position: 'absolute', left: 24, right: 24, bottom: 0, margin: '0 0 31px' }}>
-        {NAV.map(([k, i, label]) => (
+        {NAV.map(([k, label]) => (
           <button key={k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)} aria-label={label} title={label}>
-            <Icon n={i} size={28} />
+            <NavIcon k={k} />
             {k === 'history' && pending > 0 && <span className="a-badge">{pending}</span>}
           </button>
         ))}

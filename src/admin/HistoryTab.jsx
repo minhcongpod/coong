@@ -1,151 +1,143 @@
 import React, { useState } from 'react';
 import { updateOrder } from '../db';
-import { Icon, Page, Btn, Chip, Empty, fmt, shortId, timeOf, dayLabel, phoneText, payLabel, payState, STATUS, isLive, useUI, errText } from './ui.jsx';
-import { CustomerPicker } from './Customers.jsx';
+import { Icon, Sym, Page, Btn, Seg, fmt, hm, dmy, timeOf, phoneText, payLabel, payState, orderCode, kindOf, STATUS, isLive, useUI, errText } from './ui.jsx';
 
-const FILTERS = [['all', 'Tất cả'], ['pending', 'Chờ xác nhận'], ['brewing', 'Đang pha chế'], ['completed', 'Hoàn thành'], ['cancelled', 'Hủy'], ['unpaid', 'Chưa thanh toán']];
-const DATES = [['all', 'Mọi ngày'], ['day', 'Hôm nay'], ['month', 'Tháng này'], ['year', 'Năm nay']];
+const FILTERS = [['all', 'Tất cả'], ['paid', 'Đã thanh toán'], ['unpaid', 'Chưa thanh toán']];
+const LIST_LABEL = { brewing: 'Đang chế' };
 
-const inDate = (o, kind) => {
-  if (kind === 'all') return true;
-  const d = timeOf(o), n = new Date();
-  if (!d) return false;
-  if (kind === 'day') return d.toDateString() === n.toDateString();
-  if (kind === 'month') return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth();
-  return d.getFullYear() === n.getFullYear();
-};
+const qtyText = (n) => String(n).padStart(2, '0');
+const itemNames = (o) => [...new Set((o.items || []).map((x) => x.name))].join(', ');
+const itemQty = (o) => (o.items || []).reduce((n, x) => n + (x.quantity || 1), 0);
+const whenText = (d) => (!d ? '' : d.toDateString() === new Date().toDateString() ? 'Hôm nay' : dmy(d));
 
-const itemNames = (o) => (o.items || []).map((x) => `${String(x.quantity || 1).padStart(2, '0')} x ${x.name}`).join(', ');
-
-function PayMark({ o }) {
-  const s = payState(o);
-  if (o.status === 'cancelled') return null;
-  if (s === 'paid') return <span className="g"><Icon n="check" size={16} /></span>;
-  if (s === 'awaiting') return <span className="y"><Icon n="hourglass" size={16} /></span>;
-  return <span className="a-xs r">{payLabel(o) === 'Ghi nợ' ? 'Nợ' : 'Chưa trả'}</span>;
-}
-
-// Tab Lịch sử: giống app khách nhưng chủ quán tích đã thanh toán và chuyển trạng thái
-export default function HistoryTab({ orders, users, loading }) {
+// Tab Đơn hàng: danh sách đơn, xem chi tiết, thu tiền, nhận đơn, hoàn thành, huỷ
+export default function HistoryTab({ orders, users, loading, onGoOrder }) {
   const [filter, setFilter] = useState('all');
-  const [date, setDate] = useState('all');
-  const [cust, setCust] = useState(null);
-  const [page, setPage] = useState(null); // pick | { id }
+  const [openId, setOpenId] = useState(null);
 
   const list = orders.filter((o) => {
-    if (cust && o.customerPhone !== cust.phone) return false;
-    if (!inDate(o, date)) return false;
+    if (filter === 'paid') return o.paid;
     if (filter === 'unpaid') return isLive(o) && !o.paid;
-    return filter === 'all' || o.status === filter;
+    return true;
   });
-  const cycleDate = () => setDate(DATES[(DATES.findIndex(([k]) => k === date) + 1) % DATES.length][0]);
-
-  if (page === 'pick') {
-    return <CustomerPicker users={users} selected={cust} title="Lọc theo khách" allLabel="Tất cả khách" onBack={() => setPage(null)} onPick={(u) => { setCust(u); setPage(null); }} />;
-  }
-  const open = page && page.id ? orders.find((o) => o.id === page.id) : null;
+  const open = openId ? orders.find((o) => o.id === openId) : null;
 
   return (
     <>
-      <h1 className="a-title">Lịch sử</h1>
+      <h1 className="a-title">Đơn hàng</h1>
       <div className="a-body">
-        <div className="a-chips" role="tablist">
-          {FILTERS.map(([k, label]) => <Chip key={k} on={filter === k} onClick={() => setFilter(k)} role="tab" aria-selected={filter === k}>{label}</Chip>)}
-        </div>
-        <div className="a-chips">
-          <Chip icon="calendar" tail onClick={cycleDate} aria-label="Lọc theo ngày">{DATES.find(([k]) => k === date)[1]}</Chip>
-          <Chip icon="user" tail on={!!cust} onClick={() => setPage('pick')} aria-label="Lọc theo khách">{cust ? cust.name : 'Tất cả khách'}</Chip>
-        </div>
+        <Seg items={FILTERS} value={filter} onChange={setFilter} />
         {list.map((o) => {
           const st = STATUS[o.status] || STATUS.pending;
-          const d = timeOf(o);
+          const paid = payState(o) === 'paid';
           return (
-            <button key={o.id} className="a-card" onClick={() => setPage({ id: o.id })}>
+            <button key={o.id} className="a-card" onClick={() => setOpenId(o.id)}>
               <span className="a-between">
-                <b className="a-t a-ell">{o.customerName}</b>
-                <span className={`a-s ${st.cls}`} style={{ fontWeight: 700, flex: 'none' }}>{st.label}</span>
+                <b className="a-t a-ell">{qtyText(itemQty(o))} x {itemNames(o)}</b>
+                <span className={`a-s ${st.cls}`} style={{ fontWeight: 700, flex: 'none' }}>{LIST_LABEL[o.status] || st.label}</span>
               </span>
               <span className="a-between">
-                <span className="a-s a-ell">{itemNames(o)} · {d ? dayLabel(d) : ''}</span>
-                <span className="a-ic" style={{ flex: 'none' }}><b className="a-t a-num">{fmt(o.totalAmount)}</b><PayMark o={o} /></span>
+                <span className="a-s" style={{ fontWeight: 400, color: 'var(--gray)' }}>{whenText(timeOf(o))}</span>
+                <span className="a-ic" style={{ flex: 'none' }}>
+                  <b className="a-t">{o.customerName}</b>
+                  {isLive(o) && (paid ? <span className="g"><Sym id="i-paid" size={16} /></span> : <span className="y"><Sym id="i-due" size={16} /></span>)}
+                </span>
               </span>
             </button>
           );
         })}
-        {list.length === 0 && (
-          <Empty icon="list" title={loading ? 'Đang tải...' : orders.length ? 'Không có đơn phù hợp' : 'Chưa có đơn nào'} text={loading ? '' : orders.length ? 'Thử đổi bộ lọc.' : 'Đơn khách đặt sẽ hiện ở đây.'} />
-        )}
+        {list.length === 0 && (orders.length === 0 && !loading ? (
+          <div className="o-none">
+            <div className="o-cups" aria-hidden="true"><img src="/bac.webp" alt="" /><img src="/den.webp" alt="" /><img src="/nau.webp" alt="" /></div>
+            <h3>Chưa có đơn nào</h3>
+            <p>Đơn bạn đặt sẽ hiện ở đây.</p>
+            <Btn className="sm" style={{ width: 'auto' }} onClick={onGoOrder}>Làm tí thôi!</Btn>
+          </div>
+        ) : <p className="a-s" style={{ textAlign: 'center', padding: 24 }}>{loading ? 'Đang tải...' : 'Không có đơn phù hợp'}</p>)}
       </div>
-      {open && <OrderDetail o={open} onBack={() => setPage(null)} users={users} />}
+      {open && <OrderDetail o={open} onBack={() => setOpenId(null)} users={users} />}
     </>
   );
 }
 
 function OrderDetail({ o, onBack, users }) {
   const { toast, confirm } = useUI();
-  const st = STATUS[o.status] || STATUS.pending;
   const pay = payState(o);
+  const paid = pay === 'paid';
   const run = (patch) => updateOrder(o.id, patch).catch((e) => toast(errText(e)));
   const cancel = async () => {
-    if (await confirm({ title: 'Huỷ đơn này?', msg: `Đơn #${shortId(o.id)} · ${fmt(o.totalAmount)}`, ok: 'Huỷ đơn', danger: true })) run({ status: 'cancelled' });
+    if (await confirm({ title: 'Huỷ đơn này?', msg: 'Bạn có thể huỷ khi quán chưa bắt đầu pha chế.', ok: 'Huỷ đơn', danger: true })) {
+      await run({ status: 'cancelled' });
+      onBack();
+    }
   };
-  const steps = [['pending', 'Chờ xác nhận'], ['brewing', 'Đang pha chế'], ['completed', 'Hoàn thành']];
-  const cur = steps.findIndex(([k]) => k === o.status);
+  const togglePaid = async () => {
+    if (!paid) return run({ paid: true, paymentStatus: 'confirmed' });
+    if (await confirm({ title: 'Bỏ đánh dấu đã thu?', msg: `${orderCode(o.id)} · ${fmt(o.totalAmount)}`, ok: 'Bỏ đánh dấu', danger: true })) run({ paid: false, paymentStatus: null });
+  };
+
+  const cancelled = o.status === 'cancelled';
+  const steps = cancelled
+    ? [['placed', 'Đã đặt', 'var(--yellow)'], ['cancelled', 'Đã huỷ', 'var(--err)']]
+    : [['pending', 'Chờ xác nhận', 'var(--yellow)'], ['brewing', 'Đang pha chế', 'var(--info)'], ['completed', 'Hoàn thành', 'var(--ok)']];
+  const cur = cancelled ? 1 : steps.findIndex(([k]) => k === o.status);
   const d = timeOf(o);
   const phone = users[o.customerPhone] ? phoneText(o.customerPhone) : o.customerPhone;
 
-  const footer = (
-    <>
-      {o.status !== 'cancelled' && pay !== 'paid' && (
-        <Btn kind={pay === 'awaiting' ? 'yellow' : 'ghost'} icon="check" className="sm" onClick={() => run({ paid: true, paymentStatus: 'confirmed' })}>
-          {pay === 'awaiting' ? 'Xác nhận đã nhận tiền' : 'Đánh dấu đã thanh toán'}
-        </Btn>
-      )}
-      {o.status !== 'cancelled' && pay === 'paid' && (
-        <Btn kind="ghost" className="sm" onClick={() => run({ paid: false, paymentStatus: null })}>Bỏ đánh dấu đã thanh toán</Btn>
-      )}
+  let footer = null;
+  if (o.status === 'pending') {
+    footer = (
       <div style={{ display: 'flex', gap: 8 }}>
-        {o.status === 'pending' && <Btn className="sm" onClick={() => run({ status: 'brewing' })}>Nhận đơn · Pha chế</Btn>}
-        {o.status === 'brewing' && <Btn className="sm" onClick={() => run({ status: 'completed' })}>Hoàn thành</Btn>}
-        {o.status === 'completed' && <Btn kind="ghost" className="sm" onClick={() => run({ status: 'brewing' })}>Đưa về Đang pha chế</Btn>}
-        {o.status === 'cancelled' && <Btn kind="ghost" className="sm" onClick={() => run({ status: 'pending' })}>Khôi phục đơn</Btn>}
-        {(o.status === 'pending' || o.status === 'brewing') && <Btn kind="danger" className="sm" style={{ width: 'auto', flex: 'none' }} onClick={cancel}>Huỷ</Btn>}
+        <Btn kind="danger" className="sm" onClick={cancel}>Huỷ</Btn>
+        <Btn kind="yellow" className="sm" onClick={() => run({ status: 'brewing' })}>Xác nhận</Btn>
       </div>
-    </>
-  );
+    );
+  } else if (o.status === 'brewing') {
+    footer = <Btn className="sm" onClick={() => run({ status: 'completed' })}>Hoàn thành</Btn>;
+  }
 
   return (
-    <Page title={`Đơn #${shortId(o.id)}`} sub={`${o.customerName} · ${phone} · ${d ? dayLabel(d) : ''}`} onBack={onBack} footer={footer}>
-      {o.status === 'cancelled' ? (
-        <div className="a-card"><b className="a-t r">Đơn đã huỷ</b></div>
-      ) : (
-        <div className="a-card" style={{ padding: '8px 16px' }}>
-          <div className="a-tl">
-            {steps.map(([k, label], i) => (
-              <div key={k} className={`a-st ${i <= cur ? 'on' : ''}`} style={{ '--c': STATUS[k].color }}><i />{label}</div>
-            ))}
+    <Page
+      onBack={onBack}
+      footer={footer}
+      head={(
+        <>
+          <div className="a-between" style={{ alignItems: 'flex-start' }}>
+            <h1 className="a-title">{orderCode(o.id)}</h1>
+            {!cancelled && <button className="o-pill" onClick={togglePaid} aria-label={paid ? 'Bỏ đánh dấu đã thu' : 'Đánh dấu đã thu'}>{paid ? 'Đã thu' : 'Thu tiền'}</button>}
           </div>
-        </div>
+          <p className="a-s" style={{ marginBottom: 12 }}>{o.customerName} · {phone} · {d ? `${hm(d)} · ${dmy(d)}` : ''}</p>
+        </>
       )}
-      <div className="a-card">
-        {(o.items || []).map((x, i) => (
-          <div key={i} className="a-between" style={{ padding: '4px 0' }}>
-            <span>
-              <b className="a-t" style={{ display: 'block' }}>{String(x.quantity || 1).padStart(2, '0')} x {x.name}</b>
-              <span className="a-s">{[x.caffeine && x.caffeine.replace('Size ', ''), x.sweetness, x.ice].filter(Boolean).join(' / ')}</span>
-            </span>
-            <b className="a-t a-num">{fmt(x.price * (x.quantity || 1))}</b>
-          </div>
-        ))}
-        {o.note && <p className="a-s">Ghi chú: {o.note}</p>}
+    >
+      <div className="a-card" style={{ padding: '12px 24px' }}>
+        <div className="a-tl" style={cancelled ? { '--tl': '1' } : undefined}>
+          {steps.map(([k, label, color], i) => (
+            <div key={k} className={`a-st ${i <= cur ? 'on' : ''} ${i === cur ? 'cur' : ''}`} style={{ '--c': color }}><i />{label}</div>
+          ))}
+        </div>
+      </div>
+      <div className="a-card" style={{ gap: 0 }}>
+        {(o.items || []).map((x, i) => {
+          const kind = kindOf(x.name);
+          return (
+            <div key={i} className="o-item">
+              <span className="o-thumb">{kind ? <img src={`/${kind}.webp`} alt="" /> : <Sym id="i-cup" size={22} />}</span>
+              <span className="grow">
+                <b className="a-t" style={{ display: 'block' }}>{qtyText(x.quantity || 1)} x {x.name}</b>
+                <span className="a-s">{[x.caffeine && x.caffeine.replace('Size ', ''), x.sweetness, x.ice].filter(Boolean).join(' / ')}</span>
+              </span>
+              <b className="a-t a-num">{fmt(x.price * (x.quantity || 1))}</b>
+            </div>
+          );
+        })}
+        {o.note && <p className="a-s" style={{ paddingTop: 6 }}>Ghi chú: {o.note}</p>}
       </div>
       <div className="a-card" style={{ gap: 0 }}>
         <div className="a-kv"><span>Phương thức</span><b>{payLabel(o)}</b></div>
         <div className="a-kv">
           <span>Thanh toán</span>
-          <b className={pay === 'paid' ? 'g' : pay === 'awaiting' ? 'y' : 'r'}>
-            {pay === 'paid' ? 'Đã thanh toán' : pay === 'awaiting' ? 'Khách báo đã trả' : 'Chưa thanh toán'}
-          </b>
+          <b className={paid ? 'g' : pay === 'awaiting' ? 'y' : 'r'}>{paid ? 'Đã thanh toán' : pay === 'awaiting' ? 'Khách báo đã trả' : 'Chưa thanh toán'}</b>
         </div>
         <div className="a-kv tot"><span>Tổng</span><b>{fmt(o.totalAmount)}</b></div>
       </div>

@@ -7,26 +7,15 @@ export const customersOf = (users) => Object.values(users).filter((u) => u.role 
 const norm = (s) => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd');
 
 // Chọn khách theo tên hoặc số điện thoại
-export function CustomerPicker({ users, selected, onPick, onBack, onNew, allLabel, title = 'Chọn khách' }) {
+export function CustomerPicker({ users, selected, onPick, onBack }) {
   const [q, setQ] = useState('');
   const list = useMemo(() => {
     const k = norm(q).replace(/\s/g, '');
     return customersOf(users).filter((u) => !k || norm(u.name).replace(/\s/g, '').includes(k) || u.phone.includes(k));
   }, [users, q]);
   return (
-    <Page
-      title={title}
-      sub="Tìm theo tên hoặc số điện thoại"
-      onBack={onBack}
-      footer={onNew && <Btn kind="ghost" icon="plus" onClick={onNew}>Tạo khách mới</Btn>}
-    >
+    <Page onBack={onBack}>
       <Field icon="search" placeholder="Tìm tên hoặc SĐT" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Tìm khách" />
-      {allLabel && (
-        <button className="a-card h" onClick={() => onPick(null)}>
-          <span className="a-t grow">{allLabel}</span>
-          {!selected && <span className="g"><Icon n="check" /></span>}
-        </button>
-      )}
       {list.map((u) => (
         <button key={u.phone} className="a-card h" onClick={() => onPick(u)}>
           <span className="grow">
@@ -36,7 +25,7 @@ export function CustomerPicker({ users, selected, onPick, onBack, onNew, allLabe
           {selected && selected.phone === u.phone && <span className="g"><Icon n="check" /></span>}
         </button>
       ))}
-      {list.length === 0 && <Empty icon="user" title="Không thấy khách" text="Thử tên hoặc số khác, hoặc tạo khách mới." />}
+      {list.length === 0 && <Empty icon="user" title="Không thấy khách" text="Thử tên hoặc số khác. Thêm khách mới trong Cài đặt." />}
     </Page>
   );
 }
