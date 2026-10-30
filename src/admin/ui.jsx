@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
+import { SYMS } from './symbols.js';
 
 const PATHS = {
   coffee: '<path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/>',
@@ -26,10 +27,23 @@ export const Icon = ({ n, size }) => (
   <svg width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" dangerouslySetInnerHTML={{ __html: PATHS[n] }} />
 );
 
+// Biểu tượng của app khách (cốc, giỏ, đồng hồ cát...)
+export const Sym = ({ id, size = 24 }) => {
+  const sym = SYMS[id];
+  const [, , w, h] = sym.vb.split(' ').map(Number);
+  return <svg width={size} height={Math.round((size * h) / w)} viewBox={sym.vb} aria-hidden="true" dangerouslySetInnerHTML={{ __html: sym.html }} />;
+};
+
 // --- định dạng ---
 export const fmt = (n) => String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 export const pad = (n) => String(n).padStart(2, '0');
 export const shortId = (id) => id.slice(-6).toUpperCase();
+export const orderCode = (id) => `#CG${id.slice(-4).toUpperCase()}`;
+// Món nào có ảnh cốc riêng: khớp theo tên như app khách
+export const kindOf = (name) => {
+  const n = (name || '').toLowerCase();
+  return n.includes('bạc') ? 'bac' : n.includes('đen') ? 'den' : n.includes('nâu') ? 'nau' : '';
+};
 export const timeOf = (rec) => (rec.createdAt ? new Date(rec.createdAt) : null);
 export const hm = (d) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 export const dmy = (d) => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
@@ -44,6 +58,7 @@ export const byName = (a, b) => (a.name || '').localeCompare(b.name || '', 'vi')
 export const errText = (e) => (e && (e.code === 'permission-denied' ? 'Không có quyền thực hiện' : e.code || e.message)) || 'Lỗi';
 
 export const PAY = { cash: 'Tiền mặt', bank: 'Chuyển khoản', debt: 'Ghi nợ' };
+export const XL_EXTRA = 5000;
 export const payLabel = (o) => PAY[o.payMethod] || 'Ghi nợ';
 export const STATUS = {
   pending: { label: 'Chờ xác nhận', cls: 'y', color: 'var(--yellow)' },
@@ -111,10 +126,11 @@ export const Toggle = ({ on, onChange, label }) => (
   <button className={`a-toggle ${on ? 'on' : ''}`} role="switch" aria-checked={on} aria-label={label} onClick={(e) => { e.stopPropagation(); onChange(!on); }}><i /></button>
 );
 
-export const Page = ({ title, sub, onBack, children, footer }) => (
+export const Page = ({ title, sub, head, onBack, children, footer }) => (
   <div className="a-page">
     <button className="a-back" onClick={onBack} aria-label="Quay lại"><Icon n="left" size={28} /></button>
-    <h1 className="a-title">{title}</h1>
+    {head}
+    {title && <h1 className="a-title">{title}</h1>}
     {sub && <p className="a-sub">{sub}</p>}
     <div className="a-body">{children}</div>
     {footer && <div className="a-foot">{footer}</div>}
