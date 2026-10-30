@@ -218,11 +218,14 @@ function Orders({ onLogout }) {
   );
 }
 
-function PayBadge({ state }) {
+const METHOD_LABELS = { cash: 'Tiền mặt', bank: 'Chuyển khoản', debt: 'Ghi nợ' };
+const methodLabel = (o) => METHOD_LABELS[o.payMethod] || 'Ghi nợ';
+
+function PayBadge({ state, method }) {
   const map = {
     confirmed: ['✓ Đã thanh toán', '#34d399'],
     awaiting: ['⏳ Chờ xác nhận thanh toán', '#fbbf24'],
-    unpaid: ['Ghi nợ', '#fb7185'],
+    unpaid: [method === 'Ghi nợ' ? 'Ghi nợ' : `Chưa thanh toán · ${method}`, '#fb7185'],
   };
   const [text, color] = map[state];
   return <span className="text-[12px] font-bold" style={{ color }}>{text}</span>;
@@ -250,7 +253,7 @@ function OrderCard({ o, onStatus, onConfirmPaid }) {
         ))}
         {o.note && <p className="text-[14px] italic" style={{ color: 'var(--white-50)' }}>Ghi chú: {o.note}</p>}
       </div>
-      {o.status !== 'cancelled' && <PayBadge state={pay} />}
+      {o.status !== 'cancelled' && <PayBadge state={pay} method={methodLabel(o)} />}
       <div className="flex" style={{ gap: 'var(--space-gap)' }}>
         {o.status === 'pending' && (<>
           <button className={btn} style={{ ...radius, background: '#fff', color: '#000' }} onClick={() => onStatus(o, 'brewing')}>Nhận đơn · Pha chế</button>
