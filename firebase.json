@@ -13,6 +13,7 @@
     "rules": "firestore.rules"
   },
   "hosting": {
+    "site": "coongcafe",
     "public": "dist",
     "ignore": [
       "firebase.json",
