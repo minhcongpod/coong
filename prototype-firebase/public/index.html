@@ -91,6 +91,20 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 .cthumb img{position:absolute;left:50%;top:12px;width:66px;height:auto;transform:translateX(-50%)}
 .cinfo{flex:1;display:flex;flex-direction:column;gap:8px;line-height:normal;font-weight:700}
 .cname{font-size:24px}
+.copt{display:flex;align-items:center;gap:8px;padding:0;text-align:left;color:inherit}
+.copt b{font-size:14px;color:var(--yellow)}
+.esp{gap:16px}
+.ehead{display:flex;align-items:center;gap:16px}
+.ehead b{display:block;font-size:24px}.ehead small{font-size:14px;color:rgba(255,255,255,.5);font-weight:500}
+.egroup{display:flex;flex-direction:column;gap:8px}
+.egroup label,.eqty label{font-size:14px;font-weight:700;color:rgba(255,255,255,.5)}
+.echips{display:flex;gap:8px}
+.echips button{flex:1;height:44px;border-radius:32px;background:rgba(255,255,255,.1);color:#fff;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .25s,color .25s}
+.echips button small{font-size:12px;opacity:.6}
+.echips button.on{background:#fff;color:#000}
+.eqty{display:flex;align-items:center;justify-content:space-between}
+.eqty label{font-size:16px;color:#fff}
+.salt.edel{color:#ff383c}
 .crow{display:flex;align-items:center;justify-content:space-between}
 .cqty{display:flex;align-items:center;gap:15px;font-size:18px}
 .cqty span{min-width:10px;text-align:center;font-variant-numeric:tabular-nums}
@@ -542,6 +556,18 @@ input{user-select:text;-webkit-user-select:text}
       <div class="shine"><div class="lbl">Thanh toán</div>
       <svg class="chev"><use href="#i-chev"/></svg></div>
       <div class="knob" role="button" aria-label="Kéo để thanh toán"><svg><use href="#i-bag"/></svg></div>
+    </div>
+    <div class="psheet" id="eSheet" role="dialog" aria-label="Chỉnh món">
+      <div class="sb"></div>
+      <div class="sp esp">
+        <div class="ehead"><div class="cthumb"><img alt="" draggable="false"></div><div><b class="ename"></b><small class="eunit"></small></div></div>
+        <div class="egroup" data-k="upsize"><label>Size</label><div class="echips"><button data-v="0">L</button><button data-v="1">XL <small>+5.000</small></button></div></div>
+        <div class="egroup" data-k="sweet"><label>Ngọt</label><div class="echips"><button data-v="30">30</button><button data-v="50">50</button><button data-v="70">70</button><button data-v="100">100</button></div></div>
+        <div class="egroup" data-k="cafe"><label>Đá</label><div class="echips"><button data-v="30">30</button><button data-v="50">50</button><button data-v="70">70</button><button data-v="100">100</button></div></div>
+        <div class="eqty"><label>Số lượng</label><div class="cqty"><button class="cpm" data-d="-1" aria-label="Giảm"><svg><use href="#i-minus"/></svg></button><span>1</span><button class="cpm" data-d="1" aria-label="Tăng"><svg><use href="#i-plus"/></svg></button></div></div>
+        <button class="btn" id="eSave">Cập nhật</button>
+        <button class="salt edel" id="eDel">Xoá khỏi giỏ</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1198,16 +1224,59 @@ function addToCart(id, q, u, o = {upsize:0, sweet:0, cafe:0}){
   renderCart();
 }
 function cartTotal(){ return cartItems.reduce((n, x) => n + x.qty*x.unit, 0); }
+/* edit a cart line: size, sweetness, ice and quantity; an edit that matches another line merges into it */
+const eSheet = $('#eSheet'), E = {i:-1, o:null, qty:1};
+const lineUnit = (id, o) => drink(id).price + (o.upsize ? 5000 : 0);
+function eSync(){
+  const it = cartItems[E.i]; if (!it) return;
+  $$('.egroup', eSheet).forEach(g => { const k = g.dataset.k, v = k === 'upsize' ? E.o.upsize : (E.o[k] || 100);
+    $$('.echips button', g).forEach(b => b.classList.toggle('on', +b.dataset.v === v)); });
+  $('.eqty .cqty span', eSheet).textContent = E.qty;
+  $('#eSave').textContent = `Cập nhật · ${fmt(lineUnit(it.id, E.o)*E.qty)}`;
+}
+function openEdit(i){
+  const it = cartItems[i]; if (!it) return; const d = drink(it.id);
+  Object.assign(E, {i, o:{...it.o}, qty:it.qty});
+  $('.ehead img', eSheet).src = d.id + '.webp'; $('.ename', eSheet).textContent = d.name; $('.eunit', eSheet).textContent = `${fmt(d.price)} / ly`;
+  eSync();
+  eSheet.onDismiss = null;
+  eSheet.getAnimations().forEach(a => a.cancel());
+  eSheet.style.visibility = 'visible';
+  const sp = $('.sp', eSheet);
+  $('.sb', eSheet).animate([{opacity:0},{opacity:1}], {duration:T(260)});
+  sp.animate([{transform:'translateY(100%)'},{transform:'none'}], {duration:T(520), easing:'cubic-bezier(.22,1,.36,1)'});
+  [...sp.children].forEach((c, k) => c.animate([{opacity:0, transform:'translateY(18px)'},{opacity:1, transform:'none'}], {duration:T(480), delay:T(100 + k*40), easing:'cubic-bezier(.34,1.4,.64,1)', fill:'backwards'}));
+}
+$$('.egroup', eSheet).forEach(g => g.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  b.animate([{transform:'scale(.9)'},{transform:'scale(1)'}], {duration:T(320), easing:'cubic-bezier(.34,1.56,.64,1)'});
+  E.o[g.dataset.k] = +b.dataset.v; eSync();
+}));
+$$('.eqty .cpm', eSheet).forEach(b => b.addEventListener('click', () => { E.qty = Math.max(1, Math.min(99, E.qty + +b.dataset.d)); eSync(); }));
+$('#eSave').addEventListener('click', () => {
+  const it = cartItems[E.i]; if (!it) return;
+  it.o = {...E.o}; it.unit = lineUnit(it.id, it.o); it.qty = E.qty;
+  const twin = cartItems.findIndex((x, k) => k !== E.i && x.id === it.id && x.unit === it.unit && optText(x.o) === optText(it.o));
+  if (twin >= 0) { cartItems[twin].qty = Math.min(99, cartItems[twin].qty + it.qty); cartItems.splice(E.i, 1); }
+  cart = cartItems.reduce((n, x) => n + x.qty, 0); syncBadges();
+  hideSheet(false, eSheet); renderCart(); toast('Đã cập nhật món');
+});
+$('#eDel').addEventListener('click', () => {
+  cartItems.splice(E.i, 1); cart = cartItems.reduce((n, x) => n + x.qty, 0); syncBadges();
+  hideSheet(false, eSheet); renderCart(); toast('Đã xoá khỏi giỏ');
+});
+sheetDismiss(eSheet);
 function renderCart(){
   clist.innerHTML = '';
   cartItems.forEach((it, i) => {
     const d = DRINKS.find(x => x.id === it.id);
     const row = document.createElement('div'); row.className = 'citem';
     row.innerHTML = `<div class="cthumb"><img src="${d.id}.webp" alt="" draggable="false"></div>
-      <div class="cinfo"><span class="cname"></span><span class="copt"></span><div class="crow">
+      <div class="cinfo"><span class="cname"></span><button class="copt"><span></span><b>Sửa</b></button><div class="crow">
         <div class="cqty"><button class="cpm" data-d="-1" aria-label="Giảm"><svg><use href="#i-minus"/></svg></button><span>${it.qty}</span><button class="cpm" data-d="1" aria-label="Tăng"><svg><use href="#i-plus"/></svg></button></div>
         <span class="cprice">${fmt(it.qty*it.unit)}</span></div></div>`;
-    $('.cname', row).textContent = d.name; $('.copt', row).textContent = optText(it.o);
+    $('.cname', row).textContent = d.name; $('.copt span', row).textContent = optText(it.o);
+    $('.copt', row).addEventListener('click', () => openEdit(i));
     $$('.cpm', row).forEach(b => b.addEventListener('click', () => changeItem(i, +b.dataset.d, row)));
     clist.appendChild(row);
   });
