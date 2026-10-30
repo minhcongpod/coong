@@ -151,7 +151,19 @@ input{user-select:text;-webkit-user-select:text}
 .otp{display:flex;gap:8px}
 .otp .field{flex:1;padding:0;justify-content:center}
 .otp input{text-align:center;font-size:22px}
-.step2{display:none}.aform.s2 .step1{display:none}.aform.s2 .step2{display:flex}
+.cc{font-size:18px;font-weight:700;color:rgba(255,255,255,.5)}
+.pdots{display:flex;gap:18px;margin-top:40px;align-self:center}
+.pdots i{width:18px;height:18px;border-radius:18px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35);transition:background .2s,box-shadow .2s,transform .25s var(--ease-out)}
+.pdots i.on{background:var(--yellow);box-shadow:none;transform:scale(1.12)}
+.pdots.err i{background:#ff383c;box-shadow:none}
+.aform[data-m=pin] .aerr{text-align:center;margin-top:18px}
+.pforgot{align-self:center}
+.aform:not([data-m=phone]) .asub{max-width:none}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%}
+.key{height:62px;border-radius:100px;background:rgba(255,255,255,.1);font-size:26px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;transition:transform .2s var(--ease-out),background .2s}
+.key:active{transform:scale(.92);background:rgba(255,255,255,.22)}
+.key.ghost{background:none}
+.key svg{width:28px;height:28px}
 
 /* notifications */
 .plist{left:24px;top:152px;width:342px;height:484px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
@@ -438,7 +450,7 @@ input{user-select:text;-webkit-user-select:text}
         </div>
         <div class="arows">
           <label class="arow"><span>Tên đặt hàng</span><input class="r aname" id="aName" value="LieuNT" maxlength="16" enterkeyhint="done" autocomplete="nickname" aria-label="Tên đặt hàng"></label>
-          <button class="arow" id="resetPw"><span>Mật khẩu</span><span class="r y">Reset</span></button>
+          <button class="arow" id="resetPw"><span>Mã PIN</span><span class="r y">Đặt lại</span></button>
           <button class="logout" id="logout">Đăng xuất</button>
         </div>
       </div>
@@ -565,51 +577,45 @@ input{user-select:text;-webkit-user-select:text}
   <div class="stage">
     <img class="abs adeco" src="den.webp" alt="" draggable="false">
     <button class="abs circ pback" id="aBack" data-back aria-label="Quay lại"><svg><use href="#i-back"/></svg></button>
-    <form class="abs aform" data-m="login" novalidate>
-      <h2 class="atitle" data-s>Đăng nhập</h2>
-      <p class="asub" data-s>Chào bạn quay lại Coong, ly quen đang chờ.</p>
+    <form class="abs aform" data-m="phone" novalidate>
+      <h2 class="atitle" data-s>Số điện thoại</h2>
+      <p class="asub" data-s>Nhập số để đăng nhập, hoặc tạo tài khoản mới nếu là lần đầu.</p>
       <div class="fields">
-        <label class="field" data-s><input name="phone" type="tel" inputmode="numeric" placeholder="Số điện thoại" autocomplete="tel" maxlength="12"></label>
-        <label class="field" data-s><input name="pw" type="password" placeholder="Mật khẩu" autocomplete="current-password"><button type="button" class="peek">Hiện</button></label>
+        <label class="field" data-s><input name="phone" type="tel" inputmode="numeric" placeholder="0901 234 567" autocomplete="tel" maxlength="13" aria-label="Số điện thoại"></label>
       </div>
-      <button type="button" class="alink right" data-go="forgot" data-s>Quên mật khẩu?</button>
       <p class="aerr" aria-live="polite"></p>
-      <div class="afoot">
-        <button type="submit" class="btn" data-s>Đăng nhập</button>
-        <p class="aswitch" data-s>Chưa có tài khoản? <button type="button" class="alink" data-go="register">Đăng ký</button></p>
-      </div>
+      <p class="ahint" data-s>Bản demo: 0901 234 567 là khách cũ, mã PIN 2468. Số khác sẽ tạo tài khoản mới.</p>
+      <div class="afoot"><button type="submit" class="btn" data-s>Tiếp tục</button></div>
     </form>
-    <form class="abs aform off" data-m="register" novalidate>
-      <h2 class="atitle" data-s>Tạo tài khoản</h2>
-      <p class="asub" data-s>Một phút thôi, lần sau đặt chỉ cần vuốt.</p>
+    <form class="abs aform off" data-m="name" novalidate>
+      <h2 class="atitle" data-s>Quán gọi bạn là gì?</h2>
+      <p class="asub" data-s>Tên đặt hàng sẽ ghi trên ly và hiện khi đơn xong.</p>
       <div class="fields">
-        <label class="field" data-s><input name="name" placeholder="Tên đặt hàng" autocomplete="nickname" maxlength="16"></label>
-        <label class="field" data-s><input name="phone" type="tel" inputmode="numeric" placeholder="Số điện thoại" autocomplete="tel" maxlength="12"></label>
-        <label class="field" data-s><input name="pw" type="password" placeholder="Mật khẩu (từ 6 ký tự)" autocomplete="new-password"><button type="button" class="peek">Hiện</button></label>
+        <label class="field" data-s><input name="name" placeholder="Tên đặt hàng" autocomplete="nickname" maxlength="16" enterkeyhint="next"></label>
       </div>
       <p class="aerr" aria-live="polite"></p>
-      <div class="afoot">
-        <button type="submit" class="btn" data-s>Đăng ký</button>
-        <p class="aswitch" data-s>Đã có tài khoản? <button type="button" class="alink" data-go="login">Đăng nhập</button></p>
-      </div>
+      <div class="afoot"><button type="submit" class="btn" data-s>Tiếp tục</button></div>
     </form>
-    <form class="abs aform off" data-m="forgot" novalidate>
-      <h2 class="atitle" data-s>Quên mật khẩu</h2>
-      <p class="asub step1" data-s>Nhập số điện thoại, Coong gửi mã để đặt lại.</p>
-      <p class="asub step2" id="fSent">Nhập mã 4 số vừa gửi và mật khẩu mới.</p>
-      <div class="fields step1">
-        <label class="field" data-s><input name="phone" type="tel" inputmode="numeric" placeholder="Số điện thoại" autocomplete="tel" maxlength="12"></label>
-      </div>
-      <div class="fields step2" style="flex-direction:column">
-        <div class="otp"><label class="field"><input name="o1" inputmode="numeric" maxlength="1" aria-label="Số 1"></label><label class="field"><input name="o2" inputmode="numeric" maxlength="1" aria-label="Số 2"></label><label class="field"><input name="o3" inputmode="numeric" maxlength="1" aria-label="Số 3"></label><label class="field"><input name="o4" inputmode="numeric" maxlength="1" aria-label="Số 4"></label></div>
-        <label class="field"><input name="pw" type="password" placeholder="Mật khẩu mới" autocomplete="new-password"><button type="button" class="peek">Hiện</button></label>
-      </div>
-      <p class="ahint step2">Bản demo: nhập 4 số bất kỳ. &nbsp;<button type="button" class="alink" id="fResend">Gửi lại mã</button></p>
+    <form class="abs aform off" data-m="pin" novalidate>
+      <h2 class="atitle" data-s id="pTitle">Nhập mã PIN</h2>
+      <p class="asub" data-s id="pSub"></p>
+      <div class="pdots" data-s aria-live="polite" aria-label="Mã PIN"><i></i><i></i><i></i><i></i></div>
       <p class="aerr" aria-live="polite"></p>
-      <div class="afoot">
-        <button type="submit" class="btn" data-s id="fBtn">Gửi mã</button>
-        <p class="aswitch" data-s id="fSwitch">Nhớ ra rồi? <button type="button" class="alink" data-go="login">Đăng nhập</button></p>
-      </div>
+      <button type="button" class="alink pforgot" id="pForgot">Quên mã PIN?</button>
+      <div class="afoot"><div class="keypad" data-s>
+        <button type="button" class="key">1</button><button type="button" class="key">2</button><button type="button" class="key">3</button>
+        <button type="button" class="key">4</button><button type="button" class="key">5</button><button type="button" class="key">6</button>
+        <button type="button" class="key">7</button><button type="button" class="key">8</button><button type="button" class="key">9</button>
+        <span class="key ghost"></span><button type="button" class="key">0</button><button type="button" class="key ghost" data-k="del" aria-label="Xoá"><svg><use href="#i-back"/></svg></button>
+      </div></div>
+    </form>
+    <form class="abs aform off" data-m="otp" novalidate>
+      <h2 class="atitle" data-s>Xác minh số</h2>
+      <p class="asub" data-s id="oSub">Nhập mã 4 số Coong vừa gửi qua SMS.</p>
+      <div class="fields"><div class="otp" data-s><label class="field"><input name="o1" inputmode="numeric" maxlength="1" aria-label="Số 1"></label><label class="field"><input name="o2" inputmode="numeric" maxlength="1" aria-label="Số 2"></label><label class="field"><input name="o3" inputmode="numeric" maxlength="1" aria-label="Số 3"></label><label class="field"><input name="o4" inputmode="numeric" maxlength="1" aria-label="Số 4"></label></div></div>
+      <p class="ahint" data-s>Bản demo: nhập 4 số bất kỳ. &nbsp;<button type="button" class="alink" id="fResend">Gửi lại mã</button></p>
+      <p class="aerr" aria-live="polite"></p>
+      <div class="afoot"><button type="submit" class="btn" data-s>Xác nhận</button></div>
     </form>
   </div>
 </div>
@@ -1560,111 +1566,159 @@ $('#sTrack').addEventListener('click', () => { dropFlow(); if (tab !== 1) showTa
 /* empty cart → go pick a drink */
 $('#cGo').addEventListener('click', () => { closeCart(); if (detail.style.visibility !== 'visible' && tab !== 0) showTab(0); });
 
-/* ---------- sign in / sign up / forgot password ---------- */
+/* ---------- sign in: phone → new customer (name → PIN → PIN again) or returning (PIN); forgot PIN: SMS code → new PIN ---------- */
 const authEl = $('#auth'), forms = $$('.aform', authEl);
-let authMode = 'login', authAsPage = false;
 const formOf = m => forms.find(f => f.dataset.m === m);
+let step = 'phone', pinBusy = false;
+const A = {phone:'', name:'', mode:'enter', pin:'', first:''};
+const DEMO = {'0901234567': {name:'LieuNT', pin:'2468'}}, MEM = {};
+const saved = () => { try { return JSON.parse(store.get('coong.accounts') || '{}') || {}; } catch (e) { return {}; } };
+const accounts = () => ({...DEMO, ...saved(), ...MEM});
+function saveAccount(phone, acc){ MEM[phone] = acc; const a = saved(); a[phone] = acc; store.set('coong.accounts', JSON.stringify(a)); }
 function setName(n){ $('#helloName').textContent = n; aName.value = n; savedName = n; store.set('coong.name', n); }
-function setMode(m, anim = true){
-  const from = formOf(authMode), to = formOf(m); authMode = m;
-  $('#aBack').style.visibility = authAsPage || m !== 'login' ? '' : 'hidden';
-  $('.adeco', authEl).style.opacity = m === 'login' ? 1 : .0;
+const digits = v => v.replace(/\D/g, '');
+const tail = p => '••• ' + p.slice(-3);
+function go(m, anim = true){
+  const from = formOf(step), to = formOf(m); step = m;
+  $('#aBack').style.visibility = m === 'phone' ? 'hidden' : '';
+  $('.adeco', authEl).style.opacity = m === 'phone' ? 1 : 0;
   forms.forEach(f => { $$('.err', f).forEach(x => x.classList.remove('err')); $('.aerr', f).textContent = ''; });
-  if (m === 'forgot') { to.classList.remove('s2'); $('#fBtn').textContent = 'Gửi mã'; }
+  if (m === 'pin') pinView();
+  if (m === 'otp') { otp.forEach(i => i.value = ''); $('#oSub').textContent = `Nhập mã 4 số Coong vừa gửi qua SMS tới ${tail(A.phone)}.`; }
+  const focus = () => { const i = m === 'pin' ? null : $('input', to); if (i) i.focus({preventScroll:true}); };
   if (from === to || !anim) { forms.forEach(f => f.classList.toggle('off', f !== to)); return; }
   from.animate([{opacity:1, transform:'none'},{opacity:0, transform:'translateX(-24px)'}], {duration:T(180), easing:'ease-in'}).onfinish = () => {
     from.classList.add('off'); to.classList.remove('off');
     to.animate([{opacity:0, transform:'translateX(24px)'},{opacity:1, transform:'none'}], {duration:T(420), easing:'cubic-bezier(.22,1,.36,1)'});
-    stagger(to, 60);
+    stagger(to, 60); setTimeout(focus, T(260));
   };
 }
-function openAuth(m, asPage){
-  authAsPage = !!asPage; authEl.dataset.how = asPage ? 'right' : 'fade';
+function openAuth(m = 'phone'){
   forms.forEach(f => f.reset());
-  setMode(m, false); showPage(authEl);
+  Object.assign(A, {phone:'', name:'', mode:'enter', pin:'', first:''}); pinBusy = false;
+  if (m === 'otp') { A.phone = store.get('coong.phone') || '0901234567'; const acc = accounts()[A.phone]; A.name = acc ? acc.name : ''; }
+  go(m, false); showPage(authEl);
+  if (m === 'otp') setTimeout(() => toast(`Đã gửi mã tới ${tail(A.phone)}`), T(500));
 }
-authEl.goBack = () => { if (authAsPage && (authMode === 'forgot' || authMode === 'login')) return hidePage(authEl); if (authMode !== 'login') setMode('login'); };
-$$('[data-go]', authEl).forEach(b => b.addEventListener('click', () => setMode(b.dataset.go)));
-$$('.peek', authEl).forEach(b => b.addEventListener('click', () => { const i = b.previousElementSibling; i.type = i.type === 'password' ? 'text' : 'password'; b.textContent = i.type === 'password' ? 'Hiện' : 'Ẩn'; }));
+authEl.goBack = () => {
+  if (step === 'name' || step === 'phone') return go('phone');
+  if (step === 'otp') { if (accounts()[A.phone]) { A.mode = 'enter'; return go('pin'); } return go('phone'); }
+  /* PIN step: step back through the PIN modes */
+  if (A.mode === 'confirm') { A.mode = 'create'; return swapPin(); }
+  if (A.mode === 'reset2') { A.mode = 'reset'; return swapPin(); }
+  if (A.mode === 'create') return go('name');
+  if (A.mode === 'reset') return go('otp');
+  go('phone');
+};
+function bad(form, inputs, msg){
+  inputs.forEach(i => { const f = i.closest('.field'); f.classList.add('err'); f.classList.remove('shake'); f.offsetWidth; f.classList.add('shake'); });
+  $('.aerr', form).textContent = msg; inputs[0].focus();
+}
 $$('.field input', authEl).forEach(i => i.addEventListener('input', () => { i.closest('.field').classList.remove('err'); i.form.querySelector('.aerr').textContent = ''; }));
+async function busyBtn(form, label, ms = 600){
+  const b = $('[type=submit]', form), t = b.textContent; b.textContent = label; b.style.opacity = .6; b.disabled = true;
+  await wait(T(ms)); b.textContent = t; b.style.opacity = ''; b.disabled = false;
+}
+formOf('phone').addEventListener('submit', async e => {
+  e.preventDefault(); const f = e.target, i = f.elements.phone;
+  let p = digits(i.value); if (p.startsWith('84')) p = p.slice(2); if (p && p[0] !== '0') p = '0' + p;
+  if (p.length < 10 || p.length > 11) return bad(f, [i], 'Số điện thoại chưa đúng, kiểm tra lại giúp mình nhé.');
+  await busyBtn(f, 'Đang kiểm tra…');
+  A.phone = p; const acc = accounts()[p];
+  if (acc) { A.name = acc.name; A.mode = 'enter'; go('pin'); } else go('name');
+});
+formOf('name').addEventListener('submit', e => {
+  e.preventDefault(); const f = e.target, i = f.elements.name, v = i.value.trim();
+  if (!v) return bad(f, [i], 'Nhập tên để quán gọi bạn nhé.');
+  A.name = v; A.mode = 'create'; go('pin');
+});
+/* PIN pad */
+const PIN = {
+  enter:['Chào ' + 'bạn', 'Nhập mã PIN 4 số để vào Coong.'],
+  create:['Tạo mã PIN', 'Chọn 4 số dễ nhớ với bạn nhưng khó đoán với người khác.'],
+  confirm:['Nhập lại mã PIN', 'Nhập lại 4 số vừa chọn để chắc chắn.'],
+  reset:['Mã PIN mới', 'Chọn 4 số mới cho tài khoản '],
+  reset2:['Nhập lại mã PIN mới', 'Nhập lại 4 số vừa chọn để chắc chắn.'],
+};
+function pinView(){
+  A.pin = ''; pinDots();
+  const [t, s] = PIN[A.mode];
+  $('#pTitle').textContent = A.mode === 'enter' ? `Chào ${A.name}` : t;
+  $('#pSub').textContent = A.mode === 'reset' ? s + tail(A.phone) + '.' : s;
+  $('#pForgot').style.visibility = A.mode === 'enter' ? '' : 'hidden';
+  $('.aerr', formOf('pin')).textContent = '';
+}
+function swapPin(){ pinBusy = false; pinView(); stagger(formOf('pin'), 0); }
+function pinDots(){ $$('.pdots i', authEl).forEach((d, i) => d.classList.toggle('on', i < A.pin.length)); }
+function pinErr(msg){
+  const p = $('.pdots', authEl); p.classList.add('err'); p.classList.remove('shake'); p.offsetWidth; p.classList.add('shake');
+  $('.aerr', formOf('pin')).textContent = msg;
+  setTimeout(() => { p.classList.remove('err'); A.pin = ''; pinDots(); pinBusy = false; }, T(520));
+}
+const weak = p => /^(\d)\1{3}$/.test(p) || '0123456789'.includes(p) || '9876543210'.includes(p);
+function press(k){
+  if (step !== 'pin' || pinBusy) return;
+  if (k === 'del') A.pin = A.pin.slice(0, -1); else if (A.pin.length < 4) A.pin += k;
+  $('.aerr', formOf('pin')).textContent = ''; pinDots();
+  if (A.pin.length === 4) { pinBusy = true; setTimeout(pinDone, T(180)); }
+}
+function pinDone(){
+  const p = A.pin, acc = accounts()[A.phone];
+  /* wrong PINs never lock the account; the customer can keep trying or reset */
+  if (A.mode === 'enter') return p === acc.pin ? finish(false) : pinErr('Sai mã PIN, thử lại nhé.');
+  if (A.mode === 'create' || A.mode === 'reset') {
+    if (weak(p)) return pinErr('Mã này dễ đoán quá, chọn 4 số khác nhé.');
+    A.first = p; A.mode = A.mode === 'create' ? 'confirm' : 'reset2'; return swapPin();
+  }
+  if (p !== A.first) { A.mode = A.mode === 'confirm' ? 'create' : 'reset'; pinView(); return pinErr('Hai lần nhập chưa khớp, tạo lại nhé.'); }
+  if (A.mode === 'confirm') { saveAccount(A.phone, {name:A.name, pin:p}); return finish(true); }
+  saveAccount(A.phone, {name:(acc && acc.name) || A.name || 'Bạn', pin:p}); toast('Đã đổi mã PIN'); finish(false);
+}
+$$('.key', authEl).forEach(b => { if (b.tagName === 'BUTTON') b.addEventListener('click', () => press(b.dataset.k || b.textContent.trim())); });
+addEventListener('keydown', e => { if (step !== 'pin' || !isOpen(authEl)) return; if (/^\d$/.test(e.key)) press(e.key); else if (e.key === 'Backspace') press('del'); });
+$('#pForgot').addEventListener('click', () => { go('otp'); toast(`Đã gửi mã tới ${tail(A.phone)}`); });
 /* one digit per box: typing moves on, backspace moves back */
 const otp = $$('.otp input', authEl);
 otp.forEach((i, k) => {
   i.addEventListener('input', () => { i.value = i.value.replace(/\D/g, '').slice(-1); if (i.value && otp[k+1]) otp[k+1].focus(); });
   i.addEventListener('keydown', e => { if (e.key === 'Backspace' && !i.value && otp[k-1]) otp[k-1].focus(); });
 });
-function bad(form, inputs, msg){
-  inputs.forEach(i => { const f = i.closest('.field'); f.classList.add('err'); f.classList.remove('shake'); f.offsetWidth; f.classList.add('shake'); });
-  $('.aerr', form).textContent = msg; inputs[0].focus();
-  return false;
-}
-const digits = v => v.replace(/\D/g, '');
-function check(form, names){
-  const g = n => form.elements[n];
-  for (const n of names) {
-    const i = g(n), v = i.value.trim();
-    if (n === 'name' && !v) return bad(form, [i], 'Nhập tên để quán gọi bạn nhé.');
-    if (n === 'phone' && digits(v).length < 9) return bad(form, [i], 'Số điện thoại chưa đúng, cần ít nhất 9 số.');
-    if (n === 'pw' && v.length < 6) return bad(form, [i], 'Mật khẩu cần ít nhất 6 ký tự.');
-  }
-  return true;
-}
-async function submitBtn(form, label, ms = 700){
-  const b = $('[type=submit]', form), t = b.textContent; b.textContent = label; b.style.opacity = .6; b.disabled = true;
-  await wait(T(ms)); b.textContent = t; b.style.opacity = ''; b.disabled = false;
-}
-function signedIn(){
-  store.set('coong.auth', '1');
+formOf('otp').addEventListener('submit', async e => {
+  e.preventDefault(); const f = e.target, empty = otp.filter(i => !i.value);
+  if (empty.length) return bad(f, empty, 'Nhập đủ 4 số của mã.');
+  await busyBtn(f, 'Đang xác minh…');
+  A.mode = 'reset'; go('pin');
+});
+$('#fResend').addEventListener('click', () => toast('Đã gửi lại mã'));
+function finish(isNew){
+  pinBusy = false;
+  const acc = accounts()[A.phone];
+  store.set('coong.phone', A.phone); store.set('coong.auth', '1');
+  if (isNew) {
+    /* a new account starts with no orders, which shows the empty history */
+    orders = []; notifs = [{title:'Chào mừng đến Coong', body:'Vuốt thẻ để chọn ly, giữ nút + để thêm nhanh nhiều ly.', at:new Date(), read:false, kind:'info'}];
+  } else if (!orders.length) { orders = seedOrders(); notifs = seedNotifs(); }
+  renderHistory(); renderNotifs(); setName(acc.name);
   hidePage(authEl);
   if (tab !== 0) showTab(0);
   homeParts().forEach((el, k) => el.animate([{opacity:0, transform:'translateY(14px)'},{opacity:1, transform:'none'}], {duration:T(520), delay:T(180 + k*50), easing:'cubic-bezier(.22,1,.36,1)', fill:'backwards'}));
+  toast(isNew ? 'Đã tạo tài khoản' : `Chào ${acc.name}!`);
 }
-formOf('login').addEventListener('submit', async e => {
-  e.preventDefault(); const f = e.target;
-  if (!check(f, ['phone', 'pw'])) return;
-  await submitBtn(f, 'Đang đăng nhập…');
-  if (!orders.length) { orders = seedOrders(); notifs = seedNotifs(); renderHistory(); renderNotifs(); }
-  setName(store.get('coong.name') || 'LieuNT');
-  signedIn(); toast(`Chào ${$('#helloName').textContent}!`);
-});
-formOf('register').addEventListener('submit', async e => {
-  e.preventDefault(); const f = e.target;
-  if (!check(f, ['name', 'phone', 'pw'])) return;
-  await submitBtn(f, 'Đang tạo tài khoản…', 900);
-  /* a new account starts with no orders, which shows the empty history */
-  orders = []; notifs = [{title:'Chào mừng đến Coong', body:'Vuốt thẻ để chọn ly, giữ nút + để thêm nhanh nhiều ly.', at:new Date(), read:false, kind:'info'}];
-  renderHistory(); renderNotifs();
-  setName(f.elements.name.value.trim());
-  signedIn(); toast('Đã tạo tài khoản');
-});
-formOf('forgot').addEventListener('submit', async e => {
-  e.preventDefault(); const f = e.target;
-  if (!f.classList.contains('s2')) {
-    if (!check(f, ['phone'])) return;
-    await submitBtn(f, 'Đang gửi…');
-    const p = digits(f.elements.phone.value);
-    $('#fSent').textContent = `Nhập mã 4 số vừa gửi tới ••• ${p.slice(-3)} và mật khẩu mới.`;
-    f.classList.add('s2'); $('#fBtn').textContent = 'Đặt lại mật khẩu';
-    stagger(f, 0); setTimeout(() => otp[0].focus(), T(300));
-    return;
-  }
-  const empty = otp.filter(i => !i.value);
-  if (empty.length) return bad(f, empty, 'Nhập đủ 4 số của mã.');
-  if (!check(f, ['pw'])) return;
-  await submitBtn(f, 'Đang lưu…');
-  toast('Đã đổi mật khẩu');
-  if (authAsPage) hidePage(authEl); else setMode('login');
-});
-$('#fResend').addEventListener('click', () => toast('Đã gửi lại mã'));
 
-/* account actions */
-$('#resetPw').addEventListener('click', () => openAuth('forgot', true));
+/* account actions: resetting the PIN signs out, then the customer verifies the phone and picks a new PIN */
+$('#resetPw').addEventListener('click', async () => {
+  if (!await ask({title:'Đặt lại mã PIN?', text:'Bạn sẽ đăng xuất, xác minh số điện thoại qua SMS rồi tạo mã PIN mới.', ok:'Đặt lại'})) return;
+  store.set('coong.auth', null);
+  openAuth('otp');
+});
 $('#logout').addEventListener('click', async () => {
   if (!await ask({title:'Đăng xuất?', text:'Giỏ hàng chưa đặt sẽ bị xoá. Bạn có thể đăng nhập lại bất cứ lúc nào.', ok:'Đăng xuất', danger:true})) return;
   store.set('coong.auth', null);
   cartItems.length = 0; cart = 0; syncBadges(); renderCart();
-  openAuth('login');
+  openAuth('phone');
 });
+/* the edited order name follows the account */
+aName.addEventListener('change', () => { const p = store.get('coong.phone'); const acc = p && accounts()[p]; if (acc) saveAccount(p, {...acc, name:aName.value.trim() || acc.name}); });
 
 /* ---------- offline ---------- */
 const offEl = $('#offline');
@@ -1690,7 +1744,7 @@ setName(store.get('coong.name') || aName.value);
   $('.stag', sp).animate([{opacity:0},{opacity:1}], {duration:T(600), delay:T(700), fill:'backwards'});
   await wait(T(2000));
   const go = location.hash.slice(1);
-  if (go === 'login' || go === 'register' || !store.get('coong.auth')) openAuth(go === 'register' ? 'register' : 'login');
+  if (go === 'login' || !store.get('coong.auth')) openAuth('phone');
   sp.style.zIndex = ++Z;
   const a = sp.animate([{opacity:1, transform:'none'},{opacity:0, transform:'scale(1.06)'}], {duration:T(480), easing:'cubic-bezier(.4,0,.2,1)', fill:'forwards'});
   await a.finished; sp.style.visibility = 'hidden'; a.cancel();
