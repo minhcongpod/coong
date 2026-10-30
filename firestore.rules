@@ -39,6 +39,17 @@ service cloud.firestore {
         && getAfter(/databases/$(database)/documents/meta/setup).data.adminPhone == phone;
     }
 
+    // Khách mới tự đăng ký trong một batch: users + pins + devices cho chính SĐT đó.
+    // Chỉ được khi SĐT chưa có tài khoản, và PIN của thiết bị phải khớp PIN vừa tạo.
+    function isSelfSignup(phone) {
+      return signedIn()
+        && !exists(/databases/$(database)/documents/users/$(phone))
+        && getAfter(/databases/$(database)/documents/users/$(phone)).data.role == 'customer'
+        && getAfter(/databases/$(database)/documents/devices/$(request.auth.uid)).data.phone == phone
+        && getAfter(/databases/$(database)/documents/devices/$(request.auth.uid)).data.pin
+          == getAfter(/databases/$(database)/documents/pins/$(phone)).data.pin;
+    }
+
     match /meta/setup {
       allow read: if true;
       allow create: if signedIn()
@@ -54,7 +65,11 @@ service cloud.firestore {
       allow list: if isAdmin();
       allow create: if request.resource.data.name is string
         && ((isAdmin() && request.resource.data.role == 'customer')
-          || (isBootstrap(phone) && request.resource.data.role == 'admin'));
+          || (isBootstrap(phone) && request.resource.data.role == 'admin')
+          || (request.resource.data.role == 'customer'
+            && request.resource.data.keys().hasOnly(['name', 'role'])
+            && request.resource.data.name.size() > 0
+            && isSelfSignup(phone)));
       allow update: if (isAdmin() && request.resource.data.role == resource.data.role)
         || (isOwner(phone) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name'])
           && request.resource.data.name is string && request.resource.data.name.size() > 0);
@@ -63,7 +78,7 @@ service cloud.firestore {
 
     match /pins/{phone} {
       allow read: if false;
-      allow create: if validPin(request.resource.data.pin) && (isAdmin() || isBootstrap(phone));
+      allow create: if validPin(request.resource.data.pin) && (isAdmin() || isBootstrap(phone) || isSelfSignup(phone));
       allow update: if validPin(request.resource.data.pin) && (isAdmin() || isOwner(phone));
       allow delete: if isAdmin();
     }
@@ -89,13 +104,19 @@ service cloud.firestore {
         && request.resource.data.customerPhone == myPhone()
         && request.resource.data.status == 'pending'
         && request.resource.data.paid == false
-        && request.resource.data.totalAmount is number;
-      // Chủ quán sửa mọi thứ; khách chỉ được tự hủy đơn đang chờ của mình
+        && request.resource.data.totalAmount is number
+        && (!('paymentStatus' in request.resource.data) || request.resource.data.paymentStatus == 'awaiting');
+      // Chủ quán sửa mọi thứ; khách chỉ được tự hủy đơn đang chờ của mình,
+      // hoặc báo "đã chuyển khoản" (paymentStatus 'awaiting') cho đơn chưa trả để quán xác nhận
       allow update: if isAdmin()
         || (isOwner(resource.data.customerPhone)
           && resource.data.status == 'pending'
           && request.resource.data.status == 'cancelled'
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']));
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']))
+        || (isOwner(resource.data.customerPhone)
+          && resource.data.paid == false
+          && request.resource.data.paymentStatus == 'awaiting'
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['paymentStatus']));
       allow delete: if isAdmin();
     }
 
