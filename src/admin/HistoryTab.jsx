@@ -73,7 +73,7 @@ function OrderDetail({ o, onBack, users }) {
   };
   const togglePaid = async () => {
     if (!paid) return run({ paid: true, paymentStatus: 'confirmed' });
-    if (await confirm({ title: 'Bỏ đánh dấu đã thu?', msg: `${orderCode(o.id)} · ${fmt(o.totalAmount)}`, ok: 'Bỏ đánh dấu', danger: true })) run({ paid: false, paymentStatus: null });
+    if (await confirm({ title: 'Bỏ đánh dấu đã thu?', msg: `${orderCode(o)} · ${fmt(o.totalAmount)}`, ok: 'Bỏ đánh dấu', danger: true })) run({ paid: false, paymentStatus: null });
   };
 
   const cancelled = o.status === 'cancelled';
@@ -103,7 +103,7 @@ function OrderDetail({ o, onBack, users }) {
       head={(
         <>
           <div className="a-between" style={{ alignItems: 'flex-start' }}>
-            <h1 className="a-title">{orderCode(o.id)}</h1>
+            <h1 className="a-title">{orderCode(o)}</h1>
             {!cancelled && <button className="o-pill" onClick={togglePaid} aria-label={paid ? 'Bỏ đánh dấu đã thu' : 'Đánh dấu đã thu'}>{paid ? 'Đã thu' : 'Thu tiền'}</button>}
           </div>
           <p className="a-s" style={{ marginBottom: 12 }}>{o.customerName} · {phone} · {d ? `${hm(d)} · ${dmy(d)}` : ''}</p>

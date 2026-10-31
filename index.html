@@ -155,6 +155,7 @@ input{user-select:text;-webkit-user-select:text}
 .kv span{color:rgba(255,255,255,.5);font-weight:500}
 .kv.tot{font-size:18px;padding-top:12px;margin-top:6px;border-top:1px solid rgba(255,255,255,.1)}
 .kv.tot b{font-size:24px;font-variant-numeric:tabular-nums}
+#sCard .kv.tot{font-size:16px}#sCard .kv.tot b{font-size:16px}
 .g{color:var(--ok)}.yl{color:var(--yellow)}.rd{color:var(--err)}
 .shake{animation:shake .4s}
 @keyframes shake{20%{translate:-8px 0}40%{translate:7px 0}60%{translate:-5px 0}80%{translate:3px 0}}
@@ -1427,10 +1428,11 @@ const daysAgo = (n, h = 8, m = 30) => { const d = new Date(); d.setDate(d.getDat
 const O0 = {upsize:0, sweet:0, cafe:0};
 const line = (id, qty = 1, o = O0) => ({id, qty, unit:drink(id).price + (o.upsize ? 5000 : 0), o:{...o}});
 const STATUS = {pending:'wait', brewing:'brew', completed:'done', cancelled:'cancel'};
-const shortCode = id => id.slice(-6).toUpperCase();
+/* order number counts up from 1234; older orders without one keep the id-based code */
+const shortCode = d => typeof d.no === 'number' ? String(d.no).padStart(4, '0') : d.id.slice(-6).toUpperCase();
 /* a Firestore order as the screens use it */
 function fromDb(d){
-  return {id:d.id, code:shortCode(d.id), status:STATUS[d.status] || 'wait', pay:d.payMethod || 'cash', paid:!!d.paid,
+  return {id:d.id, code:shortCode(d), status:STATUS[d.status] || 'wait', pay:d.payMethod || 'cash', paid:!!d.paid,
     claimed:d.paymentStatus === 'awaiting', at:new Date(d.createdAt || Date.now()),
     items:(d.items || []).map(x => { const id = x.drink || drinkIdOf(x.name) || 'den';
       return {id, qty:x.quantity || 1, unit:x.price || 0, o:{...O0, ...(x.opts || {})}, name:x.drink || drinkIdOf(x.name) ? drink(id).name : x.name}; })};
@@ -1517,7 +1519,7 @@ $$('#aSeg button').forEach((b, k) => b.addEventListener('click', () => {
 const aSheet = $('#aSheet'); sheetDismiss(aSheet);
 $('#aPayNow').addEventListener('click', () => {
   const due = dueOrders(); if (!due.length) return;
-  qrSheet(aSheet, {amt:due.reduce((n, o) => n + oTotal(o), 0), code:'NO' + due.map(o => o.code.slice(2)).join(''), alt:'Để sau', onAlt:() => {},
+  qrSheet(aSheet, {amt:due.reduce((n, o) => n + oTotal(o), 0), code:('NO' + due.map(o => o.code).join('')).slice(0, 25), alt:'Để sau', onAlt:() => {},
     onPaid:async () => { try { await (await api()).claimPaid(due.map(o => o.id)); toast('Đã gửi, chờ quán xác nhận', 'bank'); } catch (e) { toast('Chưa gửi được, thử lại nhé'); } }});
 });
 
@@ -1567,6 +1569,8 @@ function renderOrder(o){
     b.addEventListener('click', () => reorder(o));
     ob.appendChild(b);
   }
+  /* the list ends 8px above the bottom bar (or above the 24px margin when there is no bar) */
+  body.style.height = (660 - 24 - (ob.children.length ? ob.offsetHeight + 8 : 0) - 174) + 'px';
 }
 function openOrder(o){ curOrder = o; const prev = $('#oBody .bar'); if (prev) prev.remove(); renderOrder(o); showPage(orderEl); }
 async function cancelOrder(o){
@@ -1740,8 +1744,8 @@ async function placeOrder(paid, claimed = false){
   const doc = {customerPhone:session.phone, customerName:session.name, items, note:'', totalAmount:cartTotal(), status:'pending', paid:false, payMethod:payM};
   if (claimed) doc.paymentStatus = 'awaiting';
   try {
-    const id = await (await api()).placeOrder(doc);
-    const o = fromDb({...doc, id, createdAt:new Date().toISOString()});
+    const {id, no} = await (await api()).placeOrder(doc);
+    const o = fromDb({...doc, id, no, createdAt:new Date().toISOString()});
     if (!orders.some(x => x.id === id)) { orders.unshift(o); renderHistory(); }
     lastPlaced = orders.find(x => x.id === id) || o;
     cartItems.length = 0; cart = 0; syncBadges(); renderCart();
@@ -1754,7 +1758,7 @@ async function placeOrder(paid, claimed = false){
 /* ---------- order placed ---------- */
 const successEl = $('#success');
 function openSuccess(o){
-  $('#sMsg').textContent = `Mã đơn #${o.code}. Coong xác nhận đơn của bạn trong ít phút`;
+  $('#sMsg').textContent = `Mã đơn #${o.code}. Coong sẽ xác nhận đơn của bạn trong ít phút`;
   $('#sCard').innerHTML = `<div class="kv"><span>Đồ uống</span><b>${oSummary(o)}</b></div><div class="kv"><span>Phương thức</span><b>${PAY[o.pay]}</b></div><div class="kv tot"><span>Tổng</span><b>${fmt(oTotal(o))}</b></div>`;
   showPage(successEl);
   const ok = $('.sok', successEl), path = $('path', ok);
