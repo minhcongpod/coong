@@ -247,12 +247,23 @@ input{user-select:text;-webkit-user-select:text}
 
 /* payment */
 #pay{--fg:#fff;--lblc:rgba(255,255,255,.8)}
-.psum{left:24px;top:148px;width:342px;max-height:134px;box-sizing:border-box;overflow-y:auto;scrollbar-width:none;padding:10px 24px}
-.prow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 0;line-height:normal}
+/* payment: back + title and the total + order button stay put, the list and methods between them scroll */
+#pay .pt{top:84px}
+.pscroll{left:0;top:138px;width:390px;height:430px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain;padding:0 24px 8px;box-sizing:border-box;display:flex;flex-direction:column;gap:16px}
+.pscroll::-webkit-scrollbar{display:none}
+.psum{flex:none;width:342px;padding:16px 24px}
+.pfoot{left:24px;bottom:24px;width:342px;height:60px;display:flex;align-items:center;gap:16px}
+.ptot{width:139px;display:flex;flex-direction:column;align-items:flex-end;line-height:normal;font-weight:700}
+.ptot span{font-size:16px}
+.ptot b{font-size:24px;font-variant-numeric:tabular-nums}
+.pgo{flex:1;height:60px;border-radius:32px;background:#fff;color:#000;font-size:18px;font-weight:700;transition:transform .25s var(--ease-out),opacity .2s}
+.pgo:active{transform:scale(.95)}
+.pgo:disabled{opacity:.5}
+.prow{display:flex;justify-content:space-between;align-items:center;gap:12px;height:52px;line-height:normal}
 .prow b{display:block;font-size:16px}.prow small{font-size:14px;color:rgba(255,255,255,.5);font-weight:500}
 .prow .pr{font-weight:700;font-size:16px;font-variant-numeric:tabular-nums}
 #pTotal{color:var(--yellow)}
-.pmeth{left:24px;top:286px;width:342px;display:flex;flex-direction:column;gap:8px}
+.pmeth{flex:none;width:342px;display:flex;flex-direction:column;gap:8px}
 .mrow{height:52px;box-sizing:border-box;border-radius:32px;background:rgba(255,255,255,.1);display:flex;align-items:center;gap:12px;padding:0 24px;color:#fff;text-align:left;line-height:normal;transition:background .3s,color .3s,transform .25s var(--ease-out)}
 .mrow:active{transform:scale(.97)}
 .mrow svg{width:24px;height:24px;flex:none}
@@ -261,7 +272,6 @@ input{user-select:text;-webkit-user-select:text}
 .mrow i{flex:none;width:22px;height:22px;border-radius:22px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.3);transition:box-shadow .3s}
 .mrow.on{background:#fff;color:#000}
 .mrow.on i{box-shadow:inset 0 0 0 7px #000}
-#pAdd{bottom:24px}
 .psheet{position:absolute;left:0;top:0;width:390px;height:100%;visibility:hidden;z-index:5}
 .psheet .sb{position:absolute;inset:0;background:rgba(0,0,0,.6)}
 .psheet .sp{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(rgba(255,255,255,.1),rgba(255,255,255,.1)),#000;border-radius:32px 32px 0 0;padding:32px 24px 30px;display:flex;flex-direction:column;align-items:stretch;gap:8px;line-height:normal}
@@ -631,19 +641,17 @@ input{user-select:text;-webkit-user-select:text}
   <div class="stage">
     <button class="abs circ pback" data-back aria-label="Quay lại giỏ hàng"><svg><use href="#i-back"/></svg></button>
     <h2 class="abs pt" data-s>Thanh toán</h2>
-    <div class="abs card2 psum" id="pSum" data-s></div>
-    <div class="abs pmeth" id="pMeth">
-      <button class="mrow on" data-m="cash" data-s><svg><use href="#i-cash"/></svg><span>Tiền mặt</span><i></i></button>
-      <button class="mrow" data-m="bank" data-s><svg><use href="#i-qr"/></svg><span>Chuyển khoản</span><i></i></button>
-      <button class="mrow" data-m="debt" data-s><svg><use href="#i-debt"/></svg><span>Ghi nợ nhé!</span><i></i></button>
+    <div class="abs pscroll">
+      <div class="card2 psum" id="pSum" data-s></div>
+      <div class="pmeth" id="pMeth">
+        <button class="mrow on" data-m="bank" data-s><svg><use href="#i-qr"/></svg><span>Chuyển khoản</span><i></i></button>
+        <button class="mrow" data-m="cash" data-s><svg><use href="#i-cash"/></svg><span>Tiền mặt</span><i></i></button>
+        <button class="mrow" data-m="debt" data-s><svg><use href="#i-debt"/></svg><span>Ghi nợ nhé!</span><i></i></button>
+      </div>
     </div>
-    <div class="abs ctotal" data-s><span>Giá chỉ</span><b id="pTotal">0</b></div>
-    <div class="abs add" id="pAdd" data-s>
-      <div class="fill"></div>
-      <i class="glint"></i>
-      <div class="shine"><div class="lbl">Đặt hàng</div>
-      <svg class="chev"><use href="#i-chev"/></svg></div>
-      <div class="knob" role="button" tabindex="0" aria-label="Kéo để đặt hàng"><svg><use href="#i-bag"/></svg></div>
+    <div class="abs pfoot" data-s>
+      <div class="ptot"><span>Giá chỉ</span><b id="pTotal">0</b></div>
+      <button class="pgo" id="pGo">Đặt hàng</button>
     </div>
     <div class="psheet" id="pSheet">
       <div class="sb"></div>
@@ -1620,10 +1628,9 @@ $('#bell').addEventListener('click', () => {
 
 /* ---------- payment ---------- */
 const payEl = $('#pay'), pSheet = $('#pSheet');
-let payM = 'cash';
+let payM = 'bank';
 function setPay(m){
   payM = m; $$('.mrow', payEl).forEach(r => r.classList.toggle('on', r.dataset.m === m));
-  pSlide.label(m === 'bank' ? 'Tiếp tục thanh toán' : 'Đặt hàng');
 }
 $$('.mrow', payEl).forEach(r => r.addEventListener('click', () => {
   r.animate([{transform:'scale(.95)'},{transform:'scale(1)'}], {duration:T(380), easing:'cubic-bezier(.34,1.56,.64,1)'});
@@ -1633,7 +1640,7 @@ function openPay(){
   const sum = $('#pSum'); sum.innerHTML = '';
   cartItems.forEach(x => { const r = itemRow(x, 'prow'); r.querySelector('.oth').remove(); sum.appendChild(r); });
   $('#pTotal').textContent = fmt(cartTotal());
-  pSlide.reset(true); setPay(payM);
+  pSlide.reset(true); setPay(payM); $('.pscroll', payEl).scrollTop = 0;
   showPage(payEl);
 }
 /* slide-to-confirm, the same control as add-to-cart */
@@ -1653,7 +1660,10 @@ function slider(el, onDone){
   k.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); finish(); } });
   return {reset, label:t => { text = t; if (!on) l.textContent = t; }};
 }
-const pSlide = slider($('#pAdd'), () => { if (!cartItems.length) return pSlide.reset(); payM === 'bank' ? openSheet() : placeOrder(false); });
+/* "Đặt hàng": bank transfer opens the QR sheet first, cash and tab place the order straight away */
+const pGo = $('#pGo');
+const pSlide = {reset: () => { pGo.disabled = false; }};
+pGo.addEventListener('click', () => { if (pGo.disabled || !cartItems.length) return; pGo.disabled = true; payM === 'bank' ? openSheet() : placeOrder(false); });
 /* a stand-in QR: finder squares plus a pattern seeded from the order code */
 function qrSvg(seed){
   const n = 25; let h = 0; for (const c of seed) h = (h*31 + c.charCodeAt(0)) >>> 0;
