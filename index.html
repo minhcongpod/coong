@@ -462,9 +462,8 @@ input{user-select:text;-webkit-user-select:text}
 #fx{position:fixed;inset:0;pointer-events:none;z-index:50}
 #fx .veil{position:absolute;inset:0}
 #fx .fly{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
-.toast{position:absolute;left:50%;top:24px;transform:translate(-50%,-80px);background:#1c1c1c;color:#fff;border-radius:100px;padding:12px 20px 12px 14px;border:1px solid rgba(255,255,255,.08);font-size:16px;font-weight:700;display:flex;gap:8px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.4);white-space:nowrap}
-.toast svg{width:22px;height:22px;flex:none;color:var(--yellow)}
-.toast.warn svg{color:#ff453a}
+.toast{position:absolute;transform-origin:0 0;box-sizing:border-box;min-height:52px;max-width:282px;background:#1c1c1c;color:#fff;border-radius:26px;padding:8px 20px 8px 14px;border:1px solid rgba(255,255,255,.08);font-size:16px;line-height:1.25;font-weight:700;display:flex;gap:8px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.4);pointer-events:none}
+.toast svg{width:22px;height:22px;flex:none;color:#fff}
 @media (prefers-reduced-motion:reduce){.add .shine{animation:none;-webkit-mask-image:none;mask-image:none}}
 </style>
 <style>html,body{margin:0;height:100%;background:#000}</style>
@@ -1369,11 +1368,13 @@ const BAD = /^(Chưa|Không|Máy chưa|Quán vừa|Các món)|hết hàng|Mất 
 function toast(msg, icon){
   const warn = !icon && BAD.test(msg);
   icon = icon || (warn ? 'warn' : 'check');
-  const t = document.createElement('div'); t.className = 'toast' + (warn || icon === 'warn' || icon === 'wifioff' ? ' warn' : '');
+  const t = document.createElement('div'); t.className = 'toast';
   t.innerHTML = `<svg><use href="#i-${icon}"/></svg><span></span>`; t.lastChild.textContent = msg;
-  const r = scr(); t.style.left = (r.left + r.width/2) + 'px'; t.style.top = (r.top + 18*S) + 'px';
+  /* sits on the same row as the back button (x 84, y 24, 52 high); no sliding, it only fades in, stays about 2s and fades out */
+  const r = scr(); t.style.left = (r.left + 84*S) + 'px'; t.style.top = (r.top + 24*S) + 'px'; t.style.transform = `scale(${S})`;
   fx.appendChild(t);
-  t.animate([{transform:'translate(-50%,-80px)'},{transform:'translate(-50%,0)', offset:.15},{transform:'translate(-50%,0)', offset:.85},{transform:'translate(-50%,-80px)'}], {duration:T(2400) < 600 ? 1600 : 2400, easing:'cubic-bezier(.22,1,.36,1)'}).onfinish = () => t.remove();
+  const D = T(2400) < 600 ? 1600 : 2400;
+  t.animate([{opacity:0},{opacity:1, offset:.1},{opacity:1, offset:.83},{opacity:0}], {duration:D, easing:'ease-in-out'}).onfinish = () => t.remove();
 }
 
 /* ---------- screens opened on top: push from the right, fade, or sheet ---------- */
