@@ -1967,14 +1967,30 @@ function endSession(){
   if (stopOrders) stopOrders(); if (stopMenu) stopMenu(); stopOrders = stopMenu = null;
   session = null; orders = []; notifs = []; renderHistory(); renderNotifs();
 }
+/* home entrance: everything arrives one after another (greeting, buttons, the three cups rising with a soft bounce, then the reorder card, dots and tab bar) */
+function homeIntro(delay = 160){
+  const E = 'cubic-bezier(.22,1,.36,1)', B = 'cubic-bezier(.34,1.56,.64,1)';
+  const go = (el, kf, o) => el && el.animate(kf, {fill:'backwards', ...o, duration:T(o.duration), delay:T(o.delay)});
+  go($('.hello'), [{opacity:0, translate:'-28px 0', filter:'blur(8px)'},{opacity:1, translate:'0 0', filter:'blur(0)'}], {duration:700, delay:delay, easing:E});
+  [$('#bell'), $('#home .cartbtn')].forEach((el, k) => go(el, [{opacity:0, scale:.3, rotate:k ? '12deg' : '-12deg'},{opacity:1, scale:1, rotate:'0deg'}], {duration:720, delay:delay + 80 + k*90, easing:B}));
+  const order = [cur, ...cards.map((_, i) => i).filter(i => i !== cur)];
+  order.forEach((i, k) => {
+    const c = cards[i]; if (!c) return;
+    go(c, [{opacity:0, translate:'0 90px', scale:.82, filter:'blur(14px)'},{opacity:1, translate:'0 0', scale:1, filter:'blur(0)'}], {duration:980, delay:delay + 220 + k*140, easing:B});
+  });
+  go($('.order'), [{opacity:0, translate:'0 40px', scale:.94},{opacity:1, translate:'0 0', scale:1}], {duration:720, delay:delay + 640, easing:B});
+  go($('#dots'), [{opacity:0, translate:'0 16px'},{opacity:1, translate:'0 0'}], {duration:600, delay:delay + 760, easing:E});
+  go($('.nav'), [{opacity:0, translate:'0 60px'},{opacity:1, translate:'0 0'}], {duration:780, delay:delay + 520, easing:E});
+}
 function finish(isNew){
   setPendingReset('');
   startSession({phone:A.phone, name:A.name});
   document.activeElement && document.activeElement.blur();
   hidePage(authEl);
   if (tab !== 0) showTab(0);
-  homeParts().forEach((el, k) => el.animate([{opacity:0, transform:'translateY(14px)'},{opacity:1, transform:'none'}], {duration:T(520), delay:T(180 + k*50), easing:'cubic-bezier(.22,1,.36,1)', fill:'backwards'}));
-  toast(isNew ? 'Đã tạo tài khoản' : `Chào ${A.name}!`, isNew ? 'check' : 'cup');
+  homeIntro();
+  /* the greeting is already on the home screen, so only a new account gets a snackbar */
+  if (isNew) toast('Đã tạo tài khoản', 'check');
 }
 
 /* account actions: resetting the PIN signs out, then the customer verifies the phone and picks a new PIN */
@@ -2028,6 +2044,7 @@ renderHistory(); renderNotifs();
   const s = go === 'login' ? null : await known;
   if (s && s.phone !== pendingReset()) {
     startSession(s);
+    homeIntro(300);
     sp.style.zIndex = ++Z;
     const a = sp.animate([{opacity:1, transform:'none'},{opacity:0, transform:'scale(1.06)'}], {duration:T(480), easing:'cubic-bezier(.4,0,.2,1)', fill:'forwards'});
     await a.finished; sp.style.visibility = 'hidden'; a.cancel();
@@ -2040,6 +2057,10 @@ renderHistory(); renderNotifs();
     bg.animate([{opacity:1},{opacity:0}], {duration:T(560), delay:T(120), easing:'ease-out', fill:'forwards'});
     await move.finished; al.style.opacity = 1; sp.style.visibility = 'hidden'; move.cancel();
     al.offsetWidth; al.style.transition = '';
+    /* ready to type: phones only open the keyboard from a touch, so a first tap anywhere on this step also focuses the number field */
+    const ph = formOf('phone').elements.phone;
+    ph.focus({preventScroll:true});
+    if (document.activeElement !== ph) authEl.addEventListener('pointerdown', e => { if (step === 'phone' && !e.target.closest('button,input')) ph.focus({preventScroll:true}); }, {once:true});
   }
   if (go === 'offline' || !navigator.onLine) setOffline(true);
 })();
