@@ -493,7 +493,7 @@ input{user-select:text;-webkit-user-select:text}
     <div class="abs hello"><small>Hê lô,</small><b id="helloName">LieuNT</b></div>
     <button class="abs circ cartbtn" aria-label="Giỏ hàng"><svg><use href="#i-bag"/></svg><span class="badge"></span></button>
     <button class="abs circ bellbtn" id="bell" aria-label="Thông báo"><svg><use href="#i-bell"/></svg><span class="nbadge"></span></button>
-    <div class="abs order"><span><b id="orderTxt">01 x Đen</b><small id="orderWhen" hidden></small></span><button id="reorder">ĐẶT LẠI</button></div>
+    <div class="abs order" id="lastOrder" style="display:none"><span><b id="orderTxt"></b><small id="orderWhen"></small></span><button id="reorder">ĐẶT LẠI</button></div>
     <div id="carousel" class="abs"></div>
     <div class="abs dots" id="dots" hidden></div>
     </div>
@@ -908,15 +908,15 @@ function goAndOpen(i){
   setTimeout(() => openDetail(i), T(520));
 }
 let lastOrder = 1;
-/* reorder the latest order: its drinks go into the cart and payment opens */
+/* reorder: only customers with an order see it, and it repeats their latest (not cancelled) order */
 const lastPlacedOrder = () => orders.find(o => o.status !== 'cancel');
 function renderLast(){
-  const o = lastPlacedOrder(), w = $('#orderWhen');
-  if (o) { $('#orderTxt').textContent = `${pad(oQty(o))} x ${oNames(o)}`; w.textContent = listDate(o.at); }
-  w.hidden = !o;
+  const o = lastPlacedOrder();
+  $('#lastOrder').style.display = o ? '' : 'none';
+  if (o) { $('#orderTxt').textContent = `${pad(oQty(o))} x ${oNames(o)}`; $('#orderWhen').textContent = listDate(o.at); }
 }
 function reorder(o){ o.items.forEach(x => addToCart(x.id, x.qty, x.unit, x.o)); syncBadges(true); openPay(); }
-$('#reorder').addEventListener('click', () => { if (busy) return; const o = lastPlacedOrder(); o ? reorder(o) : goAndOpen(lastOrder); });
+$('#reorder').addEventListener('click', () => { if (busy) return; const o = lastPlacedOrder(); if (o) reorder(o); });
 
 /* ---------- detail state ---------- */
 const detail = $('#detail'), spin = $('#spin');
@@ -1217,7 +1217,6 @@ async function completeAdd(){
   await a.finished; ghost.remove();
 
   addToCart(DRINKS[cur].id, qty, unit(), {...opts}); lastOrder = cur;
-  if (!lastPlacedOrder()) $('#orderTxt').textContent = `${pad(qty)} x ${DRINKS[cur].name}`;
   syncBadges(true);
   $('#dCart').animate([{transform:'scale(1)'},{transform:'scale(1.22)'},{transform:'scale(.95)'},{transform:'scale(1)'}], {duration:T(480), easing:'ease-out'});
   toast(`Đã thêm ${pad(qty)} ${DRINKS[cur].name} · ${fmt(unit()*qty)}`);
