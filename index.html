@@ -373,6 +373,8 @@ input{user-select:text;-webkit-user-select:text}
 .pricebar::before,.add::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:var(--bw,1px);background:linear-gradient(90deg,rgba(255,255,255,.8),rgba(255,255,255,.1) 50%,rgba(255,255,255,.8));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;z-index:3}
 .pricebar span{height:52px;padding:0 24px;background:#000;border-radius:100px;display:flex;align-items:center;color:#fff}
 .pricebar svg{width:24px;height:24px}
+.card.sold .pricebar span{display:none}
+.card.sold .pricebar b{text-align:center;font-size:16px}
 .card[data-id=den]{--t:#fff;--ib:rgba(255,255,255,.1);--ic:#8e8e93}
 .card[data-id=nau]{--t:#895200;--ib:rgba(255,255,255,.3);--ic:#cc803c}
 .card[data-id=bac]{--t:#000;--ib:rgba(255,255,255,.3);--ic:#8e8e93}
@@ -763,8 +765,10 @@ const fold = t => (t || '').toLowerCase().normalize('NFC');
 const drinkIdOf = name => { const n = fold(name); return n.includes('bạc') ? 'bac' : n.includes('nâu') ? 'nau' : n.includes('đen') ? 'den' : null; };
 function applyMenu(items){
   DRINKS.forEach(d => { const m = items.find(x => x.active !== false && drinkIdOf(x.name) === d.id);
+    /* sold out: the owner switched every menu entry for this drink off */
+    const all = items.filter(x => drinkIdOf(x.name) === d.id); d.sold = all.length > 0 && !m;
     if (m) Object.assign(d, {price:m.price, menuId:m.id, menuName:m.name, cost:m.cost || 0, ...(typeof m.upsize === 'number' ? {xl:m.upsize} : {})}); });
-  cards.forEach((c, i) => { $('.pricebar b', c).textContent = fmt(DRINKS[i].price); });
+  cards.forEach((c, i) => { const d = DRINKS[i]; c.classList.toggle('sold', !!d.sold); $('.pricebar b', c).textContent = d.sold ? 'Hết hàng' : fmt(d.price); });
   if (detail.style.visibility === 'visible') $('#dPrice').textContent = fmt(unit()*qty);
 }
 const GLOW = {den:'rgba(255,255,255,.5)', nau:'rgba(255,255,255,.5)', bac:'rgba(255,255,255,.5)'};
@@ -919,7 +923,12 @@ function renderLast(){
   $('#home').classList.toggle('noorder', !o);
   if (o) { $('#orderTxt').textContent = oSummary(o); $('#orderWhen').textContent = listDate(o.at); }
 }
-function reorder(o){ o.items.forEach(x => addToCart(x.id, x.qty, x.unit, x.o)); syncBadges(true); openPay(); }
+function reorder(o){
+  const ok = o.items.filter(x => !(drink(x.id) || {}).sold);
+  if (!ok.length) return toast('Các món trong đơn này đang hết hàng');
+  ok.forEach(x => addToCart(x.id, x.qty, x.unit, x.o)); syncBadges(true); openPay();
+  if (ok.length < o.items.length) toast('Đã bỏ món đang hết hàng');
+}
 $('#reorder').addEventListener('click', () => { if (busy) return; const o = lastPlacedOrder(); if (o) reorder(o); });
 
 /* ---------- detail state ---------- */
@@ -1016,7 +1025,9 @@ function pre(el){
 function rest(el){ return el.classList.contains('bulge') && el.dataset.a === 'r' ? 'scaleX(-1)' : el.id === 'dPrice' ? 'translateX(-50%)' : 'none'; }
 
 async function openDetail(i){
-  if (busy) return; busy = true;
+  if (busy) return;
+  if (DRINKS[i].sold) return toast(`${DRINKS[i].name} tạm hết hàng, chọn món khác nhé`);
+  busy = true;
   cancelAnimationFrame(raf); pos = Math.round(pos); vel = 0; layout();
   const card = cards[i], d = DRINKS[i];
   const cupEl = $('.cup', card);
