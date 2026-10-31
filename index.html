@@ -1581,7 +1581,7 @@ function renderOrder(o){
   } else if (o.status === 'brew') {
     /* brewing: nothing to do but wait */
   } else {
-    const b = document.createElement('button'); b.className = 'btn'; b.textContent = 'Đặt lại đơn này';
+    const b = document.createElement('button'); b.className = 'btn'; b.textContent = 'Đặt lại';
     b.addEventListener('click', () => reorder(o));
     ob.appendChild(b);
   }
