@@ -3,6 +3,7 @@
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { doc, writeBatch } from 'firebase/firestore';
 import { auth, db } from '../firebase';
+import { vietQR, qrMatrix } from './qr';
 import {
   getUser, watchDevice, unlockDevice, lockDevice, watchMenu, watchOrders,
   createOrder, updateOrder, updateUserName, setPin,
@@ -24,6 +25,9 @@ const currentDevice = () => uidReady.then((uid) => new Promise((resolve, reject)
 }));
 
 const isWrongPin = (e) => e && e.code === 'permission-denied';
+
+// Mã QR chuyển khoản thật cho tờ thanh toán
+window.CoongQR = { vietQR, qrMatrix };
 
 window.CoongAPI = {
   ready: uidReady,

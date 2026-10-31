@@ -287,7 +287,7 @@ input{user-select:text;-webkit-user-select:text}
 .salt{height:50px;font-size:18px;font-weight:700;color:#fff}
 .sp h3{margin:0;font-size:24px;font-weight:700}
 .sp .amt{font-size:32px;font-weight:700;color:var(--yellow);font-variant-numeric:tabular-nums}
-.qrbox{flex:none;width:148px;height:148px;box-sizing:border-box;padding:8px;background:#fff;border-radius:14px}
+.qrbox{flex:none;width:148px;height:148px;box-sizing:border-box;padding:10px;background:#fff;border-radius:22px}
 .qrbox svg{width:100%;height:100%}
 .bankl{width:100%}
 .bankl .kv button{color:var(--yellow);font-size:14px;font-weight:700;margin-left:8px}
@@ -295,7 +295,7 @@ input{user-select:text;-webkit-user-select:text}
 .sp .alink{margin-top:2px}
 
 /* success */
-#success{background:radial-gradient(120% 55% at 50% 22%,rgba(255,204,0,.16) 0%,#000 62%)}
+#success{background:radial-gradient(120% 55% at 50% 22%,rgba(255,204,0,.16) 0%,#000 62%),#000}
 .sok{left:135px;top:78px;width:120px;height:120px}
 .sok .ring{position:absolute;inset:0;border-radius:200px;background:rgba(255,204,0,.16)}
 .sok svg{position:absolute;inset:0;width:120px;height:120px}
@@ -1665,19 +1665,20 @@ const pGo = $('#pGo');
 const pSlide = {reset: () => { pGo.disabled = false; }};
 pGo.addEventListener('click', () => { if (pGo.disabled || !cartItems.length) return; pGo.disabled = true; payM === 'bank' ? openSheet() : placeOrder(false); });
 /* a stand-in QR: finder squares plus a pattern seeded from the order code */
-function qrSvg(seed){
-  const n = 25; let h = 0; for (const c of seed) h = (h*31 + c.charCodeAt(0)) >>> 0;
-  const rnd = () => (h = (h*1103515245 + 12345) >>> 0) / 4294967296;
+/* the shop's real VietQR, with the amount and the order code filled in; finder squares drawn rounded to match the card */
+function qrSvg(amt, code){
+  const Q = window.CoongQR; if (!Q) return '<svg viewBox="0 0 1 1"></svg>';
+  const {n, dark} = Q.qrMatrix(Q.vietQR(amt, code));
   const finder = (x, y) => `<rect x="${x}" y="${y}" width="7" height="7" rx="1.6"/><rect x="${x+1}" y="${y+1}" width="5" height="5" rx="1" fill="#fff"/><rect x="${x+2}" y="${y+2}" width="3" height="3" rx=".6"/>`;
-  const inF = (x, y) => (x < 8 && y < 8) || (x > n - 9 && y < 8) || (x < 8 && y > n - 9);
-  let cells = '';
-  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (!inF(x, y) && rnd() < .48) cells += `<rect x="${x}" y="${y}" width="1" height="1"/>`;
-  return `<svg viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges">${finder(0,0)}${finder(n-7,0)}${finder(0,n-7)}${cells}</svg>`;
+  const inF = (x, y) => (x < 7 && y < 7) || (x > n - 8 && y < 7) || (x < 7 && y > n - 8);
+  let d = '';
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (!inF(x, y) && dark(x, y)) d += `M${x} ${y}h1v1h-1z`;
+  return `<svg viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges">${finder(0,0)}${finder(n-7,0)}${finder(0,n-7)}<path d="${d}"/></svg>`;
 }
 /* bank transfer: QR card with account details, shared by checkout and paying an account's debt */
 const BANK = {name:'Trinh Minh Cong', acc:'8456777999'};
 function qrSheet(sheet, {amt, code, onPaid, alt, onAlt}){
-  const sp = $('.sp', sheet), qr = qrSvg(code + amt);
+  const sp = $('.sp', sheet), qr = qrSvg(amt, code);
   sp.innerHTML = `<div class="qrcard"><div class="qrbox">${qr}</div><div class="qri"><span>Chuyển khoản</span><b class="amt">${fmt(amt)}</b><span>${BANK.name}</span><small>${BANK.acc}</small></div></div>
     <div class="qact"><button data-q="copy"><svg><use href="#i-copy"/></svg>Sao chép mã</button><i></i><button data-q="save"><svg><use href="#i-down"/></svg>Tải mã</button></div>
     <button class="btn" data-q="paid">Tôi đã thanh toán</button><button class="salt" data-q="alt">${alt}</button>`;
