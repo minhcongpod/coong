@@ -243,9 +243,10 @@ input{user-select:text;-webkit-user-select:text}
 .oth{position:relative;flex:none;width:48px;height:48px;border-radius:100px;background:rgba(255,255,255,.1);overflow:hidden}
 .oth img{position:absolute;left:50%;top:7px;width:40px;transform:translateX(-50%)}
 .oitem .nm{flex:1;min-width:0}
-.oitem b{display:block;font-size:16px}
-.oitem small{font-size:14px;color:rgba(255,255,255,.5);font-weight:500}
-.oitem .pr{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
+.nl{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.nl b{display:block;font-size:16px;line-height:20px;min-width:0}
+.nl .pr{flex:none;font-size:16px;line-height:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.nm small{display:block;margin-top:2px;font-size:14px;line-height:18px;color:rgba(255,255,255,.5);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .obar{left:24px;width:342px;bottom:24px;display:flex;flex-direction:column;align-items:center;gap:10px}
 .onote{font-size:14px;color:var(--mute);font-weight:500;text-align:center}
 
@@ -263,9 +264,8 @@ input{user-select:text;-webkit-user-select:text}
 .pgo{flex:1;height:60px;border-radius:32px;background:#fff;color:#000;font-size:18px;font-weight:700;transition:transform .25s var(--ease-out),opacity .2s}
 .pgo:active{transform:scale(.95)}
 .pgo:disabled{opacity:.5}
-.prow{display:flex;justify-content:space-between;align-items:center;gap:12px;height:52px;line-height:normal}
-.prow b{display:block;font-size:16px}.prow small{font-size:14px;color:rgba(255,255,255,.5);font-weight:500}
-.prow .pr{font-weight:700;font-size:16px;font-variant-numeric:tabular-nums}
+.prow{display:flex;align-items:center;height:52px;line-height:normal}
+.prow .nm{flex:1;min-width:0}
 #pTotal{color:var(--yellow)}
 .pmeth{flex:none;width:342px;display:flex;flex-direction:column;gap:8px}
 .mrow{height:52px;box-sizing:border-box;border-radius:32px;background:rgba(255,255,255,.1);display:flex;align-items:center;gap:12px;padding:0 24px;color:#fff;text-align:left;line-height:normal;transition:background .3s,color .3s,transform .25s var(--ease-out)}
@@ -496,7 +496,7 @@ input{user-select:text;-webkit-user-select:text}
     <symbol id="i-bulge" viewBox="0 0 84 155"><path fill="currentColor" d="M83.8007 77.377C83.8007 96.1547 68.6652 111.377 49.9946 111.377C27.4296 114.17 8.45482 129.633 1.16438 151.17L0 154.61V0L1.14951 2.96868C8.64484 22.3262 24.9998 36.8923 45.0925 42.1052C48.3474 42.9497 51.716 43.2528 55.0411 43.7533C71.318 46.2036 83.8007 60.3242 83.8007 77.377Z"/></symbol>
     <symbol id="i-bell" viewBox="0 0 28 28"><path fill="currentColor" d="M14 2.8a1.6 1.6 0 0 1 1.6 1.6v.7A7.4 7.4 0 0 1 21.4 12.3v4.4l1.9 2.8a1.1 1.1 0 0 1-.9 1.7H5.6a1.1 1.1 0 0 1-.9-1.7l1.9-2.8v-4.4a7.4 7.4 0 0 1 5.8-7.2v-.7A1.6 1.6 0 0 1 14 2.8ZM10.8 22.6h6.4a3.2 3.2 0 0 1-6.4 0Z"/></symbol>
     <symbol id="i-wifioff" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 18.5a27 27 0 0 1 38 0M11.5 25.5a18 18 0 0 1 25 0M18 32.5a8.6 8.6 0 0 1 12 0M8 8l32 32"/></g><circle cx="24" cy="39" r="2.6" fill="currentColor"/></symbol>
-    <symbol id="i-caret" viewBox="0 0 16 16"><path d="M4.5 6.5 8 10l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-caret" viewBox="0 0 16 16"><path fill="currentColor" d="M8.32935 10.1908C8.14746 10.3809 7.85254 10.3809 7.67065 10.1908L4.13736 6.49778C3.84393 6.19109 4.05175 5.66671 4.46671 5.66671L11.5333 5.66671C11.9483 5.66671 12.1561 6.19109 11.8626 6.49778L8.32935 10.1908Z"/></symbol>
     <symbol id="i-debt" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="7.6" cy="12" rx="4.6" ry="6.5"/><ellipse cx="16.4" cy="12" rx="4.6" ry="6.5"/></g><circle cx="5.4" cy="13.6" r="1.7" fill="currentColor"/><circle cx="14.2" cy="13.6" r="1.7" fill="currentColor"/></symbol>
     <symbol id="i-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="8" y="3.5" width="12" height="14" rx="2.5"/><path d="M5 7.5v11a2.5 2.5 0 0 0 2.5 2.5H15"/></g></symbol>
     <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M4.5 20h15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -1547,8 +1547,8 @@ const orderEl = $('#order');
 const SC = {wait:['#fc0','rgba(255,204,0,.45)'], brew:['#00c0e8','rgba(0,192,232,.45)'], done:['#34c759','rgba(52,199,89,.45)'], cancel:['#ff383c','rgba(255,56,60,.45)']};
 function itemRow(x, cls = 'oitem'){
   const d = drink(x.id), r = document.createElement('div'); r.className = cls;
-  r.innerHTML = `<div class="oth"><img src="${d.id}.webp" alt="" draggable="false"></div><div class="nm"><b></b><small></small></div><span class="pr">${fmt(x.qty*x.unit)}</span>`;
-  $('b', r).textContent = `${pad(x.qty)} x ${x.name || d.name}`; $('small', r).textContent = optText(x.o, x.id);
+  r.innerHTML = `<div class="oth"><img src="${d.id}.webp" alt="" draggable="false"></div><div class="nm"><div class="nl"><b></b><span class="pr">${fmt(x.qty*x.unit)}</span></div><small></small></div>`;
+  $('b', r).textContent = `${pad(x.qty)} x ${x.name || d.name}`; $('.nm small', r).textContent = optText(x.o, x.id);
   return r;
 }
 function renderOrder(o){
