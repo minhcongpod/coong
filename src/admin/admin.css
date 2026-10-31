@@ -10,7 +10,8 @@
 }
 .a-root *{box-sizing:border-box}
 :where(.a-root) button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
-.a-root button:focus-visible,.a-root input:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
+.a-root button:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
+.a-root input:focus,.a-root input:focus-visible,.a-root textarea:focus-visible,.a-root select:focus-visible{outline:none}
 .a-root p,.a-root h1,.a-root h2,.a-root h3{margin:0}
 .a-root svg{display:block}
 .a-device{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%)}
