@@ -186,7 +186,7 @@ input{user-select:text;-webkit-user-select:text}
 .acups,.afade{transition:opacity .3s}
 .aform{left:24px;top:110px;width:342px;margin:0;display:flex;flex-direction:column;gap:24px;z-index:4}
 .aform.off{display:none}
-.ahead{display:flex;flex-direction:column}
+.ahead{display:flex;flex-direction:column;align-items:center;text-align:center}
 .atitle{margin:0;font-size:32px;line-height:46px;font-weight:700}
 .asub{margin:0;font-size:16px;color:var(--mute);font-weight:500;line-height:1.4}
 .fields{display:flex;flex-direction:column;gap:12px}
@@ -686,12 +686,12 @@ input{user-select:text;-webkit-user-select:text}
     <svg class="abs alogo" viewBox="0 0 123 32" role="img" aria-label="Coong"><use href="#i-logo"/></svg>
     <button class="abs circ pback" id="aBack" data-back aria-label="Quay lại"><svg><use href="#i-back"/></svg></button>
     <form class="abs aform" data-m="phone" novalidate>
-      <div class="ahead"><h2 class="atitle" data-s>Xin chàooo</h2><p class="asub" data-s>Can’t sleep? Let's get a sip</p></div>
+      <div class="ahead"><h2 class="atitle" data-s>Can’t sleep?</h2><p class="asub" data-s>Let’s get a sip</p></div>
       <div class="fields">
         <label class="field" data-s><input name="phone" type="tel" inputmode="numeric" placeholder="Số điện thoại" autocomplete="tel" maxlength="13" aria-label="Số điện thoại"></label>
         <p class="aerr" aria-live="polite"></p>
       </div>
-      <div class="afoot"><button type="submit" class="btn" data-s>Tiếp tục</button><button type="button" class="alink" id="aForgot" data-s>Quên hả?</button></div>
+      <div class="afoot"><button type="submit" class="btn" data-s>Tiếp tục</button></div>
     </form>
     <form class="abs aform off" data-m="pin" novalidate>
       <div class="ahead"><h2 class="atitle" data-s id="pTitle">Nhập mã PIN</h2><p class="asub" data-s id="pSub" hidden></p></div>
@@ -702,7 +702,7 @@ input{user-select:text;-webkit-user-select:text}
       <div class="afoot"><button type="submit" class="btn" data-s>Let’s go</button><button type="button" class="alink" id="pForgot" data-s>Quên hả?</button></div>
     </form>
     <form class="abs aform off" data-m="reg" novalidate>
-      <div class="ahead"><h2 class="atitle" data-s>Chào bạn mới</h2><p class="asub" data-s>Đăng ký nha. Một phút thôi...</p></div>
+      <div class="ahead"><h2 class="atitle" data-s>Chào bạn mới</h2><p class="asub" data-s>Đăng ký nha. 15s thôi!</p></div>
       <div class="fields">
         <label class="field" data-s><input name="name" placeholder="Tên đặt hàng" autocomplete="nickname" maxlength="16" enterkeyhint="next"></label>
         <label class="field" data-s><input name="pin" type="password" inputmode="numeric" placeholder="Mã PIN 4 số" maxlength="4" autocomplete="new-password"><button type="button" class="peek" id="rPeek">Hiện</button></label>
@@ -1864,7 +1864,6 @@ formOf('phone').addEventListener('submit', async e => {
   if (acc) { A.name = acc.name; A.mode = p === pendingReset() ? 'reset' : 'enter'; go('pin'); } else go('reg');
 });
 /* forgot PIN: there is no SMS, so the customer proves the number with the order name they registered */
-$('#aForgot').addEventListener('click', () => go('forgot'));
 $('#pForgot').addEventListener('click', () => go('forgot'));
 const sameName = (a, b) => a.trim().toLowerCase() === b.trim().toLowerCase();
 formOf('forgot').addEventListener('submit', async e => {
