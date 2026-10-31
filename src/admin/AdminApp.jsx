@@ -162,7 +162,7 @@ const NavIcon = ({ k }) => {
   );
 };
 
-const NAV = [['order', 'Đặt hàng'], ['history', 'Đơn hàng'], ['wallet', 'Thống kê'], ['settings', 'Cài đặt']];
+const NAV = [['order', 'Đặt hàng'], ['history', 'Đơn hàng'], ['wallet', 'Ví tiền'], ['settings', 'Cài đặt']];
 
 function Shell({ adminPhone, onLogout }) {
   const { toast } = useUI();
