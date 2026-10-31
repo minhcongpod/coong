@@ -197,9 +197,9 @@ input{user-select:text;-webkit-user-select:text}
 .peek,.alink{color:var(--yellow);font-weight:700;font-size:16px}
 .aerr{margin:0;font-size:14px;font-weight:700;color:var(--err)}
 .aerr:empty{display:none}
+.aform[data-m=pin] .aerr{text-align:center}
 .afoot{display:flex;flex-direction:column;gap:16px;align-items:center}
 .afoot .btn{height:56px}
-.kb .aswitch{visibility:hidden}
 .aswitch{margin:0;font-size:16px;color:var(--mute);font-weight:500}
 .otp{display:flex;gap:7px}
 .otp .field{flex:1;padding:0;justify-content:center}
@@ -789,14 +789,9 @@ let S = 1, K = 1, DH = 0, DEV = false;
 const app = $('#app'), device = $('#device');
 const FW = 390, FH = 660;
 function fit(){
-  const full = Math.min(innerWidth/FW, innerHeight/FH);
-  DEV = Math.abs(innerWidth - FW*full) > 1 || Math.abs(innerHeight - FH*full) > 1;   /* letterboxed → show the frame */
+  const st = Math.min(innerWidth/FW, innerHeight/FH);
+  DEV = Math.abs(innerWidth - FW*st) > 1 || Math.abs(innerHeight - FH*st) > 1;   /* letterboxed → show the frame */
   document.body.classList.toggle('dev', DEV);
-  /* on-screen keyboard: shrink the frame into the part of the page still visible so the back button and every field stay on screen */
-  const vv = window.visualViewport, kb = !!vv && innerHeight - vv.height > 120 && !!document.activeElement && document.activeElement.closest('#auth');
-  const st = kb ? Math.min(innerWidth/FW, vv.height/FH) : full;
-  document.body.classList.toggle('kb', kb);
-  device.style.top = kb ? (vv.offsetTop + vv.height/2) + 'px' : '';
   device.style.width = FW*st + 'px'; device.style.height = FH*st + 'px';
   K = 1; S = st; DH = FH - 844;
   const GX = Math.max(0, (app.clientWidth/st - 390)/2);   /* extra room beside the stage, so edge pieces can stay on the screen edge */
@@ -824,8 +819,6 @@ function veilKF(r, s, rad0, rad1){
 }
 function statusColor(c){ app.style.setProperty('--sb', c); }
 addEventListener('resize', fit); fit();
-if (window.visualViewport) { visualViewport.addEventListener('resize', fit); visualViewport.addEventListener('scroll', fit); }
-addEventListener('focusout', () => setTimeout(fit, 350));
 
 /* ---------- carousel ---------- */
 const car = $('#carousel'), dots = $('#dots');
