@@ -223,3 +223,5 @@ button.a-card:active{transform:scale(.97)}
 .s-row input{flex:1;min-width:0;background:none;border:0;outline:0;font:inherit;color:#fff;text-align:right;padding:0;caret-color:#fff}
 .s-row input:disabled{color:var(--mute)}
 .s-row input::placeholder{color:var(--mute);font-weight:500}
+
+.a-login{background:#000 url(/cover.webp) center bottom/100% auto no-repeat}

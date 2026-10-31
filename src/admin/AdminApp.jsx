@@ -109,41 +109,45 @@ function Login({ onLogin }) {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
-  const submit = async (e) => {
-    e.preventDefault();
-    if (pin.length !== 4) return setError('Mã PIN gồm 4 chữ số.');
+  // đủ 4 số thì vào luôn, không cần nút
+  const submit = async (value) => {
+    if (busy) return;
     setBusy(true);
-    try { await onLogin(pin); } catch (err) {
+    try { await onLogin(value); } catch (err) {
       setError(err.code === 'permission-denied' ? 'Mã PIN không đúng!' : `Lỗi: ${err.code || err.message}`);
       setPin(''); setBusy(false);
+      setTimeout(() => { const el = document.getElementById('a-pin'); el && el.focus(); }, 0);
     }
+  };
+  const change = (e) => {
+    const v = e.target.value.replace(/\D/g, '').slice(0, 4);
+    setPin(v); setError('');
+    if (v.length === 4) submit(v);
   };
 
   return (
-    <form onSubmit={submit} className="a-tab" style={{ paddingTop: 24 }}>
-      <div style={{ height: 52, display: 'flex', alignItems: 'center' }}><Sym id="i-logo" size={123} /></div>
-      <div style={{ marginTop: 52, display: 'flex', flexDirection: 'column', gap: 24 }}>
-        <div>
-          <h1 className="a-title" style={{ lineHeight: '40px' }}>Chào bạn quay lại Coong,</h1>
-          <p className="a-sub">Nhập mã PIN để quản lý quán</p>
+    <div className="a-tab a-login">
+      <div style={{ height: 60, display: 'flex', justifyContent: 'center', marginTop: -6 }}><Sym id="i-logo" size={153} /></div>
+      <div style={{ marginTop: 44, display: 'flex', flexDirection: 'column', gap: 24 }}>
+        <div style={{ textAlign: 'center' }}>
+          <h1 className="a-title">Chào Coong</h1>
+          <p className="a-sub">Nhập mã PIN nào!</p>
         </div>
         <div style={{ display: 'flex', gap: 8, position: 'relative' }} onClick={() => document.getElementById('a-pin').focus()}>
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="a-field" style={{ flex: 1, justifyContent: 'center', padding: 0, fontSize: 24, fontWeight: 700, boxShadow: i === Math.min(pin.length, 3) ? 'inset 0 0 0 1.5px #fff' : 'none' }}>
+            <div key={i} className="a-field" style={{ flex: 1, justifyContent: 'center', padding: 0, fontSize: 24, fontWeight: 700, boxShadow: error ? 'inset 0 0 0 1.5px var(--err)' : i === Math.min(pin.length, 3) ? 'inset 0 0 0 1.5px #fff' : 'none' }}>
               {pin[i] ? '•' : ''}
             </div>
           ))}
           <input
-            id="a-pin" autoFocus type="tel" inputMode="numeric" autoComplete="off" maxLength={4} value={pin} aria-label="Mã PIN"
-            onChange={(e) => { setPin(e.target.value.replace(/\D/g, '')); setError(''); }}
+            id="a-pin" autoFocus type="tel" inputMode="numeric" autoComplete="off" maxLength={4} value={pin} aria-label="Mã PIN" disabled={busy}
+            onChange={change}
             style={{ position: 'absolute', inset: 0, opacity: 0, width: '100%', cursor: 'pointer' }}
           />
         </div>
-        {error && <p className="a-err" style={{ marginTop: -8 }}>{error}</p>}
-        <button type="submit" className="a-btn" disabled={busy}>{busy ? 'Đang kiểm tra...' : 'Đăng nhập'}</button>
+        {error && <p className="a-err" style={{ textAlign: 'center', marginTop: -8 }}>{error}</p>}
       </div>
-      <div className="o-cups login" aria-hidden="true"><img src="/bac.webp" alt="" /><img src="/den.webp" alt="" /><img src="/nau.webp" alt="" /></div>
-    </form>
+    </div>
   );
 }
 
