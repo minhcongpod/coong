@@ -1873,7 +1873,7 @@ formOf('phone').addEventListener('submit', async e => {
 $('#pForgot').addEventListener('click', () => go('forgot'));
 const sameName = (a, b) => a.trim().toLowerCase() === b.trim().toLowerCase();
 formOf('forgot').addEventListener('submit', async e => {
-  e.preventDefault(); const f = e.target, p = readPhone(f); if (!p) return;
+  e.preventDefault(); $('#kbProxy').focus({preventScroll:true}); const f = e.target, p = readPhone(f); if (!p) return;
   const n = f.elements.name, v = n.value.trim();
   if (!v) return bad(f, [n], 'Nhập tên đặt hàng bạn đã đăng ký nhé.');
   const b = $('[type=submit]', f), t = b.textContent; b.textContent = 'Đang kiểm tra…'; b.disabled = true;
