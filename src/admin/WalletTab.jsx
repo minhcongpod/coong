@@ -75,13 +75,13 @@ export default function WalletTab({ orders, txs, users }) {
             <span><span className="a-s" style={{ display: 'block' }}>Lợi nhuận</span><b className={`w-val ${stats.profit < 0 ? 'r' : 'g'}`}>{stats.profit < 0 ? '−' : ''}{fmt(Math.abs(stats.profit))}</b></span>
           </div>
         </div>
-        <div className="a-card w-unpaid">
+        {unpaid.length > 0 && <div className="a-card w-unpaid">
           <span>
             <span className="a-ic" style={{ gap: 8 }}><Sym id="i-hourglass" size={16} /><b className="w-rev y">{fmt(debt)}</b></span>
             <span className="a-s" style={{ display: 'block' }}>{unpaid.length} đơn chưa thanh toán</span>
           </span>
           <button className="w-view" onClick={() => setPage('unpaid')} aria-label="Xem đơn chưa thanh toán">Xem</button>
-        </div>
+        </div>}
         <Seg items={[['all', 'Tất cả'], ['income', 'Thu'], ['expense', 'Chi']]} value={filter} onChange={setFilter} />
         {list.map((t) => {
           const inc = t.type === 'income';
