@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { auth } from '../firebase';
 import { getSetup, watchDevice, unlockDevice, lockDevice, watchOrders, watchMenu, watchUsers, watchTransactions, watchShop } from '../db';
 import './admin.css';
-import { Sym, UIProvider, useUI, errText } from './ui.jsx';
+import { Sym, UIProvider, useUI, errText, stagger } from './ui.jsx';
 import OrderTab from './OrderTab.jsx';
 import HistoryTab from './HistoryTab.jsx';
 import WalletTab from './WalletTab.jsx';
@@ -108,6 +108,7 @@ function Login({ onLogin }) {
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [errN, setErrN] = useState(0);
 
   // đủ 4 số thì vào luôn, không cần nút
   const submit = async (value) => {
@@ -115,7 +116,7 @@ function Login({ onLogin }) {
     setBusy(true);
     try { await onLogin(value); } catch (err) {
       setError(err.code === 'permission-denied' ? 'Mã PIN không đúng!' : `Lỗi: ${err.code || err.message}`);
-      setPin(''); setBusy(false);
+      setPin(''); setBusy(false); setErrN((n) => n + 1);
       setTimeout(() => { const el = document.getElementById('a-pin'); el && el.focus(); }, 0);
     }
   };
@@ -133,7 +134,7 @@ function Login({ onLogin }) {
           <h1 className="a-title">Chào Coong</h1>
           <p className="a-sub">Nhập mã PIN nào!</p>
         </div>
-        <div style={{ display: 'flex', gap: 8, position: 'relative' }} onClick={() => document.getElementById('a-pin').focus()}>
+        <div key={errN} className={errN ? 'a-shake' : ''} style={{ display: 'flex', gap: 8, position: 'relative' }} onClick={() => document.getElementById('a-pin').focus()}>
           {[0, 1, 2, 3].map((i) => (
             <div key={i} className="a-field" style={{ flex: 1, justifyContent: 'center', padding: 0, fontSize: 24, fontWeight: 700, boxShadow: error ? 'inset 0 0 0 1.5px var(--err)' : i === Math.min(pin.length, 3) ? 'inset 0 0 0 1.5px #fff' : 'none' }}>
               {pin[i] ? '•' : ''}
@@ -158,7 +159,29 @@ const NAV = [['history', 'Đơn hàng'], ['order', 'Menu'], ['wallet', 'Ví ti�
 
 function Shell({ adminPhone, onLogout }) {
   const { toast } = useUI();
-  const [tab, setTab] = useState('order');
+  const [tab, setTabState] = useState('history'); // nhập PIN xong vào thẳng tab Đơn hàng
+  const [leaving, setLeaving] = useState(null);
+  const panes = useRef({});
+  const anims = useRef([]);
+  // đổi tab như app khách: tab cũ mờ và lệch đi, tab mới trượt vào, các khối trong tab hiện lần lượt
+  const setTab = (k) => {
+    if (k === tab) return;
+    const keys = NAV.map((n) => n[0]);
+    const dir = keys.indexOf(k) > keys.indexOf(tab) ? 1 : -1;
+    const from = panes.current[tab], to = panes.current[k];
+    anims.current.forEach((a) => a.cancel());
+    setLeaving(tab); setTabState(k);
+    requestAnimationFrame(() => {
+      const out = from && from.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `translateX(${-dir * 28}px)` }], { duration: 220, easing: 'ease-in', fill: 'forwards' });
+      const list = [out];
+      if (to) {
+        list.push(to.animate([{ opacity: 0, transform: `translateX(${dir * 28}px)` }, { opacity: 1, transform: 'none' }], { duration: 420, delay: 90, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' }));
+        list.push(...stagger(to, ':scope > .a-title, .h-seg, .h-head, .h-card, .a-body > .a-card, .a-body > button, .a-foot', 140, 50));
+      }
+      anims.current = list.filter(Boolean);
+      if (out) out.finished.catch(() => {}).then(() => { out.cancel(); setLeaving((l) => (l === tab ? null : l)); });
+    });
+  };
   const [menu, setMenu] = useState([]);
   const [orders, setOrders] = useState(null);
   const [users, setUsers] = useState({});
@@ -183,15 +206,15 @@ function Shell({ adminPhone, onLogout }) {
 
   return (
     <>
-      <div className="a-tab" hidden={tab !== 'order'}><OrderTab {...data} onTrack={(id) => { setTrack({ id, n: Date.now() }); setTab('history'); }} /></div>
-      <div className="a-tab" hidden={tab !== 'history'}><HistoryTab {...data} track={track} onGoOrder={() => setTab('order')} /></div>
-      <div className="a-tab" hidden={tab !== 'wallet'}><WalletTab {...data} /></div>
-      <div className="a-tab" hidden={tab !== 'settings'}><SettingsTab {...data} adminPhone={adminPhone} onLogout={onLogout} /></div>
+      <div className="a-tab" ref={(e) => { panes.current.order = e; }} hidden={tab !== 'order' && leaving !== 'order'}><OrderTab {...data} onTrack={(id) => { setTrack({ id, n: Date.now() }); setTab('history'); }} /></div>
+      <div className="a-tab" ref={(e) => { panes.current.history = e; }} hidden={tab !== 'history' && leaving !== 'history'}><HistoryTab {...data} track={track} onGoOrder={() => setTab('order')} /></div>
+      <div className="a-tab" ref={(e) => { panes.current.wallet = e; }} hidden={tab !== 'wallet' && leaving !== 'wallet'}><WalletTab {...data} /></div>
+      <div className="a-tab" ref={(e) => { panes.current.settings = e; }} hidden={tab !== 'settings' && leaving !== 'settings'}><SettingsTab {...data} adminPhone={adminPhone} onLogout={onLogout} /></div>
       <nav className="a-nav" style={{ position: 'absolute', left: 24, right: 24, bottom: 0, margin: '0 0 31px' }}>
         {NAV.map(([k, label]) => (
           <button key={k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)} aria-label={label} title={label}>
             <NavIcon k={k} />
-            {k === 'history' && pending > 0 && <span className="a-badge">{pending}</span>}
+            {k === 'history' && pending > 0 && <span key={pending} className="a-badge pop">{pending}</span>}
           </button>
         ))}
       </nav>

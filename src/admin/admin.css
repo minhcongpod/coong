@@ -385,3 +385,9 @@ button.a-card:active{transform:scale(.97)}
 .o-pill{font-size:14px;padding:0 16px}
 .h-head{flex:none;font-size:14px;font-weight:700;color:var(--gray);padding:8px 8px 0}
 .h-head:first-child{padding-top:0}
+
+/* hiệu ứng giống app khách */
+.a-shake{animation:a-shake .4s}
+@keyframes a-shake{20%{translate:-8px 0}40%{translate:7px 0}60%{translate:-5px 0}80%{translate:3px 0}}
+.a-badge.pop{animation:a-pop .36s cubic-bezier(.34,1.56,.64,1)}
+@keyframes a-pop{from{transform:scale(1.5)}}
