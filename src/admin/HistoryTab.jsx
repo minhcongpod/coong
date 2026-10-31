@@ -7,7 +7,7 @@ const LIST_LABEL = { brewing: 'Đang chế' };
 const MENU_ORDER = ['den', 'nau', 'bac'];
 const SHORT = { den: 'Đen', nau: 'Nâu', bac: 'Bạc' };
 // "3 Đen / 3 Nâu / 3 Bạc": mỗi loại một lần, theo thứ tự Đen, Nâu, Bạc
-const summary = (o) => {
+export const summary = (o) => {
   const by = new Map();
   (o.items || []).forEach((x) => { const k = kindOf(x.name) || x.name; by.set(k, (by.get(k) || 0) + (x.quantity || 1)); });
   const rank = (k) => { const i = MENU_ORDER.indexOf(k); return i < 0 ? 99 : i; };

@@ -4,6 +4,7 @@ import { db } from '../firebase';
 import { updateOrder, deleteTransaction } from '../db';
 import { Icon, Sym, Page, Btn, Seg, Chip, Empty, fmt, dayLabel, timeOf, isLive, useUI, errText } from './ui.jsx';
 import { CustomerPicker } from './Customers.jsx';
+import { summary } from './HistoryTab.jsx';
 
 const PERIODS = [['day', 'Ngày'], ['month', 'Tháng'], ['year', 'Năm']];
 const EXPENSE_CATS = ['Cafe', 'Sữa tươi', 'Sữa đặc', 'Cốc', 'Nắp', 'Ống hút', 'Rút tiền', 'Khác'];
@@ -76,7 +77,7 @@ export default function WalletTab({ orders, txs, users }) {
         </div>
         <div className="a-card w-unpaid">
           <span>
-            <span className="a-ic" style={{ gap: 8 }}><Icon n="hourglass" size={16} /><b className="w-rev y">{fmt(debt)}</b></span>
+            <span className="a-ic" style={{ gap: 8 }}><Sym id="i-hourglass" size={16} /><b className="w-rev y">{fmt(debt)}</b></span>
             <span className="a-s" style={{ display: 'block' }}>{unpaid.length} đơn chưa thanh toán</span>
           </span>
           <button className="w-view" onClick={() => setPage('unpaid')} aria-label="Xem đơn chưa thanh toán">Xem</button>
@@ -88,7 +89,7 @@ export default function WalletTab({ orders, txs, users }) {
           return (
             <button key={t.id} className="w-tx" onClick={() => del(t)} aria-label={`${txName(t)}, bấm để xoá`}>
               <span className={`a-ibg ${inc ? 'g' : 'r'}`} style={{ color: inc ? 'var(--ok)' : 'var(--err)' }}><Icon n={inc ? 'inn' : 'out'} /></span>
-              <span className="grow">
+              <span className="grow w-txt">
                 <b className="a-t a-ell" style={{ display: 'block' }}>{txName(t)}</b>
                 <span className="a-s">{d ? dayLabel(d) : ''}</span>
               </span>
@@ -135,7 +136,7 @@ function Unpaid({ orders, onBack }) {
               <span className="a-t" style={{ display: 'block', fontSize: 14 }}>{g.name}</span>
               <b className="y a-num" style={{ display: 'block', fontSize: 18, lineHeight: '23px' }}>{fmt(g.total)}</b>
             </span>
-            <button className="w-pay" onClick={() => collect(g)} aria-label={`Đã thu của ${g.name}`}><Sym id="i-bag" size={22} /></button>
+            <button className="o-pill" onClick={() => collect(g)} aria-label={`Đã thu tiền của ${g.name}`}><Sym id="i-verified" size={16} />Đã thu tiền</button>
           </div>
           <div className="w-rule" />
           {g.orders.map((o) => {
@@ -143,9 +144,9 @@ function Unpaid({ orders, onBack }) {
             return (
               <div key={o.id} className="a-between" style={{ fontSize: 14, fontWeight: 500 }}>
                 <span className="a-ell" style={{ color: 'var(--mute)' }}>
-                  {d ? `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')} · ` : ''}{(o.items || []).map((x) => `${x.quantity || 1} ${x.name}`).join(' / ')}
+                  {d ? `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')} · ` : ''}{summary(o)}
                 </span>
-                <span className="a-num" style={{ flex: 'none' }}>{fmt(o.totalAmount)}</span>
+                <b className="a-num" style={{ flex: 'none' }}>{fmt(o.totalAmount)}</b>
               </div>
             );
           })}
@@ -175,7 +176,7 @@ function AddTx({ onBack, initial = 'expense', users }) {
     if (!(n > 0)) return toast('Nhập số tiền');
     setBusy(true);
     const label = type === 'income' ? (customer ? 'Thu nợ' : 'Khoản thu') : cat;
-    const text = [type === 'income' && customer ? customer.name : '', note.trim()].filter(Boolean).join(' · ');
+    const text = [type === 'income' && customer ? customer.name : '', type === 'income' || cat === 'Khác' ? note.trim() : ''].filter(Boolean).join(' · ');
     try {
       await addDoc(collection(db, 'transactions'), {
         type, amount: n, description: `[${label}] ${text}`.trim(), createdAt: new Date().toISOString(),
@@ -186,8 +187,8 @@ function AddTx({ onBack, initial = 'expense', users }) {
   };
 
   return (
-    <Page onBack={onBack} footer={<Btn onClick={save} disabled={busy}>{busy ? 'Đang lưu...' : 'Lưu lại'}</Btn>}>
-      <Seg items={[['income', 'Thu'], ['expense', 'Chi']]} value={type} onChange={setType} />
+    <Page className="w-addpg" onBack={onBack} footer={<Btn onClick={save} disabled={busy}>{busy ? 'Đang lưu...' : 'Lưu lại'}</Btn>}>
+      <Seg items={[['expense', 'Chi'], ['income', 'Thu']]} value={type} onChange={setType} />
       <label className="a-card w-money">
         <span className="a-s" style={{ fontSize: 16 }}>Số tiền</span>
         <input
@@ -196,7 +197,7 @@ function AddTx({ onBack, initial = 'expense', users }) {
         />
       </label>
       {type === 'expense' ? (
-        <div className="a-chips wrap">{EXPENSE_CATS.map((c) => <Chip key={c} on={cat === c} onClick={() => setCat(c)}>{c}</Chip>)}</div>
+        <div className="a-chips wrap w-chips">{EXPENSE_CATS.map((c) => <Chip key={c} on={cat === c} onClick={() => setCat(c)}>{c}</Chip>)}</div>
       ) : (
         <button className="a-card h o-cust" onClick={() => setPick(true)} aria-label="Chọn khách">
           <span className="m a-t grow">Khách hàng</span>
@@ -204,10 +205,13 @@ function AddTx({ onBack, initial = 'expense', users }) {
           <span className="m"><Icon n="right" /></span>
         </button>
       )}
-      <label className="a-card" style={{ gap: 0, padding: type === 'expense' ? '16px 24px' : '16px 24px' }}>
-        <span className="a-s" style={{ fontSize: 16 }}>Ghi chú</span>
-        <input className="w-note" value={note} onChange={(e) => setNote(e.target.value)} aria-label="Ghi chú" placeholder={type === 'expense' ? 'Mua cà phê hạt, sữa' : 'Không bắt buộc'} />
-      </label>
+      {/* Chi: ô ghi chú chỉ hiện khi chọn Khác. Thu: ô Lý do */}
+      {(type === 'income' || cat === 'Khác') && (
+        <label className="a-card w-notecard">
+          <span>{type === 'income' ? 'Lý do' : 'Khác'}</span>
+          <input className="w-note" value={note} onChange={(e) => setNote(e.target.value)} aria-label={type === 'income' ? 'Lý do' : 'Khác'} autoFocus={type === 'expense'} />
+        </label>
+      )}
     </Page>
   );
 }
