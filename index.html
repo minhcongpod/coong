@@ -157,7 +157,7 @@ input{user-select:text;-webkit-user-select:text}
 .card2{background:rgba(255,255,255,.1);border-radius:32px;padding:16px 24px;box-sizing:border-box;line-height:normal}
 .kv{display:flex;justify-content:space-between;gap:12px;font-size:16px;font-weight:700;padding:5px 0}
 .kv span{color:rgba(255,255,255,.5);font-weight:500}
-.kv.tot{font-size:18px;padding-top:12px;margin-top:6px;border-top:1px solid rgba(255,255,255,.1)}
+.kv.tot{font-size:16px;padding-top:12px;margin-top:6px;border-top:1px solid rgba(255,255,255,.1)}
 .kv.tot b{font-size:24px;font-variant-numeric:tabular-nums}
 #sCard .kv.tot{font-size:16px}#sCard .kv.tot b{font-size:16px}
 .g{color:var(--ok)}.yl{color:var(--yellow)}.rd{color:var(--err)}
@@ -767,10 +767,13 @@ const api = () => window.CoongAPI ? Promise.resolve(window.CoongAPI) : new Promi
 /* match a shop menu item to one of the three designed drinks by name */
 const fold = t => (t || '').toLowerCase().normalize('NFC');
 const drinkIdOf = name => { const n = fold(name); return n.includes('bạc') ? 'bac' : n.includes('nâu') ? 'nau' : n.includes('đen') ? 'den' : null; };
+let lastMenu = [];
 function applyMenu(items){
+  lastMenu = items || [];
+  const closed = typeof shopClosed === 'function' && !!shopClosed();
   DRINKS.forEach(d => { const m = items.find(x => x.active !== false && drinkIdOf(x.name) === d.id);
     /* sold out: the owner switched every menu entry for this drink off */
-    const all = items.filter(x => drinkIdOf(x.name) === d.id); d.sold = all.length > 0 && !m;
+    const all = items.filter(x => drinkIdOf(x.name) === d.id); d.sold = closed || (all.length > 0 && !m);
     if (m) Object.assign(d, {price:m.price, menuId:m.id, menuName:m.name, cost:m.cost || 0, ...(typeof m.upsize === 'number' && d.id !== 'den' ? {xl:m.upsize} : {})}); });
   cards.forEach((c, i) => { const d = DRINKS[i]; c.classList.toggle('sold', !!d.sold); $('.pricebar b', c).textContent = d.sold ? 'Hết hàng' : fmt(d.price); });
   if (detail.style.visibility === 'visible') $('#dPrice').textContent = fmt(unit()*qty);
@@ -1361,6 +1364,8 @@ $('#cClose').addEventListener('click', closeCart);
 let paying = false;
 /* the shop can pause orders (sold out) or keep opening hours; both are set in the owner app */
 let shop = {};
+/* opening hours pass while the app stays open: re-check every 30s so the cards flip to Hết hàng on time */
+setInterval(() => { if (lastMenu.length) applyMenu(lastMenu); }, 30000);
 const toMin = t => { const m = /^(\d{1,2}):(\d{2})$/.exec(t || ''); return m ? +m[1]*60 + +m[2] : null; };
 function shopClosed(){
   if (shop.soldOut) return 'Chưa nhận đơn, quán tạm hết hàng.';
@@ -1981,7 +1986,7 @@ function startSession(s){
       if (curOrder && isOpen(orderEl)) { const o = orders.find(x => x.id === curOrder.id); if (o) { curOrder = o; renderOrder(o); } }
     }, () => toast('Mất kết nối tới quán', 'wifioff'));
     stopMenu = a.watchMenu(applyMenu, () => {});
-    if (stopShop) stopShop(); stopShop = a.watchShop(s2 => { shop = s2 || {}; }, () => {});
+    if (stopShop) stopShop(); stopShop = a.watchShop(s2 => { shop = s2 || {}; applyMenu(lastMenu); }, () => {});
   });
 }
 function endSession(){

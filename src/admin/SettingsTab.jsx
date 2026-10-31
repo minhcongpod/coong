@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { saveMenuItem, deleteMenuItem, saveShop } from '../db';
-import { Icon, Page, Btn, Toggle, Field, Empty, fmt, phoneText, XL_EXTRA, kindOf, useUI, errText } from './ui.jsx';
+import { Icon, Sym, Page, Btn, Toggle, Field, Empty, fmt, phoneText, XL_EXTRA, kindOf, useUI, errText } from './ui.jsx';
 import { customersOf, CustomerPicker, NewCustomer, EditCustomerForm } from './Customers.jsx';
 
 // Hàng nhập: nhãn bên trái, giá trị bên phải
@@ -23,30 +23,28 @@ export default function SettingsTab({ menu, users, shop = {}, onLogout }) {
   if (page && page.dish) return <EditDish dish={page.dish} onBack={() => setPage('menu')} />;
 
   const rows = [
-    ['user', 'Quản lý khách hàng', `${customers.length} khách`, 'customers'],
-    ['coffee', 'Quản lý menu', `${menu.length} món`, 'menu'],
-    ['clock', 'Giờ đóng mở cửa', '', 'hours'],
+    ['i-s-user', 'Quản lý khách hàng', 'customers'],
+    ['i-s-cup', 'Quản lý menu', 'menu'],
+    ['i-s-clock', 'Giờ đóng mở cửa', 'hours'],
   ];
   const flipSold = async (v) => { try { await saveShop({ soldOut: v }); } catch (e) { toast(errText(e)); } };
   return (
     <>
-      <h1 className="a-title">Cài đặt</h1>
-      <div className="a-body">
-        <div className="a-card h">
-          <span className="a-ibg"><Icon n="coffee" /></span>
-          <b className="a-t grow" style={{ textAlign: 'left' }}>Hết hàng</b>
-          <Toggle on={!!shop.soldOut} onChange={flipSold} label="Tạm ngưng nhận đơn" />
+      <h1 className="a-title s-title">Cài đặt</h1>
+      <div className="a-body s-list">
+        <div className="s-item">
+          <Sym id="i-s-soldout" size={20} />
+          <b>Hết hàng</b>
+          <Toggle on={!!shop.soldOut} onChange={flipSold} label="Hết hàng" />
         </div>
-        {rows.map(([i, t, s, k]) => (
-          <button key={k} className="a-card h" onClick={() => setPage(k)}>
-            <span className="a-ibg"><Icon n={i} /></span>
-            <b className="a-t grow" style={{ textAlign: 'left' }}>{t}</b>
-            <span className="m"><Icon n="right" /></span>
+        {rows.map(([i, t, k]) => (
+          <button key={k} className="s-item" onClick={() => setPage(k)}>
+            <Sym id={i} size={20} />
+            <b>{t}</b>
+            <span className="s-chev"><Sym id="i-s-right" size={20} /></span>
           </button>
         ))}
-      </div>
-      <div className="a-foot">
-        <Btn kind="danger" icon="logout" onClick={async () => (await confirm({ title: 'Đăng xuất?', msg: 'Bạn sẽ cần nhập lại mã PIN để vào.', ok: 'Đăng xuất', danger: true })) && onLogout()}>Đăng xuất</Btn>
+        <button className="s-logout" onClick={async () => (await confirm({ title: 'Đăng xuất?', msg: 'Bạn sẽ cần nhập lại mã PIN để vào.', ok: 'Đăng xuất', danger: true })) && onLogout()}>Đăng xuất</button>
       </div>
     </>
   );
@@ -56,16 +54,18 @@ function MenuList({ menu, onBack, onNew, onOpen }) {
   const { toast } = useUI();
   const flip = async (m, v) => { try { await saveMenuItem({ id: m.id, active: v }); } catch (e) { toast(errText(e)); } };
   return (
-    <Page title="Menu" onBack={onBack} footer={<Btn icon="plus" onClick={onNew}>Thêm món</Btn>}>
+    <Page className="s-pg" title="Menu" onBack={onBack} footer={<Btn icon="plus" onClick={onNew}>Thêm món</Btn>}>
       {menu.map((m) => {
         const on = m.active !== false;
+        const kind = kindOf(m.name);
         return (
-          <div key={m.id} className="a-card h">
-            <button className="grow s-dish" style={{ opacity: on ? 1 : 0.5 }} onClick={() => onOpen(m)}>
-              <b className="a-t a-ell">{m.name}</b><span className="a-t a-num">{fmt(m.price)}</span>
-            </button>
-            <Toggle on={on} onChange={(v) => flip(m, v)} label={`${m.name} còn hàng`} />
-            <button className="m" onClick={() => onOpen(m)} aria-label={`Sửa ${m.name}`}><Icon n="right" /></button>
+          <div key={m.id} className="s-dishcard" role="button" tabIndex={0} onClick={() => onOpen(m)}>
+            <span className="s-thumb">{kind ? <img src={`/${kind}.webp`} alt="" /> : <Sym id="i-s-cup" size={20} />}</span>
+            <span className="s-name" style={{ opacity: on ? 1 : 0.5 }}><b className="a-ell">{m.name}</b><small>{fmt(m.price)}</small></span>
+            <span className="s-ctl">
+              <Toggle on={on} onChange={(v) => flip(m, v)} label={`${m.name} còn hàng`} />
+              <span className="s-chev"><Sym id="i-s-right" size={20} /></span>
+            </span>
           </div>
         );
       })}
@@ -99,7 +99,7 @@ function EditDish({ dish, onBack }) {
   };
   return (
     <Page
-      title={isNew ? 'Thêm món' : 'Sửa món'} onBack={onBack}
+      className="s-pg" title={isNew ? 'Thêm món' : 'Sửa món'} onBack={onBack}
       footer={(
         <div style={{ display: 'flex', gap: 8 }}>
           {!isNew && <Btn kind="danger" onClick={remove}>Xoá món</Btn>}
@@ -110,10 +110,7 @@ function EditDish({ dish, onBack }) {
       <Row label="Tên món"><input value={name} onChange={(e) => setName(e.target.value)} aria-label="Tên món" /></Row>
       <Row label="Giá bán"><input type="tel" inputMode="numeric" placeholder="0" value={price ? fmt(Number(price)) : ''} onChange={(e) => setPrice(digits(e.target.value))} aria-label="Giá bán" /></Row>
       <Row label="Upsize"><input type="tel" inputMode="numeric" placeholder="0" value={upsize ? fmt(Number(upsize)) : '0'} onChange={(e) => setUpsize(digits(e.target.value))} aria-label="Phụ thu Upsize" /></Row>
-      <div className="a-card h" style={{ paddingTop: 16, paddingBottom: 16 }}>
-        <b className="a-t grow" style={{ fontSize: 18 }}>Còn hàng</b>
-        <Toggle on={on} onChange={setOn} label="Còn hàng" />
-      </div>
+      <div className="s-row"><span>Còn hàng</span><Toggle on={on} onChange={setOn} label="Còn hàng" /></div>
     </Page>
   );
 }
@@ -128,7 +125,7 @@ function Hours({ shop, onBack }) {
     try { await saveShop({ openAt, closeAt }); toast('Đã lưu', true); onBack(); } catch (e) { toast(errText(e)); }
   };
   return (
-    <Page title="Giờ đóng mở cửa" onBack={onBack} footer={<Btn onClick={save}>Lưu lại</Btn>}>
+    <Page className="s-pg" title="Giờ đóng mở cửa" onBack={onBack} footer={<Btn onClick={save}>Lưu lại</Btn>}>
       <Row label="Mở cửa"><input type="time" value={openAt} onChange={(e) => setOpenAt(e.target.value)} aria-label="Giờ mở cửa" /></Row>
       <Row label="Đóng cửa"><input type="time" value={closeAt} onChange={(e) => setCloseAt(e.target.value)} aria-label="Giờ đóng cửa" /></Row>
       <p className="a-s" style={{ padding: '0 8px' }}>Ngoài giờ này khách không đặt đơn được. Xoá cả hai giờ để không giới hạn.</p>

@@ -187,3 +187,14 @@ export const Field = ({ icon, error, ...p }) => (
 export const Kv = ({ k, children, cls }) => (
   <div className={`a-kv ${cls || ''}`}><span>{k}</span><b>{children}</b></div>
 );
+
+// Quán tạm nghỉ: bật Hết hàng hoặc ngoài giờ mở cửa (giống app khách). Trả về câu báo, rỗng là đang mở.
+const toMin = (t) => { const m = /^(\d{1,2}):(\d{2})$/.exec(t || ''); return m ? +m[1] * 60 + +m[2] : null; };
+export const shopClosed = (shop = {}) => {
+  if (shop.soldOut) return 'Quán đang tạm hết hàng.';
+  const a = toMin(shop.openAt), z = toMin(shop.closeAt);
+  if (a === null || z === null || a === z) return '';
+  const d = new Date(), n = d.getHours() * 60 + d.getMinutes();
+  const open = a < z ? n >= a && n < z : n >= a || n < z;
+  return open ? '' : `Quán đóng cửa, mở lúc ${shop.openAt}.`;
+};

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createOrder } from '../db';
-import { Icon, Sym, Page, Btn, Empty, fmt, dmy, hm, timeOf, phoneText, kindOf, XL_EXTRA, orderCode, useUI, errText } from './ui.jsx';
+import { Icon, Sym, Page, Btn, Empty, fmt, dmy, hm, timeOf, phoneText, kindOf, XL_EXTRA, orderCode, useUI, errText, shopClosed } from './ui.jsx';
 import { CustomerPicker, NewCustomer, EditCustomerForm } from './Customers.jsx';
 import { DrinkHome, DrinkDetail, drinkOf } from './Drinks.jsx';
 
@@ -31,7 +31,11 @@ const SHORT = { den: 'Đen', nau: 'Nâu', bac: 'Bạc' };
 const shortOf = (name) => SHORT[kindOf(name)] || name;
 const THUMB = { den: '/den.webp', nau: '/nau.webp', bac: '/bac.webp' };
 
-export default function OrderTab({ menu, users, orders, onTrack }) {
+export default function OrderTab({ menu, users, orders, onTrack, shop = {} }) {
+  // quán bật Hết hàng hoặc đang ngoài giờ mở cửa: 3 món hiện Hết hàng, không mở được món
+  const [, tick] = useState(0);
+  useEffect(() => { const t = setInterval(() => tick((n) => n + 1), 30000); return () => clearInterval(t); }, []);
+  const closed = shopClosed(shop);
   const { toast } = useUI();
   const [customer, setCustomer] = useState(null);
   const [lines, setLines] = useState([]); // { menuId, name, kind, price, extra, qty, o }
@@ -202,7 +206,7 @@ export default function OrderTab({ menu, users, orders, onTrack }) {
   const det = page && page.detail != null ? drinks[page.detail] : null;
   return (
     <>
-      <DrinkHome ref={homeRef} items={drinks} count={count} unread={unread} onCart={openCart} onBell={() => setPage('notif')} onOpen={(i) => setPage({ detail: i })} />
+      <DrinkHome ref={homeRef} items={drinks} count={count} unread={unread} onCart={openCart} onBell={() => setPage('notif')} sold={!!closed} onOpen={(i) => (closed ? toast(closed) : setPage({ detail: i }))} />
       {det && (
         <DrinkDetail
           key={det.m.id} item={det} index={page.detail} home={homeRef.current} count={count}
