@@ -354,3 +354,24 @@ button.a-card:active{transform:scale(.97)}
 .o-cust{padding:16px 24px;gap:8px;min-height:56px}
 .o-clabel{font-size:16px;font-weight:500;color:var(--mute);text-align:left}
 .o-cust b{font-size:16px}
+
+/* Đơn hàng: bộ lọc cuộn ngang + card đơn */
+.h-seg{position:relative;display:flex;flex:none;height:40px;padding:3px;box-sizing:border-box;border-radius:32px;background:var(--s10);overflow-x:auto;scrollbar-width:none;margin-top:8px}
+.h-seg::-webkit-scrollbar{display:none}
+.h-seg i{position:absolute;left:0;top:3px;bottom:3px;border-radius:32px;background:#fff;transition:transform .4s var(--ease-out),width .4s var(--ease-out)}
+.h-seg button{position:relative;flex:none;padding:0 14px;height:34px;border-radius:32px;font-size:14px;font-weight:700;color:rgba(255,255,255,.5);white-space:nowrap;transition:color .25s}
+.h-seg button.on{color:#000}
+.h-card{gap:12px;cursor:pointer;flex:none}
+.h-card:active{transform:scale(.97)}
+.h-info{display:flex;flex-direction:column;gap:8px;min-width:0}
+.h-info .a-t{font-size:16px}
+.h-st{flex:none;font-size:14px;font-weight:700}
+.h-st.y{color:var(--yellow)}.h-st.b{color:var(--info)}.h-st.g{color:var(--ok)}.h-st.r{color:var(--err)}
+.h-who{display:flex;align-items:center;gap:4px;font-size:16px;font-weight:700}
+.h-who svg{flex:none;width:16px;height:16px}
+.h-who b{min-width:0}
+.h-who small{margin-left:auto;padding-left:8px;flex:none;font-size:14px;font-weight:400;color:var(--gray)}
+.h-act{display:flex;gap:8px}
+.h-b{flex:1;height:32px;border-radius:32px;font-size:14px;font-weight:700}
+.h-b.w{background:#fff;color:#000}
+.h-b.r{background:rgba(255,56,60,.16);color:var(--err)}
