@@ -55,7 +55,7 @@ export default function OrderTab({ menu, users, orders, onTrack }) {
   const setQty = (i, d) => setLines((ls) => ls.flatMap((l, k) => (k !== i ? [l] : l.qty + d > 0 ? [{ ...l, qty: Math.min(99, l.qty + d) }] : [])));
   const openCart = () => setPage('cart');
 
-  const drinkText = (() => `${qtyText(count)} x ${[...new Set(lines.map((l) => shortOf(l.name)))].join(', ')}`)();
+  const drinkText = ['den', 'nau', 'bac'].map((k) => [k, lines.filter((l) => kindOf(l.name) === k).reduce((n, l) => n + l.qty, 0)]).filter((x) => x[1] > 0).map(([k, n]) => `${n} ${SHORT[k]}`).join(' / ') || `${count}`;
 
   const place = async () => {
     if (!customer) return toast('Chọn khách hàng cho đơn này');
@@ -80,32 +80,13 @@ export default function OrderTab({ menu, users, orders, onTrack }) {
     try {
       const made = await createOrder(order);
       // cả 3 cách thanh toán đều sang màn Đặt hàng thành công
-      setPage({ done: { id: made.id, no: made.no, drinks: drinkText, method: PAY_NAME[pay], total } });
+      setPage({ done: { id: made.id, no: made.no, drinks: drinkText, customer: customer.name, method: PAY_NAME[pay], total } });
       setLines([]); setPay('debt'); setCustomer(null); setSheet(-1);
     } catch (e) { toast(errText(e)); }
     setBusy(false);
   };
 
-  if (page && page.done) {
-    const d = page.done;
-    return (
-      <div className="a-page o-done">
-        <div className="o-glow" aria-hidden="true" />
-        <div className="o-ok" aria-hidden="true"><Icon n="check" size={56} /></div>
-        <h1 className="a-title">Đặt hàng thành công</h1>
-        <p className="a-sub">Mã đơn {orderCode({ no: d.no, id: d.id })}. Coong sẽ xác nhận đơn của bạn trong ít phút</p>
-        <div className="a-card" style={{ gap: 0, width: '100%', marginTop: 20 }}>
-          <div className="a-kv"><span>Đồ uống</span><b>{d.drinks}</b></div>
-          <div className="a-kv"><span>Phương thức</span><b>{d.method}</b></div>
-          <div className="a-kv tot"><span>Tổng</span><b>{fmt(d.total)}</b></div>
-        </div>
-        <div className="o-done-act">
-          <Btn onClick={() => { setPage(null); onTrack && onTrack(d.id); }}>Theo dõi</Btn>
-          <Btn kind="ghost" onClick={() => setPage(null)}>Tiếp tục đặt hàng</Btn>
-        </div>
-      </div>
-    );
-  }
+  if (page && page.done) return <Done d={page.done} onTrack={() => { setPage(null); onTrack && onTrack(page.done.id); }} onMore={() => setPage(null)} />;
   if (page === 'newCustomer') {
     return <NewCustomer users={users} onBack={() => setPage('pick')} onCreated={(u) => { setCustomer(u); setPage('pay'); }} />;
   }
@@ -135,7 +116,8 @@ export default function OrderTab({ menu, users, orders, onTrack }) {
           </div>
         )}
       >
-        <div className="a-card" style={{ gap: 0, padding: '10px 24px' }}>
+        <div className="o-paywrap">
+        <div className="a-card o-sum-card">
           {lines.map((l, i) => (
             <div key={i} className="o-line">
               <span className="grow">
@@ -147,9 +129,9 @@ export default function OrderTab({ menu, users, orders, onTrack }) {
           ))}
         </div>
         <button className="a-card h o-cust" onClick={() => setPage('pick')} aria-label="Chọn khách">
-          <span className="m a-t grow">Khách hàng</span>
+          <span className="grow o-clabel">Khách hàng</span>
           <b className={`a-t ${customer ? '' : 'y'}`}>{customer ? customer.name : 'Chọn khách'}</b>
-          <span className="m"><Icon n="right" /></span>
+          <span className="m"><Icon n="right" size={24} /></span>
         </button>
         <div className="o-methods" role="radiogroup">
           {METHODS.map(([k, label, sym]) => (
@@ -160,7 +142,7 @@ export default function OrderTab({ menu, users, orders, onTrack }) {
             </button>
           ))}
         </div>
-        {customer && <p className="a-hint" style={{ paddingLeft: 4 }}>{phoneText(customer.phone)}</p>}
+        </div>
       </Page>
     );
   }
@@ -308,5 +290,42 @@ function Notifs({ orders, onBack, onOpen }) {
       })}
       {list.length === 0 && <Empty icon="bell" title="Chưa có thông báo" text="Trạng thái đơn hàng sẽ được báo ở đây." />}
     </Page>
+  );
+}
+
+// Màn Đặt hàng thành công: cùng hiệu ứng với app khách
+function Done({ d, onTrack, onMore }) {
+  const root = useRef(null);
+  useEffect(() => {
+    const el = root.current;
+    if (!el) return;
+    const an = [];
+    const run = (n, kf, o) => n && an.push(n.animate(kf, o));
+    run(el.querySelector('circle'), [{ transform: 'scale(0)' }, { transform: 'scale(1)' }], { duration: 560, easing: 'cubic-bezier(.34,1.7,.5,1)', fill: 'backwards' });
+    run(el.querySelector('path'), [{ strokeDashoffset: 100 }, { strokeDashoffset: 0 }], { duration: 460, delay: 280, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'both' });
+    run(el.querySelector('.o-ring'), [{ transform: 'scale(.6)', opacity: 1 }, { transform: 'scale(1.6)', opacity: 0 }], { duration: 1400, delay: 300, easing: 'ease-out', iterations: 3, fill: 'both' });
+    el.querySelectorAll('[data-s]').forEach((r, k) => run(r, [{ opacity: 0, transform: 'translateY(16px) scale(.97)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: 120 + k * 45, easing: 'cubic-bezier(.34,1.4,.64,1)', fill: 'backwards' }));
+    return () => an.forEach((a) => a.cancel());
+  }, []);
+  return (
+    <div className="a-page o-done" ref={root}>
+      <div className="o-glow" aria-hidden="true" />
+      <div className="o-ok" aria-hidden="true">
+        <div className="o-ring" />
+        <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="46" fill="#fc0" style={{ transformOrigin: '60px 60px' }} /><path d="M40 61l13 13 27-29" fill="none" stroke="#000" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" pathLength="100" strokeDasharray="100" /></svg>
+      </div>
+      <h1 className="a-title" data-s>Đặt hàng thành công</h1>
+      <p className="a-sub" data-s>Mã đơn {orderCode({ no: d.no, id: d.id })}</p>
+      <div className="a-card o-donecard" data-s>
+        <div className="a-kv"><span>Khách hàng</span><b>{d.customer}</b></div>
+        <div className="a-kv"><span>Đồ uống</span><b>{d.drinks}</b></div>
+        <div className="a-kv"><span>Phương thức</span><b>{d.method}</b></div>
+        <div className="a-kv tot"><span>Tổng</span><b>{fmt(d.total)}</b></div>
+      </div>
+      <div className="o-done-act" data-s>
+        <Btn onClick={onTrack}>Theo dõi</Btn>
+        <Btn kind="ghost" onClick={onMore}>Tiếp tục đặt hàng</Btn>
+      </div>
+    </div>
   );
 }

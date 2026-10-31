@@ -1,9 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { updateOrder } from '../db';
 import { Icon, Sym, Page, Btn, Seg, fmt, hm, dmy, timeOf, phoneText, payLabel, payState, orderCode, kindOf, STATUS, isLive, useUI, errText } from './ui.jsx';
 
-const FILTERS = [['all', 'Tất cả'], ['paid', 'Đã thanh toán'], ['unpaid', 'Chưa thanh toán']];
+const FILTERS = [['all', 'Tất cả'], ['pending', 'Chờ xác nhận'], ['brewing', 'Đang chế'], ['completed', 'Hoàn thành'], ['cancelled', 'Hủy']];
 const LIST_LABEL = { brewing: 'Đang chế' };
+const MENU_ORDER = ['den', 'nau', 'bac'];
+const SHORT = { den: 'Đen', nau: 'Nâu', bac: 'Bạc' };
+// "3 Đen / 3 Nâu / 3 Bạc": mỗi loại một lần, theo thứ tự Đen, Nâu, Bạc
+const summary = (o) => {
+  const by = new Map();
+  (o.items || []).forEach((x) => { const k = kindOf(x.name) || x.name; by.set(k, (by.get(k) || 0) + (x.quantity || 1)); });
+  const rank = (k) => { const i = MENU_ORDER.indexOf(k); return i < 0 ? 99 : i; };
+  return [...by].sort((a, b) => rank(a[0]) - rank(b[0])).map(([k, n]) => `${n} ${SHORT[k] || k}`).join(' / ');
+};
+
+// nhóm theo thời gian: Hôm nay, Hôm qua, 7 ngày trước, 30 ngày trước, Cũ hơn
+const groupOf = (d) => {
+  if (!d) return 'Cũ hơn';
+  const t = new Date(); t.setHours(0, 0, 0, 0);
+  const days = Math.round((t - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 86400000);
+  return days <= 0 ? 'Hôm nay' : days === 1 ? 'Hôm qua' : days <= 7 ? '7 ngày trước' : days <= 30 ? '30 ngày trước' : 'Cũ hơn';
+};
 
 const qtyText = (n) => String(n).padStart(2, '0');
 const itemNames = (o) => [...new Set((o.items || []).map((x) => x.name))].join(', ');
@@ -16,35 +33,64 @@ export default function HistoryTab({ orders, users, loading, onGoOrder, track })
   const [openId, setOpenId] = useState(null);
   useEffect(() => { if (track) setOpenId(track.id); }, [track]);
 
-  const list = orders.filter((o) => {
-    if (filter === 'paid') return o.paid;
-    if (filter === 'unpaid') return isLive(o) && !o.paid;
-    return true;
-  });
+  const list = orders.filter((o) => filter === 'all' || o.status === filter);
   const open = openId ? orders.find((o) => o.id === openId) : null;
+  const { toast, confirm } = useUI();
+  const run = (o, patch) => updateOrder(o.id, patch).catch((e) => toast(errText(e)));
+  const cancel = async (o) => {
+    if (await confirm({ title: 'Huỷ đơn này?', ok: 'Huỷ đơn', danger: true })) run(o, { status: 'cancelled' });
+  };
+
+  // các card hiện lần lượt, như app khách (lúc mở tab và mỗi lần đổi bộ lọc)
+  const listRef = useRef(null);
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+    const an = [...el.querySelectorAll('.h-card, .h-head')].slice(0, 12).map((r, j) => r.animate(
+      [{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }],
+      { duration: 360, delay: j * 30, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' },
+    ));
+    return () => an.forEach((x) => x.cancel());
+  }, [filter, loading]);
 
   return (
     <>
       <h1 className="a-title">Đơn hàng</h1>
-      <div className="a-body">
-        <Seg items={FILTERS} value={filter} onChange={setFilter} />
-        {list.map((o) => {
+      <FilterBar value={filter} onChange={setFilter} />
+      <div className="a-body" ref={listRef}>
+        {list.map((o, i) => {
           const st = STATUS[o.status] || STATUS.pending;
           const paid = payState(o) === 'paid';
+          const g = groupOf(timeOf(o));
+          const head = i === 0 || g !== groupOf(timeOf(list[i - 1]));
           return (
-            <button key={o.id} className="a-card" onClick={() => setOpenId(o.id)}>
-              <span className="a-between">
-                <b className="a-t a-ell">{qtyText(itemQty(o))} x {itemNames(o)}</b>
-                <span className={`a-s ${st.cls}`} style={{ fontWeight: 700, flex: 'none' }}>{LIST_LABEL[o.status] || st.label}</span>
-              </span>
-              <span className="a-between">
-                <span className="a-s" style={{ fontWeight: 400, color: 'var(--gray)' }}>{whenText(timeOf(o))}</span>
-                <span className="a-ic" style={{ flex: 'none' }}>
-                  <b className="a-t">{o.customerName}</b>
-                  {isLive(o) && (paid ? <span className="g"><Sym id="i-paid" size={16} /></span> : <span className="y"><Sym id="i-due" size={16} /></span>)}
+            <React.Fragment key={o.id}>
+              {head && <h2 className="h-head">{g}</h2>}
+            <div className="a-card h-card" role="button" tabIndex={0} onClick={() => setOpenId(o.id)} onKeyDown={(e) => { if (e.key === 'Enter' && e.target === e.currentTarget) setOpenId(o.id); }}>
+              <span className="h-info">
+                <span className="a-between">
+                  <b className="a-t a-ell">{summary(o)}</b>
+                  <span className={`h-st ${st.cls}`}>{LIST_LABEL[o.status] || st.label}</span>
+                </span>
+                <span className="h-who">
+                  {paid ? <Sym id="i-paid" size={16} /> : <Sym id="i-due" size={16} />}
+                  <b className="a-ell">{o.customerName}</b>
+                  <small>{whenText(timeOf(o))}</small>
                 </span>
               </span>
-            </button>
+              {o.status === 'pending' && (
+                <span className="h-act" onClick={(e) => e.stopPropagation()}>
+                  <button className="h-b w" onClick={() => run(o, { status: 'brewing' })}>Xác nhận</button>
+                  <button className="h-b r" onClick={() => cancel(o)}>Hủy</button>
+                </span>
+              )}
+              {o.status === 'brewing' && (
+                <span className="h-act" onClick={(e) => e.stopPropagation()}>
+                  <button className="h-b w" onClick={() => run(o, { status: 'completed' })}>Hoàn thành</button>
+                </span>
+              )}
+            </div>
+            </React.Fragment>
           );
         })}
         {list.length === 0 && (orders.length === 0 && !loading ? (
@@ -61,13 +107,39 @@ export default function HistoryTab({ orders, users, loading, onGoOrder, track })
   );
 }
 
+// Bộ lọc cuộn ngang; viên trắng trượt theo tab đang chọn
+function FilterBar({ value, onChange }) {
+  const box = useRef(null);
+  const [pill, setPill] = useState(null);
+  useLayoutEffect(() => {
+    const c = box.current;
+    if (!c) return;
+    // tab Đơn hàng có thể đang ẩn lúc đầu (rộng 0): đo lại khi thanh lọc hiện ra
+    const measure = () => { const b = c.querySelector('button.on'); if (b && b.offsetWidth) setPill({ w: b.offsetWidth, x: b.offsetLeft }); };
+    measure();
+    const b = c.querySelector('button.on');
+    if (b && b.offsetWidth) c.scrollTo({ left: Math.max(0, b.offsetLeft - 24), behavior: 'smooth' });
+    const ro = new ResizeObserver(measure);
+    ro.observe(c);
+    return () => ro.disconnect();
+  }, [value]);
+  return (
+    <div className="h-seg" role="tablist" ref={box}>
+      {pill && <i style={{ width: pill.w, transform: `translateX(${pill.x}px)` }} />}
+      {FILTERS.map(([k, label]) => (
+        <button key={k} className={k === value ? 'on' : ''} role="tab" aria-selected={k === value} onClick={() => onChange(k)}>{label}</button>
+      ))}
+    </div>
+  );
+}
+
 function OrderDetail({ o, onBack, users }) {
   const { toast, confirm } = useUI();
   const pay = payState(o);
   const paid = pay === 'paid';
   const run = (patch) => updateOrder(o.id, patch).catch((e) => toast(errText(e)));
   const cancel = async () => {
-    if (await confirm({ title: 'Huỷ đơn này?', msg: 'Bạn có thể huỷ khi quán chưa bắt đầu pha chế.', ok: 'Huỷ đơn', danger: true })) {
+    if (await confirm({ title: 'Huỷ đơn này?', ok: 'Huỷ đơn', danger: true })) {
       await run({ status: 'cancelled' });
       onBack();
     }
@@ -85,43 +157,52 @@ function OrderDetail({ o, onBack, users }) {
   // một màu theo trạng thái hiện tại, giống app khách: vàng chờ, xanh dương pha chế, xanh lá hoàn thành, đỏ đã huỷ
   const sc = cancelled ? 'var(--err)' : o.status === 'pending' ? 'var(--yellow)' : o.status === 'brewing' ? 'var(--info)' : 'var(--ok)';
   const d = timeOf(o);
-  const phone = users[o.customerPhone] ? phoneText(o.customerPhone) : o.customerPhone;
 
   let footer = null;
   if (o.status === 'pending') {
     footer = (
       <div style={{ display: 'flex', gap: 8 }}>
-        <Btn kind="danger" className="sm" onClick={cancel}>Huỷ đơn</Btn>
-        <Btn kind="yellow" className="sm" onClick={() => run({ status: 'brewing' })}>Xác nhận</Btn>
+        <Btn kind="danger" onClick={cancel}>Huỷ đơn</Btn>
+        <Btn kind="yellow" onClick={() => run({ status: 'brewing' })}>Xác nhận</Btn>
       </div>
     );
   } else if (o.status === 'brewing') {
-    footer = <Btn className="sm" onClick={() => run({ status: 'completed' })}>Hoàn thành</Btn>;
+    footer = <Btn onClick={() => run({ status: 'completed' })}>Hoàn thành</Btn>;
   }
+
+  // thanh tiến trình chạy từ bước đầu tới bước hiện tại, như app khách
+  const [bi, setBi] = useState(0);
+  useEffect(() => { const t = requestAnimationFrame(() => requestAnimationFrame(() => setBi(cur))); return () => cancelAnimationFrame(t); }, [cur]);
+  const count = (o.items || []).length;
 
   return (
     <Page
+      fx
       onBack={onBack}
       footer={footer}
       head={(
         <>
-          <div className="a-between" style={{ alignItems: 'flex-start' }}>
+          <div className="a-between" data-s>
             <h1 className="a-title">{orderCode(o)}</h1>
-            {!cancelled && <button className="o-pill" onClick={togglePaid} aria-label={paid ? 'Bỏ đánh dấu đã thu' : 'Đánh dấu đã thu'}>{paid ? 'Đã thu' : 'Thu tiền'}</button>}
+            {!cancelled && (
+              <button className={`o-pill${paid ? ' on' : ''}`} onClick={togglePaid} aria-label={paid ? 'Bỏ đánh dấu đã thu' : 'Đánh dấu đã thu'}>
+                {paid && <Sym id="i-paid" size={16} />}{paid ? 'Đã thu tiền' : 'Thu tiền'}
+              </button>
+            )}
           </div>
-          <p className="a-s" style={{ marginBottom: 12 }}>{o.customerName} · {phone} · {d ? `${hm(d)} · ${dmy(d)}` : ''}</p>
+          <p className="a-s" data-s style={{ marginBottom: 12 }}>{d ? `${hm(d)} · ${dmy(d)} · ${count} món` : ''}</p>
         </>
       )}
     >
-      <div className="a-card" style={{ padding: '12px 24px' }}>
-        <div className="a-tl" style={{ '--c': sc, '--i': cur, ...(cancelled ? { '--tl': '1' } : null) }}>
+      <div className="a-card" data-s style={{ padding: '12px 24px' }}>
+        <div className="a-tl" style={{ '--c': sc, '--i': cancelled ? 1 : bi, ...(cancelled ? { '--tl': '1' } : null) }}>
           <span className="bar" />
           {steps.map(([k, label], i) => (
             <div key={k} className={`a-st ${i <= cur ? 'on' : ''} ${i === cur && o.status !== 'completed' && !cancelled ? 'cur' : ''}`}><i />{label}</div>
           ))}
         </div>
       </div>
-      <div className="a-card" style={{ gap: 0 }}>
+      <div className="a-card" data-s style={{ gap: 0 }}>
         {(o.items || []).map((x, i) => {
           const kind = kindOf(x.name);
           return (
@@ -139,7 +220,10 @@ function OrderDetail({ o, onBack, users }) {
         })}
         {o.note && <p className="a-s" style={{ paddingTop: 6 }}>Ghi chú: {o.note}</p>}
       </div>
-      <div className="a-card" style={{ gap: 0 }}>
+      <div className="a-card" data-s>
+        <div className="a-kv"><span>Khách hàng</span><b>{o.customerName}</b></div>
+      </div>
+      <div className="a-card a-kv16" data-s style={{ gap: 0 }}>
         <div className="a-kv"><span>Phương thức</span><b>{payLabel(o)}</b></div>
         <div className="a-kv">
           <span>Thanh toán</span>
