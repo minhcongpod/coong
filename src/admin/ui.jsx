@@ -130,25 +130,45 @@ export const Toggle = ({ on, onChange, label }) => (
   <button className={`a-toggle ${on ? 'on' : ''}`} role="switch" aria-checked={on} aria-label={label} onClick={(e) => { e.stopPropagation(); onChange(!on); }}><i /></button>
 );
 
-// fx: trượt vào từ phải và hiện các khối [data-s] lần lượt, giống app khách
-export const Page = ({ title, sub, head, onBack, children, footer, fx }) => {
+// Trang con giống app khách: trượt vào từ phải, các khối hiện lần lượt; Quay lại thì trượt ra phải.
+// Trang hiện ra ngay sau khi quay lại (trang cha) chỉ hiện nhẹ, không trượt lại từ phải.
+let backAt = 0;
+const SPRING = 'cubic-bezier(.34,1.4,.64,1)';
+export const stagger = (root, sel, base = 120, step = 45) => {
+  const seen = new Set();
+  const els = [...root.querySelectorAll(sel)].filter((x) => !seen.has(x) && seen.add(x)).slice(0, 14);
+  return els.map((r, k) => r.animate([{ opacity: 0, transform: 'translateY(16px) scale(.97)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: base + k * step, easing: SPRING, fill: 'backwards' }));
+};
+export const Page = ({ title, sub, head, onBack, children, footer, className = '' }) => {
   const ref = useRef(null);
+  const leaving = useRef(false);
   useEffect(() => {
     const el = ref.current;
-    if (!fx || !el) return;
-    const an = [el.animate([{ transform: 'translateX(100%)' }, { transform: 'none' }], { duration: 500, easing: 'cubic-bezier(.22,1,.36,1)' })];
-    el.querySelectorAll('[data-s]').forEach((r, k) => an.push(r.animate([{ opacity: 0, transform: 'translateY(16px) scale(.97)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: 120 + k * 45, easing: 'cubic-bezier(.34,1.4,.64,1)', fill: 'backwards' })));
+    if (!el) return;
+    const pop = Date.now() - backAt < 120;
+    const an = pop
+      ? [el.animate([{ opacity: 0, transform: 'translateX(-24px)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.22,1,.36,1)' })]
+      : [el.animate([{ transform: 'translateX(100%)' }, { transform: 'none' }], { duration: 500, easing: 'cubic-bezier(.22,1,.36,1)' }),
+        ...stagger(el, ':scope > [data-s], :scope > .a-title, :scope > .a-sub, .a-body > *, :scope > .a-foot')];
     return () => an.forEach((a) => a.cancel());
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
+  const back = () => {
+    const el = ref.current;
+    if (leaving.current) return;
+    if (!el || !el.animate) return onBack();
+    leaving.current = true;
+    const a = el.animate([{ transform: 'none' }, { transform: 'translateX(100%)' }], { duration: 340, easing: 'cubic-bezier(.4,0,.6,1)', fill: 'forwards' });
+    a.finished.catch(() => {}).then(() => { backAt = Date.now(); onBack(); });
+  };
   return (
-  <div className={`a-page${fx ? ' a-fx' : ''}`} ref={ref}>
-    <button className="a-back" onClick={onBack} aria-label="Quay lại"><Sym id="i-back" size={28} /></button>
-    {head}
-    {title && <h1 className="a-title">{title}</h1>}
-    {sub && <p className="a-sub">{sub}</p>}
-    <div className="a-body">{children}</div>
-    {footer && <div className="a-foot" data-s={fx ? '' : undefined}>{footer}</div>}
-  </div>
+    <div className={`a-page a-fx ${className}`} ref={ref}>
+      <button className="a-back" onClick={back} aria-label="Quay lại"><Sym id="i-back" size={28} /></button>
+      {head}
+      {title && <h1 className="a-title">{title}</h1>}
+      {sub && <p className="a-sub">{sub}</p>}
+      <div className="a-body">{children}</div>
+      {footer && <div className="a-foot">{footer}</div>}
+    </div>
   );
 };
 

@@ -177,7 +177,6 @@ function OrderDetail({ o, onBack, users }) {
 
   return (
     <Page
-      fx
       onBack={onBack}
       footer={footer}
       head={(
