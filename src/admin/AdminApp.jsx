@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { auth } from '../firebase';
-import { getSetup, watchDevice, unlockDevice, lockDevice, watchOrders, watchMenu, watchUsers, watchTransactions } from '../db';
+import { getSetup, watchDevice, unlockDevice, lockDevice, watchOrders, watchMenu, watchUsers, watchTransactions, watchShop } from '../db';
 import './admin.css';
 import { Sym, UIProvider, useUI, errText } from './ui.jsx';
 import OrderTab from './OrderTab.jsx';
@@ -171,6 +171,7 @@ function Shell({ adminPhone, onLogout }) {
   const [orders, setOrders] = useState(null);
   const [users, setUsers] = useState({});
   const [txs, setTxs] = useState([]);
+  const [shop, setShop] = useState({});
   const [track, setTrack] = useState(null); // { id, n }: mở chi tiết đơn vừa đặt
 
   useEffect(() => {
@@ -180,11 +181,12 @@ function Shell({ adminPhone, onLogout }) {
       watchOrders(null, true, setOrders, fail),
       watchUsers(setUsers, fail),
       watchTransactions(setTxs, fail),
+      watchShop(setShop, fail),
     ];
     return () => subs.forEach((u) => u && u());
   }, [toast]);
 
-  const data = { menu, orders: orders || [], users, txs, loading: orders === null };
+  const data = { shop, menu, orders: orders || [], users, txs, loading: orders === null };
   const pending = data.orders.filter((o) => o.status === 'pending').length;
 
   return (

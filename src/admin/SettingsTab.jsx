@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { saveMenuItem, deleteMenuItem } from '../db';
+import { saveMenuItem, deleteMenuItem, saveShop } from '../db';
 import { Icon, Page, Btn, Toggle, Field, Empty, fmt, phoneText, XL_EXTRA, kindOf, useUI, errText } from './ui.jsx';
 import { customersOf, CustomerPicker, NewCustomer, EditCustomerForm } from './Customers.jsx';
 
@@ -9,26 +9,34 @@ const Row = ({ label, children }) => (
 );
 
 // Tab Cài đặt: quản lý khách hàng, quản lý menu, đăng xuất
-export default function SettingsTab({ menu, users, onLogout }) {
+export default function SettingsTab({ menu, users, shop = {}, onLogout }) {
   const [page, setPage] = useState(null); // customers | newCustomer | { customer } | menu | { dish }
-  const { confirm } = useUI();
+  const { confirm, toast } = useUI();
   const customers = customersOf(users);
   const back = () => setPage(null);
 
   if (page === 'customers') return <CustomerPicker users={users} onBack={back} onAdd={() => setPage('newCustomer')} onPick={(c) => setPage({ customer: c })} onEdit={(c) => setPage({ customer: c })} />;
   if (page === 'newCustomer') return <NewCustomer users={users} onBack={() => setPage('customers')} onCreated={() => setPage('customers')} />;
   if (page && page.customer) return <EditCustomerForm customer={page.customer} onBack={() => setPage('customers')} onSaved={() => setPage('customers')} onDeleted={() => setPage('customers')} />;
+  if (page === 'hours') return <Hours shop={shop} onBack={back} />;
   if (page === 'menu') return <MenuList menu={menu} onBack={back} onNew={() => setPage({ dish: {} })} onOpen={(m) => setPage({ dish: m })} />;
   if (page && page.dish) return <EditDish dish={page.dish} onBack={() => setPage('menu')} />;
 
   const rows = [
     ['user', 'Quản lý khách hàng', `${customers.length} khách`, 'customers'],
     ['coffee', 'Quản lý menu', `${menu.length} món`, 'menu'],
+    ['clock', 'Giờ đóng mở cửa', '', 'hours'],
   ];
+  const flipSold = async (v) => { try { await saveShop({ soldOut: v }); } catch (e) { toast(errText(e)); } };
   return (
     <>
       <h1 className="a-title">Cài đặt</h1>
       <div className="a-body">
+        <div className="a-card h">
+          <span className="a-ibg"><Icon n="coffee" /></span>
+          <b className="a-t grow" style={{ textAlign: 'left' }}>Hết hàng</b>
+          <Toggle on={!!shop.soldOut} onChange={flipSold} label="Tạm ngưng nhận đơn" />
+        </div>
         {rows.map(([i, t, s, k]) => (
           <button key={k} className="a-card h" onClick={() => setPage(k)}>
             <span className="a-ibg"><Icon n={i} /></span>
@@ -106,6 +114,24 @@ function EditDish({ dish, onBack }) {
         <b className="a-t grow" style={{ fontSize: 18 }}>Còn hàng</b>
         <Toggle on={on} onChange={setOn} label="Còn hàng" />
       </div>
+    </Page>
+  );
+}
+
+// Giờ mở cửa: ngoài giờ này app khách không cho đặt đơn. Để trống cả hai là không giới hạn.
+function Hours({ shop, onBack }) {
+  const { toast } = useUI();
+  const [openAt, setOpenAt] = useState(shop.openAt || '');
+  const [closeAt, setCloseAt] = useState(shop.closeAt || '');
+  const save = async () => {
+    if (!!openAt !== !!closeAt) return toast('Nhập đủ giờ mở và giờ đóng');
+    try { await saveShop({ openAt, closeAt }); toast('Đã lưu', true); onBack(); } catch (e) { toast(errText(e)); }
+  };
+  return (
+    <Page title="Giờ đóng mở cửa" onBack={onBack} footer={<Btn onClick={save}>Lưu lại</Btn>}>
+      <Row label="Mở cửa"><input type="time" value={openAt} onChange={(e) => setOpenAt(e.target.value)} aria-label="Giờ mở cửa" /></Row>
+      <Row label="Đóng cửa"><input type="time" value={closeAt} onChange={(e) => setCloseAt(e.target.value)} aria-label="Giờ đóng cửa" /></Row>
+      <p className="a-s" style={{ padding: '0 8px' }}>Ngoài giờ này khách không đặt đơn được. Xoá cả hai giờ để không giới hạn.</p>
     </Page>
   );
 }

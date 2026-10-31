@@ -61,6 +61,12 @@ service cloud.firestore {
         && d.data.resetName.lower() == get(/databases/$(database)/documents/users/$(phone)).data.name.lower();
     }
 
+    // Trạng thái quán: hết hàng tạm thời và giờ đóng mở cửa; khách đọc, chủ quán ghi
+    match /meta/shop {
+      allow read: if hasDevice();
+      allow write: if isAdmin();
+    }
+
     match /meta/setup {
       allow read: if true;
       allow create: if signedIn()
