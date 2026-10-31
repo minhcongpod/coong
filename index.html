@@ -93,18 +93,20 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 #cart{visibility:hidden;background:#000;--fg:#fff;--lblc:rgba(255,255,255,.8)}
 .cclose{left:24px;top:24px;width:52px;height:52px;background:rgba(255,255,255,.1);color:#fff}
 .cclose svg{width:32px;height:32px}
-.clist{left:27px;top:94px;width:342px;height:366px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
+.clist{left:24px;top:84px;width:342px;height:484px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
 .clist::-webkit-scrollbar{display:none}
 .citem{display:flex;align-items:center;gap:24px;height:112px;padding:12px 0;box-sizing:border-box;overflow:hidden}
 .cthumb{position:relative;flex:none;width:80px;height:80px;border-radius:100px;background:rgba(255,255,255,.1);overflow:hidden}
 .cthumb img{position:absolute;left:50%;top:12px;width:66px;height:auto;transform:translateX(-50%)}
-.cinfo{flex:1;display:flex;flex-direction:column;gap:8px;line-height:normal;font-weight:700}
-.cname{font-size:24px}
+.cinfo{flex:1;display:flex;flex-direction:column;gap:4px;line-height:normal;font-weight:700}
+.cname{font-size:18px;line-height:23px}
 .copt{display:flex;align-items:center;gap:4px;padding:0;text-align:left;color:inherit}
 .copt svg{width:16px;height:16px;flex:none}
-#eSheet .esp{gap:24px}
+#eSheet .esp{gap:24px;padding-bottom:24px}
 .ehead{display:flex;align-items:center;gap:16px}
-.ehead b{display:block}.ehead .ename{font-size:24px;margin-bottom:8px}.ehead .eunit{font-size:18px}
+.ehead .cthumb{width:70px;height:70px}.ehead .cthumb img{top:10.5px;width:58px}
+.ehead .ename{font-size:18px;font-weight:700}
+.egroup[data-k=upsize]{justify-content:center}
 .egrid{display:grid;grid-template-columns:1fr 1fr;gap:24px 8px}
 .egroup,.eqty{display:flex;flex-direction:column;gap:8px}
 .opt[hidden],.egroup[hidden]{display:none}
@@ -116,21 +118,22 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 .echips button.on{background:#fff;color:#000}
 .eqty .cqty{gap:15px;height:44px}
 .eqty .cpm{width:44px;height:44px}
-.eacts{display:flex;flex-direction:column;gap:16px}
-.eacts .salt{height:33px}
-.salt.edel{color:var(--err)}
-.crow{display:flex;align-items:center;justify-content:space-between}
+.eacts{display:flex;gap:16px}
+.eacts .btn{flex:1}
+.eacts .edel{background:rgba(255,56,60,.16);color:var(--err)}
+.crow{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
 .cqty{display:flex;align-items:center;gap:15px;font-size:18px}
 .cqty span{min-width:10px;text-align:center;font-variant-numeric:tabular-nums}
 .cpm{width:31.8px;height:32px;border-radius:100px;background:rgba(255,255,255,.1);color:#fff;display:flex;align-items:center;justify-content:center;touch-action:manipulation;transition:transform .25s var(--ease-out)}
 .cpm:active{transform:scale(.88)}
 .cpm svg{width:19.7px;height:19.7px}
 .cprice{font-size:18px;line-height:23px;font-variant-numeric:tabular-nums}
-.copt{font-size:14px;font-weight:500;color:rgba(255,255,255,.5);margin-top:-6px;white-space:nowrap}
+.copt{font-size:14px;font-weight:500;color:rgba(255,255,255,.5);white-space:nowrap}
 .cempty{left:0;width:390px;top:130px;opacity:0;pointer-events:none;transition:opacity .3s}
 #cart.empty .cempty{opacity:1;pointer-events:auto}
-#cart.empty #cAdd,#cart.empty .ctotal{opacity:0;pointer-events:none}
-.ctotal,#cAdd{transition:opacity .3s}
+#cart.empty .cfoot{opacity:0;pointer-events:none}
+.cfoot{transition:opacity .3s}
+#cTotal{color:var(--yellow)}
 
 /* ---------- Extra screens: pages, auth, payment, order, notifications, states ---------- */
 input{user-select:text;-webkit-user-select:text}
@@ -314,9 +317,6 @@ input{user-select:text;-webkit-user-select:text}
 .dbox p{margin-top:8px;font-size:16px;color:rgba(255,255,255,.5);font-weight:500;line-height:1.45}
 .dbtns{display:flex;gap:8px;margin-top:22px}
 .dbtns .btn{height:52px;font-size:16px}
-.ctotal{left:24px;top:476px;width:342px;height:60px;box-sizing:border-box;border-radius:32px;background:rgba(255,255,255,.1);padding:0 24px;display:flex;align-items:center;gap:4px;font-weight:700;line-height:normal}
-.ctotal span{flex:1;font-size:18px}.ctotal b{font-size:24px;font-variant-numeric:tabular-nums}
-#cAdd{bottom:24px}
 
 /* ---------- Home ---------- */
 #home{background:#000}
@@ -336,6 +336,8 @@ input{user-select:text;-webkit-user-select:text}
 #carousel{left:0;top:82px;width:390px;height:480px;touch-action:pan-y}
 /* no reorder card: centre the drinks between the header and the dots */
 #home.noorder #carousel{top:42px}
+/* the carousel then reaches under the header, so keep the header buttons on top of it */
+#home .bellbtn,#home .cartbtn{z-index:3}
 .card{position:absolute;left:60px;top:96px;width:270px;height:360px;will-change:transform;cursor:pointer}
 .card .surf{position:absolute;inset:0;width:270px;height:360px;overflow:visible}
 .card .cup{position:absolute;left:92px;top:66px;height:245px;transform:rotate(11.7deg);pointer-events:none}
@@ -587,27 +589,22 @@ input{user-select:text;-webkit-user-select:text}
       <p>Chọn một ly cà phê, vuốt thanh “Thêm vào giỏ hàng” là xong.</p>
       <button class="btn sm" id="cGo">Làm tí đê</button>
     </div>
-    <div class="abs ctotal"><span>Giá chỉ</span><b id="cTotal">0</b></div>
-    <div class="abs add" id="cAdd">
-      <div class="fill"></div>
-      <i class="glint"></i>
-      <div class="shine"><div class="lbl">Thanh toán</div>
-      <svg class="chev"><use href="#i-chev"/></svg></div>
-      <div class="knob" role="button" aria-label="Kéo để thanh toán"><svg><use href="#i-bag"/></svg></div>
+    <div class="abs pfoot cfoot">
+      <div class="ptot"><span>Giá chỉ</span><b id="cTotal">0</b></div>
+      <button class="pgo" id="cPay">Đặt hàng</button>
     </div>
     <div class="psheet" id="eSheet" role="dialog" aria-label="Chỉnh món">
       <div class="sb"></div>
       <div class="sp esp">
-        <div class="ehead"><div class="cthumb"><img alt="" draggable="false"></div><div><b class="ename"></b><b class="eunit"></b></div></div>
         <div class="egrid">
-          <div class="egroup" data-k="upsize"><label>Size</label><div class="echips"><button class="esz" data-v="0" aria-label="Size L"><svg><use href="#i-sizeL"/></svg></button><button class="esz" data-v="1" aria-label="Size XL"><svg><use href="#i-sizeXL"/></svg></button></div></div>
-          <div class="egroup" data-k="cafe"><label>Cafe</label><div class="echips"><button class="val" data-v="50">50</button><button data-v="100">100</button></div></div>
+          <div class="ehead"><div class="cthumb"><img alt="" draggable="false"></div><b class="ename"></b></div>
+          <div class="egroup" data-k="upsize"><div class="echips"><button class="esz" data-v="0" aria-label="Size L"><svg><use href="#i-sizeL"/></svg></button><button class="esz" data-v="1" aria-label="Size XL"><svg><use href="#i-sizeXL"/></svg></button></div></div>
           <div class="egroup" data-k="sweet"><label>Ngọt</label><div class="echips"><button class="val" data-v="50">50</button><button data-v="100">100</button></div></div>
-          <div class="eqty"><label>Số lượng</label><div class="cqty"><button class="cpm" data-d="-1" aria-label="Giảm"><svg><use href="#i-minus"/></svg></button><span>1</span><button class="cpm" data-d="1" aria-label="Tăng"><svg><use href="#i-plus"/></svg></button></div></div>
+          <div class="egroup" data-k="cafe"><label>Cafe</label><div class="echips"><button class="val" data-v="50">50</button><button data-v="100">100</button></div></div>
         </div>
         <div class="eacts">
-        <button class="btn" id="eSave">Cập nhật</button>
-        <button class="salt edel" id="eDel">Xoá khỏi giỏ</button>
+          <button class="btn edel" id="eDel">Xoá khỏi giỏ</button>
+          <button class="btn" id="eSave">Lưu lại</button>
         </div>
       </div>
     </div>
@@ -1253,13 +1250,11 @@ function eSync(){
   $$('.egroup', eSheet).forEach(g => { const k = g.dataset.k, v = k === 'upsize' ? E.o.upsize : (E.o[k] || 100);
     /* like the drink page: the first chip carries any value under 100 */
     $$('.echips button', g).forEach(b => b.classList.toggle('on', +b.dataset.v === v)); });
-  $('.eqty .cqty span', eSheet).textContent = E.qty;
-  $('#eSave').textContent = `Cập nhật · ${fmt(lineUnit(it.id, E.o)*E.qty)}`;
 }
 function openEdit(i){
   const it = cartItems[i]; if (!it) return; const d = drink(it.id);
   Object.assign(E, {i, o:{...it.o}, qty:it.qty});
-  $('.ehead img', eSheet).src = d.id + '.webp'; $('.ename', eSheet).textContent = d.name; $('.eunit', eSheet).textContent = fmt(d.price);
+  $('.ehead img', eSheet).src = d.id + '.webp'; $('.ename', eSheet).textContent = d.name;
   $$('.egroup', eSheet).forEach(g => { if (g.dataset.k !== 'upsize') g.hidden = !d[g.dataset.k]; });
   eSync();
   eSheet.onDismiss = null;
@@ -1275,7 +1270,6 @@ $$('.egroup', eSheet).forEach(g => g.addEventListener('click', e => {
   b.animate([{transform:'scale(.9)'},{transform:'scale(1)'}], {duration:T(320), easing:'cubic-bezier(.34,1.56,.64,1)'});
   E.o[g.dataset.k] = +b.dataset.v === 100 ? 0 : +b.dataset.v; eSync();
 }));
-$$('.eqty .cpm', eSheet).forEach(b => b.addEventListener('click', () => { E.qty = Math.max(1, Math.min(99, E.qty + +b.dataset.d)); eSync(); }));
 $('#eSave').addEventListener('click', () => {
   const it = cartItems[E.i]; if (!it) return;
   it.o = {...E.o}; it.unit = lineUnit(it.id, it.o); it.qty = E.qty;
@@ -1326,11 +1320,11 @@ function changeItem(i, d, row){
 let cartOpen = false;
 function openCart(){
   if (cartOpen || busy || adding) return; cartOpen = true;
-  renderCart(); cResetKnob(true);
+  renderCart(); paying = false;
   cartEl.getAnimations().forEach(a => a.cancel());
   cartEl.style.zIndex = ++Z; cartEl.style.visibility = 'visible';
   cartEl.animate([{transform:'translateY(100%)'},{transform:'none'}], {duration:T(520), easing:'cubic-bezier(.22,1,.36,1)'});
-  $$('.citem,.ctotal,#cAdd', cartEl).forEach((r, k) => r.animate([{opacity:0, transform:'translateY(24px)'},{opacity:1, transform:'none'}], {duration:T(520), delay:T(120 + k*60), easing:'cubic-bezier(.34,1.4,.64,1)', fill:'backwards'}));
+  $$('.citem,.cfoot', cartEl).forEach((r, k) => r.animate([{opacity:0, transform:'translateY(24px)'},{opacity:1, transform:'none'}], {duration:T(520), delay:T(120 + k*60), easing:'cubic-bezier(.34,1.4,.64,1)', fill:'backwards'}));
 }
 function closeCart(){
   if (!cartOpen) return; cartOpen = false;
@@ -1341,31 +1335,18 @@ $('#cClose').addEventListener('click', closeCart);
 /* swipe the sheet down to close it */
 (() => { let sw = null;
   cartEl.style.touchAction = 'none';
-  cartEl.addEventListener('pointerdown', e => { sw = e.target.closest('#cAdd,button') || (e.target.closest('.clist') && clist.scrollTop > 0) ? null : {x:e.clientX, y:e.clientY}; });
+  cartEl.addEventListener('pointerdown', e => { sw = e.target.closest('button') || (e.target.closest('.clist') && clist.scrollTop > 0) ? null : {x:e.clientX, y:e.clientY}; });
   cartEl.addEventListener('pointermove', e => { if (!sw) return; const dy = (e.clientY - sw.y)/S, dx = (e.clientX - sw.x)/S; if (dy > 70 && dy > Math.abs(dx)*1.4) { sw = null; closeCart(); } });
   ['pointerup','pointercancel'].forEach(ev => cartEl.addEventListener(ev, () => { sw = null; }));
 })();
-/* slide to pay */
-const cAdd = $('#cAdd'), cKnob = $('.knob', cAdd), cFill = $('.fill', cAdd), cLbl = $('.lbl', cAdd);
-let ckx = 0, ckd = null, paying = false;
-function cPlace(x){ ckx = Math.max(0, Math.min(MAX, x)); cKnob.style.transform = `translateX(${ckx}px)`; cFill.style.width = (ckx + 87) + 'px'; cLbl.style.opacity = 1 - ckx/MAX*0.9; }
-function cResetKnob(now){
-  if (now) { cPlace(0); cLbl.textContent = 'Thanh toán'; cLbl.style.opacity = 1; return; }
-  const x0 = ckx, t0 = performance.now();
-  const go = t => { const k = Math.min(1,(t-t0)/T(420)), e = 1 - Math.pow(1-k,3); cPlace(x0*(1-e)); if (k<1) requestAnimationFrame(go); }; requestAnimationFrame(go);
-}
-cAdd.addEventListener('pointerdown', e => { if (paying || !cartItems.length) return; ckd = {x:e.clientX, k:ckx, moved:false}; cAdd.setPointerCapture(e.pointerId); });
-cAdd.addEventListener('pointermove', e => { if (!ckd) return; const dx = (e.clientX - ckd.x)/S; if (Math.abs(dx) > 4) ckd.moved = true; cPlace(ckd.k + dx); });
-const cEnd = () => { if (!ckd) return; const m = ckd.moved; ckd = null; if (!m || ckx > MAX*0.62) checkout(); else cResetKnob(); };
-cAdd.addEventListener('pointerup', cEnd); cAdd.addEventListener('pointercancel', cEnd);
-async function checkout(){
+/* "Đặt hàng" in the cart goes on to the payment page */
+let paying = false;
+function checkout(){
   if (paying || !cartItems.length) return; paying = true;
-  const x0 = ckx, t0 = performance.now();
-  await new Promise(res => { const go = t => { const k = Math.min(1,(t-t0)/T(260)), e = 1-Math.pow(1-k,3); cPlace(x0 + (MAX-x0)*e); if (k<1) requestAnimationFrame(go); else res(); }; requestAnimationFrame(go); });
-  cLbl.textContent = 'Chọn cách trả'; cLbl.style.opacity = 1;
   openPay();
-  setTimeout(() => { cResetKnob(true); paying = false; }, T(700));
+  setTimeout(() => { paying = false; }, T(700));
 }
+$('#cPay').addEventListener('click', checkout);
 function toast(msg){
   const t = document.createElement('div'); t.className = 'toast';
   t.innerHTML = `<svg viewBox="10 10 20 20"><use href="#i-check"/></svg><span></span>`; t.lastChild.textContent = msg;
@@ -1677,16 +1658,33 @@ function qrSvg(amt, code){
 }
 /* bank transfer: QR card with account details, shared by checkout and paying an account's debt */
 const BANK = {name:'Trinh Minh Cong', acc:'8456777999'};
+/* the QR svg drawn onto a white 720px PNG */
+function qrPng(qr){
+  const svg = qr.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" ');
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => { const c = document.createElement('canvas'); c.width = c.height = 720; const g = c.getContext('2d');
+      g.fillStyle = '#fff'; g.fillRect(0, 0, 720, 720); g.drawImage(img, 60, 60, 600, 600); c.toBlob(b => b ? res(b) : rej(), 'image/png'); };
+    img.onerror = rej;
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  });
+}
 function qrSheet(sheet, {amt, code, onPaid, alt, onAlt}){
   const sp = $('.sp', sheet), qr = qrSvg(amt, code);
   sp.innerHTML = `<div class="qrcard"><div class="qrbox">${qr}</div><div class="qri"><span>Chuyển khoản</span><b class="amt">${fmt(amt)}</b><span>${BANK.name}</span><small>${BANK.acc}</small></div></div>
-    <div class="qact"><button data-q="copy"><svg><use href="#i-copy"/></svg>Sao chép mã</button><i></i><button data-q="save"><svg><use href="#i-down"/></svg>Tải mã</button></div>
+    <div class="qact"><button data-q="copy"><svg><use href="#i-copy"/></svg>Sao chép QR</button><i></i><button data-q="save"><svg><use href="#i-down"/></svg>Tải mã</button></div>
     <button class="btn" data-q="paid">Tôi đã thanh toán</button><button class="salt" data-q="alt">${alt}</button>`;
   const q = k => $(`[data-q=${k}]`, sp);
-  q('copy').addEventListener('click', () => { try { navigator.clipboard.writeText(BANK.acc); } catch (e) {} toast('Đã sao chép số tài khoản'); });
-  q('save').addEventListener('click', () => {
-    const svg = qr.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" style="background:#fff" ');
-    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([svg], {type:'image/svg+xml'})); a.download = `coong-${code}.svg`; a.click();
+  /* copy the QR as a PNG image (to paste into a banking app or chat), and save it as one */
+  q('copy').addEventListener('click', async () => {
+    try {
+      if (!window.ClipboardItem || !navigator.clipboard?.write) throw 0;
+      await navigator.clipboard.write([new ClipboardItem({'image/png': qrPng(qr)})]);
+      toast('Đã sao chép ảnh mã QR');
+    } catch (e) { toast('Máy chưa cho sao chép ảnh, bấm Tải mã nhé'); }
+  });
+  q('save').addEventListener('click', async () => {
+    const a = document.createElement('a'); a.href = URL.createObjectURL(await qrPng(qr)); a.download = `coong-${code}.png`; a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000); toast('Đã tải mã QR');
   });
   q('paid').addEventListener('click', () => { hideSheet(false, sheet); onPaid(); });
