@@ -260,3 +260,5 @@ button.a-card:active{transform:scale(.97)}
 .w-money .w-amount{text-align:right;font-size:32px;line-height:41px;font-weight:700}
 .w-money .a-s{white-space:nowrap}
 .w-note{outline:none;border:0;background:transparent;color:inherit;font:inherit;width:100%;padding:0}
+.s-dish{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;text-align:left}
+.s-dish .a-num{flex:none}
