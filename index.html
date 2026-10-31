@@ -56,36 +56,33 @@ svg{display:block}
 .hrow .hp .paid{color:var(--ok)}.hrow .hp .due{color:var(--yellow)}
 .hrow small{font-size:14px;color:var(--gray);font-weight:400}
 .st.wait{color:var(--yellow)}.st.done{color:var(--ok)}.st.brew{color:var(--info)}
-.acc{left:24px;top:69px;width:342px;bottom:88px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain;line-height:normal;font-weight:700;display:flex;flex-direction:column;gap:24px}
+.acc{left:24px;top:73px;width:342px;bottom:88px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain;line-height:normal;font-weight:700;display:flex;flex-direction:column;gap:24px}
 .acc::-webkit-scrollbar{display:none}
 .acc>*{flex:none}
 .agroup{display:flex;flex-direction:column;gap:8px}
 .astat{padding:16px 24px}
 .anum{display:flex;justify-content:space-between;align-items:flex-start}
-.anum>b{font-size:32px;line-height:46px;font-variant-numeric:tabular-nums}
+.anum>div:first-child{display:flex;flex-direction:column}
+.anum b{font-size:24px;line-height:31px;font-variant-numeric:tabular-nums}
+.anum small{font-size:14px;line-height:18px;color:rgba(255,255,255,.5);font-weight:500}
 .seg{position:relative;display:flex;width:160px;height:32px;box-sizing:border-box;border-radius:100px;background:rgba(255,255,255,.1);padding:2.7px}
 .seg button{position:relative;z-index:1;flex:1;font-size:12px;font-weight:700;color:rgba(255,255,255,.5);transition:color .25s}
 .seg button.on{color:#000}
 .seg[hidden]{display:none}
 .seg i{position:absolute;left:2.7px;top:2.7px;bottom:2.7px;width:calc((100% - 5.4px)/3);border-radius:100px;background:#fff;transition:transform .35s var(--ease-out)}
-.aspent{display:flex;align-items:center;gap:10px;height:28px}
-.aspent>small{flex:1}
-.aspent small{font-size:14px;color:rgba(255,255,255,.5);font-weight:500}
-.aspent span{display:flex;align-items:center;gap:8px}
-.aspent b{font-size:24px;font-variant-numeric:tabular-nums}
-.adebt{display:flex;align-items:center;gap:12px;padding:16px 24px}
+.adebt{display:flex;align-items:center;gap:12px;padding:16px 24px;background:rgba(255,204,0,.12)}
 .adebt>div{flex:1;display:flex;flex-direction:column;gap:4px}
-.adebt>div>b{display:flex;align-items:center;gap:8px;font-size:24px;line-height:28px;color:var(--yellow);font-variant-numeric:tabular-nums}
+.adebt>div>b{display:flex;align-items:center;gap:8px;font-size:24px;line-height:31px;color:var(--yellow);font-variant-numeric:tabular-nums}
 .adebt>div>b svg{width:16px;height:16px}
 .adebt small{white-space:nowrap;font-size:14px;color:rgba(255,255,255,.5);font-weight:500}
-.adebt .btn{width:auto;min-width:0;height:44px;padding:0 24px;font-size:16px;margin:0;flex:none;background:var(--yellow);color:#000}
+.adebt .btn,.adebt .btn.sm{width:auto;min-width:0;height:44px;padding:0 16px;font-size:16px;margin:0;flex:none;background:var(--yellow);color:#000}
 .adebt.clear{display:none}
 .arows{display:flex;flex-direction:column;gap:8px}
 .arow{background:rgba(255,255,255,.1);border-radius:32px;padding:16px 24px;display:flex;gap:10px;font-size:18px;color:#fff;text-align:left}
-.arow span{flex:1}.arow .y{flex:none}
+.arow>span:first-child{flex:1;font-size:16px}.arow .y{flex:none}
 .aname{flex:1;min-width:0;background:none;border:0;outline:0;padding:0;margin:0;font:inherit;color:inherit;text-align:right;caret-color:var(--yellow)}
 .aname:focus{color:var(--yellow)}.arow .r{text-align:right}.arow .y{color:var(--yellow)}.arow .m{color:rgba(255,255,255,.5)}
-.logout{width:100%;padding:0;text-align:center;color:var(--err);font-size:18px;font-weight:700}
+.logout{width:100%;height:44px;padding:0;text-align:center;color:var(--err);font-size:18px;font-weight:700}
 button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 .arow,.logout,.hrow{transition:transform .25s var(--ease-out)}
 
@@ -528,9 +525,8 @@ input{user-select:text;-webkit-user-select:text}
       <div class="abs acc">
         <div class="agroup">
           <div class="card2 astat" data-s>
-            <div class="anum"><b id="aCount">00</b>
+            <div class="anum"><div><b id="aSpent">0</b><small id="aCount">0 đơn đã đặt</small></div>
               <div class="seg" id="aSeg" role="tablist"><i></i><button class="on" data-p="week">Tuần</button><button data-p="month">Tháng</button><button data-p="year">Năm</button></div></div>
-            <div class="aspent"><small>Đơn đã đặt</small><span><small>Đã chi</small><b id="aSpent">0</b></span></div>
           </div>
           <div class="card2 adebt" id="aDebt" data-s>
             <div><b><svg><use href="#i-due"/></svg><span id="aDue">0</span></b><small id="aDueN"></small></div>
@@ -1492,7 +1488,7 @@ function periodStart(p){
 const dueOrders = () => orders.filter(o => !o.paid && !o.claimed && o.status !== 'cancel');
 function renderAccount(){
   const from = periodStart(period), list = orders.filter(o => o.status !== 'cancel' && o.at >= from);
-  $('#aCount').textContent = pad(list.length);
+  $('#aCount').textContent = `${list.length} đơn đã đặt`;
   $('#aSpent').textContent = fmt(list.reduce((n, o) => n + oTotal(o), 0));
   const due = dueOrders();
   $('#aDue').textContent = fmt(due.reduce((n, o) => n + oTotal(o), 0));
@@ -1503,7 +1499,7 @@ $$('#aSeg button').forEach((b, k) => b.addEventListener('click', () => {
   period = b.dataset.p; $$('#aSeg button').forEach(x => x.classList.toggle('on', x === b));
   $('#aSeg i').style.transform = `translateX(${k*100}%)`;
   renderAccount();
-  $('#aCount').animate([{opacity:0, transform:'translateY(8px)'},{opacity:1, transform:'none'}], {duration:T(320), easing:'cubic-bezier(.22,1,.36,1)'});
+  $('#aSpent').animate([{opacity:0, transform:'translateY(8px)'},{opacity:1, transform:'none'}], {duration:T(320), easing:'cubic-bezier(.22,1,.36,1)'});
 }));
 /* pay off everything owed by bank transfer; the shop then confirms it */
 const aSheet = $('#aSheet'); sheetDismiss(aSheet);
