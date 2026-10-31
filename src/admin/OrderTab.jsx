@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createOrder } from '../db';
-import { Icon, Sym, Page, Btn, Chip, Empty, fmt, dmy, timeOf, phoneText, kindOf, XL_EXTRA, orderCode, useUI, errText } from './ui.jsx';
+import { Icon, Sym, Page, Btn, Empty, fmt, dmy, hm, timeOf, phoneText, kindOf, XL_EXTRA, orderCode, useUI, errText } from './ui.jsx';
 import { CustomerPicker, NewCustomer, EditCustomerForm } from './Customers.jsx';
 
 const ORDER = ['bac', 'den', 'nau'];
@@ -9,18 +9,35 @@ const PAY_NAME = { bank: 'Chuyển khoản', cash: 'Tiền mặt', debt: 'Ghi n�
 
 // Đen: size L và XL cùng giá
 const extraOf = (m) => (kindOf(m.name) === 'den' ? 0 : typeof m.upsize === 'number' ? m.upsize : XL_EXTRA);
-const sameOpts = (a, b) => a.menuId === b.menuId && a.size === b.size && a.sweet === b.sweet && a.ice === b.ice;
 const qtyText = (n) => String(n).padStart(2, '0');
 
-// Tab Đặt hàng: chọn món như app khách, rồi gán khách ở bước Thanh toán
+// Chọn món như app khách: Trang chủ → Chi tiết → Giỏ hàng → Thanh toán (gán khách) → Đặt hàng thành công
+const O0 = { upsize: 0, hot: 0, sweet: 0, cafe: 0 }; // sweet/cafe: 0 = 100%, 50 = 50%
+const flagsOf = (kind) => ({ sweet: kind === 'nau' || kind === 'bac', cafe: kind === 'bac' });
+const optText = (l) => {
+  const f = flagsOf(l.kind), o = l.o;
+  return [o.upsize ? 'XL' : 'L', o.hot ? 'Nóng' : 'Lạnh', f.sweet ? `${o.sweet || 100}% ngọt` : 'Không đường', ...(f.cafe ? [`${o.cafe || 100}% cafe`] : [])].join(' / ');
+};
+const sameLine = (a, b) => a.menuId === b.menuId && optText(a) === optText(b);
+const unitOf = (l) => l.price + (l.o.upsize ? l.extra : 0);
+const lineOf = (m, o = O0, qty = 1) => ({ menuId: m.id, name: m.name, kind: kindOf(m.name), price: m.price, extra: extraOf(m), qty, o: { ...o } });
+const mergeLines = (ls) => ls.reduce((acc, l) => {
+  const j = acc.findIndex((x) => sameLine(x, l));
+  if (j < 0) acc.push(l); else acc[j] = { ...acc[j], qty: Math.min(99, acc[j].qty + l.qty) };
+  return acc;
+}, []);
+const SHORT = { den: 'Đen', nau: 'Nâu', bac: 'Bạc' };
+const shortOf = (name) => SHORT[kindOf(name)] || name;
+const THUMB = { den: '/den.webp', nau: '/nau.webp', bac: '/bac.webp' };
+
 export default function OrderTab({ menu, users, orders, onTrack }) {
   const { toast } = useUI();
   const [customer, setCustomer] = useState(null);
-  const [lines, setLines] = useState([]); // { menuId, name, price, extra, qty, size, sweet, ice }
-  const [page, setPage] = useState(null); // pay | pick | newCustomer | { edit } | { done }
+  const [lines, setLines] = useState([]); // { menuId, name, kind, price, extra, qty, o }
+  const [page, setPage] = useState(null); // { detail } | cart | pay | pick | newCustomer | { edit } | { done } | notif
   const [pay, setPay] = useState('debt');
   const [busy, setBusy] = useState(false);
-  const [open, setOpen] = useState(-1); // dòng đang mở tuỳ chọn
+  const [sheet, setSheet] = useState(-1); // dòng đang chỉnh trong giỏ
 
   const items = menu
     .filter((m) => m.active !== false)
@@ -30,49 +47,13 @@ export default function OrderTab({ menu, users, orders, onTrack }) {
     });
   const qtyOf = (id) => lines.filter((l) => l.menuId === id).reduce((n, l) => n + l.qty, 0);
   const count = lines.reduce((n, l) => n + l.qty, 0);
-  const unit = (l) => l.price + (l.size === 'XL' ? l.extra : 0);
-  const total = lines.reduce((n, l) => n + unit(l) * l.qty, 0);
-  const last = orders[0];
+  const total = lines.reduce((n, l) => n + unitOf(l) * l.qty, 0);
 
-  const add = (m) => setLines((ls) => {
-    const base = { menuId: m.id, name: m.name, price: m.price, extra: extraOf(m), size: 'L', sweet: 100, ice: 100 };
-    const i = ls.findIndex((l) => sameOpts(l, base));
-    return i < 0 ? [...ls, { ...base, qty: 1 }] : ls.map((l, k) => (k === i ? { ...l, qty: l.qty + 1 } : l));
-  });
-  const setQty = (i, d) => setLines((ls) => ls.flatMap((l, k) => (k !== i ? [l] : l.qty + d > 0 ? [{ ...l, qty: l.qty + d }] : [])));
-  const setOpt = (i, patch) => setLines((ls) => {
-    const next = ls.map((l, k) => (k === i ? { ...l, ...patch } : l));
-    return next.reduce((acc, l) => {
-      const j = acc.findIndex((x) => sameOpts(x, l));
-      if (j < 0) acc.push(l); else acc[j] = { ...acc[j], qty: acc[j].qty + l.qty };
-      return acc;
-    }, []);
-  });
+  const addLine = (l) => setLines((ls) => mergeLines([...ls, l]));
+  const setQty = (i, d) => setLines((ls) => ls.flatMap((l, k) => (k !== i ? [l] : l.qty + d > 0 ? [{ ...l, qty: Math.min(99, l.qty + d) }] : [])));
+  const openCart = () => setPage('cart');
 
-  const reorder = () => {
-    if (!last) return;
-    const next = (last.items || []).map((x) => {
-      const m = menu.find((d) => d.id === x.menuId) || menu.find((d) => d.name === x.name);
-      if (!m) return null;
-      const xl = /XL/i.test(x.caffeine || '');
-      return {
-        menuId: m.id, name: m.name, price: m.price, extra: extraOf(m), qty: x.quantity || 1, size: xl ? 'XL' : 'L',
-        sweet: /^50/.test(x.sweetness || '') ? 50 : 100, ice: /^50/.test(x.ice || '') ? 50 : 100,
-      };
-    }).filter(Boolean);
-    if (!next.length) return toast('Món của đơn này không còn trong menu');
-    setLines(next);
-    setCustomer(users[last.customerPhone] ? { phone: last.customerPhone, ...users[last.customerPhone] } : null);
-    setOpen(-1);
-    setPage('pay');
-  };
-
-  const goPay = () => (count ? (setOpen(-1), setPage('pay')) : toast('Chọn món trước nhé'));
-
-  const drinkText = (() => {
-    const names = [...new Set(lines.map((l) => l.name))].join(', ');
-    return `${qtyText(count)} x ${names}`;
-  })();
+  const drinkText = (() => `${qtyText(count)} x ${[...new Set(lines.map((l) => shortOf(l.name)))].join(', ')}`)();
 
   const place = async () => {
     if (!customer) return toast('Chọn khách hàng cho đơn này');
@@ -82,9 +63,10 @@ export default function OrderTab({ menu, users, orders, onTrack }) {
       customerPhone: customer.phone,
       customerName: customer.name,
       items: lines.map((l) => ({
-        menuId: l.menuId, name: l.name, price: unit(l), cost: 0, quantity: l.qty,
-        sweetness: `${l.sweet} ngọt`, ice: `${l.ice} đá`, caffeine: l.size === 'XL' ? 'Size XL' : 'Size L',
-        opts: { upsize: l.size === 'XL' ? 1 : 0, sweet: l.sweet === 50 ? 50 : 0, cafe: l.ice === 50 ? 50 : 0 },
+        menuId: l.menuId, name: l.name, price: unitOf(l), cost: 0, quantity: l.qty,
+        sweetness: flagsOf(l.kind).sweet ? `${l.o.sweet || 100}% ngọt` : 'Không đường',
+        ice: `${l.o.cafe || 100}% cafe`, caffeine: l.o.upsize ? 'Size XL' : 'Size L', temp: l.o.hot ? 'Nóng' : 'Lạnh',
+        opts: { ...l.o },
       })),
       note: '',
       totalAmount: total,
@@ -97,7 +79,7 @@ export default function OrderTab({ menu, users, orders, onTrack }) {
       const made = await createOrder(order);
       // cả 3 cách thanh toán đều sang màn Đặt hàng thành công
       setPage({ done: { id: made.id, no: made.no, drinks: drinkText, method: PAY_NAME[pay], total } });
-      setLines([]); setPay('debt'); setCustomer(null);
+      setLines([]); setPay('debt'); setCustomer(null); setSheet(-1);
     } catch (e) { toast(errText(e)); }
     setBusy(false);
   };
@@ -138,89 +120,231 @@ export default function OrderTab({ menu, users, orders, onTrack }) {
       />
     );
   }
+  if (page === 'notif') return <Notifs orders={orders} onBack={() => setPage(null)} onOpen={(id) => { setPage(null); onTrack && onTrack(id); }} />;
+  if (page && page.detail) {
+    return (
+      <Detail
+        m={page.detail} count={count} onClose={() => setPage(null)} onCart={openCart}
+        onAdd={(l) => { addLine(l); setPage(null); toast(`Đã thêm ${qtyText(l.qty)} ${shortOf(l.name)}`, true); }}
+        onBuy={(l) => { addLine(l); setPage('pay'); }}
+      />
+    );
+  }
+  if (page === 'pay') {
+    return (
+      <Page
+        title="Thanh toán"
+        onBack={() => setPage('cart')}
+        footer={(
+          <div className="o-total">
+            <div className="o-sum"><span>Giá chỉ</span><b className="y">{fmt(total)}</b></div>
+            <Btn onClick={place} disabled={busy || !lines.length}>{busy ? 'Đang đặt...' : 'Đặt hàng'}</Btn>
+          </div>
+        )}
+      >
+        <div className="a-card" style={{ gap: 0, padding: '10px 24px' }}>
+          {lines.map((l, i) => (
+            <div key={i} className="o-line">
+              <span className="grow">
+                <b className="a-t" style={{ display: 'block' }}>{qtyText(l.qty)} x {shortOf(l.name)}</b>
+                <span className="a-s">{optText(l)}</span>
+              </span>
+              <b className="a-t a-num">{fmt(unitOf(l) * l.qty)}</b>
+            </div>
+          ))}
+        </div>
+        <button className="a-card h o-cust" onClick={() => setPage('pick')} aria-label="Chọn khách">
+          <span className="m a-t grow">Khách hàng</span>
+          <b className={`a-t ${customer ? '' : 'y'}`}>{customer ? customer.name : 'Chọn khách'}</b>
+          <span className="m"><Icon n="right" /></span>
+        </button>
+        <div className="o-methods" role="radiogroup">
+          {METHODS.map(([k, label, sym]) => (
+            <button key={k} className={`o-method ${pay === k ? 'on' : ''}`} role="radio" aria-checked={pay === k} onClick={() => setPay(k)}>
+              <Sym id={sym} size={24} />
+              <span className="grow">{label}</span>
+              <i />
+            </button>
+          ))}
+        </div>
+        {customer && <p className="a-hint" style={{ paddingLeft: 4 }}>{phoneText(customer.phone)}</p>}
+      </Page>
+    );
+  }
+  if (page === 'cart') {
+    const cur = sheet >= 0 ? lines[sheet] : null;
+    return (
+      <div className="a-page o-cartpg">
+        <button className="a-back" onClick={() => { setSheet(-1); setPage(null); }} aria-label="Đóng giỏ hàng"><Sym id="i-close" size={28} /></button>
+        {lines.length === 0 ? (
+          <div className="o-cempty">
+            <div className="eico"><Sym id="i-bag" size={44} /></div>
+            <h3>Giỏ hàng trống</h3>
+            <p>Chờ đợi chi rựa?</p>
+            <Btn className="sm" style={{ width: 'auto' }} onClick={() => setPage(null)}>Làm tí đê!</Btn>
+          </div>
+        ) : (
+          <>
+            <div className="a-body o-clist">
+              {lines.map((l, i) => (
+                <div key={i} className="o-citem">
+                  <button className="o-cthumb" onClick={() => setSheet(i)} aria-label={`Sửa ${l.name}`}>{THUMB[l.kind] ? <img src={THUMB[l.kind]} alt="" draggable="false" /> : <Sym id="i-cup" size={36} />}</button>
+                  <div className="o-cinfo">
+                    <b className="o-cname">{shortOf(l.name)}</b>
+                    <button className="o-copt" onClick={() => setSheet(i)}>{optText(l)}<Sym id="i-chev" size={14} /></button>
+                    <div className="o-crow">
+                      <span className="o-cqty">
+                        <button className="o-cpm" onClick={() => setQty(i, -1)} aria-label={`Bớt ${l.name}`}><Sym id="i-minus" size={20} /></button>
+                        <span>{l.qty}</span>
+                        <button className="o-cpm" onClick={() => setQty(i, 1)} aria-label={`Thêm ${l.name}`}><Sym id="i-plus" size={20} /></button>
+                      </span>
+                      <span className="o-cprice a-num">{fmt(unitOf(l) * l.qty)}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="a-foot">
+              <div className="o-total">
+                <div className="o-sum"><span>Giá chỉ</span><b className="y">{fmt(total)}</b></div>
+                <Btn onClick={() => setPage('pay')}>Đặt hàng</Btn>
+              </div>
+            </div>
+          </>
+        )}
+        {cur && (
+          <EditSheet
+            line={cur}
+            onClose={() => setSheet(-1)}
+            onDelete={() => { setLines((ls) => ls.filter((_, k) => k !== sheet)); setSheet(-1); }}
+            onSave={(o) => { setLines((ls) => mergeLines(ls.map((l, k) => (k === sheet ? { ...l, o } : l)))); setSheet(-1); toast('Đã cập nhật món', true); }}
+          />
+        )}
+      </div>
+    );
+  }
 
+  const unread = orders.filter((o) => o.status === 'pending').length;
   return (
     <>
       <div className="o-head">
-        <div>
-          <p className="o-hi">Hê lô,</p>
-          <p className="o-brand">Coong</p>
-        </div>
-        <button className="o-bag" onClick={goPay} aria-label="Giỏ hàng"><Sym id="i-bag" size={28} />{count > 0 && <span className="a-badge">{count}</span>}</button>
+        <Sym id="i-logo" size={110} />
+        <span className="grow" />
+        <button className="o-bag" onClick={openCart} aria-label="Giỏ hàng"><Sym id="i-bag" size={28} />{count > 0 && <span className="a-badge">{count}</span>}</button>
+        <button className="o-bag" onClick={() => setPage('notif')} aria-label="Thông báo"><Sym id="i-bell" size={28} />{unread > 0 && <span className="a-badge">{unread}</span>}</button>
       </div>
-      {last && (
-        <button className="a-card h o-again" onClick={reorder} aria-label="Đặt lại đơn gần nhất">
-          <span className="grow">
-            <b className="a-t a-ell" style={{ display: 'block' }}>
-              {qtyText((last.items || []).reduce((n, x) => n + (x.quantity || 1), 0))} x {[...new Set((last.items || []).map((x) => x.name))].join(', ')}
-            </b>
-            <span className="a-s">{timeOf(last) ? dmy(timeOf(last)) : ''}</span>
-          </span>
-          <b className="y a-t">ĐẶT LẠI</b>
-        </button>
-      )}
-      <Carousel items={items} qtyOf={qtyOf} onAdd={add} />
-
-      {page === 'pay' && (
-        <Page
-          title="Thanh toán"
-          onBack={() => setPage(null)}
-          footer={(
-            <div className="o-total">
-              <div className="o-sum"><span>Giá chỉ</span><b className="y">{fmt(total)}</b></div>
-              <Btn onClick={place} disabled={busy || !lines.length}>{busy ? 'Đang đặt...' : 'Đặt hàng'}</Btn>
-            </div>
-          )}
-        >
-          <div className="a-card" style={{ gap: 0, padding: '10px 24px' }}>
-            {lines.map((l, i) => (
-              <div key={i}>
-                <button className="o-line" onClick={() => setOpen(open === i ? -1 : i)} aria-expanded={open === i} aria-label={`Sửa ${l.name}`}>
-                  <span className="grow">
-                    <b className="a-t" style={{ display: 'block' }}>{qtyText(l.qty)} x {l.name}</b>
-                    <span className="a-s">{l.size} / {l.sweet} ngọt / {l.ice} đá</span>
-                  </span>
-                  <b className="a-t a-num">{fmt(unit(l) * l.qty)}</b>
-                </button>
-                {open === i && (
-                  <div className="o-opts">
-                    <div className="a-chips wrap">
-                      {['L', 'XL'].map((v) => <Chip key={v} on={l.size === v} onClick={() => setOpt(i, { size: v })} aria-label={`Size ${v}`}>{v}</Chip>)}
-                      {[50, 100].map((v) => <Chip key={`s${v}`} on={l.sweet === v} onClick={() => setOpt(i, { sweet: v })} aria-label={`${v} ngọt`}>{v} ngọt</Chip>)}
-                      {[50, 100].map((v) => <Chip key={`i${v}`} on={l.ice === v} onClick={() => setOpt(i, { ice: v })} aria-label={`${v} đá`}>{v} đá</Chip>)}
-                    </div>
-                    <span className="a-step">
-                      <button className="a-circ" onClick={() => { setQty(i, -1); if (l.qty === 1) { setOpen(-1); if (lines.length === 1) setPage(null); } }} aria-label={`Bớt ${l.name}`}><Icon n="minus" /></button>
-                      <span className="a-num">{l.qty}</span>
-                      <button className="a-circ w" onClick={() => setQty(i, 1)} aria-label={`Thêm ${l.name}`}><Icon n="plus" /></button>
-                    </span>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-          <button className="a-card h o-cust" onClick={() => setPage('pick')} aria-label="Chọn khách">
-            <span className="m a-t grow">Khách hàng</span>
-            <b className={`a-t ${customer ? '' : 'y'}`}>{customer ? customer.name : 'Chọn khách'}</b>
-            <span className="m"><Icon n="right" /></span>
-          </button>
-          <div className="o-methods" role="radiogroup">
-            {METHODS.map(([k, label, sym]) => (
-              <button key={k} className={`o-method ${pay === k ? 'on' : ''}`} role="radio" aria-checked={pay === k} onClick={() => setPay(k)}>
-                <Sym id={sym} size={24} />
-                <span className="grow">{label}</span>
-                <i />
-              </button>
-            ))}
-          </div>
-          {customer && <p className="a-hint" style={{ paddingLeft: 4 }}>{phoneText(customer.phone)}</p>}
-        </Page>
-      )}
+      <Carousel items={items} qtyOf={qtyOf} onOpen={(m) => setPage({ detail: m })} onAdd={(m) => { addLine(lineOf(m)); }} />
     </>
   );
 }
 
-function Carousel({ items, qtyOf, onAdd }) {
+// Nhóm nút chọn: size, nóng/lạnh, ngọt, cafe (dùng ở Chi tiết và ở sheet sửa món)
+function Opts({ kind, o, set, cls }) {
+  const f = flagsOf(kind);
+  const pick = (k, v) => set({ ...o, [k]: v });
+  const chip = (k, v, label, content) => (
+    <button key={v} className={`${cls} ${(o[k] || 0) === v ? 'on' : ''}`} onClick={() => pick(k, v)} aria-label={label} aria-pressed={(o[k] || 0) === v}>{content}</button>
+  );
+  return (
+    <>
+      <div className="op" data-k="upsize"><div>{chip('upsize', 0, 'Size L', <Sym id="i-sizeL" size={40} />)}{chip('upsize', 1, 'Size XL', <Sym id="i-sizeXL" size={40} />)}</div></div>
+      <div className="op" data-k="hot"><div>{chip('hot', 0, 'Lạnh', <Sym id="i-snow" size={22} />)}{chip('hot', 1, 'Nóng', <Sym id="i-steam" size={22} />)}</div></div>
+      {f.sweet && <div className="op" data-k="sweet"><label>Ngọt</label><div>{chip('sweet', 0, 'Ngọt 100%', '100')}{chip('sweet', 50, 'Ngọt 50%', '50')}</div></div>}
+      {f.cafe && <div className="op" data-k="cafe"><label>Cafe</label><div>{chip('cafe', 0, 'Cafe 100%', '100')}{chip('cafe', 50, 'Cafe 50%', '50')}</div></div>}
+    </>
+  );
+}
+
+// Chi tiết đồ uống: chọn biến thể và số lượng, thêm vào giỏ hoặc thanh toán ngay
+function Detail({ m, count, onClose, onCart, onAdd, onBuy }) {
+  const kind = kindOf(m.name) || 'den';
+  const [o, setO] = useState({ ...O0 });
+  const [qty, setQty] = useState(1);
+  const line = () => lineOf(m, o, qty);
+  const price = (m.price + (o.upsize ? extraOf(m) : 0)) * qty;
+  return (
+    <div className={`a-page d-detail ${kind}`} data-id={kind}>
+      <span className="d-bulge l"><Sym id="i-bulge" size={84} /></span>
+      <span className="d-bulge r"><Sym id="i-bulge" size={84} /></span>
+      <button className="d-circ d-back" onClick={onClose} aria-label="Đóng"><Sym id="i-close" size={28} /></button>
+      <button className="d-circ d-cart" onClick={onCart} aria-label="Giỏ hàng"><Sym id="i-bag" size={28} />{count > 0 && <span className="a-badge">{count}</span>}</button>
+      <h1 className="d-title">{shortOf(m.name)}</h1>
+      <div className="d-opts"><Opts kind={kind} o={o} set={setO} cls="d-chip" /></div>
+      <div className="d-cup">{THUMB[kind] && kindOf(m.name) ? <img src={THUMB[kind]} alt="" draggable="false" /> : <Sym id="i-cup" size={120} />}</div>
+      <button className="d-circ d-pm minus" onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="Giảm"><Sym id="i-minus" size={32} /></button>
+      <button className="d-circ d-pm plus" onClick={() => setQty((q) => Math.min(99, q + 1))} aria-label="Tăng"><Sym id="i-plus" size={32} /></button>
+      <div className="d-qty">{qtyText(qty)}</div>
+      <div className="d-price a-num">{fmt(price)}</div>
+      <div className="d-acts">
+        <button className="d-add" onClick={() => onAdd(line())} aria-label="Thêm vào giỏ hàng"><Sym id="i-bagadd" size={28} /></button>
+        <button className="d-buy" onClick={() => onBuy(line())}>Thanh toán ngay</button>
+      </div>
+    </div>
+  );
+}
+
+// Sheet sửa món trong giỏ: đổi biến thể, xoá khỏi giỏ hoặc lưu lại
+function EditSheet({ line, onClose, onDelete, onSave }) {
+  const [o, setO] = useState({ ...line.o });
+  return (
+    <div className="o-sheetbg" onClick={onClose}>
+      <div className="o-sheet" role="dialog" aria-label="Chỉnh món" onClick={(e) => e.stopPropagation()}>
+        <div className="o-handle" />
+        <div className="o-ehead">
+          <span className="o-cthumb sm">{THUMB[line.kind] ? <img src={THUMB[line.kind]} alt="" draggable="false" /> : <Sym id="i-cup" size={32} />}</span>
+          <b>{shortOf(line.name)}</b>
+        </div>
+        <div className="o-egrid"><Opts kind={line.kind} o={o} set={setO} cls="o-echip" /></div>
+        <div className="o-eacts">
+          <Btn kind="danger" onClick={onDelete}>Xoá khỏi giỏ</Btn>
+          <Btn onClick={() => onSave(o)}>Lưu lại</Btn>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const NT = {
+  pending: ['chờ xác nhận', 'wait'],
+  brewing: ['được chế', 'brew'],
+  completed: ['xong', 'done'],
+  cancelled: ['huỷ', 'cancel'],
+};
+const NTEXT = {
+  pending: (c) => `Đơn ${c} đang chờ xác nhận`,
+  brewing: (c) => `Đơn ${c} đang được chế`,
+  completed: (c) => `Đơn ${c} đã xong`,
+  cancelled: (c) => `Đơn ${c} đã huỷ`,
+};
+const agoText = (d) => {
+  if (!d) return '';
+  const m = Math.max(0, Math.round((Date.now() - d.getTime()) / 60000));
+  if (m < 1) return 'Vừa xong';
+  if (m < 60) return `${m} phút trước`;
+  if (m < 24 * 60) return `${Math.round(m / 60)} giờ trước`;
+  return `${dmy(d)}, ${hm(d)}`;
+};
+
+// Thông báo: trạng thái các đơn gần đây
+function Notifs({ orders, onBack, onOpen }) {
+  const list = orders.slice(0, 30);
+  return (
+    <Page title="Thông báo" onBack={onBack}>
+      {list.map((o) => {
+        const k = NT[o.status] ? o.status : 'pending';
+        return (
+          <button key={o.id} className={`o-nrow ${NT[k][1]} ${k === 'pending' ? 'new' : ''}`} onClick={() => onOpen(o.id)}>
+            <span className="ni"><Sym id={k === 'cancelled' ? 'i-x' : 'i-cup'} size={20} /></span>
+            <div><b>{NTEXT[k](orderCode(o))}</b><small>{agoText(timeOf(o))}</small></div>
+          </button>
+        );
+      })}
+      {list.length === 0 && <Empty icon="bell" title="Chưa có thông báo" text="Trạng thái đơn hàng sẽ được báo ở đây." />}
+    </Page>
+  );
+}
+
+function Carousel({ items, qtyOf, onAdd, onOpen }) {
   const track = useRef(null);
   const cards = useRef([]);
 
@@ -251,14 +375,14 @@ function Carousel({ items, qtyOf, onAdd }) {
         const kind = kindOf(m.name);
         const q = qtyOf(m.id);
         return (
-          <div key={m.id} className={`o-card ${kind || 'den'}`} ref={(n) => { cards.current[i] = n; }} role="group" aria-label={m.name}>
+          <div key={m.id} className={`o-card ${kind || 'den'}`} ref={(n) => { cards.current[i] = n; }} role="button" tabIndex={0} aria-label={m.name} onClick={() => onOpen(m)} onKeyDown={(e) => e.key === 'Enter' && onOpen(m)}>
             <div className="surf" />
-            <b className="o-name">{m.name}</b>
+            <b className="o-name">{shortOf(m.name)}</b>
             {kind === 'bac' && <span className="o-rec"><Sym id="i-star" size={12} />RECOMMEND</span>}
             <span className="o-chips"><span><Sym id="i-snow" size={12} /></span><span><Sym id="i-steam" size={12} /></span></span>
             {kind ? <span className="o-cup"><img src={`/${kind}.webp`} alt="" draggable="false" /></span> : <span className="o-cup ph"><Sym id="i-cup" size={96} /></span>}
             <span className="o-price"><b className="a-num">{fmt(m.price)}</b></span>
-            <button className="o-add" onClick={() => onAdd(m)} aria-label={`Thêm ${m.name}`}>
+            <button className="o-add" onClick={(e) => { e.stopPropagation(); onAdd(m); }} aria-label={`Thêm ${m.name}`}>
               <Sym id="i-bag" size={18} />
               {q > 0 && <span className="o-q">{q}</span>}
             </button>
