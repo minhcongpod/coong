@@ -14,6 +14,14 @@ const summary = (o) => {
   return [...by].sort((a, b) => rank(a[0]) - rank(b[0])).map(([k, n]) => `${n} ${SHORT[k] || k}`).join(' / ');
 };
 
+// nhóm theo thời gian: Hôm nay, Hôm qua, 7 ngày trước, 30 ngày trước, Cũ hơn
+const groupOf = (d) => {
+  if (!d) return 'Cũ hơn';
+  const t = new Date(); t.setHours(0, 0, 0, 0);
+  const days = Math.round((t - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 86400000);
+  return days <= 0 ? 'Hôm nay' : days === 1 ? 'Hôm qua' : days <= 7 ? '7 ngày trước' : days <= 30 ? '30 ngày trước' : 'Cũ hơn';
+};
+
 const qtyText = (n) => String(n).padStart(2, '0');
 const itemNames = (o) => [...new Set((o.items || []).map((x) => x.name))].join(', ');
 const itemQty = (o) => (o.items || []).reduce((n, x) => n + (x.quantity || 1), 0);
@@ -30,7 +38,7 @@ export default function HistoryTab({ orders, users, loading, onGoOrder, track })
   const { toast, confirm } = useUI();
   const run = (o, patch) => updateOrder(o.id, patch).catch((e) => toast(errText(e)));
   const cancel = async (o) => {
-    if (await confirm({ title: 'Huỷ đơn này?', msg: 'Bạn có thể huỷ khi quán chưa bắt đầu pha chế.', ok: 'Huỷ đơn', danger: true })) run(o, { status: 'cancelled' });
+    if (await confirm({ title: 'Huỷ đơn này?', ok: 'Huỷ đơn', danger: true })) run(o, { status: 'cancelled' });
   };
 
   // các card hiện lần lượt, như app khách (lúc mở tab và mỗi lần đổi bộ lọc)
@@ -38,7 +46,7 @@ export default function HistoryTab({ orders, users, loading, onGoOrder, track })
   useEffect(() => {
     const el = listRef.current;
     if (!el) return;
-    const an = [...el.querySelectorAll('.h-card')].slice(0, 12).map((r, j) => r.animate(
+    const an = [...el.querySelectorAll('.h-card, .h-head')].slice(0, 12).map((r, j) => r.animate(
       [{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }],
       { duration: 360, delay: j * 30, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' },
     ));
@@ -50,11 +58,15 @@ export default function HistoryTab({ orders, users, loading, onGoOrder, track })
       <h1 className="a-title">Đơn hàng</h1>
       <FilterBar value={filter} onChange={setFilter} />
       <div className="a-body" ref={listRef}>
-        {list.map((o) => {
+        {list.map((o, i) => {
           const st = STATUS[o.status] || STATUS.pending;
           const paid = payState(o) === 'paid';
+          const g = groupOf(timeOf(o));
+          const head = i === 0 || g !== groupOf(timeOf(list[i - 1]));
           return (
-            <div key={o.id} className="a-card h-card" role="button" tabIndex={0} onClick={() => setOpenId(o.id)} onKeyDown={(e) => { if (e.key === 'Enter' && e.target === e.currentTarget) setOpenId(o.id); }}>
+            <React.Fragment key={o.id}>
+              {head && <h2 className="h-head">{g}</h2>}
+            <div className="a-card h-card" role="button" tabIndex={0} onClick={() => setOpenId(o.id)} onKeyDown={(e) => { if (e.key === 'Enter' && e.target === e.currentTarget) setOpenId(o.id); }}>
               <span className="h-info">
                 <span className="a-between">
                   <b className="a-t a-ell">{summary(o)}</b>
@@ -78,6 +90,7 @@ export default function HistoryTab({ orders, users, loading, onGoOrder, track })
                 </span>
               )}
             </div>
+            </React.Fragment>
           );
         })}
         {list.length === 0 && (orders.length === 0 && !loading ? (
@@ -99,11 +112,16 @@ function FilterBar({ value, onChange }) {
   const box = useRef(null);
   const [pill, setPill] = useState(null);
   useLayoutEffect(() => {
-    const b = box.current && box.current.querySelector('button.on');
-    if (!b) return;
-    setPill({ w: b.offsetWidth, x: b.offsetLeft });
     const c = box.current;
-    c.scrollTo({ left: Math.max(0, b.offsetLeft - 24), behavior: 'smooth' });
+    if (!c) return;
+    // tab Đơn hàng có thể đang ẩn lúc đầu (rộng 0): đo lại khi thanh lọc hiện ra
+    const measure = () => { const b = c.querySelector('button.on'); if (b && b.offsetWidth) setPill({ w: b.offsetWidth, x: b.offsetLeft }); };
+    measure();
+    const b = c.querySelector('button.on');
+    if (b && b.offsetWidth) c.scrollTo({ left: Math.max(0, b.offsetLeft - 24), behavior: 'smooth' });
+    const ro = new ResizeObserver(measure);
+    ro.observe(c);
+    return () => ro.disconnect();
   }, [value]);
   return (
     <div className="h-seg" role="tablist" ref={box}>
@@ -121,7 +139,7 @@ function OrderDetail({ o, onBack, users }) {
   const paid = pay === 'paid';
   const run = (patch) => updateOrder(o.id, patch).catch((e) => toast(errText(e)));
   const cancel = async () => {
-    if (await confirm({ title: 'Huỷ đơn này?', msg: 'Bạn có thể huỷ khi quán chưa bắt đầu pha chế.', ok: 'Huỷ đơn', danger: true })) {
+    if (await confirm({ title: 'Huỷ đơn này?', ok: 'Huỷ đơn', danger: true })) {
       await run({ status: 'cancelled' });
       onBack();
     }
@@ -139,43 +157,52 @@ function OrderDetail({ o, onBack, users }) {
   // một màu theo trạng thái hiện tại, giống app khách: vàng chờ, xanh dương pha chế, xanh lá hoàn thành, đỏ đã huỷ
   const sc = cancelled ? 'var(--err)' : o.status === 'pending' ? 'var(--yellow)' : o.status === 'brewing' ? 'var(--info)' : 'var(--ok)';
   const d = timeOf(o);
-  const phone = users[o.customerPhone] ? phoneText(o.customerPhone) : o.customerPhone;
 
   let footer = null;
   if (o.status === 'pending') {
     footer = (
       <div style={{ display: 'flex', gap: 8 }}>
-        <Btn kind="danger" className="sm" onClick={cancel}>Huỷ đơn</Btn>
-        <Btn kind="yellow" className="sm" onClick={() => run({ status: 'brewing' })}>Xác nhận</Btn>
+        <Btn kind="danger" onClick={cancel}>Huỷ đơn</Btn>
+        <Btn kind="yellow" onClick={() => run({ status: 'brewing' })}>Xác nhận</Btn>
       </div>
     );
   } else if (o.status === 'brewing') {
-    footer = <Btn className="sm" onClick={() => run({ status: 'completed' })}>Hoàn thành</Btn>;
+    footer = <Btn onClick={() => run({ status: 'completed' })}>Hoàn thành</Btn>;
   }
+
+  // thanh tiến trình chạy từ bước đầu tới bước hiện tại, như app khách
+  const [bi, setBi] = useState(0);
+  useEffect(() => { const t = requestAnimationFrame(() => requestAnimationFrame(() => setBi(cur))); return () => cancelAnimationFrame(t); }, [cur]);
+  const count = (o.items || []).length;
 
   return (
     <Page
+      fx
       onBack={onBack}
       footer={footer}
       head={(
         <>
-          <div className="a-between" style={{ alignItems: 'flex-start' }}>
+          <div className="a-between" data-s>
             <h1 className="a-title">{orderCode(o)}</h1>
-            {!cancelled && <button className="o-pill" onClick={togglePaid} aria-label={paid ? 'Bỏ đánh dấu đã thu' : 'Đánh dấu đã thu'}>{paid ? 'Đã thu' : 'Thu tiền'}</button>}
+            {!cancelled && (
+              <button className={`o-pill${paid ? ' on' : ''}`} onClick={togglePaid} aria-label={paid ? 'Bỏ đánh dấu đã thu' : 'Đánh dấu đã thu'}>
+                {paid && <Sym id="i-paid" size={16} />}{paid ? 'Đã thu tiền' : 'Thu tiền'}
+              </button>
+            )}
           </div>
-          <p className="a-s" style={{ marginBottom: 12 }}>{o.customerName} · {phone} · {d ? `${hm(d)} · ${dmy(d)}` : ''}</p>
+          <p className="a-s" data-s style={{ marginBottom: 12 }}>{d ? `${hm(d)} · ${dmy(d)} · ${count} món` : ''}</p>
         </>
       )}
     >
-      <div className="a-card" style={{ padding: '12px 24px' }}>
-        <div className="a-tl" style={{ '--c': sc, '--i': cur, ...(cancelled ? { '--tl': '1' } : null) }}>
+      <div className="a-card" data-s style={{ padding: '12px 24px' }}>
+        <div className="a-tl" style={{ '--c': sc, '--i': cancelled ? 1 : bi, ...(cancelled ? { '--tl': '1' } : null) }}>
           <span className="bar" />
           {steps.map(([k, label], i) => (
             <div key={k} className={`a-st ${i <= cur ? 'on' : ''} ${i === cur && o.status !== 'completed' && !cancelled ? 'cur' : ''}`}><i />{label}</div>
           ))}
         </div>
       </div>
-      <div className="a-card" style={{ gap: 0 }}>
+      <div className="a-card" data-s style={{ gap: 0 }}>
         {(o.items || []).map((x, i) => {
           const kind = kindOf(x.name);
           return (
@@ -193,7 +220,10 @@ function OrderDetail({ o, onBack, users }) {
         })}
         {o.note && <p className="a-s" style={{ paddingTop: 6 }}>Ghi chú: {o.note}</p>}
       </div>
-      <div className="a-card" style={{ gap: 0 }}>
+      <div className="a-card" data-s>
+        <div className="a-kv"><span>Khách hàng</span><b>{o.customerName}</b></div>
+      </div>
+      <div className="a-card a-kv16" data-s style={{ gap: 0 }}>
         <div className="a-kv"><span>Phương thức</span><b>{payLabel(o)}</b></div>
         <div className="a-kv">
           <span>Thanh toán</span>
