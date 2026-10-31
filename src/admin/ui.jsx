@@ -83,23 +83,23 @@ export function UIProvider({ children }) {
   const [dlg, setDlg] = useState(null);
   const timer = useRef(0);
   const show = useCallback((msg, ok) => {
-    setToast({ msg, ok });
+    setToast({ msg, ok, n: Date.now() });
     clearTimeout(timer.current);
-    timer.current = setTimeout(() => setToast(null), 3500);
+    timer.current = setTimeout(() => setToast(null), 2400);
   }, []);
   const confirm = useCallback((o) => new Promise((resolve) => setDlg({ ...o, resolve })), []);
   const close = (v) => { dlg.resolve(v); setDlg(null); };
   return (
     <UICtx.Provider value={{ toast: show, confirm }}>
       {children}
-      {toast && <div className={`a-toast${toast.ok ? ' ok' : ''}`} role="alert">{toast.msg}</div>}
+      {toast && <div className="a-toast" role="alert" key={toast.n}><Sym id={toast.ok ? 'i-check' : 'i-warn'} size={22} /><span>{toast.msg}</span></div>}
       {dlg && (
         <div className="a-dim" onClick={() => close(false)}>
           <div className="a-dlg" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
             <h3>{dlg.title}</h3>
             {dlg.msg && <p>{dlg.msg}</p>}
             <div className="acts">
-              <button className="a-btn ghost" onClick={() => close(false)}>Giữ lại</button>
+              <button className="a-btn ghost" onClick={() => close(false)}>Thôi</button>
               <button className={`a-btn ${dlg.danger ? 'danger' : ''}`} onClick={() => close(true)}>{dlg.ok || 'Đồng ý'}</button>
             </div>
           </div>
@@ -132,7 +132,7 @@ export const Toggle = ({ on, onChange, label }) => (
 
 export const Page = ({ title, sub, head, onBack, children, footer }) => (
   <div className="a-page">
-    <button className="a-back" onClick={onBack} aria-label="Quay lại"><Icon n="left" size={28} /></button>
+    <button className="a-back" onClick={onBack} aria-label="Quay lại"><Sym id="i-back" size={28} /></button>
     {head}
     {title && <h1 className="a-title">{title}</h1>}
     {sub && <p className="a-sub">{sub}</p>}
