@@ -171,6 +171,7 @@ function Shell({ adminPhone, onLogout }) {
   const [orders, setOrders] = useState(null);
   const [users, setUsers] = useState({});
   const [txs, setTxs] = useState([]);
+  const [track, setTrack] = useState(null); // { id, n }: mở chi tiết đơn vừa đặt
 
   useEffect(() => {
     const fail = (e) => toast(errText(e));
@@ -188,8 +189,8 @@ function Shell({ adminPhone, onLogout }) {
 
   return (
     <>
-      <div className="a-tab" hidden={tab !== 'order'}><OrderTab {...data} /></div>
-      <div className="a-tab" hidden={tab !== 'history'}><HistoryTab {...data} onGoOrder={() => setTab('order')} /></div>
+      <div className="a-tab" hidden={tab !== 'order'}><OrderTab {...data} onTrack={(id) => { setTrack({ id, n: Date.now() }); setTab('history'); }} /></div>
+      <div className="a-tab" hidden={tab !== 'history'}><HistoryTab {...data} track={track} onGoOrder={() => setTab('order')} /></div>
       <div className="a-tab" hidden={tab !== 'wallet'}><WalletTab {...data} /></div>
       <div className="a-tab" hidden={tab !== 'settings'}><SettingsTab {...data} adminPhone={adminPhone} onLogout={onLogout} /></div>
       <nav className="a-nav" style={{ position: 'absolute', left: 24, right: 24, bottom: 0, margin: '0 0 31px' }}>

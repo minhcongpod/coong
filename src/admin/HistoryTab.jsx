@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { updateOrder } from '../db';
 import { Icon, Sym, Page, Btn, Seg, fmt, hm, dmy, timeOf, phoneText, payLabel, payState, orderCode, kindOf, STATUS, isLive, useUI, errText } from './ui.jsx';
 
@@ -11,9 +11,10 @@ const itemQty = (o) => (o.items || []).reduce((n, x) => n + (x.quantity || 1), 0
 const whenText = (d) => (!d ? '' : d.toDateString() === new Date().toDateString() ? 'Hôm nay' : dmy(d));
 
 // Tab Đơn hàng: danh sách đơn, xem chi tiết, thu tiền, nhận đơn, hoàn thành, huỷ
-export default function HistoryTab({ orders, users, loading, onGoOrder }) {
+export default function HistoryTab({ orders, users, loading, onGoOrder, track }) {
   const [filter, setFilter] = useState('all');
   const [openId, setOpenId] = useState(null);
+  useEffect(() => { if (track) setOpenId(track.id); }, [track]);
 
   const list = orders.filter((o) => {
     if (filter === 'paid') return o.paid;
