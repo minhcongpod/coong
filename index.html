@@ -103,7 +103,8 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 .ehead{display:flex;align-items:center;gap:16px}
 .ehead .cthumb{width:70px;height:70px}.ehead .cthumb img{top:10.5px;width:58px}
 .ehead .ename{font-size:18px;font-weight:700}
-.egroup[data-k=upsize]{justify-content:center}
+.ehead{grid-column:1/-1}
+.egroup[data-k=hot] svg{width:24px;height:24px}
 .egrid{display:grid;grid-template-columns:1fr 1fr;gap:24px 8px}
 .egroup,.eqty{display:flex;flex-direction:column;gap:8px}
 .opt[hidden],.egroup[hidden]{display:none}
@@ -126,8 +127,9 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 .cpm svg{width:19.7px;height:19.7px}
 .cprice{font-size:18px;line-height:23px;font-variant-numeric:tabular-nums}
 .copt{font-size:14px;font-weight:500;color:rgba(255,255,255,.5);white-space:nowrap}
-.cempty{left:0;width:390px;top:130px;opacity:0;pointer-events:none;transition:opacity .3s}
+.cempty{left:0;width:390px;top:149px;opacity:0;pointer-events:none;transition:opacity .3s}
 #cart.empty .cempty{opacity:1;pointer-events:auto}
+.cempty .eico{margin-bottom:0;color:#fff}.cempty p{color:rgba(255,255,255,.5);line-height:21.75px}.cempty .btn{margin-top:6px;padding:0 24px}
 #cart.empty .cfoot{opacity:0;pointer-events:none}
 .cfoot{transition:opacity .3s}
 #cTotal{color:var(--yellow)}
@@ -410,7 +412,7 @@ input{user-select:text;-webkit-user-select:text}
 #detail[data-id=nau] .back,#detail[data-id=nau] .cartbtn,#detail[data-id=bac] .back,#detail[data-id=bac] .cartbtn{top:24px}
 .dtitle{left:27px;top:94px;font-size:44px;line-height:46px;font-weight:700;color:var(--title);margin:0}
 .opts{left:27px;top:159px;display:flex;flex-direction:column}
-.opt[data-k=sweet]{margin-top:15px}.opt[data-k=cafe]{margin-top:17px}
+.opt[data-k=hot]{margin-top:16px}.opt[data-k=hot] .chip svg{width:22px;height:22px}.opt[data-k=sweet]{margin-top:15px}.opt[data-k=cafe]{margin-top:17px}
 .opt label{display:block;font-size:16px;line-height:20px;margin-bottom:4px}
 #detail[data-id=den] .opt label{color:#fff}
 #detail[data-id=nau] .opt label,#detail[data-id=bac] .opt label{color:#000}
@@ -569,6 +571,7 @@ input{user-select:text;-webkit-user-select:text}
     <h1 class="abs dtitle" id="dTitle" data-a="left">Đen</h1>
     <div class="abs opts" id="opts">
       <div class="opt" data-a="left" data-k="upsize"><div><button class="chip on" data-v="0" aria-label="Size L"><svg><use href="#i-sizeL"/></svg></button><button class="chip val" data-v="1" aria-label="Size XL"><svg><use href="#i-sizeXL"/></svg></button></div></div>
+      <div class="opt" data-a="left" data-k="hot"><div><button class="chip on" data-v="0" aria-label="Lạnh"><svg><use href="#i-snow"/></svg></button><button class="chip val" data-v="1" aria-label="Nóng"><svg><use href="#i-steam"/></svg></button></div></div>
       <div class="opt" data-a="left" data-k="sweet"><label>Ngọt</label><div><button class="chip on" data-v="0" aria-label="Ngọt 100%">100</button><button class="chip val" data-v="50" aria-label="Ngọt 50%">50</button></div></div>
       <div class="opt" data-a="left" data-k="cafe"><label>Cafe</label><div><button class="chip on" data-v="0" aria-label="Cafe 100%">100</button><button class="chip val" data-v="50" aria-label="Cafe 50%">50</button></div></div>
     </div>
@@ -591,8 +594,8 @@ input{user-select:text;-webkit-user-select:text}
     <div class="abs estate cempty">
       <div class="eico"><svg><use href="#i-bag"/></svg></div>
       <h3>Giỏ hàng trống</h3>
-      <p>Chọn một ly cà phê, vuốt thanh “Thêm vào giỏ hàng” là xong.</p>
-      <button class="btn sm" id="cGo">Làm tí đê</button>
+      <p>Chờ đợi chi rựa?</p>
+      <button class="btn sm" id="cGo">Làm tí đê!</button>
     </div>
     <div class="abs pfoot cfoot">
       <div class="ptot"><span>Giá chỉ</span><b id="cTotal">0</b></div>
@@ -604,6 +607,7 @@ input{user-select:text;-webkit-user-select:text}
         <div class="egrid">
           <div class="ehead"><div class="cthumb"><img alt="" draggable="false"></div><b class="ename"></b></div>
           <div class="egroup" data-k="upsize"><div class="echips"><button class="esz" data-v="0" aria-label="Size L"><svg><use href="#i-sizeL"/></svg></button><button class="esz" data-v="1" aria-label="Size XL"><svg><use href="#i-sizeXL"/></svg></button></div></div>
+          <div class="egroup" data-k="hot"><div class="echips"><button data-v="0" aria-label="Lạnh"><svg><use href="#i-snow"/></svg></button><button data-v="1" aria-label="Nóng"><svg><use href="#i-steam"/></svg></button></div></div>
           <div class="egroup" data-k="sweet"><label>Ngọt</label><div class="echips"><button class="val" data-v="50">50</button><button data-v="100">100</button></div></div>
           <div class="egroup" data-k="cafe"><label>Cafe</label><div class="echips"><button class="val" data-v="50">50</button><button data-v="100">100</button></div></div>
         </div>
@@ -943,7 +947,7 @@ $('#lastClose').addEventListener('click', () => {
 /* ---------- detail state ---------- */
 const detail = $('#detail'), spin = $('#spin');
 let cur = 1, qty = 1, frame = 0, cart = 0;
-const opts = {upsize:0, sweet:0, cafe:0};
+const opts = {upsize:0, hot:0, sweet:0, cafe:0};
 const unit = () => DRINKS[cur].price + (opts.upsize ? DRINKS[cur].xl : 0);
 
 function sizeSpin(){
@@ -961,7 +965,7 @@ function fillDetail(i){
   sizeSpin();
   setFrame(0);
   qty = 1; Object.keys(opts).forEach(k => opts[k] = 0);
-  $$('.opt').forEach(g => { $$('.chip', g).forEach(c => c.classList.toggle('on', c.dataset.v === '0')); if (g.dataset.k !== 'upsize') g.hidden = !d[g.dataset.k]; });
+  $$('.opt').forEach(g => { $$('.chip', g).forEach(c => c.classList.toggle('on', c.dataset.v === '0')); if (g.dataset.k in d) g.hidden = !d[g.dataset.k]; });
   $('#qty').innerHTML = `<span>${pad(qty)}</span>`;
   $('#dPrice').textContent = fmt(unit()*qty);
   resetKnob(true);
@@ -1249,8 +1253,8 @@ const cartItems = [];   /* {id, qty, unit} */
 const cartEl = $('#cart'), clist = $('#clist');
 /* Đen is always unsweetened; only Bạc lets you pick the coffee amount */
 const sweetText = (o, d) => d.sweet ? `${o.sweet || 100}% ngọt` : 'Không đường';
-const optText = (o, id) => { const d = drink(id); return [o.upsize ? 'XL' : 'L', sweetText(o, d), ...(d.cafe ? [`${o.cafe || 100}% cafe`] : [])].join(' / '); };
-function addToCart(id, q, u, o = {upsize:0, sweet:0, cafe:0}){
+const optText = (o, id) => { const d = drink(id); return [o.upsize ? 'XL' : 'L', o.hot ? 'Nóng' : 'Lạnh', sweetText(o, d), ...(d.cafe ? [`${o.cafe || 100}% cafe`] : [])].join(' / '); };
+function addToCart(id, q, u, o = O0){
   const it = cartItems.find(x => x.id === id && x.unit === u && optText(x.o, id) === optText(o, id));
   if (it) it.qty = Math.min(99, it.qty + q); else cartItems.push({id, qty:q, unit:u, o:{...o}});
   cart = cartItems.reduce((n, x) => n + x.qty, 0);
@@ -1262,7 +1266,7 @@ const eSheet = $('#eSheet'), E = {i:-1, o:null, qty:1};
 const lineUnit = (id, o) => drink(id).price + (o.upsize ? drink(id).xl : 0);
 function eSync(){
   const it = cartItems[E.i]; if (!it) return;
-  $$('.egroup', eSheet).forEach(g => { const k = g.dataset.k, v = k === 'upsize' ? E.o.upsize : (E.o[k] || 100);
+  $$('.egroup', eSheet).forEach(g => { const k = g.dataset.k, v = k === 'upsize' || k === 'hot' ? (E.o[k] || 0) : (E.o[k] || 100);
     /* like the drink page: the first chip carries any value under 100 */
     $$('.echips button', g).forEach(b => b.classList.toggle('on', +b.dataset.v === v)); });
 }
@@ -1270,7 +1274,7 @@ function openEdit(i){
   const it = cartItems[i]; if (!it) return; const d = drink(it.id);
   Object.assign(E, {i, o:{...it.o}, qty:it.qty});
   $('.ehead img', eSheet).src = d.id + '.webp'; $('.ename', eSheet).textContent = d.name;
-  $$('.egroup', eSheet).forEach(g => { if (g.dataset.k !== 'upsize') g.hidden = !d[g.dataset.k]; });
+  $$('.egroup', eSheet).forEach(g => { if (g.dataset.k in d) g.hidden = !d[g.dataset.k]; });
   eSync();
   eSheet.onDismiss = null;
   eSheet.getAnimations().forEach(a => a.cancel());
@@ -1436,7 +1440,7 @@ function ask({title, text, ok, cancel = 'Thôi', danger}){
 const PAY = {cash:'Tiền mặt', bank:'Chuyển khoản', debt:'Ghi nợ'};
 const ST = {wait:'Chờ xác nhận', brew:'Đang chế', done:'Hoàn thành', cancel:'Hủy'};
 const daysAgo = (n, h = 8, m = 30) => { const d = new Date(); d.setDate(d.getDate() - n); if (n) d.setHours(h, m); return d; };
-const O0 = {upsize:0, sweet:0, cafe:0};
+const O0 = {upsize:0, hot:0, sweet:0, cafe:0};
 const line = (id, qty = 1, o = O0) => ({id, qty, unit:drink(id).price + (o.upsize ? drink(id).xl : 0), o:{...o}});
 const STATUS = {pending:'wait', brewing:'brew', completed:'done', cancelled:'cancel'};
 /* order number counts up from 1234; older orders without one keep the id-based code */
@@ -1751,7 +1755,7 @@ async function placeOrder(paid, claimed = false){
   if (placing || !session) return; placing = true;
   const items = cartItems.map(x => { const d = drink(x.id);
     return {menuId:d.menuId || null, drink:x.id, name:d.menuName || d.name, price:x.unit, cost:d.cost || 0, quantity:x.qty,
-      sweetness:sweetText(x.o, d), ice:`${x.o.cafe || 100}% cafe`, caffeine:x.o.upsize ? 'Size XL' : 'Size L', opts:{...x.o}}; });
+      sweetness:sweetText(x.o, d), ice:`${x.o.cafe || 100}% cafe`, caffeine:x.o.upsize ? 'Size XL' : 'Size L', temp:x.o.hot ? 'Nóng' : 'Lạnh', opts:{...x.o}}; });
   const doc = {customerPhone:session.phone, customerName:session.name, items, note:'', totalAmount:cartTotal(), status:'pending', paid:false, payMethod:payM};
   if (claimed) doc.paymentStatus = 'awaiting';
   try {

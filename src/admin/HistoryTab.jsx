@@ -125,7 +125,7 @@ function OrderDetail({ o, onBack, users }) {
               <span className="o-thumb">{kind ? <img src={`/${kind}.webp`} alt="" /> : <Sym id="i-cup" size={22} />}</span>
               <span className="grow">
                 <b className="a-t" style={{ display: 'block' }}>{qtyText(x.quantity || 1)} x {x.name}</b>
-                <span className="a-s">{[x.caffeine && x.caffeine.replace('Size ', ''), x.sweetness, x.ice].filter(Boolean).join(' / ')}</span>
+                <span className="a-s">{[x.caffeine && x.caffeine.replace('Size ', ''), x.temp, x.sweetness, x.ice].filter(Boolean).join(' / ')}</span>
               </span>
               <b className="a-t a-num">{fmt(x.price * (x.quantity || 1))}</b>
             </div>
