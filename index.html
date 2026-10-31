@@ -1220,7 +1220,7 @@ async function completeAdd(){
   addToCart(DRINKS[cur].id, qty, unit(), {...opts}); lastOrder = cur;
   syncBadges(true);
   $('#dCart').animate([{transform:'scale(1)'},{transform:'scale(1.22)'},{transform:'scale(.95)'},{transform:'scale(1)'}], {duration:T(480), easing:'ease-out'});
-  toast(`Đã thêm ${pad(qty)} ${DRINKS[cur].name} · ${fmt(unit()*qty)}`, 'cardadd');
+  toast(`Đã thêm ${pad(qty)} ${DRINKS[cur].name}`, 'cardadd');
   adding = false;
 }
 function syncBadges(pop){
@@ -1581,7 +1581,7 @@ function renderOrder(o){
   } else if (o.status === 'brew') {
     /* brewing: nothing to do but wait */
   } else {
-    const b = document.createElement('button'); b.className = 'btn'; b.textContent = 'Đặt lại đơn này';
+    const b = document.createElement('button'); b.className = 'btn'; b.textContent = 'Đặt lại';
     b.addEventListener('click', () => reorder(o));
     ob.appendChild(b);
   }
@@ -1590,7 +1590,7 @@ function renderOrder(o){
 }
 function openOrder(o){ curOrder = o; const prev = $('#oBody .bar'); if (prev) prev.remove(); renderOrder(o); showPage(orderEl); }
 async function cancelOrder(o){
-  if (!await ask({title:'Huỷ đơn này?', text:'Ủa alo???', ok:'Huỷ đơn', cancel:'Giữ lại', danger:true})) return;
+  if (!await ask({title:'Huỷ đơn này?', text:'Ủa alo???', ok:'Huỷ đơn', cancel:'Thôi', danger:true})) return;
   if (o.status !== 'wait') { toast('Quán vừa nhận đơn, không huỷ được nữa'); return; }
   try { await (await api()).cancelOrder(o.id); }
   catch (e) { toast('Quán vừa nhận đơn, không huỷ được nữa'); return; }
@@ -1707,7 +1707,7 @@ function qrPng(qr){
 function qrSheet(sheet, {amt, code, onPaid, alt, onAlt}){
   const sp = $('.sp', sheet), qr = qrSvg(amt, code);
   sp.innerHTML = `<div class="qrcard"><div class="qtop"><div class="qrbox">${qr}</div><div class="qri"><div><span>Chuyển khoản</span><b class="amt">${fmt(amt)}</b></div><div><span>${BANK.name}</span><small>${BANK.acc}</small></div></div></div>
-    <div class="qact"><button data-q="copy"><svg><use href="#i-copy"/></svg>Sao chép mã</button><i></i><button data-q="save"><svg><use href="#i-down"/></svg>Tải mã</button></div></div>
+    <div class="qact"><button data-q="copy"><svg><use href="#i-copy"/></svg>Sao chép QR</button><i></i><button data-q="save"><svg><use href="#i-down"/></svg>Tải mã</button></div></div>
     <button class="btn" data-q="paid">Tôi đã thanh toán</button><button class="salt" data-q="alt">${alt}</button>`;
   const q = k => $(`[data-q=${k}]`, sp);
   /* copy the QR as a PNG image (to paste into a banking app or chat), and save it as one */
@@ -1715,7 +1715,7 @@ function qrSheet(sheet, {amt, code, onPaid, alt, onAlt}){
     try {
       if (!window.ClipboardItem || !navigator.clipboard?.write) throw 0;
       await navigator.clipboard.write([new ClipboardItem({'image/png': qrPng(qr)})]);
-      toast('Đã sao chép ảnh mã QR', 'copy');
+      toast('Đã sao chép QR', 'copy');
     } catch (e) { toast('Máy chưa cho sao chép ảnh, bấm Tải mã nhé'); }
   });
   q('save').addEventListener('click', async () => {
