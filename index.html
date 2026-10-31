@@ -39,53 +39,50 @@ svg{display:block}
 /* ---------- Order history & account tabs ---------- */
 .tab{position:absolute;inset:0}
 .tab.off{visibility:hidden;pointer-events:none}
-.ptitle{left:24px;top:38px;margin:0;font-size:32px;line-height:46px;font-weight:700}
-.hlist{left:24px;top:140px;width:342px;height:412px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
+.ptitle{left:24px;top:24px;margin:0;font-size:32px;line-height:46px;font-weight:700}
+.hlist{left:24px;top:126px;width:342px;height:454px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
 .hlist::-webkit-scrollbar{display:none}
-#hSeg{position:absolute;left:24px;top:92px;width:342px;height:40px;padding:3px}
+#hSeg{position:absolute;left:24px;top:78px;width:342px;height:40px;padding:3px}
 #hSeg i{left:0;top:3px;bottom:3px;width:0;transition:transform .35s var(--ease-out),width .35s var(--ease-out)}
 #hSeg button{flex:auto;white-space:nowrap;font-size:14px;padding:0 10px}
-.hnone{left:24px;top:170px;width:342px;text-align:center;font-size:16px;color:rgba(255,255,255,.5);font-weight:500}
+.hnone{left:24px;top:156px;width:342px;text-align:center;font-size:16px;color:rgba(255,255,255,.5);font-weight:500}
 .hnone[hidden]{display:none}
-.hrow{flex:none;background:rgba(255,255,255,.1);border-radius:32px;padding:16px 24px;display:flex;flex-direction:column;gap:6px;line-height:normal}
+.hrow{flex:none;height:80px;box-sizing:border-box;background:rgba(255,255,255,.1);border-radius:32px;padding:16px 24px;display:flex;flex-direction:column;justify-content:space-between;line-height:20px}
 .hrow .t{display:flex;align-items:center;gap:11px;font-weight:700;white-space:nowrap}
 .hrow .n{flex:1;display:flex;gap:7px;font-size:16px}
 .hrow .st{font-size:14px}
-.hrow .hp{display:flex;align-items:center;gap:5px;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
+.hrow .hp{flex:1;display:flex;align-items:center;gap:4px;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
 .hrow .hp svg{width:16px;height:16px}
 .hrow .hp .paid{color:var(--ok)}.hrow .hp .due{color:var(--yellow)}
-.hrow small{flex:1;font-size:14px;color:var(--gray);font-weight:400}
+.hrow small{font-size:14px;color:var(--gray);font-weight:400}
 .st.wait{color:var(--yellow)}.st.done{color:var(--ok)}.st.brew{color:var(--info)}
-.acc{left:24px;top:83px;width:342px;bottom:88px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain;line-height:normal;font-weight:700;display:flex;flex-direction:column;gap:24px}
+.acc{left:24px;top:73px;width:342px;bottom:88px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain;line-height:normal;font-weight:700;display:flex;flex-direction:column;gap:24px}
 .acc::-webkit-scrollbar{display:none}
 .acc>*{flex:none}
 .agroup{display:flex;flex-direction:column;gap:8px}
 .astat{padding:16px 24px}
 .anum{display:flex;justify-content:space-between;align-items:flex-start}
-.anum>b{font-size:32px;line-height:46px;font-variant-numeric:tabular-nums}
+.anum>div:first-child{display:flex;flex-direction:column}
+.anum b{font-size:24px;line-height:31px;font-variant-numeric:tabular-nums}
+.anum small{font-size:14px;line-height:18px;color:rgba(255,255,255,.5);font-weight:500}
 .seg{position:relative;display:flex;width:160px;height:32px;box-sizing:border-box;border-radius:100px;background:rgba(255,255,255,.1);padding:2.7px}
 .seg button{position:relative;z-index:1;flex:1;font-size:12px;font-weight:700;color:rgba(255,255,255,.5);transition:color .25s}
 .seg button.on{color:#000}
 .seg[hidden]{display:none}
 .seg i{position:absolute;left:2.7px;top:2.7px;bottom:2.7px;width:calc((100% - 5.4px)/3);border-radius:100px;background:#fff;transition:transform .35s var(--ease-out)}
-.aspent{display:flex;align-items:center;gap:10px;height:28px}
-.aspent>small{flex:1}
-.aspent small{font-size:14px;color:rgba(255,255,255,.5);font-weight:500}
-.aspent span{display:flex;align-items:center;gap:8px}
-.aspent b{font-size:24px;font-variant-numeric:tabular-nums}
-.adebt{display:flex;align-items:center;gap:12px;padding:16px 24px}
+.adebt{display:flex;align-items:center;gap:12px;padding:16px 24px;background:rgba(255,204,0,.12)}
 .adebt>div{flex:1;display:flex;flex-direction:column;gap:4px}
-.adebt>div>b{display:flex;align-items:center;gap:8px;font-size:24px;line-height:28px;color:var(--yellow);font-variant-numeric:tabular-nums}
+.adebt>div>b{display:flex;align-items:center;gap:8px;font-size:24px;line-height:31px;color:var(--yellow);font-variant-numeric:tabular-nums}
 .adebt>div>b svg{width:16px;height:16px}
 .adebt small{white-space:nowrap;font-size:14px;color:rgba(255,255,255,.5);font-weight:500}
-.adebt .btn{width:auto;min-width:0;height:44px;padding:0 24px;font-size:16px;margin:0;flex:none;background:var(--yellow);color:#000}
+.adebt .btn,.adebt .btn.sm{width:auto;min-width:0;height:44px;padding:0 16px;font-size:16px;margin:0;flex:none;background:var(--yellow);color:#000}
 .adebt.clear{display:none}
 .arows{display:flex;flex-direction:column;gap:8px}
 .arow{background:rgba(255,255,255,.1);border-radius:32px;padding:16px 24px;display:flex;gap:10px;font-size:18px;color:#fff;text-align:left}
-.arow span{flex:1}.arow .y{flex:none}
+.arow>span:first-child{flex:1;font-size:16px}.arow .y{flex:none}
 .aname{flex:1;min-width:0;background:none;border:0;outline:0;padding:0;margin:0;font:inherit;color:inherit;text-align:right;caret-color:var(--yellow)}
 .aname:focus{color:var(--yellow)}.arow .r{text-align:right}.arow .y{color:var(--yellow)}.arow .m{color:rgba(255,255,255,.5)}
-.logout{width:100%;padding:0;text-align:center;color:var(--err);font-size:18px;font-weight:700}
+.logout{width:100%;height:44px;padding:0;text-align:center;color:var(--err);font-size:18px;font-weight:700}
 button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 .arow,.logout,.hrow{transition:transform .25s var(--ease-out)}
 
@@ -93,18 +90,20 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 #cart{visibility:hidden;background:#000;--fg:#fff;--lblc:rgba(255,255,255,.8)}
 .cclose{left:24px;top:24px;width:52px;height:52px;background:rgba(255,255,255,.1);color:#fff}
 .cclose svg{width:32px;height:32px}
-.clist{left:27px;top:94px;width:342px;height:366px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
+.clist{left:24px;top:84px;width:342px;height:484px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
 .clist::-webkit-scrollbar{display:none}
 .citem{display:flex;align-items:center;gap:24px;height:112px;padding:12px 0;box-sizing:border-box;overflow:hidden}
 .cthumb{position:relative;flex:none;width:80px;height:80px;border-radius:100px;background:rgba(255,255,255,.1);overflow:hidden}
 .cthumb img{position:absolute;left:50%;top:12px;width:66px;height:auto;transform:translateX(-50%)}
-.cinfo{flex:1;display:flex;flex-direction:column;gap:8px;line-height:normal;font-weight:700}
-.cname{font-size:24px}
+.cinfo{flex:1;display:flex;flex-direction:column;gap:4px;line-height:normal;font-weight:700}
+.cname{font-size:18px;line-height:23px}
 .copt{display:flex;align-items:center;gap:4px;padding:0;text-align:left;color:inherit}
 .copt svg{width:16px;height:16px;flex:none}
-#eSheet .esp{gap:24px}
+#eSheet .esp{gap:24px;padding-bottom:24px}
 .ehead{display:flex;align-items:center;gap:16px}
-.ehead b{display:block}.ehead .ename{font-size:24px;margin-bottom:8px}.ehead .eunit{font-size:18px}
+.ehead .cthumb{width:70px;height:70px}.ehead .cthumb img{top:10.5px;width:58px}
+.ehead .ename{font-size:18px;font-weight:700}
+.egroup[data-k=upsize]{justify-content:center}
 .egrid{display:grid;grid-template-columns:1fr 1fr;gap:24px 8px}
 .egroup,.eqty{display:flex;flex-direction:column;gap:8px}
 .opt[hidden],.egroup[hidden]{display:none}
@@ -116,21 +115,22 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 .echips button.on{background:#fff;color:#000}
 .eqty .cqty{gap:15px;height:44px}
 .eqty .cpm{width:44px;height:44px}
-.eacts{display:flex;flex-direction:column;gap:16px}
-.eacts .salt{height:33px}
-.salt.edel{color:var(--err)}
-.crow{display:flex;align-items:center;justify-content:space-between}
+.eacts{display:flex;gap:16px}
+.eacts .btn{flex:1}
+.eacts .edel{background:rgba(255,56,60,.16);color:var(--err)}
+.crow{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
 .cqty{display:flex;align-items:center;gap:15px;font-size:18px}
 .cqty span{min-width:10px;text-align:center;font-variant-numeric:tabular-nums}
 .cpm{width:31.8px;height:32px;border-radius:100px;background:rgba(255,255,255,.1);color:#fff;display:flex;align-items:center;justify-content:center;touch-action:manipulation;transition:transform .25s var(--ease-out)}
 .cpm:active{transform:scale(.88)}
 .cpm svg{width:19.7px;height:19.7px}
 .cprice{font-size:18px;line-height:23px;font-variant-numeric:tabular-nums}
-.copt{font-size:14px;font-weight:500;color:rgba(255,255,255,.5);margin-top:-6px;white-space:nowrap}
+.copt{font-size:14px;font-weight:500;color:rgba(255,255,255,.5);white-space:nowrap}
 .cempty{left:0;width:390px;top:130px;opacity:0;pointer-events:none;transition:opacity .3s}
 #cart.empty .cempty{opacity:1;pointer-events:auto}
-#cart.empty #cAdd,#cart.empty .ctotal{opacity:0;pointer-events:none}
-.ctotal,#cAdd{transition:opacity .3s}
+#cart.empty .cfoot{opacity:0;pointer-events:none}
+.cfoot{transition:opacity .3s}
+#cTotal{color:var(--yellow)}
 
 /* ---------- Extra screens: pages, auth, payment, order, notifications, states ---------- */
 input{user-select:text;-webkit-user-select:text}
@@ -227,10 +227,10 @@ input{user-select:text;-webkit-user-select:text}
 .oscroll>*{flex:none}
 .otl{position:relative;display:flex;justify-content:space-between;padding:20px 8px 18px}
 .otl::before,.otl .bar{content:"";position:absolute;left:50px;top:29px;height:2px;border-radius:2px}
-.otl::before{right:50px;background:rgba(255,255,255,.1)}
+.otl::before{right:50px;background:#5f5f5f}
 .otl .bar{width:0;background:var(--c);transition:width .7s var(--ease-out)}
 .ostep{position:relative;width:84px;display:flex;flex-direction:column;align-items:center;gap:9px;font-size:12px;font-weight:700;color:rgba(255,255,255,.5);text-align:center}
-.ostep i{width:20px;height:20px;border-radius:20px;background:rgba(255,255,255,.1);transition:background .4s}
+.ostep i{position:relative;width:20px;height:20px;border-radius:20px;background:#5f5f5f;transition:background .4s}
 .ostep.on{color:#fff}.ostep.on i{background:var(--c)}
 .ostep.cur{color:var(--c)}
 .ostep.cur i{animation:opulse 1.6s ease-out infinite}
@@ -247,12 +247,23 @@ input{user-select:text;-webkit-user-select:text}
 
 /* payment */
 #pay{--fg:#fff;--lblc:rgba(255,255,255,.8)}
-.psum{left:24px;top:148px;width:342px;max-height:134px;box-sizing:border-box;overflow-y:auto;scrollbar-width:none;padding:10px 24px}
-.prow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 0;line-height:normal}
+/* payment: back + title and the total + order button stay put, the list and methods between them scroll */
+#pay .pt{top:84px}
+.pscroll{left:0;top:138px;width:390px;height:430px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain;padding:0 24px 8px;box-sizing:border-box;display:flex;flex-direction:column;gap:16px}
+.pscroll::-webkit-scrollbar{display:none}
+.psum{flex:none;width:342px;padding:16px 24px}
+.pfoot{left:24px;bottom:24px;width:342px;height:60px;display:flex;align-items:center;gap:16px}
+.ptot{width:139px;display:flex;flex-direction:column;align-items:flex-end;line-height:normal;font-weight:700}
+.ptot span{font-size:16px}
+.ptot b{font-size:24px;font-variant-numeric:tabular-nums}
+.pgo{flex:1;height:60px;border-radius:32px;background:#fff;color:#000;font-size:18px;font-weight:700;transition:transform .25s var(--ease-out),opacity .2s}
+.pgo:active{transform:scale(.95)}
+.pgo:disabled{opacity:.5}
+.prow{display:flex;justify-content:space-between;align-items:center;gap:12px;height:52px;line-height:normal}
 .prow b{display:block;font-size:16px}.prow small{font-size:14px;color:rgba(255,255,255,.5);font-weight:500}
 .prow .pr{font-weight:700;font-size:16px;font-variant-numeric:tabular-nums}
 #pTotal{color:var(--yellow)}
-.pmeth{left:24px;top:286px;width:342px;display:flex;flex-direction:column;gap:8px}
+.pmeth{flex:none;width:342px;display:flex;flex-direction:column;gap:8px}
 .mrow{height:52px;box-sizing:border-box;border-radius:32px;background:rgba(255,255,255,.1);display:flex;align-items:center;gap:12px;padding:0 24px;color:#fff;text-align:left;line-height:normal;transition:background .3s,color .3s,transform .25s var(--ease-out)}
 .mrow:active{transform:scale(.97)}
 .mrow svg{width:24px;height:24px;flex:none}
@@ -261,7 +272,6 @@ input{user-select:text;-webkit-user-select:text}
 .mrow i{flex:none;width:22px;height:22px;border-radius:22px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.3);transition:box-shadow .3s}
 .mrow.on{background:#fff;color:#000}
 .mrow.on i{box-shadow:inset 0 0 0 7px #000}
-#pAdd{bottom:24px}
 .psheet{position:absolute;left:0;top:0;width:390px;height:100%;visibility:hidden;z-index:5}
 .psheet .sb{position:absolute;inset:0;background:rgba(0,0,0,.6)}
 .psheet .sp{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(rgba(255,255,255,.1),rgba(255,255,255,.1)),#000;border-radius:32px 32px 0 0;padding:32px 24px 30px;display:flex;flex-direction:column;align-items:stretch;gap:8px;line-height:normal}
@@ -277,7 +287,7 @@ input{user-select:text;-webkit-user-select:text}
 .salt{height:50px;font-size:18px;font-weight:700;color:#fff}
 .sp h3{margin:0;font-size:24px;font-weight:700}
 .sp .amt{font-size:32px;font-weight:700;color:var(--yellow);font-variant-numeric:tabular-nums}
-.qrbox{flex:none;width:148px;height:148px;box-sizing:border-box;padding:8px;background:#fff;border-radius:14px}
+.qrbox{flex:none;width:148px;height:148px;box-sizing:border-box;padding:10px;background:#fff;border-radius:22px}
 .qrbox svg{width:100%;height:100%}
 .bankl{width:100%}
 .bankl .kv button{color:var(--yellow);font-size:14px;font-weight:700;margin-left:8px}
@@ -285,7 +295,7 @@ input{user-select:text;-webkit-user-select:text}
 .sp .alink{margin-top:2px}
 
 /* success */
-#success{background:radial-gradient(120% 55% at 50% 22%,rgba(255,204,0,.16) 0%,#000 62%)}
+#success{background:radial-gradient(120% 55% at 50% 22%,rgba(255,204,0,.16) 0%,#000 62%),#000}
 .sok{left:135px;top:78px;width:120px;height:120px}
 .sok .ring{position:absolute;inset:0;border-radius:200px;background:rgba(255,204,0,.16)}
 .sok svg{position:absolute;inset:0;width:120px;height:120px}
@@ -304,28 +314,26 @@ input{user-select:text;-webkit-user-select:text}
 .dbox p{margin-top:8px;font-size:16px;color:rgba(255,255,255,.5);font-weight:500;line-height:1.45}
 .dbtns{display:flex;gap:8px;margin-top:22px}
 .dbtns .btn{height:52px;font-size:16px}
-.ctotal{left:24px;top:476px;width:342px;height:60px;box-sizing:border-box;border-radius:32px;background:rgba(255,255,255,.1);padding:0 24px;display:flex;align-items:center;gap:4px;font-weight:700;line-height:normal}
-.ctotal span{flex:1;font-size:18px}.ctotal b{font-size:24px;font-variant-numeric:tabular-nums}
-#cAdd{bottom:24px}
 
 /* ---------- Home ---------- */
 #home{background:#000}
-.hello{left:24px;top:26px;width:222px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hello small{display:block;font-size:16px;color:var(--mute);line-height:23px}
-.hello b{display:block;font-size:32px;line-height:46px;font-weight:700;margin-top:-12px}
+.hello{left:24px;top:27px;width:214px}
+.hello b{display:block;font-size:32px;line-height:46px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cartbtn{width:52px;height:52px;background:rgba(255,255,255,.1);top:24px;left:314px;color:#fff}
 .cartbtn svg{width:28px;height:28px}
 .badge{position:absolute;top:-2px;right:-2px;min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:20px;background:var(--yellow);color:#000;font-size:12px;font-weight:700;line-height:20px;text-align:center;transform:scale(0);transition:transform .35s var(--ease-out)}
 .badge.on{transform:scale(1)}
-.order{z-index:2;left:24px;top:94px;width:342px;box-sizing:border-box;background:rgba(255,255,255,.1);border-radius:32px;padding:16px 24px;display:flex;align-items:center;gap:12px;font-size:16px;font-weight:700;line-height:20px}
+.order{z-index:2;left:24px;top:468px;width:342px;box-sizing:border-box;background:rgba(255,255,255,.1);border-radius:32px;padding:16px 24px;display:flex;align-items:center;gap:12px;font-size:16px;font-weight:700;line-height:20px}
 .order span{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .order b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .order small{font-size:14px;font-weight:500;line-height:17px;color:rgba(255,255,255,.5)}
 .order button{color:var(--yellow);font-weight:700}
 
-#carousel{left:0;top:82px;width:390px;height:480px;touch-action:pan-y}
-/* no reorder card: centre the drinks between the header and the dots */
+#carousel{left:0;top:-4px;width:390px;height:480px;touch-action:pan-y}
+/* the reorder card sits under the drinks; without it, centre the drinks between the header and the dots */
 #home.noorder #carousel{top:42px}
+/* the carousel reaches under the header, so keep the header buttons on top of it */
+#home .bellbtn,#home .cartbtn{z-index:3}
 .card{position:absolute;left:60px;top:96px;width:270px;height:360px;will-change:transform;cursor:pointer}
 .card .surf{position:absolute;inset:0;width:270px;height:360px;overflow:visible}
 .card .cup{position:absolute;left:92px;top:66px;height:245px;transform:rotate(11.7deg);pointer-events:none}
@@ -364,7 +372,9 @@ input{user-select:text;-webkit-user-select:text}
 /* glass pills: 1px inside stroke, white → 10% → white, at 80% (Figma linear stroke) */
 .pricebar::before,.add::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:var(--bw,1px);background:linear-gradient(90deg,rgba(255,255,255,.8),rgba(255,255,255,.1) 50%,rgba(255,255,255,.8));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;z-index:3}
 .pricebar span{height:52px;padding:0 24px;background:#000;border-radius:100px;display:flex;align-items:center;color:#fff}
-.pricebar svg{width:24px;height:24px}
+.pricebar svg{width:28px;height:28px}
+.card.sold .pricebar span{display:none}
+.card.sold .pricebar b{text-align:center;font-size:16px}
 .card[data-id=den]{--t:#fff;--ib:rgba(255,255,255,.1);--ic:#8e8e93}
 .card[data-id=nau]{--t:#895200;--ib:rgba(255,255,255,.3);--ic:#cc803c}
 .card[data-id=bac]{--t:#000;--ib:rgba(255,255,255,.3);--ic:#8e8e93}
@@ -379,7 +389,7 @@ input{user-select:text;-webkit-user-select:text}
 .nav{left:24px;width:342px;bottom:24px;height:48px;display:flex;gap:16px}
 .nav button{flex:1;display:flex;align-items:center;justify-content:center;opacity:.2;color:#fff}
 .nav button.on{opacity:1}
-.nav svg{width:28px;height:28px}
+.nav svg{width:32px;height:32px}
 
 /* ---------- Detail ---------- */
 #detail{visibility:hidden;background:linear-gradient(180deg,var(--bg1),var(--bg2))}
@@ -470,9 +480,9 @@ input{user-select:text;-webkit-user-select:text}
     <symbol id="i-check" viewBox="10 10 20 20"><path fill="currentColor" d="M27.1574 12.436C27.4753 11.9844 28.0993 11.8759 28.5509 12.1938C29.0024 12.5117 29.1107 13.1349 28.7931 13.5864L19.2511 27.1401C18.4504 28.2774 16.7621 28.2702 15.9709 27.1264L11.2023 20.229C10.8882 19.7747 11.0019 19.1514 11.4562 18.8374C11.9104 18.5237 12.5328 18.6373 12.8468 19.0913L17.6154 25.9887L27.1574 12.436Z"/></symbol>
     <symbol id="i-plus" viewBox="0 0 32 32"><path d="M16 6.3999L16 25.5999M25.6 15.9999L6.40002 15.9999" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
     <symbol id="i-minus" viewBox="0 0 32 32"><path d="M6.39998 16L25.6 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
-    <symbol id="i-cup" viewBox="0 0 32 32"><path fill="currentColor" d="M28.4875 5.22321V6.17469C28.4875 6.51495 28.186 6.79072 27.814 6.79072H4.186C3.814 6.79072 3.5125 6.51495 3.5125 6.17469V5.22321C3.5125 4.88295 3.814 4.60718 4.186 4.60718H27.814C28.186 4.60718 28.4875 4.88295 28.4875 5.22321Z"/><path fill="currentColor" d="M25.99 7.82715L23.5173 31.4428C23.4843 31.7588 23.1938 32 22.8468 32H9.15276C8.80551 32 8.51526 31.7588 8.48226 31.4428L6.00951 7.82715H25.99Z"/><path fill="currentColor" d="M26.0235 3.57069H5.97649C5.98774 3.52998 5.99374 3.48745 5.99374 3.44332V0.616073C5.99374 0.250205 6.34024 -0.0349427 6.73799 0.00347339L25.4032 1.80354C25.746 1.8367 26.0062 2.10104 26.0062 2.41614V3.44332C26.0062 3.48745 26.0122 3.52998 26.0235 3.57069Z"/></symbol>
-    <symbol id="i-list" viewBox="0 0 32 32"><path fill="currentColor" d="M8.71375 0V1.14258C8.71391 2.79713 10.0601 4.14355 11.7147 4.14355H20.286C21.9405 4.14338 23.2868 2.79703 23.287 1.14258V0H28.7225C29.275 0 29.7225 0.447594 29.7225 1V31C29.7225 31.5524 29.2749 32 28.7225 32H3.27723C2.72486 32 2.27728 31.5524 2.27723 31V1C2.27726 0.44761 2.72484 2.64761e-05 3.27723 0H8.71375ZM21.286 1.56836C21.2858 2.15743 20.8078 2.63477 20.2186 2.63477H11.6425C11.0535 2.63462 10.5763 2.15734 10.5761 1.56836V0H21.286V1.56836Z"/></symbol>
-    <symbol id="i-user" viewBox="0 0 29 32"><path fill="currentColor" d="M14.4001 16C18.8183 16 22.4001 12.4183 22.4001 8C22.4001 3.58172 18.8183 0 14.4001 0C9.98178 0 6.40005 3.58172 6.40005 8C6.40005 12.4183 9.98178 16 14.4001 16Z"/><path fill="currentColor" d="M14.4 17.6001C6.46016 17.6001 0 23.3423 0 30.4001C0 31.2845 0.716406 32.0001 1.6 32.0001H27.2C28.0844 32.0001 28.8 31.2845 28.8 30.4001C28.8 23.3423 22.3406 17.6001 14.4 17.6001Z"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 32 32"><path fill="currentColor" d="M25.99 7.82715L23.5173 31.4428C23.4843 31.7588 23.1938 32 22.8468 32H9.15276C8.80551 32 8.51526 31.7588 8.48226 31.4428L6.00951 7.82715H25.99Z"/><path fill="currentColor" d="M27.4182 6.2229H4.58182C4.59463 6.16909 4.60147 6.11286 4.60147 6.05451V2.31669C4.60147 1.83299 4.99618 1.456 5.44927 1.50679L26.7116 3.88661C27.1021 3.93045 27.3985 4.27992 27.3985 4.69651V6.05451C27.3985 6.11286 27.4053 6.16909 27.4182 6.2229Z"/></symbol>
+    <symbol id="i-list" viewBox="0 0 32 32"><path fill="currentColor" d="M7.71375 0V2.14258C7.7139 3.79713 9.06013 5.14355 10.7147 5.14355H20.286C22.4918 5.14343 24.2868 3.79705 24.287 2.14258V0H28.7225C29.2749 0 29.7225 0.447594 29.7225 1V31C29.7225 31.5524 29.2749 32 28.7225 32H3.27722C2.72485 32 2.27728 31.5524 2.27722 31V1C2.27725 0.44761 2.72483 2.64532e-05 3.27722 0H7.71375ZM22.0848 1.98145C22.0848 2.72608 21.5364 3.32997 20.8593 3.33008H11.0028C10.3256 3.33008 9.77625 2.72615 9.77625 1.98145V0H22.0848V1.98145Z"/></symbol>
+    <symbol id="i-user" viewBox="-1.6 0 32 32"><path fill="currentColor" d="M14.4001 16C18.8183 16 22.4001 12.4183 22.4001 8C22.4001 3.58172 18.8183 0 14.4001 0C9.98178 0 6.40005 3.58172 6.40005 8C6.40005 12.4183 9.98178 16 14.4001 16Z"/><path fill="currentColor" d="M14.4 18.2399C6.46016 18.2399 0 23.7269 0 30.4712C0 31.3163 0.716406 32.0001 1.6 32.0001H27.2C28.0844 32.0001 28.8 31.3163 28.8 30.4712C28.8 23.7269 22.3406 18.2399 14.4 18.2399Z"/></symbol>
     <symbol id="i-chev" viewBox="0 0 34 18"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path stroke-opacity=".2" d="M0.75 0.75L8.58057 8.75L0.75 16.75"/><path stroke-opacity=".5" d="M12.5806 0.75L20.4111 8.75L12.5806 16.75"/><path d="M24.4111 0.75L32.2417 8.75L24.4111 16.75"/></g></symbol>
     <symbol id="i-bulge" viewBox="0 0 84 155"><path fill="currentColor" d="M83.8007 77.377C83.8007 96.1547 68.6652 111.377 49.9946 111.377C27.4296 114.17 8.45482 129.633 1.16438 151.17L0 154.61V0L1.14951 2.96868C8.64484 22.3262 24.9998 36.8923 45.0925 42.1052C48.3474 42.9497 51.716 43.2528 55.0411 43.7533C71.318 46.2036 83.8007 60.3242 83.8007 77.377Z"/></symbol>
     <symbol id="i-bell" viewBox="0 0 28 28"><path fill="currentColor" d="M14 2.8a1.6 1.6 0 0 1 1.6 1.6v.7A7.4 7.4 0 0 1 21.4 12.3v4.4l1.9 2.8a1.1 1.1 0 0 1-.9 1.7H5.6a1.1 1.1 0 0 1-.9-1.7l1.9-2.8v-4.4a7.4 7.4 0 0 1 5.8-7.2v-.7A1.6 1.6 0 0 1 14 2.8ZM10.8 22.6h6.4a3.2 3.2 0 0 1-6.4 0Z"/></symbol>
@@ -481,8 +491,9 @@ input{user-select:text;-webkit-user-select:text}
     <symbol id="i-debt" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="7.6" cy="12" rx="4.6" ry="6.5"/><ellipse cx="16.4" cy="12" rx="4.6" ry="6.5"/></g><circle cx="5.4" cy="13.6" r="1.7" fill="currentColor"/><circle cx="14.2" cy="13.6" r="1.7" fill="currentColor"/></symbol>
     <symbol id="i-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="8" y="3.5" width="12" height="14" rx="2.5"/><path d="M5 7.5v11a2.5 2.5 0 0 0 2.5 2.5H15"/></g></symbol>
     <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M4.5 20h15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="i-paid" viewBox="0 0 16 16"><path d="M15.60 8.00 L13.82 10.41 L13.37 13.37 L10.41 13.82 L8.00 15.60 L5.59 13.82 L2.63 13.37 L2.18 10.41 L0.40 8.00 L2.18 5.59 L2.63 2.63 L5.59 2.18 L8.00 0.40 L10.41 2.18 L13.37 2.63 L13.82 5.59Z" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M4.9 8.1 7 10.2l4.1-4.3" fill="none" stroke="#000" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="i-due" viewBox="0 0 16 16"><path d="M3.5 1.5h9M3.5 14.5h9M4.5 1.5c0 3.5 3.5 4.5 3.5 6.5S4.5 11 4.5 14.5h7c0-3.5-3.5-4.5-3.5-6.5s3.5-3 3.5-6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.6 13.4h4.8L8 10.8z" fill="currentColor"/></symbol>
+    <symbol id="i-cardadd" viewBox="0 0 28 28"><path fill="currentColor" fill-rule="evenodd" d="M8.03979 9.04809H19.9597C20.135 9.04809 20.9238 8.87279 20.9238 8.08398C20.9238 4.57812 18.1191 1.77344 14.6133 1.77344H13.2986C11.6333 1.77344 10.0557 2.47461 8.82861 3.61401C7.68921 4.75341 6.98804 6.4187 6.98804 8.08398C6.98804 9.74926 7.95215 9.04809 7.95215 9.04809H8.03979ZM18.9079 7.03222H9.1792C9.35449 6.2434 9.79272 5.54223 10.3186 5.01635C11.1074 4.22754 12.2468 3.7893 13.3862 3.7893H14.7009C16.7168 3.7893 18.4697 5.19165 18.9079 7.11987V7.03222Z"/><path fill="currentColor" fill-rule="evenodd" d="M23.9039 9.22339C23.9039 7.99634 22.8521 7.03223 21.7127 7.03223H6.37463C5.23523 7.03223 4.27112 7.99634 4.18347 9.22339C3.92053 12.9045 3.30701 19.9162 3.04407 23.7727C3.04407 24.3862 3.21936 24.9997 3.65759 25.5256C4.09582 25.9638 4.6217 26.2268 5.23523 26.2268H22.7645C23.378 26.2268 23.9916 25.9638 24.3421 25.5256C24.7804 25.0874 24.9557 24.4739 24.9557 23.7727L23.9039 9.22339ZM18.4698 17.5498H14.964V21.0556C14.964 21.5815 14.5257 21.9321 14.0875 21.9321C13.6493 21.9321 13.211 21.5815 13.211 21.0556V17.5498H9.70519C9.17931 17.5498 8.82873 17.1116 8.82873 16.6733C8.82873 16.2351 9.17931 15.7969 9.70519 15.7969H13.211V12.291C13.211 11.7651 13.6493 11.4145 14.0875 11.4145C14.5257 11.4145 14.964 11.7651 14.964 12.291V15.7969H18.4698C18.9957 15.7969 19.3463 16.2351 19.3463 16.6733C19.3463 17.1116 18.9957 17.5498 18.4698 17.5498Z"/></symbol>
+    <symbol id="i-paid" viewBox="0 0 16 16"><path fill="currentColor" d="M15.6114 7.05714L14.5201 5.9661C14.2611 5.70711 14.0489 5.19531 14.0489 4.82827V3.28527C14.0489 2.55127 13.4493 1.95165 12.7155 1.95126H11.1719C10.8052 1.95126 10.2929 1.73864 10.0338 1.47984L8.94279 0.388806C8.42438 -0.129602 7.57557 -0.129602 7.05716 0.388806L5.96613 1.48062C5.7069 1.73961 5.19392 1.95165 4.8281 1.95165H3.2851C2.55208 1.95165 1.95167 2.55127 1.95167 3.28527V4.82831C1.95167 5.1939 1.73948 5.70731 1.48045 5.96614L0.389221 7.05718C-0.129578 7.57559 -0.129578 8.42439 0.389221 8.94362L1.48045 10.0347C1.73964 10.2936 1.95167 10.8069 1.95167 11.1725V12.7155C1.95167 13.4487 2.55208 14.0492 3.2851 14.0492H4.82814C5.19475 14.0492 5.70714 14.2613 5.96617 14.5202L7.0572 15.6116C7.57561 16.1296 8.42442 16.1296 8.94283 15.6116L10.0339 14.5202C10.2931 14.2612 10.8053 14.0492 11.1719 14.0492H12.7155C13.4493 14.0492 14.0489 13.4487 14.0489 12.7155V11.1725C14.0489 10.8053 14.2613 10.2935 14.5202 10.0347L15.6114 8.94362C16.1294 8.42439 16.1294 7.57555 15.6114 7.05714ZM6.94158 11.0002L3.99972 8.05798L4.94255 7.11534L6.94181 9.1146L11.0573 5.00011L11.9999 5.94274L6.94158 11.0002Z"/></symbol>
+    <symbol id="i-due" viewBox="0 0 16 16"><path fill="currentColor" d="M12.95 3.865C13.305 3.42 13.5 2.865 13.5 2.3V1.5C13.5 0.95 13.05 0.5 12.5 0.5H3.5C2.95 0.5 2.5 0.95 2.5 1.5V2.3C2.5 2.865 2.695 3.42 3.05 3.86L6.11 7.685C6.255 7.87 6.255 8.13 6.11 8.31L3.05 12.135C2.695 12.58 2.5 13.135 2.5 13.7V14.5C2.5 15.05 2.95 15.5 3.5 15.5H12.5C13.05 15.5 13.5 15.05 13.5 14.5V13.7C13.5 13.135 13.305 12.58 12.95 12.14L9.89 8.315C9.745 8.13 9.745 7.87 9.89 7.69L12.95 3.865ZM10.83 12.69C10.95 12.84 10.975 13.045 10.89 13.215C10.805 13.39 10.63 13.5 10.44 13.5H5.56C5.37 13.5 5.195 13.39 5.11 13.215C5.025 13.045 5.05 12.84 5.17 12.69L7.61 9.64C7.8 9.4 8.2 9.4 8.39 9.64L10.83 12.69Z"/></symbol>
     <symbol id="i-cash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="3"/><circle cx="12" cy="12" r="2.6"/></g></symbol>
     <symbol id="i-bank" viewBox="0 0 24 24"><path d="M3 9.5 12 4l9 5.5M5.5 10.5v6.5M9.8 10.5v6.5M14.2 10.5v6.5M18.5 10.5v6.5M3 20h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-qr" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1.5"/><rect x="14" y="3.5" width="6.5" height="6.5" rx="1.5"/><rect x="3.5" y="14" width="6.5" height="6.5" rx="1.5"/></g><path fill="currentColor" d="M14 14h2.8v2.8H14zM17.7 17.7h2.8v2.8h-2.8zM14 19h2v1.5h-2zM19 14h1.5v2H19z"/></symbol>
@@ -493,7 +504,7 @@ input{user-select:text;-webkit-user-select:text}
 <div id="home" class="screen noorder" aria-label="Trang chủ">
   <div class="stage">
     <div class="tab" id="tOrder">
-    <div class="abs hello"><small>Hê lô,</small><b id="helloName">LieuNT</b></div>
+    <div class="abs hello"><b id="helloName">LieuNT</b></div>
     <button class="abs circ cartbtn" aria-label="Giỏ hàng"><svg><use href="#i-bag"/></svg><span class="badge"></span></button>
     <button class="abs circ bellbtn" id="bell" aria-label="Thông báo"><svg><use href="#i-bell"/></svg><span class="nbadge"></span></button>
     <div class="abs order" id="lastOrder" style="display:none"><span><b id="orderTxt"></b><small id="orderWhen"></small></span><button id="reorder">ĐẶT LẠI</button></div>
@@ -517,9 +528,8 @@ input{user-select:text;-webkit-user-select:text}
       <div class="abs acc">
         <div class="agroup">
           <div class="card2 astat" data-s>
-            <div class="anum"><b id="aCount">00</b>
+            <div class="anum"><div><b id="aSpent">0</b><small id="aCount">0 đơn đã đặt</small></div>
               <div class="seg" id="aSeg" role="tablist"><i></i><button class="on" data-p="week">Tuần</button><button data-p="month">Tháng</button><button data-p="year">Năm</button></div></div>
-            <div class="aspent"><small>Đơn đã đặt</small><span><small>Đã chi</small><b id="aSpent">0</b></span></div>
           </div>
           <div class="card2 adebt" id="aDebt" data-s>
             <div><b><svg><use href="#i-due"/></svg><span id="aDue">0</span></b><small id="aDueN"></small></div>
@@ -577,27 +587,22 @@ input{user-select:text;-webkit-user-select:text}
       <p>Chọn một ly cà phê, vuốt thanh “Thêm vào giỏ hàng” là xong.</p>
       <button class="btn sm" id="cGo">Làm tí đê</button>
     </div>
-    <div class="abs ctotal"><span>Giá chỉ</span><b id="cTotal">0</b></div>
-    <div class="abs add" id="cAdd">
-      <div class="fill"></div>
-      <i class="glint"></i>
-      <div class="shine"><div class="lbl">Thanh toán</div>
-      <svg class="chev"><use href="#i-chev"/></svg></div>
-      <div class="knob" role="button" aria-label="Kéo để thanh toán"><svg><use href="#i-bag"/></svg></div>
+    <div class="abs pfoot cfoot">
+      <div class="ptot"><span>Giá chỉ</span><b id="cTotal">0</b></div>
+      <button class="pgo" id="cPay">Đặt hàng</button>
     </div>
     <div class="psheet" id="eSheet" role="dialog" aria-label="Chỉnh món">
       <div class="sb"></div>
       <div class="sp esp">
-        <div class="ehead"><div class="cthumb"><img alt="" draggable="false"></div><div><b class="ename"></b><b class="eunit"></b></div></div>
         <div class="egrid">
-          <div class="egroup" data-k="upsize"><label>Size</label><div class="echips"><button class="esz" data-v="0" aria-label="Size L"><svg><use href="#i-sizeL"/></svg></button><button class="esz" data-v="1" aria-label="Size XL"><svg><use href="#i-sizeXL"/></svg></button></div></div>
-          <div class="egroup" data-k="cafe"><label>Cafe</label><div class="echips"><button class="val" data-v="50">50</button><button data-v="100">100</button></div></div>
+          <div class="ehead"><div class="cthumb"><img alt="" draggable="false"></div><b class="ename"></b></div>
+          <div class="egroup" data-k="upsize"><div class="echips"><button class="esz" data-v="0" aria-label="Size L"><svg><use href="#i-sizeL"/></svg></button><button class="esz" data-v="1" aria-label="Size XL"><svg><use href="#i-sizeXL"/></svg></button></div></div>
           <div class="egroup" data-k="sweet"><label>Ngọt</label><div class="echips"><button class="val" data-v="50">50</button><button data-v="100">100</button></div></div>
-          <div class="eqty"><label>Số lượng</label><div class="cqty"><button class="cpm" data-d="-1" aria-label="Giảm"><svg><use href="#i-minus"/></svg></button><span>1</span><button class="cpm" data-d="1" aria-label="Tăng"><svg><use href="#i-plus"/></svg></button></div></div>
+          <div class="egroup" data-k="cafe"><label>Cafe</label><div class="echips"><button class="val" data-v="50">50</button><button data-v="100">100</button></div></div>
         </div>
         <div class="eacts">
-        <button class="btn" id="eSave">Cập nhật</button>
-        <button class="salt edel" id="eDel">Xoá khỏi giỏ</button>
+          <button class="btn edel" id="eDel">Xoá khỏi giỏ</button>
+          <button class="btn" id="eSave">Lưu lại</button>
         </div>
       </div>
     </div>
@@ -631,19 +636,17 @@ input{user-select:text;-webkit-user-select:text}
   <div class="stage">
     <button class="abs circ pback" data-back aria-label="Quay lại giỏ hàng"><svg><use href="#i-back"/></svg></button>
     <h2 class="abs pt" data-s>Thanh toán</h2>
-    <div class="abs card2 psum" id="pSum" data-s></div>
-    <div class="abs pmeth" id="pMeth">
-      <button class="mrow on" data-m="cash" data-s><svg><use href="#i-cash"/></svg><span>Tiền mặt</span><i></i></button>
-      <button class="mrow" data-m="bank" data-s><svg><use href="#i-qr"/></svg><span>Chuyển khoản</span><i></i></button>
-      <button class="mrow" data-m="debt" data-s><svg><use href="#i-debt"/></svg><span>Ghi nợ nhé!</span><i></i></button>
+    <div class="abs pscroll">
+      <div class="card2 psum" id="pSum" data-s></div>
+      <div class="pmeth" id="pMeth">
+        <button class="mrow on" data-m="bank" data-s><svg><use href="#i-qr"/></svg><span>Chuyển khoản</span><i></i></button>
+        <button class="mrow" data-m="cash" data-s><svg><use href="#i-cash"/></svg><span>Tiền mặt</span><i></i></button>
+        <button class="mrow" data-m="debt" data-s><svg><use href="#i-debt"/></svg><span>Ghi nợ nhé!</span><i></i></button>
+      </div>
     </div>
-    <div class="abs ctotal" data-s><span>Giá chỉ</span><b id="pTotal">0</b></div>
-    <div class="abs add" id="pAdd" data-s>
-      <div class="fill"></div>
-      <i class="glint"></i>
-      <div class="shine"><div class="lbl">Đặt hàng</div>
-      <svg class="chev"><use href="#i-chev"/></svg></div>
-      <div class="knob" role="button" tabindex="0" aria-label="Kéo để đặt hàng"><svg><use href="#i-bag"/></svg></div>
+    <div class="abs pfoot" data-s>
+      <div class="ptot"><span>Giá chỉ</span><b id="pTotal">0</b></div>
+      <button class="pgo" id="pGo">Đặt hàng</button>
     </div>
     <div class="psheet" id="pSheet">
       <div class="sb"></div>
@@ -763,8 +766,10 @@ const fold = t => (t || '').toLowerCase().normalize('NFC');
 const drinkIdOf = name => { const n = fold(name); return n.includes('bạc') ? 'bac' : n.includes('nâu') ? 'nau' : n.includes('đen') ? 'den' : null; };
 function applyMenu(items){
   DRINKS.forEach(d => { const m = items.find(x => x.active !== false && drinkIdOf(x.name) === d.id);
+    /* sold out: the owner switched every menu entry for this drink off */
+    const all = items.filter(x => drinkIdOf(x.name) === d.id); d.sold = all.length > 0 && !m;
     if (m) Object.assign(d, {price:m.price, menuId:m.id, menuName:m.name, cost:m.cost || 0, ...(typeof m.upsize === 'number' ? {xl:m.upsize} : {})}); });
-  cards.forEach((c, i) => { $('.pricebar b', c).textContent = fmt(DRINKS[i].price); });
+  cards.forEach((c, i) => { const d = DRINKS[i]; c.classList.toggle('sold', !!d.sold); $('.pricebar b', c).textContent = d.sold ? 'Hết hàng' : fmt(d.price); });
   if (detail.style.visibility === 'visible') $('#dPrice').textContent = fmt(unit()*qty);
 }
 const GLOW = {den:'rgba(255,255,255,.5)', nau:'rgba(255,255,255,.5)', bac:'rgba(255,255,255,.5)'};
@@ -824,7 +829,7 @@ const cards = DRINKS.map((d,i) => {
     <div class="top">${d.rec
       ? `<div class="row"><h3>${d.name}</h3><span class="rec"><svg><use href="#i-star"/></svg>RECOMMEND</span></div>${icons}`
       : `<h3>${d.name}</h3>${icons}`}</div>
-    <div class="pricebar"><i class="glint"></i><b>${fmt(d.price)}</b><span><svg><use href="#i-bag"/></svg></span></div>`;
+    <div class="pricebar"><i class="glint"></i><b>${fmt(d.price)}</b><span><svg><use href="#i-cardadd"/></svg></span></div>`;
   car.appendChild(el);
   const dot = document.createElement('i'); dots.appendChild(dot);
   return el;
@@ -917,9 +922,14 @@ function renderLast(){
   const o = lastPlacedOrder();
   $('#lastOrder').style.display = o ? '' : 'none';
   $('#home').classList.toggle('noorder', !o);
-  if (o) { $('#orderTxt').textContent = `${pad(oQty(o))} x ${oNames(o)}`; $('#orderWhen').textContent = listDate(o.at); }
+  if (o) { $('#orderTxt').textContent = oSummary(o); $('#orderWhen').textContent = listDate(o.at); }
 }
-function reorder(o){ o.items.forEach(x => addToCart(x.id, x.qty, x.unit, x.o)); syncBadges(true); openPay(); }
+function reorder(o){
+  const ok = o.items.filter(x => !(drink(x.id) || {}).sold);
+  if (!ok.length) return toast('Các món trong đơn này đang hết hàng');
+  ok.forEach(x => addToCart(x.id, x.qty, x.unit, x.o)); syncBadges(true); openPay();
+  if (ok.length < o.items.length) toast('Đã bỏ món đang hết hàng');
+}
 $('#reorder').addEventListener('click', () => { if (busy) return; const o = lastPlacedOrder(); if (o) reorder(o); });
 
 /* ---------- detail state ---------- */
@@ -1016,7 +1026,9 @@ function pre(el){
 function rest(el){ return el.classList.contains('bulge') && el.dataset.a === 'r' ? 'scaleX(-1)' : el.id === 'dPrice' ? 'translateX(-50%)' : 'none'; }
 
 async function openDetail(i){
-  if (busy) return; busy = true;
+  if (busy) return;
+  if (DRINKS[i].sold) return toast(`${DRINKS[i].name} tạm hết hàng, chọn món khác nhé`);
+  busy = true;
   cancelAnimationFrame(raf); pos = Math.round(pos); vel = 0; layout();
   const card = cards[i], d = DRINKS[i];
   const cupEl = $('.cup', card);
@@ -1245,13 +1257,11 @@ function eSync(){
   $$('.egroup', eSheet).forEach(g => { const k = g.dataset.k, v = k === 'upsize' ? E.o.upsize : (E.o[k] || 100);
     /* like the drink page: the first chip carries any value under 100 */
     $$('.echips button', g).forEach(b => b.classList.toggle('on', +b.dataset.v === v)); });
-  $('.eqty .cqty span', eSheet).textContent = E.qty;
-  $('#eSave').textContent = `Cập nhật · ${fmt(lineUnit(it.id, E.o)*E.qty)}`;
 }
 function openEdit(i){
   const it = cartItems[i]; if (!it) return; const d = drink(it.id);
   Object.assign(E, {i, o:{...it.o}, qty:it.qty});
-  $('.ehead img', eSheet).src = d.id + '.webp'; $('.ename', eSheet).textContent = d.name; $('.eunit', eSheet).textContent = fmt(d.price);
+  $('.ehead img', eSheet).src = d.id + '.webp'; $('.ename', eSheet).textContent = d.name;
   $$('.egroup', eSheet).forEach(g => { if (g.dataset.k !== 'upsize') g.hidden = !d[g.dataset.k]; });
   eSync();
   eSheet.onDismiss = null;
@@ -1267,7 +1277,6 @@ $$('.egroup', eSheet).forEach(g => g.addEventListener('click', e => {
   b.animate([{transform:'scale(.9)'},{transform:'scale(1)'}], {duration:T(320), easing:'cubic-bezier(.34,1.56,.64,1)'});
   E.o[g.dataset.k] = +b.dataset.v === 100 ? 0 : +b.dataset.v; eSync();
 }));
-$$('.eqty .cpm', eSheet).forEach(b => b.addEventListener('click', () => { E.qty = Math.max(1, Math.min(99, E.qty + +b.dataset.d)); eSync(); }));
 $('#eSave').addEventListener('click', () => {
   const it = cartItems[E.i]; if (!it) return;
   it.o = {...E.o}; it.unit = lineUnit(it.id, it.o); it.qty = E.qty;
@@ -1318,11 +1327,11 @@ function changeItem(i, d, row){
 let cartOpen = false;
 function openCart(){
   if (cartOpen || busy || adding) return; cartOpen = true;
-  renderCart(); cResetKnob(true);
+  renderCart(); paying = false;
   cartEl.getAnimations().forEach(a => a.cancel());
   cartEl.style.zIndex = ++Z; cartEl.style.visibility = 'visible';
   cartEl.animate([{transform:'translateY(100%)'},{transform:'none'}], {duration:T(520), easing:'cubic-bezier(.22,1,.36,1)'});
-  $$('.citem,.ctotal,#cAdd', cartEl).forEach((r, k) => r.animate([{opacity:0, transform:'translateY(24px)'},{opacity:1, transform:'none'}], {duration:T(520), delay:T(120 + k*60), easing:'cubic-bezier(.34,1.4,.64,1)', fill:'backwards'}));
+  $$('.citem,.cfoot', cartEl).forEach((r, k) => r.animate([{opacity:0, transform:'translateY(24px)'},{opacity:1, transform:'none'}], {duration:T(520), delay:T(120 + k*60), easing:'cubic-bezier(.34,1.4,.64,1)', fill:'backwards'}));
 }
 function closeCart(){
   if (!cartOpen) return; cartOpen = false;
@@ -1333,31 +1342,18 @@ $('#cClose').addEventListener('click', closeCart);
 /* swipe the sheet down to close it */
 (() => { let sw = null;
   cartEl.style.touchAction = 'none';
-  cartEl.addEventListener('pointerdown', e => { sw = e.target.closest('#cAdd,button') || (e.target.closest('.clist') && clist.scrollTop > 0) ? null : {x:e.clientX, y:e.clientY}; });
+  cartEl.addEventListener('pointerdown', e => { sw = e.target.closest('button') || (e.target.closest('.clist') && clist.scrollTop > 0) ? null : {x:e.clientX, y:e.clientY}; });
   cartEl.addEventListener('pointermove', e => { if (!sw) return; const dy = (e.clientY - sw.y)/S, dx = (e.clientX - sw.x)/S; if (dy > 70 && dy > Math.abs(dx)*1.4) { sw = null; closeCart(); } });
   ['pointerup','pointercancel'].forEach(ev => cartEl.addEventListener(ev, () => { sw = null; }));
 })();
-/* slide to pay */
-const cAdd = $('#cAdd'), cKnob = $('.knob', cAdd), cFill = $('.fill', cAdd), cLbl = $('.lbl', cAdd);
-let ckx = 0, ckd = null, paying = false;
-function cPlace(x){ ckx = Math.max(0, Math.min(MAX, x)); cKnob.style.transform = `translateX(${ckx}px)`; cFill.style.width = (ckx + 87) + 'px'; cLbl.style.opacity = 1 - ckx/MAX*0.9; }
-function cResetKnob(now){
-  if (now) { cPlace(0); cLbl.textContent = 'Thanh toán'; cLbl.style.opacity = 1; return; }
-  const x0 = ckx, t0 = performance.now();
-  const go = t => { const k = Math.min(1,(t-t0)/T(420)), e = 1 - Math.pow(1-k,3); cPlace(x0*(1-e)); if (k<1) requestAnimationFrame(go); }; requestAnimationFrame(go);
-}
-cAdd.addEventListener('pointerdown', e => { if (paying || !cartItems.length) return; ckd = {x:e.clientX, k:ckx, moved:false}; cAdd.setPointerCapture(e.pointerId); });
-cAdd.addEventListener('pointermove', e => { if (!ckd) return; const dx = (e.clientX - ckd.x)/S; if (Math.abs(dx) > 4) ckd.moved = true; cPlace(ckd.k + dx); });
-const cEnd = () => { if (!ckd) return; const m = ckd.moved; ckd = null; if (!m || ckx > MAX*0.62) checkout(); else cResetKnob(); };
-cAdd.addEventListener('pointerup', cEnd); cAdd.addEventListener('pointercancel', cEnd);
-async function checkout(){
+/* "Đặt hàng" in the cart goes on to the payment page */
+let paying = false;
+function checkout(){
   if (paying || !cartItems.length) return; paying = true;
-  const x0 = ckx, t0 = performance.now();
-  await new Promise(res => { const go = t => { const k = Math.min(1,(t-t0)/T(260)), e = 1-Math.pow(1-k,3); cPlace(x0 + (MAX-x0)*e); if (k<1) requestAnimationFrame(go); else res(); }; requestAnimationFrame(go); });
-  cLbl.textContent = 'Chọn cách trả'; cLbl.style.opacity = 1;
   openPay();
-  setTimeout(() => { cResetKnob(true); paying = false; }, T(700));
+  setTimeout(() => { paying = false; }, T(700));
 }
+$('#cPay').addEventListener('click', checkout);
 function toast(msg){
   const t = document.createElement('div'); t.className = 'toast';
   t.innerHTML = `<svg viewBox="10 10 20 20"><use href="#i-check"/></svg><span></span>`; t.lastChild.textContent = msg;
@@ -1443,6 +1439,14 @@ let orders = [], curOrder = null, lastPlaced = null;
 const oQty = o => o.items.reduce((n, x) => n + x.qty, 0);
 const oTotal = o => o.items.reduce((n, x) => n + x.qty*x.unit, 0);
 const oNames = o => [...new Set(o.items.map(x => x.name || drink(x.id).name))].join(', ');
+/* order title: each drink once with its total count, Đen → Nâu → Bạc, e.g. "3 Đen / 1 Bạc" */
+const MENU_ORDER = ['den', 'nau', 'bac'];
+function oSummary(o){
+  const by = new Map();
+  o.items.forEach(x => { const d = drink(x.id), k = d ? d.id : x.name; const g = by.get(k) || {name: x.name || d.name, n: 0}; g.n += x.qty; by.set(k, g); });
+  const rank = k => { const i = MENU_ORDER.indexOf(k); return i < 0 ? 99 : i; };
+  return [...by].sort((a, b) => rank(a[0]) - rank(b[0])).map(([, g]) => `${g.n} ${g.name}`).join(' / ');
+}
 const sameDay = (a, b) => a.toDateString() === b.toDateString();
 const hm = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 const dmy = d => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
@@ -1464,8 +1468,8 @@ function renderHistory(){
   const shown = orders.filter(hMatch);
   shown.forEach(o => {
     const r = document.createElement('button'); r.className = 'hrow';
-    r.innerHTML = `<div class="t"><span class="n"><b></b><b></b></span><span class="st ${o.status}">${ST[o.status]}</span></div><div class="t"><small>${listDate(o.at)}</small><span class="hp">${fmt(oTotal(o))}<svg class="${o.paid ? 'paid' : 'due'}"><use href="#${o.paid ? 'i-paid' : 'i-due'}"/></svg></span></div>`;
-    const b = r.querySelectorAll('b'); b[0].textContent = `${pad(oQty(o))} x`; b[1].textContent = oNames(o);
+    r.innerHTML = `<div class="t"><span class="n"><b></b></span><span class="st ${o.status}">${ST[o.status]}</span></div><div class="t"><span class="hp"><svg class="${o.paid ? 'paid' : 'due'}"><use href="#${o.paid ? 'i-paid' : 'i-due'}"/></svg>${fmt(oTotal(o))}</span><small>${listDate(o.at)}</small></div>`;
+    r.querySelector('.n b').textContent = oSummary(o);
     r.addEventListener('click', () => openOrder(o));
     hlist.appendChild(r);
   });
@@ -1496,7 +1500,7 @@ function periodStart(p){
 const dueOrders = () => orders.filter(o => !o.paid && !o.claimed && o.status !== 'cancel');
 function renderAccount(){
   const from = periodStart(period), list = orders.filter(o => o.status !== 'cancel' && o.at >= from);
-  $('#aCount').textContent = pad(list.length);
+  $('#aCount').textContent = `${list.length} đơn đã đặt`;
   $('#aSpent').textContent = fmt(list.reduce((n, o) => n + oTotal(o), 0));
   const due = dueOrders();
   $('#aDue').textContent = fmt(due.reduce((n, o) => n + oTotal(o), 0));
@@ -1507,7 +1511,7 @@ $$('#aSeg button').forEach((b, k) => b.addEventListener('click', () => {
   period = b.dataset.p; $$('#aSeg button').forEach(x => x.classList.toggle('on', x === b));
   $('#aSeg i').style.transform = `translateX(${k*100}%)`;
   renderAccount();
-  $('#aCount').animate([{opacity:0, transform:'translateY(8px)'},{opacity:1, transform:'none'}], {duration:T(320), easing:'cubic-bezier(.22,1,.36,1)'});
+  $('#aSpent').animate([{opacity:0, transform:'translateY(8px)'},{opacity:1, transform:'none'}], {duration:T(320), easing:'cubic-bezier(.22,1,.36,1)'});
 }));
 /* pay off everything owed by bank transfer; the shop then confirms it */
 const aSheet = $('#aSheet'); sheetDismiss(aSheet);
@@ -1620,10 +1624,9 @@ $('#bell').addEventListener('click', () => {
 
 /* ---------- payment ---------- */
 const payEl = $('#pay'), pSheet = $('#pSheet');
-let payM = 'cash';
+let payM = 'bank';
 function setPay(m){
   payM = m; $$('.mrow', payEl).forEach(r => r.classList.toggle('on', r.dataset.m === m));
-  pSlide.label(m === 'bank' ? 'Tiếp tục thanh toán' : 'Đặt hàng');
 }
 $$('.mrow', payEl).forEach(r => r.addEventListener('click', () => {
   r.animate([{transform:'scale(.95)'},{transform:'scale(1)'}], {duration:T(380), easing:'cubic-bezier(.34,1.56,.64,1)'});
@@ -1633,7 +1636,7 @@ function openPay(){
   const sum = $('#pSum'); sum.innerHTML = '';
   cartItems.forEach(x => { const r = itemRow(x, 'prow'); r.querySelector('.oth').remove(); sum.appendChild(r); });
   $('#pTotal').textContent = fmt(cartTotal());
-  pSlide.reset(true); setPay(payM);
+  pSlide.reset(true); setPay(payM); $('.pscroll', payEl).scrollTop = 0;
   showPage(payEl);
 }
 /* slide-to-confirm, the same control as add-to-cart */
@@ -1653,29 +1656,50 @@ function slider(el, onDone){
   k.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); finish(); } });
   return {reset, label:t => { text = t; if (!on) l.textContent = t; }};
 }
-const pSlide = slider($('#pAdd'), () => { if (!cartItems.length) return pSlide.reset(); payM === 'bank' ? openSheet() : placeOrder(false); });
+/* "Đặt hàng": bank transfer opens the QR sheet first, cash and tab place the order straight away */
+const pGo = $('#pGo');
+const pSlide = {reset: () => { pGo.disabled = false; }};
+pGo.addEventListener('click', () => { if (pGo.disabled || !cartItems.length) return; pGo.disabled = true; payM === 'bank' ? openSheet() : placeOrder(false); });
 /* a stand-in QR: finder squares plus a pattern seeded from the order code */
-function qrSvg(seed){
-  const n = 25; let h = 0; for (const c of seed) h = (h*31 + c.charCodeAt(0)) >>> 0;
-  const rnd = () => (h = (h*1103515245 + 12345) >>> 0) / 4294967296;
+/* the shop's real VietQR, with the amount and the order code filled in; finder squares drawn rounded to match the card */
+function qrSvg(amt, code){
+  const Q = window.CoongQR; if (!Q) return '<svg viewBox="0 0 1 1"></svg>';
+  const {n, dark} = Q.qrMatrix(Q.vietQR(amt, code));
   const finder = (x, y) => `<rect x="${x}" y="${y}" width="7" height="7" rx="1.6"/><rect x="${x+1}" y="${y+1}" width="5" height="5" rx="1" fill="#fff"/><rect x="${x+2}" y="${y+2}" width="3" height="3" rx=".6"/>`;
-  const inF = (x, y) => (x < 8 && y < 8) || (x > n - 9 && y < 8) || (x < 8 && y > n - 9);
-  let cells = '';
-  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (!inF(x, y) && rnd() < .48) cells += `<rect x="${x}" y="${y}" width="1" height="1"/>`;
-  return `<svg viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges">${finder(0,0)}${finder(n-7,0)}${finder(0,n-7)}${cells}</svg>`;
+  const inF = (x, y) => (x < 7 && y < 7) || (x > n - 8 && y < 7) || (x < 7 && y > n - 8);
+  let d = '';
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (!inF(x, y) && dark(x, y)) d += `M${x} ${y}h1v1h-1z`;
+  return `<svg viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges">${finder(0,0)}${finder(n-7,0)}${finder(0,n-7)}<path d="${d}"/></svg>`;
 }
 /* bank transfer: QR card with account details, shared by checkout and paying an account's debt */
 const BANK = {name:'Trinh Minh Cong', acc:'8456777999'};
+/* the QR svg drawn onto a white 720px PNG */
+function qrPng(qr){
+  const svg = qr.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" ');
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => { const c = document.createElement('canvas'); c.width = c.height = 720; const g = c.getContext('2d');
+      g.fillStyle = '#fff'; g.fillRect(0, 0, 720, 720); g.drawImage(img, 60, 60, 600, 600); c.toBlob(b => b ? res(b) : rej(), 'image/png'); };
+    img.onerror = rej;
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  });
+}
 function qrSheet(sheet, {amt, code, onPaid, alt, onAlt}){
-  const sp = $('.sp', sheet), qr = qrSvg(code + amt);
+  const sp = $('.sp', sheet), qr = qrSvg(amt, code);
   sp.innerHTML = `<div class="qrcard"><div class="qrbox">${qr}</div><div class="qri"><span>Chuyển khoản</span><b class="amt">${fmt(amt)}</b><span>${BANK.name}</span><small>${BANK.acc}</small></div></div>
-    <div class="qact"><button data-q="copy"><svg><use href="#i-copy"/></svg>Sao chép mã</button><i></i><button data-q="save"><svg><use href="#i-down"/></svg>Tải mã</button></div>
+    <div class="qact"><button data-q="copy"><svg><use href="#i-copy"/></svg>Sao chép QR</button><i></i><button data-q="save"><svg><use href="#i-down"/></svg>Tải mã</button></div>
     <button class="btn" data-q="paid">Tôi đã thanh toán</button><button class="salt" data-q="alt">${alt}</button>`;
   const q = k => $(`[data-q=${k}]`, sp);
-  q('copy').addEventListener('click', () => { try { navigator.clipboard.writeText(BANK.acc); } catch (e) {} toast('Đã sao chép số tài khoản'); });
-  q('save').addEventListener('click', () => {
-    const svg = qr.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" style="background:#fff" ');
-    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([svg], {type:'image/svg+xml'})); a.download = `coong-${code}.svg`; a.click();
+  /* copy the QR as a PNG image (to paste into a banking app or chat), and save it as one */
+  q('copy').addEventListener('click', async () => {
+    try {
+      if (!window.ClipboardItem || !navigator.clipboard?.write) throw 0;
+      await navigator.clipboard.write([new ClipboardItem({'image/png': qrPng(qr)})]);
+      toast('Đã sao chép ảnh mã QR');
+    } catch (e) { toast('Máy chưa cho sao chép ảnh, bấm Tải mã nhé'); }
+  });
+  q('save').addEventListener('click', async () => {
+    const a = document.createElement('a'); a.href = URL.createObjectURL(await qrPng(qr)); a.download = `coong-${code}.png`; a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000); toast('Đã tải mã QR');
   });
   q('paid').addEventListener('click', () => { hideSheet(false, sheet); onPaid(); });
@@ -1731,7 +1755,7 @@ async function placeOrder(paid, claimed = false){
 const successEl = $('#success');
 function openSuccess(o){
   $('#sMsg').textContent = `Mã đơn #${o.code}. Coong xác nhận đơn của bạn trong ít phút`;
-  $('#sCard').innerHTML = `<div class="kv"><span>Đồ uống</span><b>${pad(oQty(o))} x ${oNames(o)}</b></div><div class="kv"><span>Phương thức</span><b>${PAY[o.pay]}</b></div><div class="kv tot"><span>Tổng</span><b>${fmt(oTotal(o))}</b></div>`;
+  $('#sCard').innerHTML = `<div class="kv"><span>Đồ uống</span><b>${oSummary(o)}</b></div><div class="kv"><span>Phương thức</span><b>${PAY[o.pay]}</b></div><div class="kv tot"><span>Tổng</span><b>${fmt(oTotal(o))}</b></div>`;
   showPage(successEl);
   const ok = $('.sok', successEl), path = $('path', ok);
   $('circle', ok).animate([{transform:'scale(0)'},{transform:'scale(1)'}], {duration:T(560), easing:'cubic-bezier(.34,1.7,.5,1)', fill:'backwards'});
