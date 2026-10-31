@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
+<meta name="build" content="__BUILD__">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="Coong">
@@ -173,7 +174,7 @@ input{user-select:text;-webkit-user-select:text}
 .hempty{left:0;width:390px;top:150px}
 
 /* splash */
-#splash{visibility:visible;z-index:90}
+#splash{visibility:visible;z-index:90;background:#000}
 .sbg,#auth .stage{background:#000 url(/cover.webp) center bottom/100% auto no-repeat}
 .sbg{inset:0}
 .slogo{left:100px;top:227px;width:189px;height:74px;color:#fff;transform-origin:0 0}
@@ -2034,6 +2035,23 @@ $('#retry').addEventListener('click', async () => {
 
 /* ---------- splash, then sign-in or home ---------- */
 renderHistory(); renderNotifs();
+/* an app added to the home screen keeps running its old copy: look for a newer build whenever it comes back to the foreground (and every few minutes), then reload when nothing is in progress */
+const BUILD = $('meta[name=build]').content;
+let updateSeen = false;
+const idle = () => !cartItems.length && !document.querySelector('.page.open') && detail.style.visibility !== 'visible' && dlg.style.visibility !== 'visible';
+async function checkUpdate(){
+  if (BUILD.startsWith('__') || !navigator.onLine) return;
+  try {
+    if (!updateSeen) {
+      const t = await (await fetch('/?v=' + Date.now(), {cache:'no-store'})).text();
+      const m = t.match(/name="build" content="(\d+)"/);
+      updateSeen = !!(m && m[1] !== BUILD);
+    }
+    if (updateSeen && idle()) location.reload();
+  } catch (e) {}
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkUpdate(); });
+setInterval(checkUpdate, 60000);
 (async () => {
   /* is this device already signed in? checked while the splash plays */
   const known = api().then(a => a.session()).catch(() => null);
@@ -2055,6 +2073,7 @@ renderHistory(); renderNotifs();
     /* splash logo box 189x74 at (100,227) → header logo box 153x60 at (118,32) */
     const move = logo.animate([{transform:'none'},{transform:`translate(18px, -195px) scale(${153/189})`}], {duration:T(760), easing:'cubic-bezier(.65,0,.25,1)', fill:'forwards'});
     bg.animate([{opacity:1},{opacity:0}], {duration:T(560), delay:T(120), easing:'ease-out', fill:'forwards'});
+    sp.animate([{backgroundColor:'#000'},{backgroundColor:'rgba(0,0,0,0)'}], {duration:T(560), delay:T(120), easing:'ease-out', fill:'forwards'});
     await move.finished; al.style.opacity = 1; sp.style.visibility = 'hidden'; move.cancel();
     al.offsetWidth; al.style.transition = '';
     /* ready to type: phones only open the keyboard from a touch, so a first tap anywhere on this step also focuses the number field */
