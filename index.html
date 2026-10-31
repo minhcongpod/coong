@@ -91,7 +91,7 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 
 /* ---------- Cart ---------- */
 #cart{visibility:hidden;background:#000;--fg:#fff;--lblc:rgba(255,255,255,.8)}
-.cclose{left:24px;top:23px;width:52px;height:52px;background:rgba(255,255,255,.1);color:#fff}
+.cclose{left:24px;top:24px;width:52px;height:52px;background:rgba(255,255,255,.1);color:#fff}
 .cclose svg{width:32px;height:32px}
 .clist{left:27px;top:94px;width:342px;height:366px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
 .clist::-webkit-scrollbar{display:none}
@@ -107,6 +107,7 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 .ehead b{display:block}.ehead .ename{font-size:24px;margin-bottom:8px}.ehead .eunit{font-size:18px}
 .egrid{display:grid;grid-template-columns:1fr 1fr;gap:24px 8px}
 .egroup,.eqty{display:flex;flex-direction:column;gap:8px}
+.opt[hidden],.egroup[hidden]{display:none}
 .egroup label,.eqty label{font-size:14px;font-weight:700;color:rgba(255,255,255,.5)}
 .echips{display:flex;gap:8px}
 .echips button{width:44px;height:44px;border-radius:32px;background:rgba(255,255,255,.1);color:#fff;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background .25s,color .25s}
@@ -134,7 +135,7 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 /* ---------- Extra screens: pages, auth, payment, order, notifications, states ---------- */
 input{user-select:text;-webkit-user-select:text}
 .page{visibility:hidden;background:#000}
-.pback{left:24px;top:23px;width:52px;height:52px;background:rgba(255,255,255,.1);color:#fff}
+.pback{left:24px;top:24px;width:52px;height:52px;background:rgba(255,255,255,.1);color:#fff}
 .pback svg{width:28px;height:28px}
 .pt{left:24px;top:94px;margin:0;font-size:32px;line-height:46px;font-weight:700}
 .btn{display:flex;align-items:center;justify-content:center;width:100%;height:60px;border-radius:32px;background:#fff;color:#000;font-size:18px;font-weight:700;transition:transform .25s var(--ease-out),opacity .25s}
@@ -159,7 +160,7 @@ input{user-select:text;-webkit-user-select:text}
 @keyframes shake{20%{translate:-8px 0}40%{translate:7px 0}60%{translate:-5px 0}80%{translate:3px 0}}
 
 /* home header bell */
-.bellbtn{width:52px;height:52px;background:rgba(255,255,255,.1);top:25px;left:254px;color:#fff}
+.bellbtn{width:52px;height:52px;background:rgba(255,255,255,.1);top:24px;left:254px;color:#fff}
 .bellbtn svg{width:26px;height:26px}
 .nbadge{position:absolute;top:-2px;right:-2px;min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:20px;background:var(--yellow);color:#000;font-size:12px;font-weight:700;line-height:20px;text-align:center;transform:scale(0);transition:transform .35s var(--ease-out)}
 .nbadge.on{transform:scale(1)}
@@ -241,7 +242,7 @@ input{user-select:text;-webkit-user-select:text}
 .oitem b{display:block;font-size:16px}
 .oitem small{font-size:14px;color:rgba(255,255,255,.5);font-weight:500}
 .oitem .pr{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
-.obar{left:24px;width:342px;bottom:39px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.obar{left:24px;width:342px;bottom:24px;display:flex;flex-direction:column;align-items:center;gap:10px}
 .onote{font-size:14px;color:var(--mute);font-weight:500;text-align:center}
 
 /* payment */
@@ -260,7 +261,7 @@ input{user-select:text;-webkit-user-select:text}
 .mrow i{flex:none;width:22px;height:22px;border-radius:22px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.3);transition:box-shadow .3s}
 .mrow.on{background:#fff;color:#000}
 .mrow.on i{box-shadow:inset 0 0 0 7px #000}
-#pAdd{bottom:39.44px}
+#pAdd{bottom:24px}
 .psheet{position:absolute;left:0;top:0;width:390px;height:100%;visibility:hidden;z-index:5}
 .psheet .sb{position:absolute;inset:0;background:rgba(0,0,0,.6)}
 .psheet .sp{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(rgba(255,255,255,.1),rgba(255,255,255,.1)),#000;border-radius:32px 32px 0 0;padding:32px 24px 30px;display:flex;flex-direction:column;align-items:stretch;gap:8px;line-height:normal}
@@ -291,7 +292,7 @@ input{user-select:text;-webkit-user-select:text}
 .stitle{left:0;width:390px;top:222px;text-align:center;margin:0;font-size:32px;font-weight:700;line-height:36px}
 .smsg{left:40px;width:310px;top:266px;text-align:center;font-size:16px;color:var(--mute);font-weight:500;line-height:1.45}
 .scard{left:24px;top:330px;width:342px}
-.sbtns{left:24px;width:342px;bottom:36px;display:flex;flex-direction:column;gap:8px}
+.sbtns{left:24px;width:342px;bottom:24px;display:flex;flex-direction:column;gap:8px}
 
 /* offline + dialog */
 .oestate{left:0;width:390px;top:140px}
@@ -303,16 +304,16 @@ input{user-select:text;-webkit-user-select:text}
 .dbox p{margin-top:8px;font-size:16px;color:rgba(255,255,255,.5);font-weight:500;line-height:1.45}
 .dbtns{display:flex;gap:8px;margin-top:22px}
 .dbtns .btn{height:52px;font-size:16px}
-.ctotal{left:22px;top:476px;width:346px;height:60px;box-sizing:border-box;border-radius:32px;background:rgba(255,255,255,.1);padding:0 24px;display:flex;align-items:center;gap:4px;font-weight:700;line-height:normal}
+.ctotal{left:24px;top:476px;width:342px;height:60px;box-sizing:border-box;border-radius:32px;background:rgba(255,255,255,.1);padding:0 24px;display:flex;align-items:center;gap:4px;font-weight:700;line-height:normal}
 .ctotal span{flex:1;font-size:18px}.ctotal b{font-size:24px;font-variant-numeric:tabular-nums}
-#cAdd{bottom:39.44px}
+#cAdd{bottom:24px}
 
 /* ---------- Home ---------- */
 #home{background:#000}
-.hello{left:24px;top:27px;width:222px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hello{left:24px;top:26px;width:222px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hello small{display:block;font-size:16px;color:var(--mute);line-height:23px}
 .hello b{display:block;font-size:32px;line-height:46px;font-weight:700;margin-top:-12px}
-.cartbtn{width:52px;height:52px;background:rgba(255,255,255,.1);top:25px;left:314px;color:#fff}
+.cartbtn{width:52px;height:52px;background:rgba(255,255,255,.1);top:24px;left:314px;color:#fff}
 .cartbtn svg{width:28px;height:28px}
 .badge{position:absolute;top:-2px;right:-2px;min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:20px;background:var(--yellow);color:#000;font-size:12px;font-weight:700;line-height:20px;text-align:center;transform:scale(0);transition:transform .35s var(--ease-out)}
 .badge.on{transform:scale(1)}
@@ -323,6 +324,8 @@ input{user-select:text;-webkit-user-select:text}
 .order button{color:var(--yellow);font-weight:700}
 
 #carousel{left:0;top:82px;width:390px;height:480px;touch-action:pan-y}
+/* no reorder card: centre the drinks between the header and the dots */
+#home.noorder #carousel{top:42px}
 .card{position:absolute;left:60px;top:96px;width:270px;height:360px;will-change:transform;cursor:pointer}
 .card .surf{position:absolute;inset:0;width:270px;height:360px;overflow:visible}
 .card .cup{position:absolute;left:92px;top:66px;height:245px;transform:rotate(11.7deg);pointer-events:none}
@@ -370,10 +373,10 @@ input{user-select:text;-webkit-user-select:text}
 .card[data-id=den] .pricebar b{color:#fff}
 .card[data-id=nau] .pricebar b,.card[data-id=bac] .pricebar b{color:#000}
 
-.dots{left:0;width:390px;bottom:101px;display:flex;justify-content:center;gap:6px}
+.dots{left:0;width:390px;bottom:94px;display:flex;justify-content:center;gap:6px}
 .dots i{width:6px;height:6px;border-radius:6px;background:rgba(255,255,255,.3);transition:width .4s var(--ease-out),background .4s}
 .dots i.on{width:18px;background:#fff}
-.nav{left:24px;width:342px;bottom:31px;height:48px;display:flex;gap:16px}
+.nav{left:24px;width:342px;bottom:24px;height:48px;display:flex;gap:16px}
 .nav button{flex:1;display:flex;align-items:center;justify-content:center;opacity:.2;color:#fff}
 .nav button.on{opacity:1}
 .nav svg{width:28px;height:28px}
@@ -386,10 +389,10 @@ input{user-select:text;-webkit-user-select:text}
 #detail[data-id=nau]{--bg1:#fed3a1;--bg2:#ffc077;--fg:#000;--title:#663d00;--btn:rgba(255,255,255,.3);--chip:rgba(255,255,255,.3);--chipT:#000;--xOn:#000;--valOn:#000;--bulge:rgba(255,255,255,.3);--round:rgba(0,0,0,.1);--price:#fff;--priceT:#000;--lblc:rgba(0,0,0,.8);--pm:#000}
 #detail[data-id=bac]{--bg1:#edecea;--bg2:#d6d3c9;--fg:#000;--title:#000;--btn:rgba(255,255,255,.3);--chip:rgba(255,255,255,.3);--chipT:#000;--xOn:#000;--valOn:#000;--bulge:rgba(255,255,255,.3);--round:rgba(0,0,0,.1);--price:#fff;--priceT:#000;--lblc:rgba(0,0,0,.8);--pm:#000}
 #detail .stage{color:var(--fg)}
-.back{left:24px;top:22px;width:52px;height:52px;background:var(--btn);color:var(--fg)}
+.back{left:24px;top:24px;width:52px;height:52px;background:var(--btn);color:var(--fg)}
 .back svg{width:28px;height:28px}
-#detail .cartbtn{top:22px;background:var(--btn);color:var(--fg)}
-#detail[data-id=nau] .back,#detail[data-id=nau] .cartbtn,#detail[data-id=bac] .back,#detail[data-id=bac] .cartbtn{top:23px}
+#detail .cartbtn{top:24px;background:var(--btn);color:var(--fg)}
+#detail[data-id=nau] .back,#detail[data-id=nau] .cartbtn,#detail[data-id=bac] .back,#detail[data-id=bac] .cartbtn{top:24px}
 .dtitle{left:27px;top:94px;font-size:44px;line-height:46px;font-weight:700;color:var(--title);margin:0}
 .opts{left:27px;top:159px;display:flex;flex-direction:column}
 .opt[data-k=sweet]{margin-top:15px}.opt[data-k=cafe]{margin-top:17px}
@@ -402,8 +405,8 @@ input{user-select:text;-webkit-user-select:text}
 .chip.on{background:#fff;color:var(--xOn)}
 .chip.on.val{color:var(--valOn)}
 .chip:active{transform:scale(.92)}
-.spin2{position:absolute;inset:0;background-repeat:no-repeat;background-size:2400% 100%;pointer-events:none;opacity:0}
-.spin{left:145px;top:100px;height:310px;background-repeat:no-repeat;background-size:2400% 100%;cursor:grab;touch-action:none;}
+.spin2{display:none}
+.spin{left:145px;top:100px;height:310px;background-repeat:no-repeat;background-size:contain;background-position:center bottom}
 .bulge{bottom:104px;width:84px;height:155px;color:var(--bulge)}
 .bulge svg{width:84px;height:155px}
 .bulge.r{left:calc(306.2px + var(--gx,0px));transform:scaleX(-1)}
@@ -416,7 +419,7 @@ input{user-select:text;-webkit-user-select:text}
 .qty{left:130px;width:134px;bottom:168px;height:58px;overflow:hidden;text-align:center;font-size:44px;font-weight:500;line-height:58px;font-variant-numeric:tabular-nums}
 .qty span{position:absolute;left:0;right:0}
 .dprice{left:197px;bottom:126px;transform:translateX(-50%);background:var(--price);color:var(--priceT,#fff);border-radius:32px;padding:9px 21px 8px;font-size:18px;font-weight:700;line-height:23px;font-variant-numeric:tabular-nums;white-space:nowrap}
-.add{left:22px;bottom:27.44px;width:346px;height:68.56px;box-sizing:border-box;border-radius:32px;background:rgba(255,255,255,.1);--bw:1.2px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);touch-action:none;overflow:hidden}
+.add{left:24px;bottom:24px;width:342px;height:68.56px;box-sizing:border-box;border-radius:32px;background:rgba(255,255,255,.1);--bw:1.2px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);touch-action:none;overflow:hidden}
 .add .lbl{position:absolute;left:92px;right:76px;top:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--lblc,var(--fg));white-space:nowrap}
 .add .chev{position:absolute;right:30px;top:26.34px;width:30px;height:16px;color:var(--fg)}
 /* slide-to-unlock sheen: a bright band sweeps left→right across the label and the arrows */
@@ -427,7 +430,7 @@ input{user-select:text;-webkit-user-select:text}
 @media (prefers-reduced-motion:reduce){.add::before,.pricebar::before{animation:none}}
 @keyframes chev{0%,100%{opacity:.25}40%{opacity:1}}
 /* drink detail: add-to-cart circle + pay-now pill */
-.dacts{left:22px;bottom:54.8px;width:346px;height:60px;display:flex;gap:16px}
+.dacts{left:24px;bottom:24px;width:342px;height:60px;display:flex;gap:16px}
 .dadd{position:relative;flex:none;width:60px;height:60px;border-radius:32px;background:var(--btn);color:var(--fg);display:flex;align-items:center;justify-content:center;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);transition:transform .25s var(--ease-out)}
 .dadd::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.2px;background:linear-gradient(90deg,rgba(255,255,255,.5),rgba(255,255,255,.1) 50%,rgba(255,255,255,.5));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
 .dadd svg{width:28px;height:28px}
@@ -442,7 +445,7 @@ input{user-select:text;-webkit-user-select:text}
 #fx{position:fixed;inset:0;pointer-events:none;z-index:50}
 #fx .veil{position:absolute;inset:0}
 #fx .fly{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
-.toast{position:absolute;left:50%;top:22px;transform:translate(-50%,-80px);background:#000;color:#fff;border-radius:100px;padding:12px 18px;font-size:16px;font-weight:700;display:flex;gap:8px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.4);white-space:nowrap}
+.toast{position:absolute;left:50%;top:24px;transform:translate(-50%,-80px);background:#000;color:#fff;border-radius:100px;padding:12px 18px;font-size:16px;font-weight:700;display:flex;gap:8px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.4);white-space:nowrap}
 .toast svg{width:18px;height:18px;color:var(--yellow)}
 @media (prefers-reduced-motion:reduce){.add .shine{animation:none;-webkit-mask-image:none;mask-image:none}}
 </style>
@@ -487,13 +490,13 @@ input{user-select:text;-webkit-user-select:text}
 </svg>
 
 <div id="device"><div id="app">
-<div id="home" class="screen" aria-label="Trang chủ">
+<div id="home" class="screen noorder" aria-label="Trang chủ">
   <div class="stage">
     <div class="tab" id="tOrder">
     <div class="abs hello"><small>Hê lô,</small><b id="helloName">LieuNT</b></div>
     <button class="abs circ cartbtn" aria-label="Giỏ hàng"><svg><use href="#i-bag"/></svg><span class="badge"></span></button>
     <button class="abs circ bellbtn" id="bell" aria-label="Thông báo"><svg><use href="#i-bell"/></svg><span class="nbadge"></span></button>
-    <div class="abs order"><span><b id="orderTxt">01 x Đen</b><small id="orderWhen" hidden></small></span><button id="reorder">ĐẶT LẠI</button></div>
+    <div class="abs order" id="lastOrder" style="display:none"><span><b id="orderTxt"></b><small id="orderWhen"></small></span><button id="reorder">ĐẶT LẠI</button></div>
     <div id="carousel" class="abs"></div>
     <div class="abs dots" id="dots" hidden></div>
     </div>
@@ -549,10 +552,10 @@ input{user-select:text;-webkit-user-select:text}
     <h1 class="abs dtitle" id="dTitle" data-a="left">Đen</h1>
     <div class="abs opts" id="opts">
       <div class="opt" data-a="left" data-k="upsize"><div><button class="chip on" data-v="0" aria-label="Size L"><svg><use href="#i-sizeL"/></svg></button><button class="chip val" data-v="1" aria-label="Size XL"><svg><use href="#i-sizeXL"/></svg></button></div></div>
-      <div class="opt" data-a="left" data-k="sweet"><label>Ngọt</label><div><button class="chip on" data-v="0" aria-label="Ngọt 100">100</button><button class="chip val" data-v="50" aria-label="Độ ngọt">50</button></div></div>
-      <div class="opt" data-a="left" data-k="cafe"><label>Cafe</label><div><button class="chip on" data-v="0" aria-label="Cafe 100">100</button><button class="chip val" data-v="50" aria-label="Lượng cafe">50</button></div></div>
+      <div class="opt" data-a="left" data-k="sweet"><label>Ngọt</label><div><button class="chip on" data-v="0" aria-label="Ngọt 100%">100</button><button class="chip val" data-v="50" aria-label="Ngọt 50%">50</button></div></div>
+      <div class="opt" data-a="left" data-k="cafe"><label>Cafe</label><div><button class="chip on" data-v="0" aria-label="Cafe 100%">100</button><button class="chip val" data-v="50" aria-label="Cafe 50%">50</button></div></div>
     </div>
-    <div class="abs spin" id="spin" aria-label="Kéo để xoay cốc"></div>
+    <div class="abs spin" id="spin" role="img"></div>
     <button class="abs circ pm minus" id="minus" aria-label="Giảm" data-a="l"><svg><use href="#i-minus"/></svg></button>
     <button class="abs circ pm plus" id="plus" aria-label="Tăng" data-a="r"><svg><use href="#i-plus"/></svg></button>
     <div class="abs qty" id="qty" data-a="up"><span>01</span></div>
@@ -587,8 +590,8 @@ input{user-select:text;-webkit-user-select:text}
       <div class="sp esp">
         <div class="ehead"><div class="cthumb"><img alt="" draggable="false"></div><div><b class="ename"></b><b class="eunit"></b></div></div>
         <div class="egrid">
-          <div class="egroup" data-k="upsize"><label>Size</label><div class="echips"><button class="esz" data-v="0" aria-label="Size L"><svg><use href="#i-sizeL"/></svg></button><button class="esz" data-v="1" aria-label="Size XL (+5.000)"><svg><use href="#i-sizeXL"/></svg></button></div></div>
-          <div class="egroup" data-k="cafe"><label>Đá</label><div class="echips"><button class="val" data-v="50">50</button><button data-v="100">100</button></div></div>
+          <div class="egroup" data-k="upsize"><label>Size</label><div class="echips"><button class="esz" data-v="0" aria-label="Size L"><svg><use href="#i-sizeL"/></svg></button><button class="esz" data-v="1" aria-label="Size XL"><svg><use href="#i-sizeXL"/></svg></button></div></div>
+          <div class="egroup" data-k="cafe"><label>Cafe</label><div class="echips"><button class="val" data-v="50">50</button><button data-v="100">100</button></div></div>
           <div class="egroup" data-k="sweet"><label>Ngọt</label><div class="echips"><button class="val" data-v="50">50</button><button data-v="100">100</button></div></div>
           <div class="eqty"><label>Số lượng</label><div class="cqty"><button class="cpm" data-d="-1" aria-label="Giảm"><svg><use href="#i-minus"/></svg></button><span>1</span><button class="cpm" data-d="1" aria-label="Tăng"><svg><use href="#i-plus"/></svg></button></div></div>
         </div>
@@ -748,9 +751,9 @@ const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
 
 const DRINKS = [
-  {id:'bac', name:'Bạc', price:20000, aspect:316/540, rec:true,  stops:[[0,'#e2e2e2'],[.5739,'#d9d0b7']], edge:.35, card:'linear-gradient(0deg,#d9d0b7 42.61%,#e2e2e2 100%)', bg:'linear-gradient(0deg,#d9d0b7 42.61%,#e2e2e2 100%)'},
-  {id:'den', name:'Đen', price:20000, aspect:341/540,            stops:[[0,'#484848'],[.5739,'#1e1e1e']], edge:.12, card:'linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)', bg:'linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)'},
-  {id:'nau', name:'Nâu', price:20000, aspect:339/540,            stops:[[0,'#fed9ae'],[.574,'#ffc077']], edge:.35, card:'linear-gradient(180deg,#fed9ae 0%,#ffc077 57.4%)', bg:'linear-gradient(180deg,#fed3a1,#ffc077)'},
+  {id:'bac', name:'Bạc', price:20000, xl:5000, sweet:true, cafe:true, aspect:512/901, rec:true,  stops:[[0,'#e2e2e2'],[.5739,'#d9d0b7']], edge:.35, card:'linear-gradient(0deg,#d9d0b7 42.61%,#e2e2e2 100%)', bg:'linear-gradient(0deg,#d9d0b7 42.61%,#e2e2e2 100%)'},
+  {id:'den', name:'Đen', price:20000, xl:0, sweet:false, cafe:false, aspect:512/792,            stops:[[0,'#484848'],[.5739,'#1e1e1e']], edge:.12, card:'linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)', bg:'linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)'},
+  {id:'nau', name:'Nâu', price:20000, xl:5000, sweet:true, cafe:false, aspect:512/797,            stops:[[0,'#fed9ae'],[.574,'#ffc077']], edge:.35, card:'linear-gradient(180deg,#fed9ae 0%,#ffc077 57.4%)', bg:'linear-gradient(180deg,#fed3a1,#ffc077)'},
 ];
 const N = DRINKS.length, FRAMES = 24;
 /* Firebase bridge (src/coong/api.js), loaded as a module next to this script */
@@ -760,7 +763,7 @@ const fold = t => (t || '').toLowerCase().normalize('NFC');
 const drinkIdOf = name => { const n = fold(name); return n.includes('bạc') ? 'bac' : n.includes('nâu') ? 'nau' : n.includes('đen') ? 'den' : null; };
 function applyMenu(items){
   DRINKS.forEach(d => { const m = items.find(x => x.active !== false && drinkIdOf(x.name) === d.id);
-    if (m) Object.assign(d, {price:m.price, menuId:m.id, menuName:m.name, cost:m.cost || 0}); });
+    if (m) Object.assign(d, {price:m.price, menuId:m.id, menuName:m.name, cost:m.cost || 0, ...(typeof m.upsize === 'number' ? {xl:m.upsize} : {})}); });
   cards.forEach((c, i) => { $('.pricebar b', c).textContent = fmt(DRINKS[i].price); });
   if (detail.style.visibility === 'visible') $('#dPrice').textContent = fmt(unit()*qty);
 }
@@ -769,8 +772,8 @@ const fmt = n => n.toLocaleString('vi-VN').replace(/,/g,'.');
 const pad = n => String(n).padStart(2,'0');
 let Z = 10;   /* stacking order for screens opened on top of each other */
 
-/* preload sprites so the detail spin is ready */
-DRINKS.forEach(d => { const i = new Image(); i.src = d.id + '-spin.webp'; if (i.decode) i.decode().catch(() => {}); });
+/* preload the drink photos so the detail screen is ready */
+DRINKS.forEach(d => { const i = new Image(); i.src = d.id + '.webp'; if (i.decode) i.decode().catch(() => {}); });
 const nextFrame = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
 /* ---------- stage scaling ---------- */
@@ -908,44 +911,39 @@ function goAndOpen(i){
   setTimeout(() => openDetail(i), T(520));
 }
 let lastOrder = 1;
-/* reorder the latest order: its drinks go into the cart and payment opens */
+/* reorder: only customers with an order see it, and it repeats their latest (not cancelled) order */
 const lastPlacedOrder = () => orders.find(o => o.status !== 'cancel');
 function renderLast(){
-  const o = lastPlacedOrder(), w = $('#orderWhen');
-  if (o) { $('#orderTxt').textContent = `${pad(oQty(o))} x ${oNames(o)}`; w.textContent = listDate(o.at); }
-  w.hidden = !o;
+  const o = lastPlacedOrder();
+  $('#lastOrder').style.display = o ? '' : 'none';
+  $('#home').classList.toggle('noorder', !o);
+  if (o) { $('#orderTxt').textContent = `${pad(oQty(o))} x ${oNames(o)}`; $('#orderWhen').textContent = listDate(o.at); }
 }
 function reorder(o){ o.items.forEach(x => addToCart(x.id, x.qty, x.unit, x.o)); syncBadges(true); openPay(); }
-$('#reorder').addEventListener('click', () => { if (busy) return; const o = lastPlacedOrder(); o ? reorder(o) : goAndOpen(lastOrder); });
+$('#reorder').addEventListener('click', () => { if (busy) return; const o = lastPlacedOrder(); if (o) reorder(o); });
 
 /* ---------- detail state ---------- */
 const detail = $('#detail'), spin = $('#spin');
 let cur = 1, qty = 1, frame = 0, cart = 0;
 const opts = {upsize:0, sweet:0, cafe:0};
-const unit = () => DRINKS[cur].price + (opts.upsize ? 5000 : 0);
+const unit = () => DRINKS[cur].price + (opts.upsize ? DRINKS[cur].xl : 0);
 
 function sizeSpin(){
   const d = DRINKS[cur], h = 310, w = h*d.aspect;
   spin.style.height = h + 'px'; spin.style.width = w + 'px'; spin.style.left = (261 - w/2) + 'px';
 }
 const spin2 = document.createElement('i'); spin2.className = 'spin2'; spin.appendChild(spin2);
-function setFrame(f){
-  frame = ((f % FRAMES) + FRAMES) % FRAMES;
-  /* blend the two neighbouring frames so slow turns glide instead of stepping */
-  const i0 = Math.floor(frame), t = frame - i0;
-  spin.style.backgroundPosition = `${i0 % FRAMES/(FRAMES-1)*100}% 0`;
-  spin2.style.backgroundPosition = `${(i0 + 1) % FRAMES/(FRAMES-1)*100}% 0`;
-  spin2.style.opacity = t;
-}
+/* the cup is a still photo now: no turning */
+function setFrame(){ frame = 0; }
 function fillDetail(i){
   cur = i; const d = DRINKS[i];
   detail.dataset.id = d.id;
   $('#dTitle').textContent = d.name;
-  spin.style.backgroundImage = spin2.style.backgroundImage = `url(${d.id}-spin.webp)`;
+  spin.style.backgroundImage = `url(${d.id}.webp)`; spin.setAttribute('aria-label', d.name);
   sizeSpin();
   setFrame(0);
   qty = 1; Object.keys(opts).forEach(k => opts[k] = 0);
-  $$('.opt').forEach(g => { $$('.chip', g).forEach(c => c.classList.toggle('on', c.dataset.v === '0')); const v = $('.val', g); if (v && g.dataset.k !== 'upsize') { v.textContent = '50'; v.dataset.v = '50'; } });
+  $$('.opt').forEach(g => { $$('.chip', g).forEach(c => c.classList.toggle('on', c.dataset.v === '0')); if (g.dataset.k !== 'upsize') g.hidden = !d[g.dataset.k]; });
   $('#qty').innerHTML = `<span>${pad(qty)}</span>`;
   $('#dPrice').textContent = fmt(unit()*qty);
   resetKnob(true);
@@ -958,10 +956,6 @@ $$('.opt').forEach(g => {
     const c = e.target.closest('.chip'); if (!c) return;
     const wasOn = c.classList.contains('on');
     c.animate([{transform:'scale(.8)'},{transform:'scale(1)'}], {duration:T(380), easing:'cubic-bezier(.34,1.56,.64,1)'});
-    if (c.classList.contains('val') && wasOn && k !== 'upsize') {
-      const seq = [30,50,70,100], n = seq[(seq.indexOf(+c.dataset.v)+1) % seq.length];
-      c.dataset.v = n; c.textContent = n;
-    }
     $$('.chip', g).forEach(x => x.classList.toggle('on', x === c));
     opts[k] = +c.dataset.v;
     updatePrice();
@@ -997,26 +991,10 @@ function holdStep(btn, d){
 }
 holdStep($('#minus'), -1); holdStep($('#plus'), 1);
 
-/* drag-to-rotate cup */
-let sd = null, spinAnim = 0;
-spin.addEventListener('pointerdown', e => { cancelAnimationFrame(spinAnim); sd = {x:e.clientX, f:frame, lx:e.clientX, v:0}; spin.setPointerCapture(e.pointerId); spin.style.cursor='grabbing'; });
-spin.addEventListener('pointermove', e => { if (!sd) return; sd.v = (e.clientX - sd.lx)/S; sd.lx = e.clientX; setFrame(sd.f + (e.clientX - sd.x)/S/9); });
-const spinEnd = () => { if (!sd) return; let v = sd.v/9; sd = null; spin.style.cursor='';
-  const coast = () => { v *= 0.93; setFrame(frame + v); if (Math.abs(v) > 0.02) spinAnim = requestAnimationFrame(coast); }; spinAnim = requestAnimationFrame(coast); };
-spin.addEventListener('pointerup', spinEnd); spin.addEventListener('pointercancel', spinEnd);
-/* after the intro spin the cup keeps turning slowly, left to right, until it is touched */
-function autoSpin(){
-  if (RM) return; cancelAnimationFrame(spinAnim);
-  let last = performance.now();
-  const go = now => { setFrame(frame + 2*(now - last)/1000); last = now; spinAnim = requestAnimationFrame(go); };
-  spinAnim = requestAnimationFrame(go);
-}
-function spinOnce(ms){
-  if (RM) return Promise.resolve();
-  return new Promise(res => { const t0 = performance.now(), f0 = frame;
-    const go = now => { const k = Math.min(1, (now-t0)/ms), e = 1 - Math.pow(1-k, 3); setFrame(f0 + e*FRAMES); if (k < 1) spinAnim = requestAnimationFrame(go); else { setFrame(0); res(); } };
-    spinAnim = requestAnimationFrame(go); });
-}
+/* the cup photo is still; these stay as no-ops for the open/close transitions */
+let spinAnim = 0;
+function autoSpin(){}
+function spinOnce(){ return Promise.resolve(); }
 
 /* ---------- transitions ---------- */
 let busy = false;
@@ -1204,7 +1182,7 @@ async function completeAdd(){
   /* the cup (current angle) flies into the cart */
   const r = rectOf(spin), c = rectOf($('#dCart'));
   const ghost = document.createElement('div'); ghost.className = 'fly';
-  Object.assign(ghost.style, {width:r.width+'px', height:r.height+'px', backgroundImage:spin.style.backgroundImage, backgroundSize:'2400% 100%', backgroundPosition:spin.style.backgroundPosition, filter:`drop-shadow(0 0 12px ${GLOW[DRINKS[cur].id]})`});
+  Object.assign(ghost.style, {width:r.width+'px', height:r.height+'px', backgroundImage:spin.style.backgroundImage, backgroundSize:'contain', backgroundRepeat:'no-repeat', backgroundPosition:'center', filter:`drop-shadow(0 0 12px ${GLOW[DRINKS[cur].id]})`});
   fx.appendChild(ghost);
   const s = 34*S/r.height;
   const ex = c.left + c.width/2 - r.width*s/2, ey = c.top + c.height/2 - r.height*s/2;
@@ -1217,7 +1195,6 @@ async function completeAdd(){
   await a.finished; ghost.remove();
 
   addToCart(DRINKS[cur].id, qty, unit(), {...opts}); lastOrder = cur;
-  if (!lastPlacedOrder()) $('#orderTxt').textContent = `${pad(qty)} x ${DRINKS[cur].name}`;
   syncBadges(true);
   $('#dCart').animate([{transform:'scale(1)'},{transform:'scale(1.22)'},{transform:'scale(.95)'},{transform:'scale(1)'}], {duration:T(480), easing:'ease-out'});
   toast(`Đã thêm ${pad(qty)} ${DRINKS[cur].name} · ${fmt(unit()*qty)}`);
@@ -1250,9 +1227,11 @@ aName.addEventListener('blur', () => { aName.value = aName.value.trim() || 'Bạ
 /* ---------- cart sheet ---------- */
 const cartItems = [];   /* {id, qty, unit} */
 const cartEl = $('#cart'), clist = $('#clist');
-const optText = o => `${o.upsize ? 'XL' : 'L'} / ${o.sweet || 100} ngọt / ${o.cafe || 100} đá`;
+/* Đen is always unsweetened; only Bạc lets you pick the coffee amount */
+const sweetText = (o, d) => d.sweet ? `${o.sweet || 100}% ngọt` : 'Không đường';
+const optText = (o, id) => { const d = drink(id); return [o.upsize ? 'XL' : 'L', sweetText(o, d), ...(d.cafe ? [`${o.cafe || 100}% cafe`] : [])].join(' / '); };
 function addToCart(id, q, u, o = {upsize:0, sweet:0, cafe:0}){
-  const it = cartItems.find(x => x.id === id && x.unit === u && optText(x.o) === optText(o));
+  const it = cartItems.find(x => x.id === id && x.unit === u && optText(x.o, id) === optText(o, id));
   if (it) it.qty = Math.min(99, it.qty + q); else cartItems.push({id, qty:q, unit:u, o:{...o}});
   cart = cartItems.reduce((n, x) => n + x.qty, 0);
   renderCart();
@@ -1260,12 +1239,11 @@ function addToCart(id, q, u, o = {upsize:0, sweet:0, cafe:0}){
 function cartTotal(){ return cartItems.reduce((n, x) => n + x.qty*x.unit, 0); }
 /* edit a cart line: size, sweetness, ice and quantity; an edit that matches another line merges into it */
 const eSheet = $('#eSheet'), E = {i:-1, o:null, qty:1};
-const lineUnit = (id, o) => drink(id).price + (o.upsize ? 5000 : 0);
+const lineUnit = (id, o) => drink(id).price + (o.upsize ? drink(id).xl : 0);
 function eSync(){
   const it = cartItems[E.i]; if (!it) return;
   $$('.egroup', eSheet).forEach(g => { const k = g.dataset.k, v = k === 'upsize' ? E.o.upsize : (E.o[k] || 100);
     /* like the drink page: the first chip carries any value under 100 */
-    const val = $('.val', g); if (val && v !== 100) { val.dataset.v = v; val.textContent = v; } else if (val) { val.dataset.v = 50; val.textContent = 50; }
     $$('.echips button', g).forEach(b => b.classList.toggle('on', +b.dataset.v === v)); });
   $('.eqty .cqty span', eSheet).textContent = E.qty;
   $('#eSave').textContent = `Cập nhật · ${fmt(lineUnit(it.id, E.o)*E.qty)}`;
@@ -1274,6 +1252,7 @@ function openEdit(i){
   const it = cartItems[i]; if (!it) return; const d = drink(it.id);
   Object.assign(E, {i, o:{...it.o}, qty:it.qty});
   $('.ehead img', eSheet).src = d.id + '.webp'; $('.ename', eSheet).textContent = d.name; $('.eunit', eSheet).textContent = fmt(d.price);
+  $$('.egroup', eSheet).forEach(g => { if (g.dataset.k !== 'upsize') g.hidden = !d[g.dataset.k]; });
   eSync();
   eSheet.onDismiss = null;
   eSheet.getAnimations().forEach(a => a.cancel());
@@ -1286,14 +1265,13 @@ function openEdit(i){
 $$('.egroup', eSheet).forEach(g => g.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   b.animate([{transform:'scale(.9)'},{transform:'scale(1)'}], {duration:T(320), easing:'cubic-bezier(.34,1.56,.64,1)'});
-  if (b.classList.contains('val') && b.classList.contains('on')) { const seq = [30, 50, 70], n = seq[(seq.indexOf(+b.dataset.v) + 1) % seq.length]; b.dataset.v = n; }
   E.o[g.dataset.k] = +b.dataset.v === 100 ? 0 : +b.dataset.v; eSync();
 }));
 $$('.eqty .cpm', eSheet).forEach(b => b.addEventListener('click', () => { E.qty = Math.max(1, Math.min(99, E.qty + +b.dataset.d)); eSync(); }));
 $('#eSave').addEventListener('click', () => {
   const it = cartItems[E.i]; if (!it) return;
   it.o = {...E.o}; it.unit = lineUnit(it.id, it.o); it.qty = E.qty;
-  const twin = cartItems.findIndex((x, k) => k !== E.i && x.id === it.id && x.unit === it.unit && optText(x.o) === optText(it.o));
+  const twin = cartItems.findIndex((x, k) => k !== E.i && x.id === it.id && x.unit === it.unit && optText(x.o, x.id) === optText(it.o, it.id));
   if (twin >= 0) { cartItems[twin].qty = Math.min(99, cartItems[twin].qty + it.qty); cartItems.splice(E.i, 1); }
   cart = cartItems.reduce((n, x) => n + x.qty, 0); syncBadges();
   hideSheet(false, eSheet); renderCart(); toast('Đã cập nhật món');
@@ -1312,7 +1290,7 @@ function renderCart(){
       <div class="cinfo"><span class="cname"></span><button class="copt" aria-label="Chỉnh món"><span></span><svg><use href="#i-caret"/></svg></button><div class="crow">
         <div class="cqty"><button class="cpm" data-d="-1" aria-label="Giảm"><svg><use href="#i-minus"/></svg></button><span>${it.qty}</span><button class="cpm" data-d="1" aria-label="Tăng"><svg><use href="#i-plus"/></svg></button></div>
         <span class="cprice">${fmt(it.qty*it.unit)}</span></div></div>`;
-    $('.cname', row).textContent = d.name; $('.copt span', row).textContent = optText(it.o);
+    $('.cname', row).textContent = d.name; $('.copt span', row).textContent = optText(it.o, it.id);
     $('.copt', row).addEventListener('click', () => openEdit(i));
     $$('.cpm', row).forEach(b => b.addEventListener('click', () => changeItem(i, +b.dataset.d, row)));
     clist.appendChild(row);
@@ -1547,7 +1525,7 @@ const SC = {wait:['#fc0','rgba(255,204,0,.45)'], brew:['#00c0e8','rgba(0,192,232
 function itemRow(x, cls = 'oitem'){
   const d = drink(x.id), r = document.createElement('div'); r.className = cls;
   r.innerHTML = `<div class="oth"><img src="${d.id}.webp" alt="" draggable="false"></div><div class="nm"><b></b><small></small></div><span class="pr">${fmt(x.qty*x.unit)}</span>`;
-  $('b', r).textContent = `${pad(x.qty)} x ${x.name || d.name}`; $('small', r).textContent = optText(x.o);
+  $('b', r).textContent = `${pad(x.qty)} x ${x.name || d.name}`; $('small', r).textContent = optText(x.o, x.id);
   return r;
 }
 function renderOrder(o){
@@ -1734,7 +1712,7 @@ async function placeOrder(paid, claimed = false){
   if (placing || !session) return; placing = true;
   const items = cartItems.map(x => { const d = drink(x.id);
     return {menuId:d.menuId || null, drink:x.id, name:d.menuName || d.name, price:x.unit, cost:d.cost || 0, quantity:x.qty,
-      sweetness:`${x.o.sweet || 100} ngọt`, ice:`${x.o.cafe || 100} đá`, caffeine:x.o.upsize ? 'Size XL' : 'Size L', opts:{...x.o}}; });
+      sweetness:sweetText(x.o, d), ice:`${x.o.cafe || 100}% cafe`, caffeine:x.o.upsize ? 'Size XL' : 'Size L', opts:{...x.o}}; });
   const doc = {customerPhone:session.phone, customerName:session.name, items, note:'', totalAmount:cartTotal(), status:'pending', paid:false, payMethod:payM};
   if (claimed) doc.paymentStatus = 'awaiting';
   try {
