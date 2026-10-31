@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createOrder } from '../db';
 import { Icon, Sym, Page, Btn, Empty, fmt, dmy, hm, timeOf, phoneText, kindOf, XL_EXTRA, orderCode, useUI, errText } from './ui.jsx';
 import { CustomerPicker, NewCustomer, EditCustomerForm } from './Customers.jsx';
+import { DrinkHome, DrinkDetail, drinkOf } from './Drinks.jsx';
 
 const ORDER = ['bac', 'den', 'nau'];
 const METHODS = [['bank', 'Chuyển khoản', 'i-qr'], ['cash', 'Tiền mặt', 'i-cash'], ['debt', 'Ghi nợ nhé!', 'i-debt']];
@@ -38,6 +39,7 @@ export default function OrderTab({ menu, users, orders, onTrack }) {
   const [pay, setPay] = useState('debt');
   const [busy, setBusy] = useState(false);
   const [sheet, setSheet] = useState(-1); // dòng đang chỉnh trong giỏ
+  const homeRef = useRef(null);
 
   const items = menu
     .filter((m) => m.active !== false)
@@ -121,15 +123,6 @@ export default function OrderTab({ menu, users, orders, onTrack }) {
     );
   }
   if (page === 'notif') return <Notifs orders={orders} onBack={() => setPage(null)} onOpen={(id) => { setPage(null); onTrack && onTrack(id); }} />;
-  if (page && page.detail) {
-    return (
-      <Detail
-        m={page.detail} count={count} onClose={() => setPage(null)} onCart={openCart}
-        onAdd={(l) => { addLine(l); setPage(null); toast(`Đã thêm ${qtyText(l.qty)} ${shortOf(l.name)}`, true); }}
-        onBuy={(l) => { addLine(l); setPage('pay'); }}
-      />
-    );
-  }
   if (page === 'pay') {
     return (
       <Page
@@ -180,8 +173,6 @@ export default function OrderTab({ menu, users, orders, onTrack }) {
           <div className="o-cempty">
             <div className="eico"><Sym id="i-bag" size={44} /></div>
             <h3>Giỏ hàng trống</h3>
-            <p>Chờ đợi chi rựa?</p>
-            <Btn className="sm" style={{ width: 'auto' }} onClick={() => setPage(null)}>Làm tí đê!</Btn>
           </div>
         ) : (
           <>
@@ -225,15 +216,19 @@ export default function OrderTab({ menu, users, orders, onTrack }) {
   }
 
   const unread = orders.filter((o) => o.status === 'pending').length;
+  const drinks = items.map(drinkOf);
+  const det = page && page.detail != null ? drinks[page.detail] : null;
   return (
     <>
-      <div className="o-head">
-        <Sym id="i-logo" size={110} />
-        <span className="grow" />
-        <button className="o-bag" onClick={openCart} aria-label="Giỏ hàng"><Sym id="i-bag" size={28} />{count > 0 && <span className="a-badge">{count}</span>}</button>
-        <button className="o-bag" onClick={() => setPage('notif')} aria-label="Thông báo"><Sym id="i-bell" size={28} />{unread > 0 && <span className="a-badge">{unread}</span>}</button>
-      </div>
-      <Carousel items={items} qtyOf={qtyOf} onOpen={(m) => setPage({ detail: m })} onAdd={(m) => { addLine(lineOf(m)); }} />
+      <DrinkHome ref={homeRef} items={drinks} count={count} unread={unread} onCart={openCart} onBell={() => setPage('notif')} onOpen={(i) => setPage({ detail: i })} />
+      {det && (
+        <DrinkDetail
+          key={det.m.id} item={det} index={page.detail} home={homeRef.current} count={count}
+          onClose={() => setPage(null)} onCart={openCart}
+          onAdd={({ o, qty }) => { addLine(lineOf(det.m, o, qty)); toast(`Đã thêm ${qtyText(qty)} ${shortOf(det.m.name)}`, true); }}
+          onBuy={({ o, qty }) => { addLine(lineOf(det.m, o, qty)); setPage('pay'); }}
+        />
+      )}
     </>
   );
 }
@@ -252,34 +247,6 @@ function Opts({ kind, o, set, cls }) {
       {f.sweet && <div className="op" data-k="sweet"><label>Ngọt</label><div>{chip('sweet', 0, 'Ngọt 100%', '100')}{chip('sweet', 50, 'Ngọt 50%', '50')}</div></div>}
       {f.cafe && <div className="op" data-k="cafe"><label>Cafe</label><div>{chip('cafe', 0, 'Cafe 100%', '100')}{chip('cafe', 50, 'Cafe 50%', '50')}</div></div>}
     </>
-  );
-}
-
-// Chi tiết đồ uống: chọn biến thể và số lượng, thêm vào giỏ hoặc thanh toán ngay
-function Detail({ m, count, onClose, onCart, onAdd, onBuy }) {
-  const kind = kindOf(m.name) || 'den';
-  const [o, setO] = useState({ ...O0 });
-  const [qty, setQty] = useState(1);
-  const line = () => lineOf(m, o, qty);
-  const price = (m.price + (o.upsize ? extraOf(m) : 0)) * qty;
-  return (
-    <div className={`a-page d-detail ${kind}`} data-id={kind}>
-      <span className="d-bulge l"><Sym id="i-bulge" size={84} /></span>
-      <span className="d-bulge r"><Sym id="i-bulge" size={84} /></span>
-      <button className="d-circ d-back" onClick={onClose} aria-label="Đóng"><Sym id="i-close" size={28} /></button>
-      <button className="d-circ d-cart" onClick={onCart} aria-label="Giỏ hàng"><Sym id="i-bag" size={28} />{count > 0 && <span className="a-badge">{count}</span>}</button>
-      <h1 className="d-title">{shortOf(m.name)}</h1>
-      <div className="d-opts"><Opts kind={kind} o={o} set={setO} cls="d-chip" /></div>
-      <div className="d-cup">{THUMB[kind] && kindOf(m.name) ? <img src={THUMB[kind]} alt="" draggable="false" /> : <Sym id="i-cup" size={120} />}</div>
-      <button className="d-circ d-pm minus" onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="Giảm"><Sym id="i-minus" size={32} /></button>
-      <button className="d-circ d-pm plus" onClick={() => setQty((q) => Math.min(99, q + 1))} aria-label="Tăng"><Sym id="i-plus" size={32} /></button>
-      <div className="d-qty">{qtyText(qty)}</div>
-      <div className="d-price a-num">{fmt(price)}</div>
-      <div className="d-acts">
-        <button className="d-add" onClick={() => onAdd(line())} aria-label="Thêm vào giỏ hàng"><Sym id="i-bagadd" size={28} /></button>
-        <button className="d-buy" onClick={() => onBuy(line())}>Thanh toán ngay</button>
-      </div>
-    </div>
   );
 }
 
@@ -341,54 +308,5 @@ function Notifs({ orders, onBack, onOpen }) {
       })}
       {list.length === 0 && <Empty icon="bell" title="Chưa có thông báo" text="Trạng thái đơn hàng sẽ được báo ở đây." />}
     </Page>
-  );
-}
-
-function Carousel({ items, qtyOf, onAdd, onOpen }) {
-  const track = useRef(null);
-  const cards = useRef([]);
-
-  const update = useCallback(() => {
-    const el = track.current;
-    if (!el) return;
-    const mid = el.scrollLeft + el.clientWidth / 2;
-    cards.current.forEach((n) => {
-      if (!n) return;
-      const d = Math.min(1, Math.abs(mid - (n.offsetLeft + n.offsetWidth / 2)) / 220);
-      n.style.transform = `scale(${(1.123 - 0.123 * d).toFixed(3)})`;
-      n.style.zIndex = d < 0.5 ? 2 : 1;
-    });
-  }, []);
-
-  useEffect(() => {
-    const el = track.current;
-    if (!el || !items.length) return;
-    const n = cards.current[Math.min(1, items.length - 1)];
-    if (n) el.scrollLeft = n.offsetLeft + n.offsetWidth / 2 - el.clientWidth / 2;
-    update();
-  }, [items.length, update]);
-
-  if (!items.length) return <Empty icon="coffee" title="Chưa có món" text="Thêm món trong Cài đặt › Quản lý menu." />;
-  return (
-    <div className="o-track" ref={track} onScroll={update}>
-      {items.map((m, i) => {
-        const kind = kindOf(m.name);
-        const q = qtyOf(m.id);
-        return (
-          <div key={m.id} className={`o-card ${kind || 'den'}`} ref={(n) => { cards.current[i] = n; }} role="button" tabIndex={0} aria-label={m.name} onClick={() => onOpen(m)} onKeyDown={(e) => e.key === 'Enter' && onOpen(m)}>
-            <div className="surf" />
-            <b className="o-name">{shortOf(m.name)}</b>
-            {kind === 'bac' && <span className="o-rec"><Sym id="i-star" size={12} />RECOMMEND</span>}
-            <span className="o-chips"><span><Sym id="i-snow" size={12} /></span><span><Sym id="i-steam" size={12} /></span></span>
-            {kind ? <span className="o-cup"><img src={`/${kind}.webp`} alt="" draggable="false" /></span> : <span className="o-cup ph"><Sym id="i-cup" size={96} /></span>}
-            <span className="o-price"><b className="a-num">{fmt(m.price)}</b></span>
-            <button className="o-add" onClick={(e) => { e.stopPropagation(); onAdd(m); }} aria-label={`Thêm ${m.name}`}>
-              <Sym id="i-bag" size={18} />
-              {q > 0 && <span className="o-q">{q}</span>}
-            </button>
-          </div>
-        );
-      })}
-    </div>
   );
 }
