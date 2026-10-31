@@ -73,7 +73,7 @@ export default function HistoryTab({ orders, users, loading, onGoOrder, track })
                   <span className={`h-st ${st.cls}`}>{LIST_LABEL[o.status] || st.label}</span>
                 </span>
                 <span className="h-who">
-                  {paid ? <Sym id="i-paid" size={16} /> : <Sym id="i-due" size={16} />}
+                  {paid ? <span className="g"><Sym id="i-verified" size={16} /></span> : <span className="y"><Sym id="i-hourglass" size={16} /></span>}
                   <b className="a-ell">{o.customerName}</b>
                   <small>{whenText(timeOf(o))}</small>
                 </span>
@@ -155,7 +155,8 @@ function OrderDetail({ o, onBack, users }) {
     : [['pending', 'Chờ xác nhận'], ['brewing', 'Đang pha chế'], ['completed', 'Hoàn thành']];
   const cur = cancelled ? 1 : steps.findIndex(([k]) => k === o.status);
   // một màu theo trạng thái hiện tại, giống app khách: vàng chờ, xanh dương pha chế, xanh lá hoàn thành, đỏ đã huỷ
-  const sc = cancelled ? 'var(--err)' : o.status === 'pending' ? 'var(--yellow)' : o.status === 'brewing' ? 'var(--info)' : 'var(--ok)';
+  // màu theo trạng thái và màu vòng sáng nhấp nháy ở bước hiện tại, như app khách
+  const [sc, cg] = cancelled ? ['#ff383c', 'rgba(255,56,60,.45)'] : o.status === 'pending' ? ['#fc0', 'rgba(255,204,0,.45)'] : o.status === 'brewing' ? ['#00c0e8', 'rgba(0,192,232,.45)'] : ['#34c759', 'rgba(52,199,89,.45)'];
   const d = timeOf(o);
 
   let footer = null;
@@ -163,7 +164,7 @@ function OrderDetail({ o, onBack, users }) {
     footer = (
       <div style={{ display: 'flex', gap: 8 }}>
         <Btn kind="danger" onClick={cancel}>Huỷ đơn</Btn>
-        <Btn kind="yellow" onClick={() => run({ status: 'brewing' })}>Xác nhận</Btn>
+        <Btn onClick={() => run({ status: 'brewing' })}>Xác nhận</Btn>
       </div>
     );
   } else if (o.status === 'brewing') {
@@ -171,8 +172,18 @@ function OrderDetail({ o, onBack, users }) {
   }
 
   // thanh tiến trình chạy từ bước đầu tới bước hiện tại, như app khách
-  const [bi, setBi] = useState(0);
-  useEffect(() => { const t = requestAnimationFrame(() => requestAnimationFrame(() => setBi(cur))); return () => cancelAnimationFrame(t); }, [cur]);
+  // thanh chạy từ chấm đầu tới chấm hiện tại (đo theo vị trí chấm, cả khi đơn huỷ)
+  const tlRef = useRef(null);
+  const [bw, setBw] = useState(0);
+  useEffect(() => {
+    const el = tlRef.current;
+    if (!el) return;
+    const t = requestAnimationFrame(() => requestAnimationFrame(() => {
+      const st = el.querySelectorAll('.a-st');
+      if (st[cur]) setBw(st[cur].offsetLeft - st[0].offsetLeft);
+    }));
+    return () => cancelAnimationFrame(t);
+  }, [cur, cancelled]);
   const count = (o.items || []).length;
 
   return (
@@ -185,7 +196,7 @@ function OrderDetail({ o, onBack, users }) {
             <h1 className="a-title">{orderCode(o)}</h1>
             {!cancelled && (
               <button className={`o-pill${paid ? ' on' : ''}`} onClick={togglePaid} aria-label={paid ? 'Bỏ đánh dấu đã thu' : 'Đánh dấu đã thu'}>
-                {paid && <Sym id="i-paid" size={16} />}{paid ? 'Đã thu tiền' : 'Thu tiền'}
+                {paid && <Sym id="i-verified" size={16} />}{paid ? 'Đã thanh toán' : 'Thu tiền'}
               </button>
             )}
           </div>
@@ -194,8 +205,8 @@ function OrderDetail({ o, onBack, users }) {
       )}
     >
       <div className="a-card" data-s style={{ padding: '12px 24px' }}>
-        <div className="a-tl" style={{ '--c': sc, '--i': cancelled ? 1 : bi, ...(cancelled ? { '--tl': '1' } : null) }}>
-          <span className="bar" />
+        <div className="a-tl" ref={tlRef} style={{ '--c': sc, '--cg': cg }}>
+          <span className="bar" style={{ width: bw }} />
           {steps.map(([k, label], i) => (
             <div key={k} className={`a-st ${i <= cur ? 'on' : ''} ${i === cur && o.status !== 'completed' && !cancelled ? 'cur' : ''}`}><i />{label}</div>
           ))}

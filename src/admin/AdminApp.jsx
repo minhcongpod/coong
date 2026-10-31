@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { auth } from '../firebase';
 import { getSetup, watchDevice, unlockDevice, lockDevice, watchOrders, watchMenu, watchUsers, watchTransactions, watchShop } from '../db';
@@ -163,25 +163,39 @@ function Shell({ adminPhone, onLogout }) {
   const [leaving, setLeaving] = useState(null);
   const panes = useRef({});
   const anims = useRef([]);
-  // đổi tab như app khách: tab cũ mờ và lệch đi, tab mới trượt vào, các khối trong tab hiện lần lượt
+  // đổi tab như app khách: tab cũ mờ và lệch đi, tab mới trượt vào, các khối trong tab hiện lần lượt.
+  // Hiệu ứng chạy trong useLayoutEffect (trước khi vẽ) để không lộ một khung hình nào ở trạng thái cuối.
+  const move = useRef(null);
   const setTab = (k) => {
     if (k === tab) return;
     const keys = NAV.map((n) => n[0]);
-    const dir = keys.indexOf(k) > keys.indexOf(tab) ? 1 : -1;
-    const from = panes.current[tab], to = panes.current[k];
-    anims.current.forEach((a) => a.cancel());
+    move.current = { from: tab, to: k, dir: keys.indexOf(k) > keys.indexOf(tab) ? 1 : -1 };
     setLeaving(tab); setTabState(k);
-    requestAnimationFrame(() => {
-      const out = from && from.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `translateX(${-dir * 28}px)` }], { duration: 220, easing: 'ease-in', fill: 'forwards' });
-      const list = [out];
-      if (to) {
-        list.push(to.animate([{ opacity: 0, transform: `translateX(${dir * 28}px)` }, { opacity: 1, transform: 'none' }], { duration: 420, delay: 90, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' }));
-        list.push(...stagger(to, ':scope > .a-title, .h-seg, .h-head, .h-card, .a-body > .a-card, .a-body > button, .a-foot', 140, 50));
-      }
-      anims.current = list.filter(Boolean);
-      if (out) out.finished.catch(() => {}).then(() => { out.cancel(); setLeaving((l) => (l === tab ? null : l)); });
-    });
   };
+  useLayoutEffect(() => {
+    const m = move.current;
+    if (!m || m.to !== tab) return;
+    move.current = null;
+    anims.current.forEach((a) => a.cancel());
+    const from = panes.current[m.from], to = panes.current[m.to];
+    const list = [];
+    const out = from && from.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `translateX(${-m.dir * 28}px)` }], { duration: 220, easing: 'ease-in', fill: 'forwards' });
+    if (out) list.push(out);
+    if (to) {
+      list.push(to.animate([{ opacity: 0, transform: `translateX(${m.dir * 28}px)` }, { opacity: 1, transform: 'none' }], { duration: 420, delay: 90, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' }));
+      list.push(...stagger(to, ':scope > .a-title, .h-seg, .h-head, .h-card, .a-body > .a-card, .a-body > button, .a-foot', 140, 50));
+    }
+    anims.current = list;
+    // tab cũ ẩn đi khi đã mờ hẳn; giữ fill forwards tới lúc ẩn để không chớp lại
+    if (out) out.finished.then(() => setLeaving((l) => (l === m.from ? null : l))).catch(() => {});
+  }, [tab]);
+  useLayoutEffect(() => {
+    // khi tab cũ đã ẩn thì bỏ hiệu ứng mờ của nó (lần sau hiện lại bình thường)
+    Object.entries(panes.current).forEach(([k, el]) => {
+      if (el && k !== tab && k !== leaving) el.getAnimations().forEach((a) => { if (a.effect && a.effect.target === el) a.cancel(); });
+    });
+  }, [leaving, tab]);
+
   const [menu, setMenu] = useState([]);
   const [orders, setOrders] = useState(null);
   const [users, setUsers] = useState({});
