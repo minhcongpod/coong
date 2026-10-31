@@ -32,7 +32,7 @@ const N_SIDE = 135 + 10 + 135 * (1 - 0.12); // 270px thẻ, 10px khe, thẻ bên
 const SIDE_SHRINK = 0.12;
 
 // ---------------- Trang chủ: 3 thẻ, kéo ngang, 3 chấm ----------------
-export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, onCart, onBell, onOpen }, ref) {
+export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, onCart, onBell, onOpen, sold }, ref) {
   const N = items.length;
   const openRef = useRef(onOpen); openRef.current = onOpen;
   const carRef = useRef(null), dotsRef = useRef(null), cards = useRef([]);
@@ -167,7 +167,7 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
           {items.map((it, i) => {
             const d = it.meta, k = it.id;
             return (
-              <div key={it.m.id} className="card" data-id={k} data-i={i} role="button" aria-label={`Xem ${d.name}`} ref={(n) => { cards.current[i] = n; }}>
+              <div key={it.m.id} className={`card${sold ? ' sold' : ''}`} data-id={k} data-i={i} role="button" aria-label={`Xem ${d.name}`} ref={(n) => { cards.current[i] = n; }}>
                 <svg className="surf" viewBox="0 0 270 360" aria-hidden="true">
                   <defs>
                     <linearGradient id={`g-${k}-${i}`} x1="0" y1="0" x2="0" y2="1">{d.stops.map(([o, c]) => <stop key={o} offset={o} stopColor={c} />)}</linearGradient>
@@ -185,7 +185,7 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
                     : <h3>{it.known ? d.name : it.m.name}</h3>}
                   <div className="ico"><span className="circ"><Sym id="i-snow" size={16} /></span><span className="circ"><Sym id="i-steam" size={16} /></span></div>
                 </div>
-                <div className="pricebar"><i className="glint" /><b>{fmt(it.m.price)}</b><span><Sym id="i-cardadd" size={28} /></span></div>
+                <div className="pricebar"><i className="glint" /><b>{sold ? 'Hết hàng' : fmt(it.m.price)}</b><span><Sym id="i-cardadd" size={28} /></span></div>
               </div>
             );
           })}
