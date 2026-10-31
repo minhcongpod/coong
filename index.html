@@ -700,20 +700,13 @@ input{user-select:text;-webkit-user-select:text}
       <div class="afoot"><button type="submit" class="btn" data-s>Let’s go</button><p class="aswitch" data-s>Sai sai? <button type="button" class="alink" data-to="phone">Đăng nhập</button></p></div>
     </form>
     <form class="abs aform off" data-m="forgot" novalidate>
-      <div class="ahead"><h2 class="atitle" data-s>Quên mã PIN?</h2><p class="asub" data-s>Đăng nhập lại để đổi mã PIN mới</p></div>
+      <div class="ahead"><h2 class="atitle" data-s>Quên mã PIN?</h2><p class="asub" data-s>Nhập số điện thoại và tên đặt hàng đã đăng ký là có mã PIN mới liền!</p></div>
       <div class="fields">
         <label class="field" data-s><input name="phone" type="tel" inputmode="numeric" placeholder="Số điện thoại" autocomplete="tel" maxlength="13" aria-label="Số điện thoại"></label>
+        <label class="field" data-s><input name="name" placeholder="Tên đặt hàng" autocomplete="nickname" maxlength="16" aria-label="Tên đặt hàng"></label>
         <p class="aerr" aria-live="polite"></p>
       </div>
       <div class="afoot"><button type="submit" class="btn" data-s>Đặt lại</button><p class="aswitch" data-s>Nhớ ra rồi? <button type="button" class="alink" data-to="phone">Đăng nhập</button></p></div>
-    </form>
-    <form class="abs aform off" data-m="otp" novalidate>
-      <div class="ahead"><h2 class="atitle" data-s>Xác minh số</h2><p class="asub" data-s id="oSub">Nhập mã 4 số Coong vừa gửi qua SMS.</p></div>
-      <div class="fields">
-        <div class="otp" data-s><label class="field"><input inputmode="numeric" maxlength="1" aria-label="Số 1"></label><label class="field"><input inputmode="numeric" maxlength="1" aria-label="Số 2"></label><label class="field"><input inputmode="numeric" maxlength="1" aria-label="Số 3"></label><label class="field"><input inputmode="numeric" maxlength="1" aria-label="Số 4"></label></div>
-        <p class="aerr" aria-live="polite"></p>
-      </div>
-      <div class="afoot"><button type="submit" class="btn" data-s>Xác nhận</button><p class="aswitch" data-s>Chưa nhận được? <button type="button" class="alink" id="fResend">Gửi lại mã</button></p></div>
     </form>
   </div>
 </div>
@@ -1781,17 +1774,17 @@ $('#sTrack').addEventListener('click', () => { dropFlow(); if (tab !== 1) showTa
 /* empty cart → go pick a drink */
 $('#cGo').addEventListener('click', () => { closeCart(); if (detail.style.visibility !== 'visible' && tab !== 0) showTab(0); });
 
-/* ---------- sign in: phone → returning customer (PIN) or new customer (name + PIN); forgot PIN: phone → SMS code → new PIN ---------- */
+/* ---------- sign in: phone → returning customer (PIN) or new customer (name + PIN); forgot PIN: phone + order name → new PIN ---------- */
 const authEl = $('#auth'), forms = $$('.aform', authEl);
 const formOf = m => forms.find(f => f.dataset.m === m);
 let step = 'phone';
-const A = {phone:'', name:'', mode:'enter', first:''};
+const A = {phone:'', name:'', mode:'enter', first:'', viaReset:false};
 let session = null, stopOrders = null, stopMenu = null;
 function setName(n){ $('#helloName').textContent = n; aName.value = n; savedName = n; }
 const prettyPhone = p => p.replace(/^(\d{4})(\d{3})(\d+)$/, '$1 $2 $3');
 const digits = v => v.replace(/\D/g, '');
 const tail = p => '••• ' + p.slice(-3);
-const pinIn = $$('.pinbox input', authEl), otp = $$('.otp:not(.pinbox) input', authEl);
+const pinIn = $$('.pinbox input', authEl);
 function clearErr(){ forms.forEach(f => { $$('.err', f).forEach(x => x.classList.remove('err')); $('.aerr', f).textContent = ''; }); }
 function go(m, anim = true){
   const from = formOf(step), to = formOf(m); step = m;
@@ -1800,7 +1793,6 @@ function go(m, anim = true){
   ['.alogo', '.acups', '.afade'].forEach(s => $(s, authEl).style.opacity = home ? 1 : 0);
   clearErr();
   if (m === 'pin') pinView();
-  if (m === 'otp') { otp.forEach(i => i.value = ''); $('#oSub').textContent = `Nhập mã 4 số Coong vừa gửi qua SMS tới ${tail(A.phone)}.`; }
   if (m === 'forgot' && A.phone) formOf('forgot').elements.phone.value = A.phone;
   const focus = () => { const i = $('input', to); if (i && m !== 'phone') i.focus({preventScroll:true}); };
   if (from === to || !anim) { forms.forEach(f => f.classList.toggle('off', f !== to)); return; }
@@ -1812,14 +1804,13 @@ function go(m, anim = true){
 }
 function openAuth(m = 'phone'){
   forms.forEach(f => f.reset());
-  Object.assign(A, {phone:'', name:'', mode:'enter', first:''});
+  Object.assign(A, {phone:'', name:'', mode:'enter', first:'', viaReset:false});
   if (m === 'reset') { A.phone = session.phone; A.name = session.name; A.mode = 'reset'; m = 'pin'; }
   go(m, false); showPage(authEl);
 }
 authEl.goBack = () => {
   if (step === 'pin' && A.mode === 'reset2') { A.mode = 'reset'; return pinView(); }
-  if (step === 'pin' && A.mode === 'reset') return session ? hidePage(authEl) : go('phone');
-  if (step === 'otp') return go('forgot');
+  if (step === 'pin' && A.mode === 'reset') return A.viaReset ? go(A.viaReset === 'shop' ? 'wait' : 'forgot') : session ? hidePage(authEl) : go('phone');
   go('phone');
 };
 $$('[data-to]', authEl).forEach(b => b.addEventListener('click', () => go(b.dataset.to)));
@@ -1846,10 +1837,22 @@ formOf('phone').addEventListener('submit', async e => {
   A.phone = p;
   if (acc) { A.name = acc.name; A.mode = 'enter'; go('pin'); } else go('reg');
 });
-/* there is no SMS: the shop resets a forgotten PIN */
-const forgotPin = () => ask({title:'Quên mã PIN?', text:'Nhắn hoặc gọi quán để được đặt lại mã PIN, rồi đăng nhập bằng mã mới.', ok:'Đã hiểu', cancel:'Đóng'});
-$('#aForgot').addEventListener('click', forgotPin);
-$('#pForgot').addEventListener('click', forgotPin);
+/* forgot PIN: there is no SMS, so the customer proves the number with the order name they registered */
+$('#aForgot').addEventListener('click', () => go('forgot'));
+$('#pForgot').addEventListener('click', () => go('forgot'));
+const sameName = (a, b) => a.trim().toLowerCase() === b.trim().toLowerCase();
+formOf('forgot').addEventListener('submit', async e => {
+  e.preventDefault(); const f = e.target, p = readPhone(f); if (!p) return;
+  const n = f.elements.name, v = n.value.trim();
+  if (!v) return bad(f, [n], 'Nhập tên đặt hàng bạn đã đăng ký nhé.');
+  const b = $('[type=submit]', f), t = b.textContent; b.textContent = 'Đang kiểm tra…'; b.disabled = true;
+  let acc;
+  try { acc = await (await api()).lookup(p); } catch (err) { b.textContent = t; b.disabled = false; return bad(f, [f.elements.phone], 'Chưa kết nối được, thử lại nhé.'); }
+  b.textContent = t; b.disabled = false;
+  if (!acc) return bad(f, [f.elements.phone], 'Số này chưa đăng ký, kiểm tra lại giúp mình nhé.');
+  if (!sameName(acc.name, v)) return bad(f, [n], 'Tên chưa khớp với số này, thử lại nhé.');
+  Object.assign(A, {phone:p, name:acc.name, typedName:v, mode:'reset', viaReset:true}); go('pin');
+});
 /* new customer: order name + PIN on one screen */
 $('#rPeek').addEventListener('click', e => { const i = formOf('reg').elements.pin, show = i.type === 'password'; i.type = show ? 'text' : 'password'; e.target.textContent = show ? 'Ẩn' : 'Hiện'; });
 formOf('reg').elements.pin.addEventListener('input', e => e.target.value = digits(e.target.value).slice(0, 4));
@@ -1884,7 +1887,6 @@ function boxes(list, onFull){
   });
 }
 boxes(pinIn, () => formOf('pin').requestSubmit());
-boxes(otp);
 function pinErr(msg){ const f = formOf('pin'); bad(f, pinIn, msg); pinIn.forEach(i => i.value = ''); pinIn[0].focus(); }
 let checking = false;
 formOf('pin').addEventListener('submit', async e => {
@@ -1902,6 +1904,14 @@ formOf('pin').addEventListener('submit', async e => {
   if (A.mode === 'reset') { A.first = p; A.mode = 'reset2'; pinView(); return stagger(formOf('pin'), 0); }
   if (p !== A.first) { A.mode = 'reset'; pinView(); return pinErr('Hai lần nhập chưa khớp, chọn lại nhé.'); }
   checking = true;
+  if (A.viaReset) {
+    let ok;
+    try { ok = await (await api()).resetPin(A.phone, A.typedName, p); } catch (err) { checking = false; return pinErr('Chưa đổi được mã PIN, thử lại nhé.'); }
+    checking = false;
+    if (!ok) { A.mode = 'enter'; A.viaReset = false; go('forgot'); return bad(formOf('forgot'), [formOf('forgot').elements.name], 'Tên chưa khớp với số này, thử lại nhé.'); }
+    A.viaReset = false;
+    finish(false); return toast('Đã đổi mã PIN');
+  }
   try { await (await api()).setPin(A.phone, p); } catch (err) { checking = false; return pinErr('Chưa đổi được mã PIN, thử lại nhé.'); }
   checking = false;
   /* the device stays signed in with the old PIN; sign it in again with the new one */
