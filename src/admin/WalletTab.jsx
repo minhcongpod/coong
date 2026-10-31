@@ -2,11 +2,11 @@ import React, { useState, useMemo } from 'react';
 import { addDoc, collection } from 'firebase/firestore';
 import { db } from '../firebase';
 import { updateOrder, deleteTransaction } from '../db';
-import { Icon, Page, Btn, Seg, Chip, Empty, fmt, dayLabel, timeOf, isLive, useUI, errText } from './ui.jsx';
+import { Icon, Sym, Page, Btn, Seg, Chip, Empty, fmt, dayLabel, timeOf, isLive, useUI, errText } from './ui.jsx';
+import { CustomerPicker } from './Customers.jsx';
 
 const PERIODS = [['day', 'Ngày'], ['month', 'Tháng'], ['year', 'Năm']];
-const EXPENSE_CATS = ['Cafe', 'Sữa', 'Bao bì', 'Khác'];
-const INCOME_CATS = ['Tiền mặt', 'Chuyển khoản', 'Khác'];
+const EXPENSE_CATS = ['Cafe', 'Sữa tươi', 'Sữa đặc', 'Cốc', 'Nắp', 'Ống hút', 'Rút tiền', 'Khác'];
 
 const range = (kind, a) => {
   if (kind === 'day') return [new Date(a.getFullYear(), a.getMonth(), a.getDate()), new Date(a.getFullYear(), a.getMonth(), a.getDate() + 1)];
@@ -22,7 +22,7 @@ const extraIncome = (t) => t.type === 'income' && !t.customerPhone;
 const qtyText = (n) => String(n).padStart(2, '0');
 
 // Tab Thống kê: số đơn, doanh thu, chi tiêu, đơn chưa thanh toán, thu chi
-export default function WalletTab({ orders, txs }) {
+export default function WalletTab({ orders, txs, users }) {
   const [kind, setKind] = useState('day');
   const [filter, setFilter] = useState('all');
   const [page, setPage] = useState(null); // unpaid | { add }
@@ -34,7 +34,7 @@ export default function WalletTab({ orders, txs }) {
     const paid = live.filter((o) => o.paid).reduce((n, o) => n + (o.totalAmount || 0), 0);
     const inc = txs.filter((t) => extraIncome(t) && within(t, r)).reduce((n, t) => n + (t.amount || 0), 0);
     const exp = txs.filter((t) => t.type === 'expense' && within(t, r)).reduce((n, t) => n + (t.amount || 0), 0);
-    return { orders: live.length, revenue: paid + inc, expense: exp };
+    return { orders: live.length, revenue: paid + inc, expense: exp, profit: paid + inc - exp };
   }, [orders, txs, kind]);
 
   const unpaid = orders.filter((o) => isLive(o) && !o.paid);
@@ -46,25 +46,40 @@ export default function WalletTab({ orders, txs }) {
   };
 
   if (page === 'unpaid') return <Unpaid orders={unpaid} onBack={() => setPage(null)} />;
-  if (page && page.add) return <AddTx onBack={() => setPage(null)} initial={page.add} />;
+  if (page && page.add) return <AddTx onBack={() => setPage(null)} initial={page.add} users={users || {}} />;
 
+  const debt = unpaid.reduce((n, o) => n + (o.totalAmount || 0), 0);
   return (
     <>
-      <h1 className="a-title">Thống kê</h1>
+      <div className="w-head">
+        <h1 className="a-title">Ví tiền</h1>
+        <button className="w-plus" onClick={() => setPage({ add: 'expense' })} aria-label="Thêm khoản thu chi"><Icon n="plus" size={24} /></button>
+      </div>
       <div className="a-body">
-        <Seg items={PERIODS} value={kind} onChange={setKind} />
-        <div className="w-grid">
-          <div className="a-card w-stat"><span className="a-s">Số đơn</span><b className="a-h2">{stats.orders}</b></div>
-          <div className="a-card w-stat"><span className="a-s">Doanh thu</span><b className="a-h2 g">{fmt(stats.revenue)}</b></div>
-          <button className="a-card w-stat" onClick={() => setPage('unpaid')} aria-label="Xem đơn chưa thanh toán">
-            <span className="a-s">Chưa thanh toán</span>
-            <b className="a-h2 y a-ic" style={{ gap: 4 }}>{unpaid.length} đơn<Icon n="right" size={20} /></b>
-          </button>
-          <div className="a-card w-stat"><span className="a-s">Chi tiêu</span><b className="a-h2 r">{fmt(stats.expense)}</b></div>
+        <div className="a-card w-stats">
+          <div className="a-between" style={{ alignItems: 'flex-start' }}>
+            <span>
+              <span className="a-s" style={{ display: 'block' }}>{stats.orders} đơn</span>
+              <b className="w-rev">{fmt(stats.revenue)}</b>
+            </span>
+            <label className="w-per">
+              <select value={kind} onChange={(e) => setKind(e.target.value)} aria-label="Khoảng thời gian">
+                {PERIODS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+              </select>
+              <Icon n="down" size={16} />
+            </label>
+          </div>
+          <div className="w-two">
+            <span><span className="a-s" style={{ display: 'block' }}>Chi tiêu</span><b className="w-val r">{fmt(stats.expense)}</b></span>
+            <span><span className="a-s" style={{ display: 'block' }}>Lợi nhuận</span><b className={`w-val ${stats.profit < 0 ? 'r' : 'g'}`}>{stats.profit < 0 ? '−' : ''}{fmt(Math.abs(stats.profit))}</b></span>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <Btn kind="ok" icon="inn" className="sm" onClick={() => setPage({ add: 'income' })}>Thu</Btn>
-          <Btn kind="danger" icon="out" className="sm" onClick={() => setPage({ add: 'expense' })}>Chi</Btn>
+        <div className="a-card w-unpaid">
+          <span>
+            <span className="a-ic" style={{ gap: 8 }}><Icon n="hourglass" size={16} /><b className="w-rev y">{fmt(debt)}</b></span>
+            <span className="a-s" style={{ display: 'block' }}>{unpaid.length} đơn chưa thanh toán</span>
+          </span>
+          <button className="w-view" onClick={() => setPage('unpaid')} aria-label="Xem đơn chưa thanh toán">Xem</button>
         </div>
         <Seg items={[['all', 'Tất cả'], ['income', 'Thu'], ['expense', 'Chi']]} value={filter} onChange={setFilter} />
         {list.map((t) => {
@@ -114,22 +129,23 @@ function Unpaid({ orders, onBack }) {
   return (
     <Page title="Chưa thanh toán" sub={groups.length ? `${orders.length} đơn · ${fmt(total)} · ${groups.length} khách` : undefined} onBack={onBack}>
       {groups.map((g) => (
-        <div key={g.phone} className="a-card">
+        <div key={g.phone} className="a-card w-debt">
           <div className="a-between">
             <span>
-              <b className="a-t" style={{ display: 'block' }}>{g.name}</b>
-              <b className="a-h2 y" style={{ display: 'block' }}>{fmt(g.total)}</b>
+              <span className="a-t" style={{ display: 'block', fontSize: 14 }}>{g.name}</span>
+              <b className="y a-num" style={{ display: 'block', fontSize: 18, lineHeight: '23px' }}>{fmt(g.total)}</b>
             </span>
-            <button className="o-pill" onClick={() => collect(g)} aria-label={`Đã thu của ${g.name}`}>Đã thu</button>
+            <button className="w-pay" onClick={() => collect(g)} aria-label={`Đã thu của ${g.name}`}><Sym id="i-bag" size={22} /></button>
           </div>
+          <div className="w-rule" />
           {g.orders.map((o) => {
             const d = timeOf(o);
             return (
-              <div key={o.id} className="a-between">
-                <span className="a-s a-ell">
-                  {qtyText((o.items || []).reduce((n, x) => n + (x.quantity || 1), 0))} x {[...new Set((o.items || []).map((x) => x.name))].join(', ')}{d ? ` · ${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}` : ''}
+              <div key={o.id} className="a-between" style={{ fontSize: 14, fontWeight: 500 }}>
+                <span className="a-ell" style={{ color: 'var(--mute)' }}>
+                  {d ? `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')} · ` : ''}{(o.items || []).map((x) => `${x.quantity || 1} ${x.name}`).join(' / ')}
                 </span>
-                <b className="a-s a-num" style={{ color: '#fff', flex: 'none' }}>{fmt(o.totalAmount)}</b>
+                <span className="a-num" style={{ flex: 'none' }}>{fmt(o.totalAmount)}</span>
               </div>
             );
           })}
@@ -140,22 +156,29 @@ function Unpaid({ orders, onBack }) {
   );
 }
 
-function AddTx({ onBack, initial = 'expense' }) {
+function AddTx({ onBack, initial = 'expense', users }) {
   const { toast } = useUI();
   const [type, setType] = useState(initial);
   const [amount, setAmount] = useState('');
-  const [cat, setCat] = useState(initial === 'income' ? INCOME_CATS[0] : EXPENSE_CATS[0]);
+  const [cat, setCat] = useState(EXPENSE_CATS[0]);
+  const [customer, setCustomer] = useState(null);
+  const [pick, setPick] = useState(false);
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
-  const cats = type === 'income' ? INCOME_CATS : EXPENSE_CATS;
+
+  if (pick) {
+    return <CustomerPicker users={users} selected={customer} onBack={() => setPick(false)} onPick={(u) => { setCustomer(u); setPick(false); }} />;
+  }
 
   const save = async () => {
     const n = Number(amount);
     if (!(n > 0)) return toast('Nhập số tiền');
     setBusy(true);
+    const label = type === 'income' ? (customer ? 'Thu nợ' : 'Khoản thu') : cat;
+    const text = [type === 'income' && customer ? customer.name : '', note.trim()].filter(Boolean).join(' · ');
     try {
       await addDoc(collection(db, 'transactions'), {
-        type, amount: n, description: `[${cat}] ${note.trim()}`.trim(), createdAt: new Date().toISOString(),
+        type, amount: n, description: `[${label}] ${text}`.trim(), createdAt: new Date().toISOString(),
       });
       toast(type === 'income' ? 'Đã ghi khoản thu' : 'Đã ghi khoản chi', true);
       onBack();
@@ -163,22 +186,27 @@ function AddTx({ onBack, initial = 'expense' }) {
   };
 
   return (
-    <Page title="Thêm khoản" onBack={onBack} footer={<Btn onClick={save} disabled={busy}>{type === 'income' ? 'Lưu khoản thu' : 'Lưu khoản chi'}</Btn>}>
-      <Seg items={[['income', 'Thu'], ['expense', 'Chi']]} value={type} onChange={(k) => { setType(k); setCat(k === 'income' ? INCOME_CATS[0] : EXPENSE_CATS[0]); }} />
-      <label className="a-card" style={{ gap: 0 }}>
-        <span className="a-s">Số tiền</span>
-        <span className="a-ic" style={{ gap: 8, alignItems: 'flex-end' }}>
-          <input
-            className="a-big w-amount" inputMode="numeric" placeholder="0" aria-label="Số tiền" value={amount ? fmt(Number(amount)) : ''}
-            onChange={(e) => setAmount(e.target.value.replace(/\D/g, '').slice(0, 10))}
-          />
-          <span className="a-h2 m" style={{ paddingBottom: 6 }}>đ</span>
-        </span>
+    <Page onBack={onBack} footer={<Btn onClick={save} disabled={busy}>{busy ? 'Đang lưu...' : 'Lưu lại'}</Btn>}>
+      <Seg items={[['income', 'Thu'], ['expense', 'Chi']]} value={type} onChange={setType} />
+      <label className="a-card w-money">
+        <span className="a-s" style={{ fontSize: 16 }}>Số tiền</span>
+        <input
+          className="a-big w-amount" inputMode="numeric" placeholder="0" aria-label="Số tiền" value={amount ? fmt(Number(amount)) : ''}
+          onChange={(e) => setAmount(e.target.value.replace(/\D/g, '').slice(0, 10))}
+        />
       </label>
-      <div className="a-chips">{cats.map((c) => <Chip key={c} on={cat === c} onClick={() => setCat(c)}>{c}</Chip>)}</div>
-      <label className="a-card" style={{ gap: 0 }}>
-        <span className="a-s">Ghi chú</span>
-        <input className="w-note" value={note} onChange={(e) => setNote(e.target.value)} aria-label="Ghi chú" placeholder="Không bắt buộc" />
+      {type === 'expense' ? (
+        <div className="a-chips wrap">{EXPENSE_CATS.map((c) => <Chip key={c} on={cat === c} onClick={() => setCat(c)}>{c}</Chip>)}</div>
+      ) : (
+        <button className="a-card h o-cust" onClick={() => setPick(true)} aria-label="Chọn khách">
+          <span className="m a-t grow">Khách hàng</span>
+          {customer && <b className="a-t">{customer.name}</b>}
+          <span className="m"><Icon n="right" /></span>
+        </button>
+      )}
+      <label className="a-card" style={{ gap: 0, padding: type === 'expense' ? '16px 24px' : '16px 24px' }}>
+        <span className="a-s" style={{ fontSize: 16 }}>Ghi chú</span>
+        <input className="w-note" value={note} onChange={(e) => setNote(e.target.value)} aria-label="Ghi chú" placeholder={type === 'expense' ? 'Mua cà phê hạt, sữa' : 'Không bắt buộc'} />
       </label>
     </Page>
   );

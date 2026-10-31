@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { auth } from '../firebase';
-import { getSetup, watchDevice, unlockDevice, lockDevice, watchOrders, watchMenu, watchUsers, watchTransactions } from '../db';
+import { getSetup, watchDevice, unlockDevice, lockDevice, watchOrders, watchMenu, watchUsers, watchTransactions, watchShop } from '../db';
 import './admin.css';
 import { Sym, UIProvider, useUI, errText } from './ui.jsx';
 import OrderTab from './OrderTab.jsx';
@@ -162,7 +162,7 @@ const NavIcon = ({ k }) => {
   );
 };
 
-const NAV = [['order', 'Đặt hàng'], ['history', 'Đơn hàng'], ['wallet', 'Thống kê'], ['settings', 'Cài đặt']];
+const NAV = [['order', 'Đặt hàng'], ['history', 'Đơn hàng'], ['wallet', 'Ví tiền'], ['settings', 'Cài đặt']];
 
 function Shell({ adminPhone, onLogout }) {
   const { toast } = useUI();
@@ -171,6 +171,8 @@ function Shell({ adminPhone, onLogout }) {
   const [orders, setOrders] = useState(null);
   const [users, setUsers] = useState({});
   const [txs, setTxs] = useState([]);
+  const [shop, setShop] = useState({});
+  const [track, setTrack] = useState(null); // { id, n }: mở chi tiết đơn vừa đặt
 
   useEffect(() => {
     const fail = (e) => toast(errText(e));
@@ -179,17 +181,18 @@ function Shell({ adminPhone, onLogout }) {
       watchOrders(null, true, setOrders, fail),
       watchUsers(setUsers, fail),
       watchTransactions(setTxs, fail),
+      watchShop(setShop, fail),
     ];
     return () => subs.forEach((u) => u && u());
   }, [toast]);
 
-  const data = { menu, orders: orders || [], users, txs, loading: orders === null };
+  const data = { shop, menu, orders: orders || [], users, txs, loading: orders === null };
   const pending = data.orders.filter((o) => o.status === 'pending').length;
 
   return (
     <>
-      <div className="a-tab" hidden={tab !== 'order'}><OrderTab {...data} /></div>
-      <div className="a-tab" hidden={tab !== 'history'}><HistoryTab {...data} onGoOrder={() => setTab('order')} /></div>
+      <div className="a-tab" hidden={tab !== 'order'}><OrderTab {...data} onTrack={(id) => { setTrack({ id, n: Date.now() }); setTab('history'); }} /></div>
+      <div className="a-tab" hidden={tab !== 'history'}><HistoryTab {...data} track={track} onGoOrder={() => setTab('order')} /></div>
       <div className="a-tab" hidden={tab !== 'wallet'}><WalletTab {...data} /></div>
       <div className="a-tab" hidden={tab !== 'settings'}><SettingsTab {...data} adminPhone={adminPhone} onLogout={onLogout} /></div>
       <nav className="a-nav" style={{ position: 'absolute', left: 24, right: 24, bottom: 0, margin: '0 0 31px' }}>

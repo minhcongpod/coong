@@ -8,6 +8,7 @@ import { db } from './firebase';
 // users/{phone}       { name, role }               role: 'admin' | 'customer'
 // pins/{phone}        { pin }                      không đọc được từ app, chỉ quy tắc so sánh
 // devices/{uid}       { phone, pin, createdAt }    thiết bị đã mở khóa bằng PIN
+// meta/shop           { soldOut, openAt, closeAt } quán tạm ngưng nhận đơn / giờ mở cửa 'HH:MM'
 // menu/{id}           { name, price, cost, image, active }
 // orders/{id}         { no, customerPhone, customerName, items, note, totalAmount, status, paid, createdAt }
 // counters/orders     { n }                        số đơn gần nhất; đơn mới lấy n + 1, đơn đầu tiên là #1234
@@ -54,6 +55,11 @@ export const unlockDevice = async (uid, phone, pin) => {
 export const lockDevice = (uid) => deleteDoc(doc(db, 'devices', uid));
 
 // --- Lắng nghe dữ liệu realtime ---
+export const watchShop = (cb, onError) =>
+  onSnapshot(doc(db, 'meta', 'shop'), (snap) => cb(snap.exists() ? snap.data() : {}), onError);
+
+export const saveShop = (patch) => setDoc(doc(db, 'meta', 'shop'), patch, { merge: true });
+
 export const watchMenu = (cb, onError) =>
   onSnapshot(collection(db, 'menu'), (snap) => cb(toList(snap).sort((a, b) => a.name.localeCompare(b.name, 'vi'))), onError);
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { saveMenuItem, deleteMenuItem, updateUserName, setPin, deleteCustomer } from '../db';
+import { saveMenuItem, deleteMenuItem, saveShop } from '../db';
 import { Icon, Page, Btn, Toggle, Field, Empty, fmt, phoneText, XL_EXTRA, kindOf, useUI, errText } from './ui.jsx';
-import { customersOf, NewCustomer } from './Customers.jsx';
+import { customersOf, CustomerPicker, NewCustomer, EditCustomerForm } from './Customers.jsx';
 
 // Hàng nhập: nhãn bên trái, giá trị bên phải
 const Row = ({ label, children }) => (
@@ -9,101 +9,64 @@ const Row = ({ label, children }) => (
 );
 
 // Tab Cài đặt: quản lý khách hàng, quản lý menu, đăng xuất
-export default function SettingsTab({ menu, users, onLogout }) {
+export default function SettingsTab({ menu, users, shop = {}, onLogout }) {
   const [page, setPage] = useState(null); // customers | newCustomer | { customer } | menu | { dish }
-  const { confirm } = useUI();
+  const { confirm, toast } = useUI();
   const customers = customersOf(users);
   const back = () => setPage(null);
 
-  if (page === 'customers') return <Customers customers={customers} onBack={back} onNew={() => setPage('newCustomer')} onOpen={(c) => setPage({ customer: c })} />;
+  if (page === 'customers') return <CustomerPicker users={users} onBack={back} onAdd={() => setPage('newCustomer')} onPick={(c) => setPage({ customer: c })} onEdit={(c) => setPage({ customer: c })} />;
   if (page === 'newCustomer') return <NewCustomer users={users} onBack={() => setPage('customers')} onCreated={() => setPage('customers')} />;
-  if (page && page.customer) return <EditCustomer customer={users[page.customer.phone] ? { phone: page.customer.phone, ...users[page.customer.phone] } : page.customer} onBack={() => setPage('customers')} />;
+  if (page && page.customer) return <EditCustomerForm customer={page.customer} onBack={() => setPage('customers')} onSaved={() => setPage('customers')} onDeleted={() => setPage('customers')} />;
+  if (page === 'hours') return <Hours shop={shop} onBack={back} />;
   if (page === 'menu') return <MenuList menu={menu} onBack={back} onNew={() => setPage({ dish: {} })} onOpen={(m) => setPage({ dish: m })} />;
   if (page && page.dish) return <EditDish dish={page.dish} onBack={() => setPage('menu')} />;
 
   const rows = [
     ['user', 'Quản lý khách hàng', `${customers.length} khách`, 'customers'],
     ['coffee', 'Quản lý menu', `${menu.length} món`, 'menu'],
+    ['clock', 'Giờ đóng mở cửa', '', 'hours'],
   ];
+  const flipSold = async (v) => { try { await saveShop({ soldOut: v }); } catch (e) { toast(errText(e)); } };
   return (
     <>
       <h1 className="a-title">Cài đặt</h1>
       <div className="a-body">
+        <div className="a-card h">
+          <span className="a-ibg"><Icon n="coffee" /></span>
+          <b className="a-t grow" style={{ textAlign: 'left' }}>Hết hàng</b>
+          <Toggle on={!!shop.soldOut} onChange={flipSold} label="Tạm ngưng nhận đơn" />
+        </div>
         {rows.map(([i, t, s, k]) => (
           <button key={k} className="a-card h" onClick={() => setPage(k)}>
             <span className="a-ibg"><Icon n={i} /></span>
-            <span className="grow"><b className="a-t" style={{ display: 'block' }}>{t}</b><span className="a-s">{s}</span></span>
+            <b className="a-t grow" style={{ textAlign: 'left' }}>{t}</b>
             <span className="m"><Icon n="right" /></span>
           </button>
         ))}
       </div>
       <div className="a-foot">
-        <Btn kind="danger" icon="logout" className="sm" onClick={async () => (await confirm({ title: 'Đăng xuất?', msg: 'Bạn sẽ cần nhập lại mã PIN để vào.', ok: 'Đăng xuất', danger: true })) && onLogout()}>Đăng xuất</Btn>
+        <Btn kind="danger" icon="logout" onClick={async () => (await confirm({ title: 'Đăng xuất?', msg: 'Bạn sẽ cần nhập lại mã PIN để vào.', ok: 'Đăng xuất', danger: true })) && onLogout()}>Đăng xuất</Btn>
       </div>
     </>
   );
 }
 
-function Customers({ customers, onBack, onNew, onOpen }) {
-  const [q, setQ] = useState('');
-  const k = q.replace(/\s/g, '').toLowerCase();
-  const list = customers.filter((c) => !k || c.name.toLowerCase().includes(k) || c.phone.includes(k));
-  return (
-    <Page title="Khách hàng" sub={`${customers.length} khách`} onBack={onBack} footer={<Btn className="sm" icon="plus" onClick={onNew}>Thêm khách</Btn>}>
-      <Field icon="search" placeholder="Tìm tên hoặc SĐT" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Tìm khách" />
-      {list.map((c) => (
-        <button key={c.phone} className="a-card h" onClick={() => onOpen(c)}>
-          <span className="grow"><b className="a-t a-ell" style={{ display: 'block' }}>{c.name}</b><span className="a-s">{phoneText(c.phone)}</span></span>
-          <span className="m"><Icon n="right" /></span>
-        </button>
-      ))}
-      {list.length === 0 && <Empty icon="user" title="Chưa có khách" text="Bấm Thêm khách để tạo tài khoản." />}
-    </Page>
-  );
-}
-
-function EditCustomer({ customer, onBack }) {
-  const { toast, confirm } = useUI();
-  const [name, setName] = useState(customer.name);
-  const [pin, setPinText] = useState('');
-
-  const save = async () => {
-    if (!name.trim()) return toast('Nhập tên khách');
-    try {
-      if (name.trim() !== customer.name) await updateUserName(customer.phone, name.trim());
-      if (pin) {
-        if (!/^\d{4}$/.test(pin)) return toast('Mã PIN gồm 4 chữ số');
-        await setPin(customer.phone, pin);
-      }
-      toast('Đã lưu', true); onBack();
-    } catch (e) { toast(errText(e)); }
-  };
-  const remove = async () => {
-    if (!(await confirm({ title: `Xoá ${customer.name}?`, msg: 'Đơn cũ vẫn giữ lại trong lịch sử.', ok: 'Xoá khách', danger: true }))) return;
-    try { await deleteCustomer(customer.phone); onBack(); } catch (e) { toast(errText(e)); }
-  };
-  return (
-    <Page
-      title="Sửa khách" sub={customer.name} onBack={onBack}
-      footer={<div style={{ display: 'flex', gap: 8 }}><Btn kind="danger" className="sm" icon="trash" style={{ width: 'auto', flex: 'none' }} onClick={remove}>Xoá khách</Btn><Btn className="sm" onClick={save}>Lưu</Btn></div>}
-    >
-      <Row label="Tên"><input value={name} onChange={(e) => setName(e.target.value)} aria-label="Tên" /></Row>
-      <Row label="Số điện thoại"><input value={phoneText(customer.phone)} disabled aria-label="Số điện thoại" /></Row>
-      <Row label="PIN mới"><input placeholder="Để trống nếu giữ" type="tel" inputMode="numeric" maxLength={4} value={pin} onChange={(e) => setPinText(e.target.value.replace(/\D/g, ''))} aria-label="PIN mới" /></Row>
-    </Page>
-  );
-}
-
 function MenuList({ menu, onBack, onNew, onOpen }) {
+  const { toast } = useUI();
+  const flip = async (m, v) => { try { await saveMenuItem({ id: m.id, active: v }); } catch (e) { toast(errText(e)); } };
   return (
-    <Page title="Menu" sub={`${menu.length} món`} onBack={onBack} footer={<Btn className="sm" icon="plus" onClick={onNew}>Thêm món</Btn>}>
+    <Page title="Menu" onBack={onBack} footer={<Btn icon="plus" onClick={onNew}>Thêm món</Btn>}>
       {menu.map((m) => {
         const on = m.active !== false;
         return (
-          <button key={m.id} className="a-card h" onClick={() => onOpen(m)}>
-            <span className="grow" style={{ opacity: on ? 1 : 0.5 }}><b className="a-t a-ell" style={{ display: 'block' }}>{m.name}</b><span className="a-s a-num">{fmt(m.price)}{on ? '' : ' · Hết hàng'}</span></span>
-            <span className="m"><Icon n="right" /></span>
-          </button>
+          <div key={m.id} className="a-card h">
+            <button className="grow s-dish" style={{ opacity: on ? 1 : 0.5 }} onClick={() => onOpen(m)}>
+              <b className="a-t a-ell">{m.name}</b><span className="a-t a-num">{fmt(m.price)}</span>
+            </button>
+            <Toggle on={on} onChange={(v) => flip(m, v)} label={`${m.name} còn hàng`} />
+            <button className="m" onClick={() => onOpen(m)} aria-label={`Sửa ${m.name}`}><Icon n="right" /></button>
+          </div>
         );
       })}
       {menu.length === 0 && <Empty icon="coffee" title="Chưa có món" text="Bấm Thêm món để tạo món đầu tiên." />}
@@ -136,11 +99,11 @@ function EditDish({ dish, onBack }) {
   };
   return (
     <Page
-      title={isNew ? 'Thêm món' : 'Sửa món'} sub={isNew ? undefined : dish.name} onBack={onBack}
+      title={isNew ? 'Thêm món' : 'Sửa món'} onBack={onBack}
       footer={(
         <div style={{ display: 'flex', gap: 8 }}>
-          {!isNew && <Btn kind="danger" className="sm" icon="trash" style={{ width: 'auto', flex: 'none' }} onClick={remove}>Xoá món</Btn>}
-          <Btn className="sm" onClick={save}>Lưu</Btn>
+          {!isNew && <Btn kind="danger" onClick={remove}>Xoá món</Btn>}
+          <Btn onClick={save}>Lưu lại</Btn>
         </div>
       )}
     >
@@ -151,6 +114,24 @@ function EditDish({ dish, onBack }) {
         <b className="a-t grow" style={{ fontSize: 18 }}>Còn hàng</b>
         <Toggle on={on} onChange={setOn} label="Còn hàng" />
       </div>
+    </Page>
+  );
+}
+
+// Giờ mở cửa: ngoài giờ này app khách không cho đặt đơn. Để trống cả hai là không giới hạn.
+function Hours({ shop, onBack }) {
+  const { toast } = useUI();
+  const [openAt, setOpenAt] = useState(shop.openAt || '');
+  const [closeAt, setCloseAt] = useState(shop.closeAt || '');
+  const save = async () => {
+    if (!!openAt !== !!closeAt) return toast('Nhập đủ giờ mở và giờ đóng');
+    try { await saveShop({ openAt, closeAt }); toast('Đã lưu', true); onBack(); } catch (e) { toast(errText(e)); }
+  };
+  return (
+    <Page title="Giờ đóng mở cửa" onBack={onBack} footer={<Btn onClick={save}>Lưu lại</Btn>}>
+      <Row label="Mở cửa"><input type="time" value={openAt} onChange={(e) => setOpenAt(e.target.value)} aria-label="Giờ mở cửa" /></Row>
+      <Row label="Đóng cửa"><input type="time" value={closeAt} onChange={(e) => setCloseAt(e.target.value)} aria-label="Giờ đóng cửa" /></Row>
+      <p className="a-s" style={{ padding: '0 8px' }}>Ngoài giờ này khách không đặt đơn được. Xoá cả hai giờ để không giới hạn.</p>
     </Page>
   );
 }

@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="Coong">
-<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.png" type="image/png">
 <link rel="preload" as="image" href="/cover.webp">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <title>Coong</title>
@@ -1359,7 +1359,19 @@ $('#cClose').addEventListener('click', closeCart);
 })();
 /* "Đặt hàng" in the cart goes on to the payment page */
 let paying = false;
+/* the shop can pause orders (sold out) or keep opening hours; both are set in the owner app */
+let shop = {};
+const toMin = t => { const m = /^(\d{1,2}):(\d{2})$/.exec(t || ''); return m ? +m[1]*60 + +m[2] : null; };
+function shopClosed(){
+  if (shop.soldOut) return 'Chưa nhận đơn, quán tạm hết hàng.';
+  const a = toMin(shop.openAt), z = toMin(shop.closeAt);
+  if (a === null || z === null || a === z) return '';
+  const d = new Date(), n = d.getHours()*60 + d.getMinutes();
+  const open = a < z ? n >= a && n < z : n >= a || n < z;
+  return open ? '' : `Chưa nhận đơn, quán mở lúc ${shop.openAt}.`;
+}
 function checkout(){
+  const closed = shopClosed(); if (closed) return toast(closed);
   if (paying || !cartItems.length) return; paying = true;
   openPay();
   setTimeout(() => { paying = false; }, T(700));
@@ -1758,7 +1770,9 @@ sheetDismiss(pSheet);
 /* paid: the shop has confirmed the money; claimed: the customer says they transferred, waiting for the shop */
 let placing = false;
 async function placeOrder(paid, claimed = false){
-  if (placing || !session) return; placing = true;
+  if (placing || !session) return;
+  const closed = shopClosed(); if (closed) { pGo.disabled = false; return toast(closed); }
+  placing = true;
   const items = cartItems.map(x => { const d = drink(x.id);
     return {menuId:d.menuId || null, drink:x.id, name:d.menuName || d.name, price:x.unit, cost:d.cost || 0, quantity:x.qty,
       sweetness:sweetText(x.o, d), ice:`${x.o.cafe || 100}% cafe`, caffeine:x.o.upsize ? 'Size XL' : 'Size L', temp:x.o.hot ? 'Nóng' : 'Lạnh', opts:{...x.o}}; });
@@ -1811,7 +1825,7 @@ const authEl = $('#auth'), forms = $$('.aform', authEl);
 const formOf = m => forms.find(f => f.dataset.m === m);
 let step = 'phone';
 const A = {phone:'', name:'', mode:'enter', first:'', viaReset:false};
-let session = null, stopOrders = null, stopMenu = null;
+let session = null, stopOrders = null, stopMenu = null, stopShop = null;
 function setName(n){ $('#helloName').textContent = n; aName.value = n; savedName = n; }
 const prettyPhone = p => p.replace(/^(\d{4})(\d{3})(\d+)$/, '$1 $2 $3');
 const digits = v => v.replace(/\D/g, '');
@@ -1930,8 +1944,12 @@ formOf('pin').addEventListener('submit', async e => {
     checking = true; let ok;
     try { ok = await (await api()).signIn(A.phone, p); } catch (err) { checking = false; return pinErr('Chưa kết nối được, thử lại nhé.'); }
     checking = false;
-    return ok ? finish(false) : pinErr('Có vậy mà cũng quên...');
+    if (!ok) return pinErr('Có vậy mà cũng quên...');
+    /* shop-created accounts start on 0000: the customer must pick their own PIN before going in */
+    if (p === '0000') { A.mode = 'reset'; A.viaReset = false; pinView(); return stagger(formOf('pin'), 0); }
+    return finish(false);
   }
+  if (A.mode === 'reset' && p === '0000') return pinErr('Mã 0000 là mã mặc định, chọn số khác nhé.');
   if (A.mode === 'reset') { A.first = p; A.mode = 'reset2'; pinView(); return stagger(formOf('pin'), 0); }
   if (p !== A.first) { A.mode = 'reset'; pinView(); return pinErr('Hai lần nhập chưa khớp, chọn lại nhé.'); }
   checking = true;
@@ -1963,10 +1981,11 @@ function startSession(s){
       if (curOrder && isOpen(orderEl)) { const o = orders.find(x => x.id === curOrder.id); if (o) { curOrder = o; renderOrder(o); } }
     }, () => toast('Mất kết nối tới quán', 'wifioff'));
     stopMenu = a.watchMenu(applyMenu, () => {});
+    if (stopShop) stopShop(); stopShop = a.watchShop(s2 => { shop = s2 || {}; }, () => {});
   });
 }
 function endSession(){
-  if (stopOrders) stopOrders(); if (stopMenu) stopMenu(); stopOrders = stopMenu = null;
+  if (stopOrders) stopOrders(); if (stopMenu) stopMenu(); if (stopShop) stopShop(); stopOrders = stopMenu = stopShop = null; shop = {};
   session = null; orders = []; notifs = []; renderHistory(); renderNotifs();
 }
 /* home entrance: everything arrives one after another (greeting, buttons, the three cups rising with a soft bounce, then the reorder card, dots and tab bar) */

@@ -110,9 +110,11 @@ button.a-card:active{transform:scale(.97)}
 .a-kv.tot b{font-size:24px;font-variant-numeric:tabular-nums}
 
 .a-tl{position:relative;display:flex;justify-content:space-between;padding:12px 8px 8px}
-.a-tl::before{content:"";position:absolute;left:50px;right:50px;top:21px;height:2px;border-radius:2px;background:var(--s10)}
+.a-tl::before,.a-tl .bar{content:"";position:absolute;left:50px;top:21px;height:2px;border-radius:2px}
+.a-tl::before{right:50px;background:#5f5f5f}
+.a-tl .bar{width:calc((100% - 100px) * var(--i,0) / 2);background:var(--c)}
 .a-st{position:relative;width:84px;display:flex;flex-direction:column;align-items:center;gap:9px;font-size:12px;font-weight:700;color:var(--mute);text-align:center}
-.a-st i{width:20px;height:20px;border-radius:20px;background:var(--s10)}
+.a-st i{position:relative;width:20px;height:20px;border-radius:20px;background:#5f5f5f}
 .a-st.on{color:#fff}.a-st.on i{background:var(--c)}
 
 .a-empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding-top:56px}
@@ -204,9 +206,10 @@ button.a-card:active{transform:scale(.97)}
 .o-cups.login img:nth-child(1){top:50px;height:163px}
 .o-cups.login img:nth-child(2){height:208px}
 .o-cups.login img:nth-child(3){top:25px;height:163px}
+.a-st.cur{color:var(--c)}
 .a-st.cur i{box-shadow:0 0 0 5px color-mix(in srgb,var(--c) 30%,transparent)}
-.a-st.on:not(.cur){color:var(--mute)}
 .a-tl[style*="--tl"]::before{left:84px;right:84px}
+.a-tl[style*="--tl"] .bar{left:84px;width:calc(100% - 168px)}
 
 /* ---------- Thống kê ---------- */
 .w-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -225,3 +228,37 @@ button.a-card:active{transform:scale(.97)}
 .s-row input::placeholder{color:var(--mute);font-weight:500}
 
 .a-login{background:#000 url(/cover.webp) center bottom/100% auto no-repeat}
+
+/* Đặt hàng thành công */
+.o-done{align-items:center;text-align:center;overflow:hidden;padding-top:78px}
+.o-glow{position:absolute;left:15px;top:-20px;width:360px;height:300px;border-radius:50%;background:rgba(255,204,0,.16);filter:blur(60px);pointer-events:none}
+.o-ok{position:relative;width:120px;height:120px;flex:none;border-radius:50%;background:rgba(255,204,0,.16);display:flex;align-items:center;justify-content:center}
+.o-ok::before{content:"";position:absolute;inset:14px;border-radius:50%;background:var(--yellow)}
+.o-ok svg{position:relative;color:#000;stroke-width:3}
+.o-done .a-title{margin-top:24px;position:relative}
+.o-done .a-sub{margin-top:8px;max-width:310px;position:relative}
+.o-done .a-card{position:relative}
+.o-done-act{margin-top:auto;width:100%;display:flex;flex-direction:column;gap:8px;position:relative}
+
+/* Ví tiền */
+.w-head{display:flex;align-items:center;justify-content:space-between}
+.w-plus{width:44px;height:44px;border-radius:50%;background:var(--s10);display:flex;align-items:center;justify-content:center;flex:none}
+.w-stats{gap:12px}
+.w-rev{display:block;font-size:24px;line-height:31px;font-weight:700;font-variant-numeric:tabular-nums}
+.w-two{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.w-val{display:block;font-size:18px;line-height:23px;font-weight:700;font-variant-numeric:tabular-nums}
+.w-per{position:relative;display:flex;align-items:center;gap:4px;height:32px;padding:0 10px 0 16px;border-radius:89px;background:var(--s10);color:var(--mute);font-size:14px;font-weight:700;flex:none}
+.w-per select{appearance:none;-webkit-appearance:none;background:none;border:0;outline:0;color:inherit;font:inherit;padding:0;cursor:pointer}
+.w-per svg{pointer-events:none}
+.w-unpaid{flex-direction:row;align-items:center;justify-content:space-between;background:rgba(255,204,0,.1)}
+.w-unpaid svg{color:var(--yellow)}
+.w-view{height:44px;padding:0 16px;border-radius:32px;background:var(--yellow);color:#000;font-size:16px;font-weight:700}
+.w-debt{gap:12px}
+.w-pay{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;flex:none}
+.w-rule{height:1px;background:var(--s10)}
+.w-money{flex-direction:row;align-items:center;justify-content:space-between;gap:12px;padding:16px 24px;min-height:73px}
+.w-money .w-amount{text-align:right;font-size:32px;line-height:41px;font-weight:700}
+.w-money .a-s{white-space:nowrap}
+.w-note{outline:none;border:0;background:transparent;color:inherit;font:inherit;width:100%;padding:0}
+.s-dish{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;text-align:left}
+.s-dish .a-num{flex:none}

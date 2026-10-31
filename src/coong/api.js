@@ -5,7 +5,7 @@ import { doc, writeBatch } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import { vietQR, qrMatrix } from './qr';
 import {
-  getUser, watchDevice, unlockDevice, lockDevice, watchMenu, watchOrders,
+  getUser, watchDevice, unlockDevice, lockDevice, watchMenu, watchOrders, watchShop,
   createOrder, updateOrder, updateUserName, setPin, resetPinByName,
 } from '../db';
 
@@ -75,6 +75,7 @@ window.CoongAPI = {
   },
 
   watchMenu: (cb, onError) => watchMenu(cb, onError),
+  watchShop: (cb, onError) => watchShop(cb, onError),
   watchOrders: (phone, cb, onError) => watchOrders(phone, false, cb, onError),
 
   /** Trả về id và số của đơn vừa tạo */

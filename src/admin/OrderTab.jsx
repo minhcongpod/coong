@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createOrder } from '../db';
-import { Icon, Sym, Page, Btn, Chip, Empty, fmt, dmy, timeOf, phoneText, kindOf, XL_EXTRA, useUI, errText } from './ui.jsx';
-import { CustomerPicker } from './Customers.jsx';
+import { Icon, Sym, Page, Btn, Chip, Empty, fmt, dmy, timeOf, phoneText, kindOf, XL_EXTRA, orderCode, useUI, errText } from './ui.jsx';
+import { CustomerPicker, NewCustomer, EditCustomerForm } from './Customers.jsx';
 
 const ORDER = ['bac', 'den', 'nau'];
-const METHODS = [['debt', 'Ghi nợ nhé!', 'i-debt'], ['bank', 'Chuyển khoản', 'i-qr'], ['cash', 'Tiền mặt', 'i-cash']];
+const METHODS = [['bank', 'Chuyển khoản', 'i-qr'], ['cash', 'Tiền mặt', 'i-cash'], ['debt', 'Ghi nợ nhé!', 'i-debt']];
+const PAY_NAME = { bank: 'Chuyển khoản', cash: 'Tiền mặt', debt: 'Ghi nợ' };
 
 // Đen: size L và XL cùng giá
 const extraOf = (m) => (kindOf(m.name) === 'den' ? 0 : typeof m.upsize === 'number' ? m.upsize : XL_EXTRA);
@@ -12,11 +13,11 @@ const sameOpts = (a, b) => a.menuId === b.menuId && a.size === b.size && a.sweet
 const qtyText = (n) => String(n).padStart(2, '0');
 
 // Tab Đặt hàng: chọn món như app khách, rồi gán khách ở bước Thanh toán
-export default function OrderTab({ menu, users, orders }) {
+export default function OrderTab({ menu, users, orders, onTrack }) {
   const { toast } = useUI();
   const [customer, setCustomer] = useState(null);
   const [lines, setLines] = useState([]); // { menuId, name, price, extra, qty, size, sweet, ice }
-  const [page, setPage] = useState(null); // pay | pick
+  const [page, setPage] = useState(null); // pay | pick | newCustomer | { edit } | { done }
   const [pay, setPay] = useState('debt');
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState(-1); // dòng đang mở tuỳ chọn
@@ -68,6 +69,11 @@ export default function OrderTab({ menu, users, orders }) {
 
   const goPay = () => (count ? (setOpen(-1), setPage('pay')) : toast('Chọn món trước nhé'));
 
+  const drinkText = (() => {
+    const names = [...new Set(lines.map((l) => l.name))].join(', ');
+    return `${qtyText(count)} x ${names}`;
+  })();
+
   const place = async () => {
     if (!customer) return toast('Chọn khách hàng cho đơn này');
     if (!lines.length || busy) return;
@@ -88,15 +94,49 @@ export default function OrderTab({ menu, users, orders }) {
     };
     if (pay === 'cash') order.paymentStatus = 'confirmed';
     try {
-      await createOrder(order);
-      toast(`Đã đặt đơn cho ${customer.name}`, true);
-      setLines([]); setPage(null); setPay('debt'); setCustomer(null);
+      const made = await createOrder(order);
+      // cả 3 cách thanh toán đều sang màn Đặt hàng thành công
+      setPage({ done: { id: made.id, no: made.no, drinks: drinkText, method: PAY_NAME[pay], total } });
+      setLines([]); setPay('debt'); setCustomer(null);
     } catch (e) { toast(errText(e)); }
     setBusy(false);
   };
 
+  if (page && page.done) {
+    const d = page.done;
+    return (
+      <div className="a-page o-done">
+        <div className="o-glow" aria-hidden="true" />
+        <div className="o-ok" aria-hidden="true"><Icon n="check" size={56} /></div>
+        <h1 className="a-title">Đặt hàng thành công</h1>
+        <p className="a-sub">Mã đơn {orderCode({ no: d.no, id: d.id })}. Coong sẽ xác nhận đơn của bạn trong ít phút</p>
+        <div className="a-card" style={{ gap: 0, width: '100%', marginTop: 20 }}>
+          <div className="a-kv"><span>Đồ uống</span><b>{d.drinks}</b></div>
+          <div className="a-kv"><span>Phương thức</span><b>{d.method}</b></div>
+          <div className="a-kv tot"><span>Tổng</span><b>{fmt(d.total)}</b></div>
+        </div>
+        <div className="o-done-act">
+          <Btn onClick={() => { setPage(null); onTrack && onTrack(d.id); }}>Theo dõi</Btn>
+          <Btn kind="ghost" onClick={() => setPage(null)}>Tiếp tục đặt hàng</Btn>
+        </div>
+      </div>
+    );
+  }
+  if (page === 'newCustomer') {
+    return <NewCustomer users={users} onBack={() => setPage('pick')} onCreated={(u) => { setCustomer(u); setPage('pay'); }} />;
+  }
+  if (page && page.edit) {
+    const done = (u) => { setCustomer((c) => (c && c.phone === page.edit.phone ? (u ? { ...c, ...u } : null) : c)); setPage('pick'); };
+    return <EditCustomerForm customer={page.edit} onBack={() => setPage('pick')} onSaved={done} onDeleted={() => done(null)} />;
+  }
   if (page === 'pick') {
-    return <CustomerPicker users={users} selected={customer} onBack={() => setPage('pay')} onPick={(u) => { setCustomer(u); setPage('pay'); }} />;
+    return (
+      <CustomerPicker
+        users={users} selected={customer} onBack={() => setPage('pay')}
+        onPick={(u) => { setCustomer(u); setPage('pay'); }}
+        onAdd={() => setPage('newCustomer')} onEdit={(u) => setPage({ edit: { phone: u.phone, ...users[u.phone] } })}
+      />
+    );
   }
 
   return (

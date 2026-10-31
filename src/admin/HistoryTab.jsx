@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { updateOrder } from '../db';
 import { Icon, Sym, Page, Btn, Seg, fmt, hm, dmy, timeOf, phoneText, payLabel, payState, orderCode, kindOf, STATUS, isLive, useUI, errText } from './ui.jsx';
 
@@ -11,9 +11,10 @@ const itemQty = (o) => (o.items || []).reduce((n, x) => n + (x.quantity || 1), 0
 const whenText = (d) => (!d ? '' : d.toDateString() === new Date().toDateString() ? 'Hôm nay' : dmy(d));
 
 // Tab Đơn hàng: danh sách đơn, xem chi tiết, thu tiền, nhận đơn, hoàn thành, huỷ
-export default function HistoryTab({ orders, users, loading, onGoOrder }) {
+export default function HistoryTab({ orders, users, loading, onGoOrder, track }) {
   const [filter, setFilter] = useState('all');
   const [openId, setOpenId] = useState(null);
+  useEffect(() => { if (track) setOpenId(track.id); }, [track]);
 
   const list = orders.filter((o) => {
     if (filter === 'paid') return o.paid;
@@ -78,9 +79,11 @@ function OrderDetail({ o, onBack, users }) {
 
   const cancelled = o.status === 'cancelled';
   const steps = cancelled
-    ? [['placed', 'Đã đặt', 'var(--yellow)'], ['cancelled', 'Đã huỷ', 'var(--err)']]
-    : [['pending', 'Chờ xác nhận', 'var(--yellow)'], ['brewing', 'Đang pha chế', 'var(--info)'], ['completed', 'Hoàn thành', 'var(--ok)']];
+    ? [['placed', 'Đã đặt'], ['cancelled', 'Đã huỷ']]
+    : [['pending', 'Chờ xác nhận'], ['brewing', 'Đang pha chế'], ['completed', 'Hoàn thành']];
   const cur = cancelled ? 1 : steps.findIndex(([k]) => k === o.status);
+  // một màu theo trạng thái hiện tại, giống app khách: vàng chờ, xanh dương pha chế, xanh lá hoàn thành, đỏ đã huỷ
+  const sc = cancelled ? 'var(--err)' : o.status === 'pending' ? 'var(--yellow)' : o.status === 'brewing' ? 'var(--info)' : 'var(--ok)';
   const d = timeOf(o);
   const phone = users[o.customerPhone] ? phoneText(o.customerPhone) : o.customerPhone;
 
@@ -88,7 +91,7 @@ function OrderDetail({ o, onBack, users }) {
   if (o.status === 'pending') {
     footer = (
       <div style={{ display: 'flex', gap: 8 }}>
-        <Btn kind="danger" className="sm" onClick={cancel}>Huỷ</Btn>
+        <Btn kind="danger" className="sm" onClick={cancel}>Huỷ đơn</Btn>
         <Btn kind="yellow" className="sm" onClick={() => run({ status: 'brewing' })}>Xác nhận</Btn>
       </div>
     );
@@ -111,9 +114,10 @@ function OrderDetail({ o, onBack, users }) {
       )}
     >
       <div className="a-card" style={{ padding: '12px 24px' }}>
-        <div className="a-tl" style={cancelled ? { '--tl': '1' } : undefined}>
-          {steps.map(([k, label, color], i) => (
-            <div key={k} className={`a-st ${i <= cur ? 'on' : ''} ${i === cur ? 'cur' : ''}`} style={{ '--c': color }}><i />{label}</div>
+        <div className="a-tl" style={{ '--c': sc, '--i': cur, ...(cancelled ? { '--tl': '1' } : null) }}>
+          <span className="bar" />
+          {steps.map(([k, label], i) => (
+            <div key={k} className={`a-st ${i <= cur ? 'on' : ''} ${i === cur && o.status !== 'completed' && !cancelled ? 'cur' : ''}`}><i />{label}</div>
           ))}
         </div>
       </div>
