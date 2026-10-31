@@ -208,7 +208,7 @@ const restT = (el) => (el.classList.contains('bulge') && el.dataset.a === 'r' ? 
 
 export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, onCart }) {
   const d = item.meta, k = item.id, m = item.m;
-  const extra = k === 'den' ? 0 : typeof m.upsize === 'number' ? m.upsize : XL_EXTRA;
+  const extra = typeof m.upsize === 'number' ? m.upsize : XL_EXTRA;
   const root = useRef(null), stage = useRef(null), spin = useRef(null), fxRef = useRef(null), qtyBox = useRef(null), priceRef = useRef(null), cartBtn = useRef(null);
   const [o, setO] = useState({ upsize: 0, hot: 0, sweet: 0, cafe: 0 });
   const [qty, setQty] = useState(1);

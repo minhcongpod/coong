@@ -24,6 +24,7 @@ const PATHS = {
   trash: '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>',
   inn: '<path d="M17 7 7 17"/><path d="M17 17H7V7"/>',
   out: '<path d="M7 7h10v10"/><path d="M7 17 17 7"/>',
+  x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
 };
 
 export const Icon = ({ n, size }) => (
@@ -192,9 +193,15 @@ export const Kv = ({ k, children, cls }) => (
 const toMin = (t) => { const m = /^(\d{1,2}):(\d{2})$/.exec(t || ''); return m ? +m[1] * 60 + +m[2] : null; };
 export const shopClosed = (shop = {}) => {
   if (shop.soldOut) return 'Quán đang tạm hết hàng.';
+  if (Array.isArray(shop.days) && !shop.days.includes(new Date().getDay())) return 'Hôm nay quán nghỉ.';
   const a = toMin(shop.openAt), z = toMin(shop.closeAt);
   if (a === null || z === null || a === z) return '';
   const d = new Date(), n = d.getHours() * 60 + d.getMinutes();
   const open = a < z ? n >= a && n < z : n >= a || n < z;
   return open ? '' : `Quán đóng cửa, mở lúc ${shop.openAt}.`;
 };
+
+// Nút chuông thông báo ở đầu các tab
+export const BellBtn = ({ n = 0, onClick }) => (
+  <button className="a-bell" onClick={onClick} aria-label="Thông báo"><Sym id="i-bell" size={24} />{n > 0 && <span className="a-badge">{n}</span>}</button>
+);

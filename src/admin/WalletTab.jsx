@@ -2,8 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { addDoc, collection } from 'firebase/firestore';
 import { db } from '../firebase';
 import { updateOrder, deleteTransaction } from '../db';
-import { Icon, Sym, Page, Btn, Seg, Chip, Empty, fmt, dayLabel, timeOf, isLive, useUI, errText } from './ui.jsx';
-import { CustomerPicker } from './Customers.jsx';
+import { Icon, Sym, Page, Btn, Seg, Chip, Empty, fmt, dayLabel, timeOf, isLive, useUI, errText, BellBtn } from './ui.jsx';
 import { summary } from './HistoryTab.jsx';
 
 const PERIODS = [['day', 'Ngày'], ['month', 'Tháng'], ['year', 'Năm']];
@@ -23,7 +22,7 @@ const extraIncome = (t) => t.type === 'income' && !t.customerPhone;
 const qtyText = (n) => String(n).padStart(2, '0');
 
 // Tab Thống kê: số đơn, doanh thu, chi tiêu, đơn chưa thanh toán, thu chi
-export default function WalletTab({ orders, txs, users }) {
+export default function WalletTab({ orders, txs, users, unread, onBell }) {
   const [kind, setKind] = useState('day');
   const [filter, setFilter] = useState('all');
   const [page, setPage] = useState(null); // unpaid | { add }
@@ -47,28 +46,29 @@ export default function WalletTab({ orders, txs, users }) {
   };
 
   if (page === 'unpaid') return <Unpaid orders={unpaid} onBack={() => setPage(null)} />;
-  if (page && page.add) return <AddTx onBack={() => setPage(null)} initial={page.add} users={users || {}} />;
+  if (page && page.add) return <AddTx onBack={() => setPage(null)} initial={page.add} />;
 
   const debt = unpaid.reduce((n, o) => n + (o.totalAmount || 0), 0);
   return (
     <>
       <div className="w-head">
         <h1 className="a-title">Ví tiền</h1>
-        <button className="w-plus" onClick={() => setPage({ add: 'expense' })} aria-label="Thêm khoản thu chi"><Icon n="plus" size={24} /></button>
+        <span className="w-acts">
+          <BellBtn n={unread} onClick={onBell} />
+          <button className="w-plus" onClick={() => setPage({ add: 'expense' })} aria-label="Thêm khoản thu chi"><Icon n="plus" size={24} /></button>
+        </span>
       </div>
-      <div className="a-body">
+      <div className="a-body w-body">
+        <div className="w-top">
         <div className="a-card w-stats">
           <div className="a-between" style={{ alignItems: 'flex-start' }}>
             <span>
               <span className="a-s" style={{ display: 'block' }}>{stats.orders} đơn</span>
               <b className="w-rev">{fmt(stats.revenue)}</b>
             </span>
-            <label className="w-per">
-              <select value={kind} onChange={(e) => setKind(e.target.value)} aria-label="Khoảng thời gian">
-                {PERIODS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
-              </select>
-              <Icon n="down" size={16} />
-            </label>
+            <div className="w-per" role="tablist" aria-label="Khoảng thời gian">
+              {PERIODS.map(([k, l]) => <button key={k} role="tab" aria-selected={kind === k} className={kind === k ? 'on' : ''} onClick={() => setKind(k)}>{l}</button>)}
+            </div>
           </div>
           <div className="w-two">
             <span><span className="a-s" style={{ display: 'block' }}>Chi tiêu</span><b className="w-val r">{fmt(stats.expense)}</b></span>
@@ -82,6 +82,7 @@ export default function WalletTab({ orders, txs, users }) {
           </span>
           <button className="w-view" onClick={() => setPage('unpaid')} aria-label="Xem đơn chưa thanh toán">Xem</button>
         </div>}
+        </div>
         <Seg items={[['all', 'Tất cả'], ['income', 'Thu'], ['expense', 'Chi']]} value={filter} onChange={setFilter} />
         {list.map((t) => {
           const inc = t.type === 'income';
@@ -157,26 +158,20 @@ function Unpaid({ orders, onBack }) {
   );
 }
 
-function AddTx({ onBack, initial = 'expense', users }) {
+function AddTx({ onBack, initial = 'expense' }) {
   const { toast } = useUI();
   const [type, setType] = useState(initial);
   const [amount, setAmount] = useState('');
   const [cat, setCat] = useState(EXPENSE_CATS[0]);
-  const [customer, setCustomer] = useState(null);
-  const [pick, setPick] = useState(false);
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
-
-  if (pick) {
-    return <CustomerPicker users={users} selected={customer} onBack={() => setPick(false)} onPick={(u) => { setCustomer(u); setPick(false); }} />;
-  }
 
   const save = async () => {
     const n = Number(amount);
     if (!(n > 0)) return toast('Nhập số tiền');
     setBusy(true);
-    const label = type === 'income' ? (customer ? 'Thu nợ' : 'Khoản thu') : cat;
-    const text = [type === 'income' && customer ? customer.name : '', type === 'income' || cat === 'Khác' ? note.trim() : ''].filter(Boolean).join(' · ');
+    const label = type === 'income' ? 'Khoản thu' : cat;
+    const text = type === 'income' || cat === 'Khác' ? note.trim() : '';
     try {
       await addDoc(collection(db, 'transactions'), {
         type, amount: n, description: `[${label}] ${text}`.trim(), createdAt: new Date().toISOString(),
@@ -196,14 +191,8 @@ function AddTx({ onBack, initial = 'expense', users }) {
           onChange={(e) => setAmount(e.target.value.replace(/\D/g, '').slice(0, 10))}
         />
       </label>
-      {type === 'expense' ? (
+      {type === 'expense' && (
         <div className="a-chips wrap w-chips">{EXPENSE_CATS.map((c) => <Chip key={c} on={cat === c} onClick={() => setCat(c)}>{c}</Chip>)}</div>
-      ) : (
-        <button className="a-card h o-cust" onClick={() => setPick(true)} aria-label="Chọn khách">
-          <span className="m a-t grow">Khách hàng</span>
-          {customer && <b className="a-t">{customer.name}</b>}
-          <span className="m"><Icon n="right" /></span>
-        </button>
       )}
       {/* Chi: ô ghi chú chỉ hiện khi chọn Khác. Thu: ô Lý do */}
       {(type === 'income' || cat === 'Khác') && (
