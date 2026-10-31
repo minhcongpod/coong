@@ -1590,7 +1590,7 @@ function renderOrder(o){
 }
 function openOrder(o){ curOrder = o; const prev = $('#oBody .bar'); if (prev) prev.remove(); renderOrder(o); showPage(orderEl); }
 async function cancelOrder(o){
-  if (!await ask({title:'Huỷ đơn này?', text:'Ủa alo???', ok:'Huỷ đơn', cancel:'Giữ lại', danger:true})) return;
+  if (!await ask({title:'Huỷ đơn này?', text:'Ủa alo???', ok:'Huỷ đơn', cancel:'Thôi', danger:true})) return;
   if (o.status !== 'wait') { toast('Quán vừa nhận đơn, không huỷ được nữa'); return; }
   try { await (await api()).cancelOrder(o.id); }
   catch (e) { toast('Quán vừa nhận đơn, không huỷ được nữa'); return; }
