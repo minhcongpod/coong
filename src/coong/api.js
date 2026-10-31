@@ -6,7 +6,7 @@ import { auth, db } from '../firebase';
 import { vietQR, qrMatrix } from './qr';
 import {
   getUser, watchDevice, unlockDevice, lockDevice, watchMenu, watchOrders,
-  createOrder, updateOrder, updateUserName, setPin,
+  createOrder, updateOrder, updateUserName, setPin, resetPinByName,
 } from '../db';
 
 const nowIso = () => new Date().toISOString();
@@ -65,6 +65,14 @@ window.CoongAPI = {
 
   setPin,
   rename: updateUserName,
+
+  /** Quên PIN: tự đặt PIN mới bằng SĐT + tên đặt hàng rồi đăng nhập luôn. Trả về false nếu tên không khớp. */
+  async resetPin(phone, name, pin) {
+    const uid = await uidReady;
+    if (await currentDevice()) await lockDevice(uid);
+    try { await resetPinByName(uid, phone, name, pin); return true; }
+    catch (e) { if (isWrongPin(e)) return false; throw e; }
+  },
 
   watchMenu: (cb, onError) => watchMenu(cb, onError),
   watchOrders: (phone, cb, onError) => watchOrders(phone, false, cb, onError),

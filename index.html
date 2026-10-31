@@ -206,7 +206,7 @@ input{user-select:text;-webkit-user-select:text}
 /* notifications */
 .plist{left:24px;top:152px;width:342px;height:484px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
 .plist::-webkit-scrollbar,.oscroll::-webkit-scrollbar,.psum::-webkit-scrollbar{display:none}
-.nrow{flex:none;position:relative;display:flex;gap:8px;align-items:flex-start;padding:16px 40px 16px 24px;border-radius:32px;background:rgba(255,255,255,.1);text-align:left;color:#fff;line-height:normal;transition:transform .25s var(--ease-out)}
+.nrow{flex:none;position:relative;display:flex;gap:16px;align-items:flex-start;padding:16px;border-radius:32px;background:rgba(255,255,255,.1);text-align:left;color:#fff;line-height:normal;transition:transform .25s var(--ease-out)}
 .nrow:active{transform:scale(.97)}
 .nrow .ni{flex:none;width:40px;height:40px;border-radius:100px;display:flex;align-items:center;justify-content:center;background:rgba(255,204,0,.16);color:var(--yellow)}
 .nrow .ni svg{width:20px;height:20px}
@@ -216,8 +216,9 @@ input{user-select:text;-webkit-user-select:text}
 .nrow.info .ni{background:rgba(255,255,255,.1);color:#fff}
 .nrow b{display:block;font-size:16px}
 .nrow p{font-size:14px;color:rgba(255,255,255,.5);margin-top:2px;font-weight:500;line-height:1.35}
-.nrow small{display:block;font-size:12px;color:var(--gray);margin-top:6px;font-weight:700}
-.nrow.new::after{content:"";position:absolute;right:24px;top:22px;width:8px;height:8px;border-radius:8px;background:var(--yellow);transition:opacity .5s}
+.nrow small{display:block;font-size:14px;color:var(--gray);margin-top:6px;font-weight:500}
+.nrow>div{flex:1;min-width:0;padding-right:12px}
+.nrow.new::after{content:"";position:absolute;right:16px;top:20px;width:8px;height:8px;border-radius:8px;background:var(--yellow);transition:opacity .5s}
 .nrow.seen::after{opacity:0}
 .nempty{left:0;width:390px;top:170px}
 
@@ -455,8 +456,9 @@ input{user-select:text;-webkit-user-select:text}
 #fx{position:fixed;inset:0;pointer-events:none;z-index:50}
 #fx .veil{position:absolute;inset:0}
 #fx .fly{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
-.toast{position:absolute;left:50%;top:24px;transform:translate(-50%,-80px);background:#000;color:#fff;border-radius:100px;padding:12px 18px;font-size:16px;font-weight:700;display:flex;gap:8px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.4);white-space:nowrap}
-.toast svg{width:18px;height:18px;color:var(--yellow)}
+.toast{position:absolute;left:50%;top:24px;transform:translate(-50%,-80px);background:#1c1c1c;color:#fff;border-radius:100px;padding:12px 20px 12px 14px;border:1px solid rgba(255,255,255,.08);font-size:16px;font-weight:700;display:flex;gap:8px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.4);white-space:nowrap}
+.toast svg{width:22px;height:22px;flex:none;color:var(--yellow)}
+.toast.warn svg{color:#ff453a}
 @media (prefers-reduced-motion:reduce){.add .shine{animation:none;-webkit-mask-image:none;mask-image:none}}
 </style>
 <style>html,body{margin:0;height:100%;background:#000}</style>
@@ -491,6 +493,7 @@ input{user-select:text;-webkit-user-select:text}
     <symbol id="i-debt" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="7.6" cy="12" rx="4.6" ry="6.5"/><ellipse cx="16.4" cy="12" rx="4.6" ry="6.5"/></g><circle cx="5.4" cy="13.6" r="1.7" fill="currentColor"/><circle cx="14.2" cy="13.6" r="1.7" fill="currentColor"/></symbol>
     <symbol id="i-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="8" y="3.5" width="12" height="14" rx="2.5"/><path d="M5 7.5v11a2.5 2.5 0 0 0 2.5 2.5H15"/></g></symbol>
     <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M4.5 20h15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-warn" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 7.5v5.5M12 16.5v.01"/><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
     <symbol id="i-cardadd" viewBox="0 0 28 28"><path fill="currentColor" fill-rule="evenodd" d="M8.03979 9.04809H19.9597C20.135 9.04809 20.9238 8.87279 20.9238 8.08398C20.9238 4.57812 18.1191 1.77344 14.6133 1.77344H13.2986C11.6333 1.77344 10.0557 2.47461 8.82861 3.61401C7.68921 4.75341 6.98804 6.4187 6.98804 8.08398C6.98804 9.74926 7.95215 9.04809 7.95215 9.04809H8.03979ZM18.9079 7.03222H9.1792C9.35449 6.2434 9.79272 5.54223 10.3186 5.01635C11.1074 4.22754 12.2468 3.7893 13.3862 3.7893H14.7009C16.7168 3.7893 18.4697 5.19165 18.9079 7.11987V7.03222Z"/><path fill="currentColor" fill-rule="evenodd" d="M23.9039 9.22339C23.9039 7.99634 22.8521 7.03223 21.7127 7.03223H6.37463C5.23523 7.03223 4.27112 7.99634 4.18347 9.22339C3.92053 12.9045 3.30701 19.9162 3.04407 23.7727C3.04407 24.3862 3.21936 24.9997 3.65759 25.5256C4.09582 25.9638 4.6217 26.2268 5.23523 26.2268H22.7645C23.378 26.2268 23.9916 25.9638 24.3421 25.5256C24.7804 25.0874 24.9557 24.4739 24.9557 23.7727L23.9039 9.22339ZM18.4698 17.5498H14.964V21.0556C14.964 21.5815 14.5257 21.9321 14.0875 21.9321C13.6493 21.9321 13.211 21.5815 13.211 21.0556V17.5498H9.70519C9.17931 17.5498 8.82873 17.1116 8.82873 16.6733C8.82873 16.2351 9.17931 15.7969 9.70519 15.7969H13.211V12.291C13.211 11.7651 13.6493 11.4145 14.0875 11.4145C14.5257 11.4145 14.964 11.7651 14.964 12.291V15.7969H18.4698C18.9957 15.7969 19.3463 16.2351 19.3463 16.6733C19.3463 17.1116 18.9957 17.5498 18.4698 17.5498Z"/></symbol>
     <symbol id="i-paid" viewBox="0 0 16 16"><path fill="currentColor" d="M15.6114 7.05714L14.5201 5.9661C14.2611 5.70711 14.0489 5.19531 14.0489 4.82827V3.28527C14.0489 2.55127 13.4493 1.95165 12.7155 1.95126H11.1719C10.8052 1.95126 10.2929 1.73864 10.0338 1.47984L8.94279 0.388806C8.42438 -0.129602 7.57557 -0.129602 7.05716 0.388806L5.96613 1.48062C5.7069 1.73961 5.19392 1.95165 4.8281 1.95165H3.2851C2.55208 1.95165 1.95167 2.55127 1.95167 3.28527V4.82831C1.95167 5.1939 1.73948 5.70731 1.48045 5.96614L0.389221 7.05718C-0.129578 7.57559 -0.129578 8.42439 0.389221 8.94362L1.48045 10.0347C1.73964 10.2936 1.95167 10.8069 1.95167 11.1725V12.7155C1.95167 13.4487 2.55208 14.0492 3.2851 14.0492H4.82814C5.19475 14.0492 5.70714 14.2613 5.96617 14.5202L7.0572 15.6116C7.57561 16.1296 8.42442 16.1296 8.94283 15.6116L10.0339 14.5202C10.2931 14.2612 10.8053 14.0492 11.1719 14.0492H12.7155C13.4493 14.0492 14.0489 13.4487 14.0489 12.7155V11.1725C14.0489 10.8053 14.2613 10.2935 14.5202 10.0347L15.6114 8.94362C16.1294 8.42439 16.1294 7.57555 15.6114 7.05714ZM6.94158 11.0002L3.99972 8.05798L4.94255 7.11534L6.94181 9.1146L11.0573 5.00011L11.9999 5.94274L6.94158 11.0002Z"/></symbol>
     <symbol id="i-due" viewBox="0 0 16 16"><path fill="currentColor" d="M12.95 3.865C13.305 3.42 13.5 2.865 13.5 2.3V1.5C13.5 0.95 13.05 0.5 12.5 0.5H3.5C2.95 0.5 2.5 0.95 2.5 1.5V2.3C2.5 2.865 2.695 3.42 3.05 3.86L6.11 7.685C6.255 7.87 6.255 8.13 6.11 8.31L3.05 12.135C2.695 12.58 2.5 13.135 2.5 13.7V14.5C2.5 15.05 2.95 15.5 3.5 15.5H12.5C13.05 15.5 13.5 15.05 13.5 14.5V13.7C13.5 13.135 13.305 12.58 12.95 12.14L9.89 8.315C9.745 8.13 9.745 7.87 9.89 7.69L12.95 3.865ZM10.83 12.69C10.95 12.84 10.975 13.045 10.89 13.215C10.805 13.39 10.63 13.5 10.44 13.5H5.56C5.37 13.5 5.195 13.39 5.11 13.215C5.025 13.045 5.05 12.84 5.17 12.69L7.61 9.64C7.8 9.4 8.2 9.4 8.39 9.64L10.83 12.69Z"/></symbol>
@@ -683,7 +686,7 @@ input{user-select:text;-webkit-user-select:text}
       <div class="afoot"><button type="submit" class="btn" data-s>Tiếp tục</button><button type="button" class="alink" id="aForgot" data-s>Quên hả?</button></div>
     </form>
     <form class="abs aform off" data-m="pin" novalidate>
-      <div class="ahead"><h2 class="atitle" data-s id="pTitle">Nhập mã PIN</h2><p class="asub" data-s id="pSub">Lộ ra là mất tiền đấy :) Thật!</p></div>
+      <div class="ahead"><h2 class="atitle" data-s id="pTitle">Nhập mã PIN</h2><p class="asub" data-s id="pSub" hidden></p></div>
       <div class="fields">
         <div class="otp pinbox" data-s><label class="field"><input type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Số 1"></label><label class="field"><input type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Số 2"></label><label class="field"><input type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Số 3"></label><label class="field"><input type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Số 4"></label></div>
         <p class="aerr" aria-live="polite"></p>
@@ -700,20 +703,13 @@ input{user-select:text;-webkit-user-select:text}
       <div class="afoot"><button type="submit" class="btn" data-s>Let’s go</button><p class="aswitch" data-s>Sai sai? <button type="button" class="alink" data-to="phone">Đăng nhập</button></p></div>
     </form>
     <form class="abs aform off" data-m="forgot" novalidate>
-      <div class="ahead"><h2 class="atitle" data-s>Quên mã PIN?</h2><p class="asub" data-s>Đăng nhập lại để đổi mã PIN mới</p></div>
+      <div class="ahead"><h2 class="atitle" data-s>Quên mã PIN?</h2><p class="asub" data-s>Nhập số điện thoại và tên đặt hàng đã đăng ký là có mã PIN mới liền!</p></div>
       <div class="fields">
         <label class="field" data-s><input name="phone" type="tel" inputmode="numeric" placeholder="Số điện thoại" autocomplete="tel" maxlength="13" aria-label="Số điện thoại"></label>
+        <label class="field" data-s><input name="name" placeholder="Tên đặt hàng" autocomplete="nickname" maxlength="16" aria-label="Tên đặt hàng"></label>
         <p class="aerr" aria-live="polite"></p>
       </div>
       <div class="afoot"><button type="submit" class="btn" data-s>Đặt lại</button><p class="aswitch" data-s>Nhớ ra rồi? <button type="button" class="alink" data-to="phone">Đăng nhập</button></p></div>
-    </form>
-    <form class="abs aform off" data-m="otp" novalidate>
-      <div class="ahead"><h2 class="atitle" data-s>Xác minh số</h2><p class="asub" data-s id="oSub">Nhập mã 4 số Coong vừa gửi qua SMS.</p></div>
-      <div class="fields">
-        <div class="otp" data-s><label class="field"><input inputmode="numeric" maxlength="1" aria-label="Số 1"></label><label class="field"><input inputmode="numeric" maxlength="1" aria-label="Số 2"></label><label class="field"><input inputmode="numeric" maxlength="1" aria-label="Số 3"></label><label class="field"><input inputmode="numeric" maxlength="1" aria-label="Số 4"></label></div>
-        <p class="aerr" aria-live="polite"></p>
-      </div>
-      <div class="afoot"><button type="submit" class="btn" data-s>Xác nhận</button><p class="aswitch" data-s>Chưa nhận được? <button type="button" class="alink" id="fResend">Gửi lại mã</button></p></div>
     </form>
   </div>
 </div>
@@ -1209,7 +1205,7 @@ async function completeAdd(){
   addToCart(DRINKS[cur].id, qty, unit(), {...opts}); lastOrder = cur;
   syncBadges(true);
   $('#dCart').animate([{transform:'scale(1)'},{transform:'scale(1.22)'},{transform:'scale(.95)'},{transform:'scale(1)'}], {duration:T(480), easing:'ease-out'});
-  toast(`Đã thêm ${pad(qty)} ${DRINKS[cur].name} · ${fmt(unit()*qty)}`);
+  toast(`Đã thêm ${pad(qty)} ${DRINKS[cur].name} · ${fmt(unit()*qty)}`, 'cardadd');
   adding = false;
 }
 function syncBadges(pop){
@@ -1235,7 +1231,7 @@ const aName = $('#aName');
 aName.addEventListener('input', () => { $('#helloName').textContent = aName.value.trim() || 'Bạn'; });
 aName.addEventListener('keydown', e => { if (e.key === 'Enter') aName.blur(); });
 let savedName = aName.value;
-aName.addEventListener('blur', () => { aName.value = aName.value.trim() || 'Bạn'; $('#helloName').textContent = aName.value; if (aName.value !== savedName) { savedName = aName.value; toast('Đã lưu tên đặt hàng'); } });
+aName.addEventListener('blur', () => { aName.value = aName.value.trim() || 'Bạn'; $('#helloName').textContent = aName.value; if (aName.value !== savedName) { savedName = aName.value; toast('Đã lưu tên đặt hàng', 'user'); } });
 /* ---------- cart sheet ---------- */
 const cartItems = [];   /* {id, qty, unit} */
 const cartEl = $('#cart'), clist = $('#clist');
@@ -1287,7 +1283,7 @@ $('#eSave').addEventListener('click', () => {
 });
 $('#eDel').addEventListener('click', () => {
   cartItems.splice(E.i, 1); cart = cartItems.reduce((n, x) => n + x.qty, 0); syncBadges();
-  hideSheet(false, eSheet); renderCart(); toast('Đã xoá khỏi giỏ');
+  hideSheet(false, eSheet); renderCart(); toast('Đã xoá khỏi giỏ', 'bag');
 });
 sheetDismiss(eSheet);
 function renderCart(){
@@ -1354,9 +1350,13 @@ function checkout(){
   setTimeout(() => { paying = false; }, T(700));
 }
 $('#cPay').addEventListener('click', checkout);
-function toast(msg){
-  const t = document.createElement('div'); t.className = 'toast';
-  t.innerHTML = `<svg viewBox="10 10 20 20"><use href="#i-check"/></svg><span></span>`; t.lastChild.textContent = msg;
+/* icon by meaning: pass one, or problems get a warning sign and the rest a tick */
+const BAD = /^(Chưa|Không|Máy chưa|Quán vừa|Các món)|hết hàng|Mất kết nối/;
+function toast(msg, icon){
+  const warn = !icon && BAD.test(msg);
+  icon = icon || (warn ? 'warn' : 'check');
+  const t = document.createElement('div'); t.className = 'toast' + (warn || icon === 'warn' || icon === 'wifioff' ? ' warn' : '');
+  t.innerHTML = `<svg><use href="#i-${icon}"/></svg><span></span>`; t.lastChild.textContent = msg;
   const r = scr(); t.style.left = (r.left + r.width/2) + 'px'; t.style.top = (r.top + 18*S) + 'px';
   fx.appendChild(t);
   t.animate([{transform:'translate(-50%,-80px)'},{transform:'translate(-50%,0)', offset:.15},{transform:'translate(-50%,0)', offset:.85},{transform:'translate(-50%,-80px)'}], {duration:T(2400) < 600 ? 1600 : 2400, easing:'cubic-bezier(.22,1,.36,1)'}).onfinish = () => t.remove();
@@ -1518,7 +1518,7 @@ const aSheet = $('#aSheet'); sheetDismiss(aSheet);
 $('#aPayNow').addEventListener('click', () => {
   const due = dueOrders(); if (!due.length) return;
   qrSheet(aSheet, {amt:due.reduce((n, o) => n + oTotal(o), 0), code:'NO' + due.map(o => o.code.slice(2)).join(''), alt:'Để sau', onAlt:() => {},
-    onPaid:async () => { try { await (await api()).claimPaid(due.map(o => o.id)); toast('Đã gửi, chờ quán xác nhận'); } catch (e) { toast('Chưa gửi được, thử lại nhé'); } }});
+    onPaid:async () => { try { await (await api()).claimPaid(due.map(o => o.id)); toast('Đã gửi, chờ quán xác nhận', 'bank'); } catch (e) { toast('Chưa gửi được, thử lại nhé'); } }});
 });
 
 function setStatus(o, s){ o.status = s; renderHistory(); if (curOrder === o && isOpen(orderEl)) renderOrder(o); }
@@ -1574,7 +1574,7 @@ async function cancelOrder(o){
   if (o.status !== 'wait') { toast('Quán vừa nhận đơn, không huỷ được nữa'); return; }
   try { await (await api()).cancelOrder(o.id); }
   catch (e) { toast('Quán vừa nhận đơn, không huỷ được nữa'); return; }
-  toast(`Đã huỷ đơn #${o.code}`);
+  toast(`Đã huỷ đơn #${o.code}`, 'x');
 }
 
 /* ---------- notifications ---------- */
@@ -1599,7 +1599,7 @@ function syncNotifs(prev){
   orders.forEach(o => { const p = prev.get(o.id); if (p && p !== o.status && o.status !== 'cancel') notifyPop(NT[o.status](o)[0]); });
 }
 function notifyPop(title){
-  toast(title);
+  toast(title, 'bell');
   const b = $('#bell'); b.animate([{transform:'rotate(0)'},{transform:'rotate(14deg)'},{transform:'rotate(-12deg)'},{transform:'rotate(6deg)'},{transform:'rotate(0)'}], {duration:T(620), easing:'ease-out'});
 }
 function renderNotifs(){
@@ -1695,12 +1695,12 @@ function qrSheet(sheet, {amt, code, onPaid, alt, onAlt}){
     try {
       if (!window.ClipboardItem || !navigator.clipboard?.write) throw 0;
       await navigator.clipboard.write([new ClipboardItem({'image/png': qrPng(qr)})]);
-      toast('Đã sao chép ảnh mã QR');
+      toast('Đã sao chép ảnh mã QR', 'copy');
     } catch (e) { toast('Máy chưa cho sao chép ảnh, bấm Tải mã nhé'); }
   });
   q('save').addEventListener('click', async () => {
     const a = document.createElement('a'); a.href = URL.createObjectURL(await qrPng(qr)); a.download = `coong-${code}.png`; a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000); toast('Đã tải mã QR');
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000); toast('Đã tải mã QR', 'down');
   });
   q('paid').addEventListener('click', () => { hideSheet(false, sheet); onPaid(); });
   q('alt').addEventListener('click', () => { hideSheet(false, sheet); onAlt(); });
@@ -1781,17 +1781,17 @@ $('#sTrack').addEventListener('click', () => { dropFlow(); if (tab !== 1) showTa
 /* empty cart → go pick a drink */
 $('#cGo').addEventListener('click', () => { closeCart(); if (detail.style.visibility !== 'visible' && tab !== 0) showTab(0); });
 
-/* ---------- sign in: phone → returning customer (PIN) or new customer (name + PIN); forgot PIN: phone → SMS code → new PIN ---------- */
+/* ---------- sign in: phone → returning customer (PIN) or new customer (name + PIN); forgot PIN: phone + order name → new PIN ---------- */
 const authEl = $('#auth'), forms = $$('.aform', authEl);
 const formOf = m => forms.find(f => f.dataset.m === m);
 let step = 'phone';
-const A = {phone:'', name:'', mode:'enter', first:''};
+const A = {phone:'', name:'', mode:'enter', first:'', viaReset:false};
 let session = null, stopOrders = null, stopMenu = null;
 function setName(n){ $('#helloName').textContent = n; aName.value = n; savedName = n; }
 const prettyPhone = p => p.replace(/^(\d{4})(\d{3})(\d+)$/, '$1 $2 $3');
 const digits = v => v.replace(/\D/g, '');
 const tail = p => '••• ' + p.slice(-3);
-const pinIn = $$('.pinbox input', authEl), otp = $$('.otp:not(.pinbox) input', authEl);
+const pinIn = $$('.pinbox input', authEl);
 function clearErr(){ forms.forEach(f => { $$('.err', f).forEach(x => x.classList.remove('err')); $('.aerr', f).textContent = ''; }); }
 function go(m, anim = true){
   const from = formOf(step), to = formOf(m); step = m;
@@ -1800,7 +1800,6 @@ function go(m, anim = true){
   ['.alogo', '.acups', '.afade'].forEach(s => $(s, authEl).style.opacity = home ? 1 : 0);
   clearErr();
   if (m === 'pin') pinView();
-  if (m === 'otp') { otp.forEach(i => i.value = ''); $('#oSub').textContent = `Nhập mã 4 số Coong vừa gửi qua SMS tới ${tail(A.phone)}.`; }
   if (m === 'forgot' && A.phone) formOf('forgot').elements.phone.value = A.phone;
   const focus = () => { const i = $('input', to); if (i && m !== 'phone') i.focus({preventScroll:true}); };
   if (from === to || !anim) { forms.forEach(f => f.classList.toggle('off', f !== to)); return; }
@@ -1812,14 +1811,13 @@ function go(m, anim = true){
 }
 function openAuth(m = 'phone'){
   forms.forEach(f => f.reset());
-  Object.assign(A, {phone:'', name:'', mode:'enter', first:''});
+  Object.assign(A, {phone:'', name:'', mode:'enter', first:'', viaReset:false});
   if (m === 'reset') { A.phone = session.phone; A.name = session.name; A.mode = 'reset'; m = 'pin'; }
   go(m, false); showPage(authEl);
 }
 authEl.goBack = () => {
   if (step === 'pin' && A.mode === 'reset2') { A.mode = 'reset'; return pinView(); }
-  if (step === 'pin' && A.mode === 'reset') return session ? hidePage(authEl) : go('phone');
-  if (step === 'otp') return go('forgot');
+  if (step === 'pin' && A.mode === 'reset') return A.viaReset ? go(A.viaReset === 'shop' ? 'wait' : 'forgot') : session ? hidePage(authEl) : go('phone');
   go('phone');
 };
 $$('[data-to]', authEl).forEach(b => b.addEventListener('click', () => go(b.dataset.to)));
@@ -1846,10 +1844,22 @@ formOf('phone').addEventListener('submit', async e => {
   A.phone = p;
   if (acc) { A.name = acc.name; A.mode = 'enter'; go('pin'); } else go('reg');
 });
-/* there is no SMS: the shop resets a forgotten PIN */
-const forgotPin = () => ask({title:'Quên mã PIN?', text:'Nhắn hoặc gọi quán để được đặt lại mã PIN, rồi đăng nhập bằng mã mới.', ok:'Đã hiểu', cancel:'Đóng'});
-$('#aForgot').addEventListener('click', forgotPin);
-$('#pForgot').addEventListener('click', forgotPin);
+/* forgot PIN: there is no SMS, so the customer proves the number with the order name they registered */
+$('#aForgot').addEventListener('click', () => go('forgot'));
+$('#pForgot').addEventListener('click', () => go('forgot'));
+const sameName = (a, b) => a.trim().toLowerCase() === b.trim().toLowerCase();
+formOf('forgot').addEventListener('submit', async e => {
+  e.preventDefault(); const f = e.target, p = readPhone(f); if (!p) return;
+  const n = f.elements.name, v = n.value.trim();
+  if (!v) return bad(f, [n], 'Nhập tên đặt hàng bạn đã đăng ký nhé.');
+  const b = $('[type=submit]', f), t = b.textContent; b.textContent = 'Đang kiểm tra…'; b.disabled = true;
+  let acc;
+  try { acc = await (await api()).lookup(p); } catch (err) { b.textContent = t; b.disabled = false; return bad(f, [f.elements.phone], 'Chưa kết nối được, thử lại nhé.'); }
+  b.textContent = t; b.disabled = false;
+  if (!acc) return bad(f, [f.elements.phone], 'Số này chưa đăng ký, kiểm tra lại giúp mình nhé.');
+  if (!sameName(acc.name, v)) return bad(f, [n], 'Tên chưa khớp với số này, thử lại nhé.');
+  Object.assign(A, {phone:p, name:acc.name, typedName:v, mode:'reset', viaReset:true}); go('pin');
+});
 /* new customer: order name + PIN on one screen */
 $('#rPeek').addEventListener('click', e => { const i = formOf('reg').elements.pin, show = i.type === 'password'; i.type = show ? 'text' : 'password'; e.target.textContent = show ? 'Ẩn' : 'Hiện'; });
 formOf('reg').elements.pin.addEventListener('input', e => e.target.value = digits(e.target.value).slice(0, 4));
@@ -1865,14 +1875,14 @@ formOf('reg').addEventListener('submit', async e => {
 });
 /* 4 PIN boxes: one digit per box, typing moves on, backspace moves back, the 4th digit submits */
 const PIN = {
-  enter:['Nhập mã PIN', 'Lộ ra là mất tiền đấy :) Thật!'],
+  enter:['Nhập mã PIN', ''],
   reset:['Mã PIN mới', 'Chọn 4 số mới bạn dễ nhớ.'],
   reset2:['Nhập lại mã PIN', 'Nhập lại 4 số vừa chọn cho chắc.'],
 };
 function pinView(){
   pinIn.forEach(i => i.value = '');
   const [t, s] = PIN[A.mode];
-  $('#pTitle').textContent = t; $('#pSub').textContent = s;
+  $('#pTitle').textContent = t; $('#pSub').textContent = s; $('#pSub').hidden = !s;
   $('#pForgot').style.visibility = A.mode === 'enter' ? '' : 'hidden';
   clearErr();
   if (step === 'pin' && isOpen(authEl)) pinIn[0].focus({preventScroll:true});
@@ -1884,7 +1894,6 @@ function boxes(list, onFull){
   });
 }
 boxes(pinIn, () => formOf('pin').requestSubmit());
-boxes(otp);
 function pinErr(msg){ const f = formOf('pin'); bad(f, pinIn, msg); pinIn.forEach(i => i.value = ''); pinIn[0].focus(); }
 let checking = false;
 formOf('pin').addEventListener('submit', async e => {
@@ -1902,6 +1911,14 @@ formOf('pin').addEventListener('submit', async e => {
   if (A.mode === 'reset') { A.first = p; A.mode = 'reset2'; pinView(); return stagger(formOf('pin'), 0); }
   if (p !== A.first) { A.mode = 'reset'; pinView(); return pinErr('Hai lần nhập chưa khớp, chọn lại nhé.'); }
   checking = true;
+  if (A.viaReset) {
+    let ok;
+    try { ok = await (await api()).resetPin(A.phone, A.typedName, p); } catch (err) { checking = false; return pinErr('Chưa đổi được mã PIN, thử lại nhé.'); }
+    checking = false;
+    if (!ok) { A.mode = 'enter'; A.viaReset = false; go('forgot'); return bad(formOf('forgot'), [formOf('forgot').elements.name], 'Tên chưa khớp với số này, thử lại nhé.'); }
+    A.viaReset = false;
+    finish(false); return toast('Đã đổi mã PIN');
+  }
   try { await (await api()).setPin(A.phone, p); } catch (err) { checking = false; return pinErr('Chưa đổi được mã PIN, thử lại nhé.'); }
   checking = false;
   /* the device stays signed in with the old PIN; sign it in again with the new one */
@@ -1918,7 +1935,7 @@ function startSession(s){
       orders = list.map(fromDb);
       renderHistory(); syncNotifs(prev); prev = new Map(orders.map(o => [o.id, o.status]));
       if (curOrder && isOpen(orderEl)) { const o = orders.find(x => x.id === curOrder.id); if (o) { curOrder = o; renderOrder(o); } }
-    }, () => toast('Mất kết nối tới quán'));
+    }, () => toast('Mất kết nối tới quán', 'wifioff'));
     stopMenu = a.watchMenu(applyMenu, () => {});
   });
 }
@@ -1932,7 +1949,7 @@ function finish(isNew){
   hidePage(authEl);
   if (tab !== 0) showTab(0);
   homeParts().forEach((el, k) => el.animate([{opacity:0, transform:'translateY(14px)'},{opacity:1, transform:'none'}], {duration:T(520), delay:T(180 + k*50), easing:'cubic-bezier(.22,1,.36,1)', fill:'backwards'}));
-  toast(isNew ? 'Đã tạo tài khoản' : `Chào ${A.name}!`);
+  toast(isNew ? 'Đã tạo tài khoản' : `Chào ${A.name}!`, isNew ? 'check' : 'cup');
 }
 
 /* account actions: resetting the PIN signs out, then the customer verifies the phone and picks a new PIN */
@@ -1949,7 +1966,7 @@ $('#logout').addEventListener('click', async () => {
 /* the edited order name follows the account */
 aName.addEventListener('change', async () => {
   const n = aName.value.trim(); if (!session || !n || n === session.name) { aName.value = session ? session.name : n; return; }
-  try { await (await api()).rename(session.phone, n); session.name = n; setName(n); toast('Đã đổi tên đặt hàng'); }
+  try { await (await api()).rename(session.phone, n); session.name = n; setName(n); toast('Đã đổi tên đặt hàng', 'user'); }
   catch (e) { aName.value = session.name; toast('Chưa đổi được tên, thử lại nhé'); }
 });
 
@@ -1960,10 +1977,10 @@ function setOffline(on){
   if (!on && isOpen(offEl)) hidePage(offEl);
 }
 addEventListener('offline', () => setOffline(true));
-addEventListener('online', () => { if (isOpen(offEl)) { setOffline(false); toast('Đã kết nối lại'); } });
+addEventListener('online', () => { if (isOpen(offEl)) { setOffline(false); toast('Đã kết nối lại', 'check'); } });
 $('#retry').addEventListener('click', async () => {
   const b = $('#retry'); b.textContent = 'Đang thử…'; await wait(T(700)); b.textContent = 'Thử lại';
-  if (navigator.onLine) { setOffline(false); toast('Đã kết nối lại'); }
+  if (navigator.onLine) { setOffline(false); toast('Đã kết nối lại', 'check'); }
   else { b.classList.remove('shake'); b.offsetWidth; b.classList.add('shake'); toast('Vẫn chưa có mạng'); }
 });
 

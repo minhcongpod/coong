@@ -123,3 +123,11 @@ export const deleteCustomer = async (phone) => {
   batch.delete(doc(db, 'pins', phone));
   await batch.commit();
 };
+
+// Quên PIN: đặt PIN mới bằng SĐT + tên đặt hàng và mở khóa máy này trong cùng một lần ghi
+export const resetPinByName = async (uid, phone, name, pin) => {
+  const batch = writeBatch(db);
+  batch.set(doc(db, 'pins', phone), { pin });
+  batch.set(doc(db, 'devices', uid), { phone, pin, resetName: name, createdAt: nowIso() });
+  await batch.commit();
+};

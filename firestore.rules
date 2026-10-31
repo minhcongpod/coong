@@ -50,6 +50,17 @@ service cloud.firestore {
           == getAfter(/databases/$(database)/documents/pins/$(phone)).data.pin;
     }
 
+    // Quên PIN: khách tự đặt lại bằng SĐT + tên đặt hàng. Cùng một lần ghi phải mở khóa
+    // máy này cho SĐT đó, kèm resetName khớp tên trong users/{phone} (không phân biệt hoa thường).
+    function nameReset(phone) {
+      let d = getAfter(/databases/$(database)/documents/devices/$(request.auth.uid));
+      return signedIn()
+        && d != null
+        && d.data.phone == phone
+        && d.data.resetName is string
+        && d.data.resetName.lower() == get(/databases/$(database)/documents/users/$(phone)).data.name.lower();
+    }
+
     match /meta/setup {
       allow read: if true;
       allow create: if signedIn()
@@ -79,7 +90,7 @@ service cloud.firestore {
     match /pins/{phone} {
       allow read: if false;
       allow create: if validPin(request.resource.data.pin) && (isAdmin() || isBootstrap(phone) || isSelfSignup(phone));
-      allow update: if validPin(request.resource.data.pin) && (isAdmin() || isOwner(phone));
+      allow update: if validPin(request.resource.data.pin) && (isAdmin() || isOwner(phone) || nameReset(phone));
       allow delete: if isAdmin();
     }
 
