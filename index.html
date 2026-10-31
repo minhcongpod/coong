@@ -132,7 +132,7 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 .cempty{left:0;width:390px;top:149px;opacity:0;pointer-events:none;transition:opacity .3s}
 #cart.empty .cempty{opacity:1;pointer-events:auto}
 .cempty .eico{margin-bottom:0;color:#fff}.cempty p{color:rgba(255,255,255,.5);line-height:21.75px}.cempty .btn{margin-top:6px;padding:0 24px}
-#cart.empty .cfoot{opacity:0;pointer-events:none}
+#cart.empty .cfoot{opacity:0;pointer-events:none;transition:none}
 .cfoot{transition:opacity .3s}
 #cTotal{color:var(--yellow)}
 
@@ -1342,7 +1342,7 @@ function openCart(){
   cartEl.getAnimations().forEach(a => a.cancel());
   cartEl.style.zIndex = ++Z; cartEl.style.visibility = 'visible';
   cartEl.animate([{transform:'translateY(100%)'},{transform:'none'}], {duration:T(520), easing:'cubic-bezier(.22,1,.36,1)'});
-  $$('.citem,.cfoot', cartEl).forEach((r, k) => r.animate([{opacity:0, transform:'translateY(24px)'},{opacity:1, transform:'none'}], {duration:T(520), delay:T(120 + k*60), easing:'cubic-bezier(.34,1.4,.64,1)', fill:'backwards'}));
+  $$(cartItems.length ? '.citem,.cfoot' : '.nope', cartEl).forEach((r, k) => r.animate([{opacity:0, transform:'translateY(24px)'},{opacity:1, transform:'none'}], {duration:T(520), delay:T(120 + k*60), easing:'cubic-bezier(.34,1.4,.64,1)', fill:'backwards'}));
 }
 function closeCart(){
   if (!cartOpen) return; cartOpen = false;
