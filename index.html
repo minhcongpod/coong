@@ -2038,7 +2038,7 @@ renderHistory(); renderNotifs();
 /* an app added to the home screen keeps running its old copy: look for a newer build whenever it comes back to the foreground (and every few minutes), then reload when nothing is in progress */
 const BUILD = $('meta[name=build]').content;
 let updateSeen = false;
-const idle = () => !cartItems.length && !document.querySelector('.page.open') && detail.style.visibility !== 'visible' && dlg.style.visibility !== 'visible';
+const appIdle = () => !cartItems.length && !document.querySelector('.page.open') && detail.style.visibility !== 'visible' && dlg.style.visibility !== 'visible';
 async function checkUpdate(){
   if (BUILD.startsWith('__') || !navigator.onLine) return;
   try {
@@ -2047,7 +2047,7 @@ async function checkUpdate(){
       const m = t.match(/name="build" content="(\d+)"/);
       updateSeen = !!(m && m[1] !== BUILD);
     }
-    if (updateSeen && idle()) location.reload();
+    if (updateSeen && appIdle()) location.reload();
   } catch (e) {}
 }
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkUpdate(); });
