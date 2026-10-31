@@ -768,7 +768,7 @@ function applyMenu(items){
   DRINKS.forEach(d => { const m = items.find(x => x.active !== false && drinkIdOf(x.name) === d.id);
     /* sold out: the owner switched every menu entry for this drink off */
     const all = items.filter(x => drinkIdOf(x.name) === d.id); d.sold = all.length > 0 && !m;
-    if (m) Object.assign(d, {price:m.price, menuId:m.id, menuName:m.name, cost:m.cost || 0, ...(typeof m.upsize === 'number' ? {xl:m.upsize} : {})}); });
+    if (m) Object.assign(d, {price:m.price, menuId:m.id, menuName:m.name, cost:m.cost || 0, ...(typeof m.upsize === 'number' && d.id !== 'den' ? {xl:m.upsize} : {})}); });
   cards.forEach((c, i) => { const d = DRINKS[i]; c.classList.toggle('sold', !!d.sold); $('.pricebar b', c).textContent = d.sold ? 'Hết hàng' : fmt(d.price); });
   if (detail.style.visibility === 'visible') $('#dPrice').textContent = fmt(unit()*qty);
 }
@@ -1437,7 +1437,7 @@ const PAY = {cash:'Tiền mặt', bank:'Chuyển khoản', debt:'Ghi nợ'};
 const ST = {wait:'Chờ xác nhận', brew:'Đang chế', done:'Hoàn thành', cancel:'Hủy'};
 const daysAgo = (n, h = 8, m = 30) => { const d = new Date(); d.setDate(d.getDate() - n); if (n) d.setHours(h, m); return d; };
 const O0 = {upsize:0, sweet:0, cafe:0};
-const line = (id, qty = 1, o = O0) => ({id, qty, unit:drink(id).price + (o.upsize ? 5000 : 0), o:{...o}});
+const line = (id, qty = 1, o = O0) => ({id, qty, unit:drink(id).price + (o.upsize ? drink(id).xl : 0), o:{...o}});
 const STATUS = {pending:'wait', brewing:'brew', completed:'done', cancelled:'cancel'};
 /* order number counts up from 1234; older orders without one keep the id-based code */
 const shortCode = d => typeof d.no === 'number' ? String(d.no).padStart(4, '0') : d.id.slice(-6).toUpperCase();
