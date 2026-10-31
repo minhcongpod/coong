@@ -32,7 +32,7 @@ export function CustomerPicker({ users, selected, onPick, onBack, onAdd, onEdit 
 }
 
 // Mã PIN ngẫu nhiên cho khách do quán tạo: khách tự đặt PIN riêng bằng "Quên hả?" (số điện thoại + tên đặt hàng)
-const randomPin = () => String(Math.floor(Math.random() * 10000)).padStart(4, '0');
+const DEFAULT_PIN = '0000'; // khách tự đặt PIN mới ở lần đăng nhập đầu
 
 // Tạo khách mới: tên đặt hàng và số điện thoại
 export function NewCustomer({ users, onBack, onCreated }) {
@@ -49,7 +49,7 @@ export function NewCustomer({ users, onBack, onCreated }) {
     if (users[p]) return setError('Số điện thoại này đã có tài khoản.');
     setBusy(true);
     try {
-      await createCustomer({ phone: p, name: name.trim(), pin: randomPin() });
+      await createCustomer({ phone: p, name: name.trim(), pin: DEFAULT_PIN });
       toast('Đã tạo khách', true);
       onCreated({ phone: p, name: name.trim(), role: 'customer' });
     } catch (e) { setError(errText(e)); setBusy(false); }

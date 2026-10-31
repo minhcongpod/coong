@@ -1930,8 +1930,12 @@ formOf('pin').addEventListener('submit', async e => {
     checking = true; let ok;
     try { ok = await (await api()).signIn(A.phone, p); } catch (err) { checking = false; return pinErr('Chưa kết nối được, thử lại nhé.'); }
     checking = false;
-    return ok ? finish(false) : pinErr('Có vậy mà cũng quên...');
+    if (!ok) return pinErr('Có vậy mà cũng quên...');
+    /* shop-created accounts start on 0000: the customer must pick their own PIN before going in */
+    if (p === '0000') { A.mode = 'reset'; A.viaReset = false; pinView(); return stagger(formOf('pin'), 0); }
+    return finish(false);
   }
+  if (A.mode === 'reset' && p === '0000') return pinErr('Mã 0000 là mã mặc định, chọn số khác nhé.');
   if (A.mode === 'reset') { A.first = p; A.mode = 'reset2'; pinView(); return stagger(formOf('pin'), 0); }
   if (p !== A.first) { A.mode = 'reset'; pinView(); return pinErr('Hai lần nhập chưa khớp, chọn lại nhé.'); }
   checking = true;
