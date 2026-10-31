@@ -387,10 +387,10 @@ input{user-select:text;-webkit-user-select:text}
 #detail[data-id=nau]{--bg1:#fed3a1;--bg2:#ffc077;--fg:#000;--title:#663d00;--btn:rgba(255,255,255,.3);--chip:rgba(255,255,255,.3);--chipT:#000;--xOn:#000;--valOn:#000;--bulge:rgba(255,255,255,.3);--round:rgba(0,0,0,.1);--price:#fff;--priceT:#000;--lblc:rgba(0,0,0,.8);--pm:#000}
 #detail[data-id=bac]{--bg1:#edecea;--bg2:#d6d3c9;--fg:#000;--title:#000;--btn:rgba(255,255,255,.3);--chip:rgba(255,255,255,.3);--chipT:#000;--xOn:#000;--valOn:#000;--bulge:rgba(255,255,255,.3);--round:rgba(0,0,0,.1);--price:#fff;--priceT:#000;--lblc:rgba(0,0,0,.8);--pm:#000}
 #detail .stage{color:var(--fg)}
-.back{left:24px;top:22px;width:52px;height:52px;background:var(--btn);color:var(--fg)}
+.back{left:24px;top:24px;width:52px;height:52px;background:var(--btn);color:var(--fg)}
 .back svg{width:28px;height:28px}
-#detail .cartbtn{top:22px;background:var(--btn);color:var(--fg)}
-#detail[data-id=nau] .back,#detail[data-id=nau] .cartbtn,#detail[data-id=bac] .back,#detail[data-id=bac] .cartbtn{top:23px}
+#detail .cartbtn{top:24px;background:var(--btn);color:var(--fg)}
+#detail[data-id=nau] .back,#detail[data-id=nau] .cartbtn,#detail[data-id=bac] .back,#detail[data-id=bac] .cartbtn{top:24px}
 .dtitle{left:27px;top:94px;font-size:44px;line-height:46px;font-weight:700;color:var(--title);margin:0}
 .opts{left:27px;top:159px;display:flex;flex-direction:column}
 .opt[data-k=sweet]{margin-top:15px}.opt[data-k=cafe]{margin-top:17px}
@@ -428,7 +428,7 @@ input{user-select:text;-webkit-user-select:text}
 @media (prefers-reduced-motion:reduce){.add::before,.pricebar::before{animation:none}}
 @keyframes chev{0%,100%{opacity:.25}40%{opacity:1}}
 /* drink detail: add-to-cart circle + pay-now pill */
-.dacts{left:24px;bottom:22px;width:342px;height:60px;display:flex;gap:16px}
+.dacts{left:24px;bottom:24px;width:342px;height:60px;display:flex;gap:16px}
 .dadd{position:relative;flex:none;width:60px;height:60px;border-radius:32px;background:var(--btn);color:var(--fg);display:flex;align-items:center;justify-content:center;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);transition:transform .25s var(--ease-out)}
 .dadd::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.2px;background:linear-gradient(90deg,rgba(255,255,255,.5),rgba(255,255,255,.1) 50%,rgba(255,255,255,.5));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
 .dadd svg{width:28px;height:28px}
