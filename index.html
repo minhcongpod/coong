@@ -683,7 +683,7 @@ input{user-select:text;-webkit-user-select:text}
       <div class="afoot"><button type="submit" class="btn" data-s>Tiếp tục</button><button type="button" class="alink" id="aForgot" data-s>Quên hả?</button></div>
     </form>
     <form class="abs aform off" data-m="pin" novalidate>
-      <div class="ahead"><h2 class="atitle" data-s id="pTitle">Nhập mã PIN</h2><p class="asub" data-s id="pSub">Lộ ra là mất tiền đấy :) Thật!</p></div>
+      <div class="ahead"><h2 class="atitle" data-s id="pTitle">Nhập mã PIN</h2><p class="asub" data-s id="pSub" hidden></p></div>
       <div class="fields">
         <div class="otp pinbox" data-s><label class="field"><input type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Số 1"></label><label class="field"><input type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Số 2"></label><label class="field"><input type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Số 3"></label><label class="field"><input type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Số 4"></label></div>
         <p class="aerr" aria-live="polite"></p>
@@ -1865,14 +1865,14 @@ formOf('reg').addEventListener('submit', async e => {
 });
 /* 4 PIN boxes: one digit per box, typing moves on, backspace moves back, the 4th digit submits */
 const PIN = {
-  enter:['Nhập mã PIN', 'Lộ ra là mất tiền đấy :) Thật!'],
+  enter:['Nhập mã PIN', ''],
   reset:['Mã PIN mới', 'Chọn 4 số mới bạn dễ nhớ.'],
   reset2:['Nhập lại mã PIN', 'Nhập lại 4 số vừa chọn cho chắc.'],
 };
 function pinView(){
   pinIn.forEach(i => i.value = '');
   const [t, s] = PIN[A.mode];
-  $('#pTitle').textContent = t; $('#pSub').textContent = s;
+  $('#pTitle').textContent = t; $('#pSub').textContent = s; $('#pSub').hidden = !s;
   $('#pForgot').style.visibility = A.mode === 'enter' ? '' : 'hidden';
   clearErr();
   if (step === 'pin' && isOpen(authEl)) pinIn[0].focus({preventScroll:true});
