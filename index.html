@@ -402,8 +402,8 @@ input{user-select:text;-webkit-user-select:text}
 .chip.on{background:#fff;color:var(--xOn)}
 .chip.on.val{color:var(--valOn)}
 .chip:active{transform:scale(.92)}
-.spin2{position:absolute;inset:0;background-repeat:no-repeat;background-size:2400% 100%;pointer-events:none;opacity:0}
-.spin{left:145px;top:100px;height:310px;background-repeat:no-repeat;background-size:2400% 100%;cursor:grab;touch-action:none;}
+.spin2{display:none}
+.spin{left:145px;top:100px;height:310px;background-repeat:no-repeat;background-size:contain;background-position:center bottom}
 .bulge{bottom:104px;width:84px;height:155px;color:var(--bulge)}
 .bulge svg{width:84px;height:155px}
 .bulge.r{left:calc(306.2px + var(--gx,0px));transform:scaleX(-1)}
@@ -552,7 +552,7 @@ input{user-select:text;-webkit-user-select:text}
       <div class="opt" data-a="left" data-k="sweet"><label>Ngọt</label><div><button class="chip on" data-v="0" aria-label="Ngọt 100">100</button><button class="chip val" data-v="50" aria-label="Độ ngọt">50</button></div></div>
       <div class="opt" data-a="left" data-k="cafe"><label>Cafe</label><div><button class="chip on" data-v="0" aria-label="Cafe 100">100</button><button class="chip val" data-v="50" aria-label="Lượng cafe">50</button></div></div>
     </div>
-    <div class="abs spin" id="spin" aria-label="Kéo để xoay cốc"></div>
+    <div class="abs spin" id="spin" role="img"></div>
     <button class="abs circ pm minus" id="minus" aria-label="Giảm" data-a="l"><svg><use href="#i-minus"/></svg></button>
     <button class="abs circ pm plus" id="plus" aria-label="Tăng" data-a="r"><svg><use href="#i-plus"/></svg></button>
     <div class="abs qty" id="qty" data-a="up"><span>01</span></div>
@@ -748,9 +748,9 @@ const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
 
 const DRINKS = [
-  {id:'bac', name:'Bạc', price:20000, aspect:316/540, rec:true,  stops:[[0,'#e2e2e2'],[.5739,'#d9d0b7']], edge:.35, card:'linear-gradient(0deg,#d9d0b7 42.61%,#e2e2e2 100%)', bg:'linear-gradient(0deg,#d9d0b7 42.61%,#e2e2e2 100%)'},
-  {id:'den', name:'Đen', price:20000, aspect:341/540,            stops:[[0,'#484848'],[.5739,'#1e1e1e']], edge:.12, card:'linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)', bg:'linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)'},
-  {id:'nau', name:'Nâu', price:20000, aspect:339/540,            stops:[[0,'#fed9ae'],[.574,'#ffc077']], edge:.35, card:'linear-gradient(180deg,#fed9ae 0%,#ffc077 57.4%)', bg:'linear-gradient(180deg,#fed3a1,#ffc077)'},
+  {id:'bac', name:'Bạc', price:20000, aspect:512/901, rec:true,  stops:[[0,'#e2e2e2'],[.5739,'#d9d0b7']], edge:.35, card:'linear-gradient(0deg,#d9d0b7 42.61%,#e2e2e2 100%)', bg:'linear-gradient(0deg,#d9d0b7 42.61%,#e2e2e2 100%)'},
+  {id:'den', name:'Đen', price:20000, aspect:512/792,            stops:[[0,'#484848'],[.5739,'#1e1e1e']], edge:.12, card:'linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)', bg:'linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)'},
+  {id:'nau', name:'Nâu', price:20000, aspect:512/797,            stops:[[0,'#fed9ae'],[.574,'#ffc077']], edge:.35, card:'linear-gradient(180deg,#fed9ae 0%,#ffc077 57.4%)', bg:'linear-gradient(180deg,#fed3a1,#ffc077)'},
 ];
 const N = DRINKS.length, FRAMES = 24;
 /* Firebase bridge (src/coong/api.js), loaded as a module next to this script */
@@ -769,8 +769,8 @@ const fmt = n => n.toLocaleString('vi-VN').replace(/,/g,'.');
 const pad = n => String(n).padStart(2,'0');
 let Z = 10;   /* stacking order for screens opened on top of each other */
 
-/* preload sprites so the detail spin is ready */
-DRINKS.forEach(d => { const i = new Image(); i.src = d.id + '-spin.webp'; if (i.decode) i.decode().catch(() => {}); });
+/* preload the drink photos so the detail screen is ready */
+DRINKS.forEach(d => { const i = new Image(); i.src = d.id + '.webp'; if (i.decode) i.decode().catch(() => {}); });
 const nextFrame = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
 /* ---------- stage scaling ---------- */
@@ -929,19 +929,13 @@ function sizeSpin(){
   spin.style.height = h + 'px'; spin.style.width = w + 'px'; spin.style.left = (261 - w/2) + 'px';
 }
 const spin2 = document.createElement('i'); spin2.className = 'spin2'; spin.appendChild(spin2);
-function setFrame(f){
-  frame = ((f % FRAMES) + FRAMES) % FRAMES;
-  /* blend the two neighbouring frames so slow turns glide instead of stepping */
-  const i0 = Math.floor(frame), t = frame - i0;
-  spin.style.backgroundPosition = `${i0 % FRAMES/(FRAMES-1)*100}% 0`;
-  spin2.style.backgroundPosition = `${(i0 + 1) % FRAMES/(FRAMES-1)*100}% 0`;
-  spin2.style.opacity = t;
-}
+/* the cup is a still photo now: no turning */
+function setFrame(){ frame = 0; }
 function fillDetail(i){
   cur = i; const d = DRINKS[i];
   detail.dataset.id = d.id;
   $('#dTitle').textContent = d.name;
-  spin.style.backgroundImage = spin2.style.backgroundImage = `url(${d.id}-spin.webp)`;
+  spin.style.backgroundImage = `url(${d.id}.webp)`; spin.setAttribute('aria-label', d.name);
   sizeSpin();
   setFrame(0);
   qty = 1; Object.keys(opts).forEach(k => opts[k] = 0);
@@ -997,26 +991,10 @@ function holdStep(btn, d){
 }
 holdStep($('#minus'), -1); holdStep($('#plus'), 1);
 
-/* drag-to-rotate cup */
-let sd = null, spinAnim = 0;
-spin.addEventListener('pointerdown', e => { cancelAnimationFrame(spinAnim); sd = {x:e.clientX, f:frame, lx:e.clientX, v:0}; spin.setPointerCapture(e.pointerId); spin.style.cursor='grabbing'; });
-spin.addEventListener('pointermove', e => { if (!sd) return; sd.v = (e.clientX - sd.lx)/S; sd.lx = e.clientX; setFrame(sd.f + (e.clientX - sd.x)/S/9); });
-const spinEnd = () => { if (!sd) return; let v = sd.v/9; sd = null; spin.style.cursor='';
-  const coast = () => { v *= 0.93; setFrame(frame + v); if (Math.abs(v) > 0.02) spinAnim = requestAnimationFrame(coast); }; spinAnim = requestAnimationFrame(coast); };
-spin.addEventListener('pointerup', spinEnd); spin.addEventListener('pointercancel', spinEnd);
-/* after the intro spin the cup keeps turning slowly, left to right, until it is touched */
-function autoSpin(){
-  if (RM) return; cancelAnimationFrame(spinAnim);
-  let last = performance.now();
-  const go = now => { setFrame(frame + 2*(now - last)/1000); last = now; spinAnim = requestAnimationFrame(go); };
-  spinAnim = requestAnimationFrame(go);
-}
-function spinOnce(ms){
-  if (RM) return Promise.resolve();
-  return new Promise(res => { const t0 = performance.now(), f0 = frame;
-    const go = now => { const k = Math.min(1, (now-t0)/ms), e = 1 - Math.pow(1-k, 3); setFrame(f0 + e*FRAMES); if (k < 1) spinAnim = requestAnimationFrame(go); else { setFrame(0); res(); } };
-    spinAnim = requestAnimationFrame(go); });
-}
+/* the cup photo is still; these stay as no-ops for the open/close transitions */
+let spinAnim = 0;
+function autoSpin(){}
+function spinOnce(){ return Promise.resolve(); }
 
 /* ---------- transitions ---------- */
 let busy = false;
@@ -1204,7 +1182,7 @@ async function completeAdd(){
   /* the cup (current angle) flies into the cart */
   const r = rectOf(spin), c = rectOf($('#dCart'));
   const ghost = document.createElement('div'); ghost.className = 'fly';
-  Object.assign(ghost.style, {width:r.width+'px', height:r.height+'px', backgroundImage:spin.style.backgroundImage, backgroundSize:'2400% 100%', backgroundPosition:spin.style.backgroundPosition, filter:`drop-shadow(0 0 12px ${GLOW[DRINKS[cur].id]})`});
+  Object.assign(ghost.style, {width:r.width+'px', height:r.height+'px', backgroundImage:spin.style.backgroundImage, backgroundSize:'contain', backgroundRepeat:'no-repeat', backgroundPosition:'center', filter:`drop-shadow(0 0 12px ${GLOW[DRINKS[cur].id]})`});
   fx.appendChild(ghost);
   const s = 34*S/r.height;
   const ex = c.left + c.width/2 - r.width*s/2, ey = c.top + c.height/2 - r.height*s/2;
