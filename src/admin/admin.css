@@ -343,3 +343,11 @@ button.a-card:active{transform:scale(.97)}
 .o-nrow b{display:block;font-size:16px;line-height:20px}
 .o-nrow small{display:block;font-size:14px;line-height:18px;color:var(--mute);margin-top:2px;font-weight:500}
 .o-nrow.new::after{content:"";position:absolute;right:16px;top:calc(50% - 4px);width:8px;height:8px;border-radius:8px;background:var(--yellow)}
+
+/* Thanh toán theo Figma: các khối cách nhau 16, phương thức cách nhau 8 */
+.o-paywrap{display:flex;flex-direction:column;gap:16px;padding-bottom:8px}
+.o-sum-card{gap:0;padding:16px 24px}
+.o-sum-card .o-line{padding:6px 0}
+.o-cust{padding:16px 24px;gap:8px;min-height:56px}
+.o-clabel{font-size:16px;font-weight:500;color:var(--mute);text-align:left}
+.o-cust b{font-size:16px}

@@ -135,7 +135,8 @@ export default function OrderTab({ menu, users, orders, onTrack }) {
           </div>
         )}
       >
-        <div className="a-card" style={{ gap: 0, padding: '10px 24px' }}>
+        <div className="o-paywrap">
+        <div className="a-card o-sum-card">
           {lines.map((l, i) => (
             <div key={i} className="o-line">
               <span className="grow">
@@ -147,9 +148,9 @@ export default function OrderTab({ menu, users, orders, onTrack }) {
           ))}
         </div>
         <button className="a-card h o-cust" onClick={() => setPage('pick')} aria-label="Chọn khách">
-          <span className="m a-t grow">Khách hàng</span>
+          <span className="grow o-clabel">Khách hàng</span>
           <b className={`a-t ${customer ? '' : 'y'}`}>{customer ? customer.name : 'Chọn khách'}</b>
-          <span className="m"><Icon n="right" /></span>
+          <span className="m"><Icon n="right" size={24} /></span>
         </button>
         <div className="o-methods" role="radiogroup">
           {METHODS.map(([k, label, sym]) => (
@@ -160,7 +161,7 @@ export default function OrderTab({ menu, users, orders, onTrack }) {
             </button>
           ))}
         </div>
-        {customer && <p className="a-hint" style={{ paddingLeft: 4 }}>{phoneText(customer.phone)}</p>}
+        </div>
       </Page>
     );
   }
