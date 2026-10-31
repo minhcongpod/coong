@@ -325,13 +325,15 @@ input{user-select:text;-webkit-user-select:text}
 .cartbtn svg{width:28px;height:28px}
 .badge{position:absolute;top:-2px;right:-2px;min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:20px;background:var(--yellow);color:#000;font-size:12px;font-weight:700;line-height:20px;text-align:center;transform:scale(0);transition:transform .35s var(--ease-out)}
 .badge.on{transform:scale(1)}
-.order{z-index:2;left:24px;top:468px;width:342px;box-sizing:border-box;background:rgba(255,255,255,.1);border-radius:32px;padding:16px 24px;display:flex;align-items:center;gap:12px;font-size:16px;font-weight:700;line-height:20px}
+.order{z-index:2;left:24px;top:468px;width:342px;box-sizing:border-box;background:rgba(255,255,255,.1);border-radius:32px;padding:16px 16px 16px 24px;display:flex;align-items:center;gap:16px;font-size:16px;font-weight:700;line-height:20px}
 .order span{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .order b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .order small{font-size:14px;font-weight:500;line-height:17px;color:rgba(255,255,255,.5)}
 .order button{color:var(--yellow);font-weight:700}
+.order .oclose{flex:none;width:28px;height:28px;color:rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center}
+.order .oclose svg{width:28px;height:28px}
 
-#carousel{left:0;top:-4px;width:390px;height:480px;touch-action:pan-y}
+#carousel{left:0;top:-4px;width:390px;height:480px;touch-action:pan-y;transition:top .45s cubic-bezier(.22,1,.36,1)}
 /* the reorder card sits under the drinks; without it, centre the drinks between the header and the dots */
 #home.noorder #carousel{top:42px}
 /* the carousel reaches under the header, so keep the header buttons on top of it */
@@ -511,7 +513,7 @@ input{user-select:text;-webkit-user-select:text}
     <div class="abs hello"><b id="helloName">LieuNT</b></div>
     <button class="abs circ cartbtn" aria-label="Giỏ hàng"><svg><use href="#i-bag"/></svg><span class="badge"></span></button>
     <button class="abs circ bellbtn" id="bell" aria-label="Thông báo"><svg><use href="#i-bell"/></svg><span class="nbadge"></span></button>
-    <div class="abs order" id="lastOrder" style="display:none"><span><b id="orderTxt"></b><small id="orderWhen"></small></span><button id="reorder">ĐẶT LẠI</button></div>
+    <div class="abs order" id="lastOrder" style="display:none"><span><b id="orderTxt"></b><small id="orderWhen"></small></span><button id="reorder">ĐẶT LẠI</button><button class="oclose" id="lastClose" aria-label="Ẩn thẻ đặt lại"><svg><use href="#i-close"/></svg></button></div>
     <div id="carousel" class="abs"></div>
     <div class="abs dots" id="dots" hidden></div>
     </div>
@@ -915,8 +917,11 @@ function goAndOpen(i){
 let lastOrder = 1;
 /* reorder: only customers with an order see it, and it repeats their latest (not cancelled) order */
 const lastPlacedOrder = () => orders.find(o => o.status !== 'cancel');
+/* the X hides the reorder card until the customer places a newer order */
+const hideKey = () => 'coong-lasthide-' + (session ? session.phone : '');
 function renderLast(){
-  const o = lastPlacedOrder();
+  let o = lastPlacedOrder();
+  if (o && store.get(hideKey()) === o.id) o = null;
   $('#lastOrder').style.display = o ? '' : 'none';
   $('#home').classList.toggle('noorder', !o);
   if (o) { $('#orderTxt').textContent = oSummary(o); $('#orderWhen').textContent = listDate(o.at); }
@@ -928,6 +933,11 @@ function reorder(o){
   if (ok.length < o.items.length) toast('Đã bỏ món đang hết hàng');
 }
 $('#reorder').addEventListener('click', () => { if (busy) return; const o = lastPlacedOrder(); if (o) reorder(o); });
+$('#lastClose').addEventListener('click', () => {
+  if (busy) return; const o = lastPlacedOrder(); if (!o) return;
+  store.set(hideKey(), o.id);
+  $('#lastOrder').animate([{opacity:1, transform:'none'},{opacity:0, transform:'translateY(12px)'}], {duration:T(220), easing:'ease-in'}).onfinish = renderLast;
+});
 
 /* ---------- detail state ---------- */
 const detail = $('#detail'), spin = $('#spin');
