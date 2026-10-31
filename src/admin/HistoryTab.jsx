@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { updateOrder } from '../db';
-import { Icon, Sym, Page, Btn, Seg, fmt, hm, dmy, timeOf, phoneText, payLabel, payState, orderCode, kindOf, STATUS, isLive, useUI, errText } from './ui.jsx';
+import { Icon, Sym, Page, Btn, Seg, fmt, hm, dmy, timeOf, phoneText, payLabel, payState, orderCode, kindOf, STATUS, isLive, useUI, errText, BellBtn } from './ui.jsx';
 
 const FILTERS = [['all', 'Tất cả'], ['pending', 'Chờ xác nhận'], ['brewing', 'Đang chế'], ['completed', 'Hoàn thành'], ['cancelled', 'Hủy']];
 const LIST_LABEL = { brewing: 'Đang chế' };
@@ -28,7 +28,7 @@ const itemQty = (o) => (o.items || []).reduce((n, x) => n + (x.quantity || 1), 0
 const whenText = (d) => (!d ? '' : d.toDateString() === new Date().toDateString() ? 'Hôm nay' : dmy(d));
 
 // Tab Đơn hàng: danh sách đơn, xem chi tiết, thu tiền, nhận đơn, hoàn thành, huỷ
-export default function HistoryTab({ orders, users, loading, onGoOrder, track }) {
+export default function HistoryTab({ orders, users, loading, onGoOrder, track, unread, onBell }) {
   const [filter, setFilter] = useState('all');
   const [openId, setOpenId] = useState(null);
   useEffect(() => { if (track) setOpenId(track.id); }, [track]);
@@ -55,7 +55,7 @@ export default function HistoryTab({ orders, users, loading, onGoOrder, track })
 
   return (
     <>
-      <h1 className="a-title">Đơn hàng</h1>
+      <div className="w-head"><h1 className="a-title">Đơn hàng</h1><BellBtn n={unread} onClick={onBell} /></div>
       <FilterBar value={filter} onChange={setFilter} />
       <div className="a-body" ref={listRef}>
         {list.map((o, i) => {

@@ -4,7 +4,7 @@ import { auth } from '../firebase';
 import { getSetup, watchDevice, unlockDevice, lockDevice, watchOrders, watchMenu, watchUsers, watchTransactions, watchShop } from '../db';
 import './admin.css';
 import { Sym, UIProvider, useUI, errText, stagger } from './ui.jsx';
-import OrderTab from './OrderTab.jsx';
+import OrderTab, { Notifs } from './OrderTab.jsx';
 import HistoryTab from './HistoryTab.jsx';
 import WalletTab from './WalletTab.jsx';
 import SettingsTab from './SettingsTab.jsx';
@@ -183,7 +183,7 @@ function Shell({ adminPhone, onLogout }) {
     if (out) list.push(out);
     if (to) {
       list.push(to.animate([{ opacity: 0, transform: `translateX(${m.dir * 28}px)` }, { opacity: 1, transform: 'none' }], { duration: 420, delay: 90, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' }));
-      list.push(...stagger(to, ':scope > .a-title, .h-seg, .h-head, .h-card, .a-body > .a-card, .a-body > button, .a-foot', 140, 50));
+      list.push(...stagger(to, ':scope > .a-title, :scope > .w-head, .h-seg, .h-head, .h-card, .a-body > .a-card, .a-body > button, .a-foot', 140, 50));
     }
     anims.current = list;
     // tab cũ ẩn đi khi đã mờ hẳn; giữ fill forwards tới lúc ẩn để không chớp lại
@@ -202,6 +202,7 @@ function Shell({ adminPhone, onLogout }) {
   const [txs, setTxs] = useState([]);
   const [shop, setShop] = useState({});
   const [track, setTrack] = useState(null); // { id, n }: mở chi tiết đơn vừa đặt
+  const [notif, setNotif] = useState(false); // trang Thông báo mở từ chuông ở các tab
 
   useEffect(() => {
     const fail = (e) => toast(errText(e));
@@ -215,8 +216,8 @@ function Shell({ adminPhone, onLogout }) {
     return () => subs.forEach((u) => u && u());
   }, [toast]);
 
-  const data = { shop, menu, orders: orders || [], users, txs, loading: orders === null };
-  const pending = data.orders.filter((o) => o.status === 'pending').length;
+  const pending = (orders || []).filter((o) => o.status === 'pending').length;
+  const data = { shop, menu, orders: orders || [], users, txs, loading: orders === null, unread: pending, onBell: () => setNotif(true) };
 
   return (
     <>
@@ -224,6 +225,11 @@ function Shell({ adminPhone, onLogout }) {
       <div className="a-tab" ref={(e) => { panes.current.history = e; }} hidden={tab !== 'history' && leaving !== 'history'}><HistoryTab {...data} track={track} onGoOrder={() => setTab('order')} /></div>
       <div className="a-tab" ref={(e) => { panes.current.wallet = e; }} hidden={tab !== 'wallet' && leaving !== 'wallet'}><WalletTab {...data} /></div>
       <div className="a-tab" ref={(e) => { panes.current.settings = e; }} hidden={tab !== 'settings' && leaving !== 'settings'}><SettingsTab {...data} adminPhone={adminPhone} onLogout={onLogout} /></div>
+      {notif && (
+        <div className="a-tab a-over">
+          <Notifs orders={data.orders} onBack={() => setNotif(false)} onOpen={(id) => { setNotif(false); setTrack({ id, n: Date.now() }); setTab('history'); }} />
+        </div>
+      )}
       <nav className="a-nav" style={{ position: 'absolute', left: 24, right: 24, bottom: 0, margin: '0 0 31px' }}>
         {NAV.map(([k, label]) => (
           <button key={k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)} aria-label={label} title={label}>

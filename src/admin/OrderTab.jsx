@@ -8,8 +8,8 @@ const ORDER = ['bac', 'den', 'nau'];
 const METHODS = [['bank', 'Chuyển khoản', 'i-qr'], ['cash', 'Tiền mặt', 'i-cash'], ['debt', 'Ghi nợ nhé!', 'i-debt']];
 const PAY_NAME = { bank: 'Chuyển khoản', cash: 'Tiền mặt', debt: 'Ghi nợ' };
 
-// Đen: size L và XL cùng giá
-const extraOf = (m) => (kindOf(m.name) === 'den' ? 0 : typeof m.upsize === 'number' ? m.upsize : XL_EXTRA);
+// Giá thêm khi lên XL: theo Upsize chủ quán đặt cho từng món
+const extraOf = (m) => (typeof m.upsize === 'number' ? m.upsize : XL_EXTRA);
 const qtyText = (n) => String(n).padStart(2, '0');
 
 // Chọn món như app khách: Trang chủ → Chi tiết → Giỏ hàng → Thanh toán (gán khách) → Đặt hàng thành công
@@ -279,7 +279,7 @@ const agoText = (d) => {
 };
 
 // Thông báo: trạng thái các đơn gần đây
-function Notifs({ orders, onBack, onOpen }) {
+export function Notifs({ orders, onBack, onOpen }) {
   const list = orders.slice(0, 30);
   return (
     <Page title="Thông báo" onBack={onBack}>

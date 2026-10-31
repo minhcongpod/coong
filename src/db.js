@@ -8,7 +8,7 @@ import { db } from './firebase';
 // users/{phone}       { name, role }               role: 'admin' | 'customer'
 // pins/{phone}        { pin }                      không đọc được từ app, chỉ quy tắc so sánh
 // devices/{uid}       { phone, pin, createdAt }    thiết bị đã mở khóa bằng PIN
-// meta/shop           { soldOut, openAt, closeAt } quán tạm ngưng nhận đơn / giờ mở cửa 'HH:MM'
+// meta/shop           { soldOut, openAt, closeAt, days } quán tạm ngưng nhận đơn / giờ mở cửa 'HH:MM'
 // menu/{id}           { name, price, cost, image, active }
 // orders/{id}         { no, customerPhone, customerName, items, note, totalAmount, status, paid, createdAt }
 // counters/orders     { n }                        số đơn gần nhất; đơn mới lấy n + 1, đơn đầu tiên là #1234
