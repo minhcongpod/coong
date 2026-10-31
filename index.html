@@ -199,6 +199,7 @@ input{user-select:text;-webkit-user-select:text}
 .aerr:empty{display:none}
 .afoot{display:flex;flex-direction:column;gap:16px;align-items:center}
 .afoot .btn{height:56px}
+.kb .aswitch{visibility:hidden}
 .aswitch{margin:0;font-size:16px;color:var(--mute);font-weight:500}
 .otp{display:flex;gap:7px}
 .otp .field{flex:1;padding:0;justify-content:center}
@@ -707,7 +708,7 @@ input{user-select:text;-webkit-user-select:text}
         <label class="field" data-s><input name="pin" type="password" inputmode="numeric" placeholder="Mã PIN 4 số" maxlength="4" autocomplete="new-password"><button type="button" class="peek" id="rPeek">Hiện</button></label>
         <p class="aerr" aria-live="polite"></p>
       </div>
-      <div class="afoot"><button type="submit" class="btn" data-s>Let’s go</button></div>
+      <div class="afoot"><button type="submit" class="btn" data-s>Let’s go</button><p class="aswitch" data-s>Sai sai? <button type="button" class="alink" data-to="phone">Đăng nhập</button></p></div>
     </form>
     <form class="abs aform off" data-m="forgot" novalidate>
       <div class="ahead"><h2 class="atitle" data-s>Quên mã PIN?</h2><p class="asub" data-s>Nhập số điện thoại và tên đặt hàng sau đó đăng nhập lại là có mã PIN mới liền!</p></div>
@@ -794,6 +795,7 @@ function fit(){
   /* on-screen keyboard: shrink the frame into the part of the page still visible so the back button and every field stay on screen */
   const vv = window.visualViewport, kb = !!vv && innerHeight - vv.height > 120 && !!document.activeElement && document.activeElement.closest('#auth');
   const st = kb ? Math.min(innerWidth/FW, vv.height/FH) : full;
+  document.body.classList.toggle('kb', kb);
   device.style.top = kb ? (vv.offsetTop + vv.height/2) + 'px' : '';
   device.style.width = FW*st + 'px'; device.style.height = FH*st + 'px';
   K = 1; S = st; DH = FH - 844;
