@@ -2076,10 +2076,6 @@ setInterval(checkUpdate, 60000);
     sp.animate([{backgroundColor:'#000'},{backgroundColor:'rgba(0,0,0,0)'}], {duration:T(560), delay:T(120), easing:'ease-out', fill:'forwards'});
     await move.finished; al.style.opacity = 1; sp.style.visibility = 'hidden'; move.cancel();
     al.offsetWidth; al.style.transition = '';
-    /* ready to type: phones only open the keyboard from a touch, so a first tap anywhere on this step also focuses the number field */
-    const ph = formOf('phone').elements.phone;
-    ph.focus({preventScroll:true});
-    if (document.activeElement !== ph) authEl.addEventListener('pointerdown', e => { if (step === 'phone' && !e.target.closest('button,input')) ph.focus({preventScroll:true}); }, {once:true});
   }
   if (go === 'offline' || !navigator.onLine) setOffline(true);
 })();
