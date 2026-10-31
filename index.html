@@ -1220,7 +1220,7 @@ async function completeAdd(){
   addToCart(DRINKS[cur].id, qty, unit(), {...opts}); lastOrder = cur;
   syncBadges(true);
   $('#dCart').animate([{transform:'scale(1)'},{transform:'scale(1.22)'},{transform:'scale(.95)'},{transform:'scale(1)'}], {duration:T(480), easing:'ease-out'});
-  toast(`Đã thêm ${pad(qty)} ${DRINKS[cur].name} · ${fmt(unit()*qty)}`, 'cardadd');
+  toast(`Đã thêm ${pad(qty)} ${DRINKS[cur].name}`, 'cardadd');
   adding = false;
 }
 function syncBadges(pop){
