@@ -1861,7 +1861,7 @@ formOf('phone').addEventListener('submit', async e => {
   try { acc = await (await api()).lookup(p); } catch (err) { b.textContent = t; b.disabled = false; return bad(f, [f.elements.phone], 'Chưa kết nối được, thử lại nhé.'); }
   b.textContent = t; b.disabled = false;
   A.phone = p;
-  if (acc) { A.name = acc.name; A.mode = 'enter'; go('pin'); } else go('reg');
+  if (acc) { A.name = acc.name; A.mode = p === pendingReset() ? 'reset' : 'enter'; go('pin'); } else go('reg');
 });
 /* forgot PIN: there is no SMS, so the customer proves the number with the order name they registered */
 $('#aForgot').addEventListener('click', () => go('forgot'));
@@ -1942,7 +1942,9 @@ formOf('pin').addEventListener('submit', async e => {
   checking = false;
   /* the device stays signed in with the old PIN; sign it in again with the new one */
   try { await (await api()).signIn(A.phone, p); } catch (err) {}
-  toast('Đã đổi mã PIN'); hidePage(authEl); A.mode = 'enter';
+  A.mode = 'enter';
+  if (!session) { finish(false); return toast('Đã đổi mã PIN'); }
+  toast('Đã đổi mã PIN'); hidePage(authEl);
 });
 /* signed in: load the customer's orders and the shop menu, live */
 function startSession(s){
@@ -1963,6 +1965,7 @@ function endSession(){
   session = null; orders = []; notifs = []; renderHistory(); renderNotifs();
 }
 function finish(isNew){
+  setPendingReset('');
   startSession({phone:A.phone, name:A.name});
   document.activeElement && document.activeElement.blur();
   hidePage(authEl);
@@ -1972,11 +1975,18 @@ function finish(isNew){
 }
 
 /* account actions: resetting the PIN signs out, then the customer verifies the phone and picks a new PIN */
+/* the device stays bound until the new PIN is saved, so only the owner can set it; the flag survives a reload */
+const RESET_KEY = 'coong-pinreset';
+const pendingReset = () => { try { return localStorage.getItem(RESET_KEY) || ''; } catch (e) { return ''; } };
+const setPendingReset = v => { try { v ? localStorage.setItem(RESET_KEY, v) : localStorage.removeItem(RESET_KEY); } catch (e) {} };
 $('#resetPw').addEventListener('click', async () => {
   if (!session) return;
-  openAuth('reset');
+  if (!await ask({title:'Đặt lại mã PIN?', text:'Đăng nhập lại để đổi mã PIN mới. Giỏ hàng chưa đặt vẫn được giữ.', ok:'Đặt lại'})) return;
+  setPendingReset(session.phone);
+  endSession(); openAuth('phone');
 });
 $('#logout').addEventListener('click', async () => {
+  setPendingReset('');
   try { await (await api()).signOut(); } catch (e) {}
   endSession();
   cartItems.length = 0; cart = 0; syncBadges(); renderCart();
@@ -2014,7 +2024,7 @@ renderHistory(); renderNotifs();
   await wait(T(2000));
   const go = location.hash.slice(1);
   const s = go === 'login' ? null : await known;
-  if (s) startSession(s); else openAuth('phone');
+  if (s && s.phone !== pendingReset()) startSession(s); else openAuth('phone');
   sp.style.zIndex = ++Z;
   const a = sp.animate([{opacity:1, transform:'none'},{opacity:0, transform:'scale(1.06)'}], {duration:T(480), easing:'cubic-bezier(.4,0,.2,1)', fill:'forwards'});
   await a.finished; sp.style.visibility = 'hidden'; a.cancel();
