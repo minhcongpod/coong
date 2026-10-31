@@ -38,7 +38,8 @@ export const Sym = ({ id, size = 24 }) => {
 export const fmt = (n) => String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 export const pad = (n) => String(n).padStart(2, '0');
 export const shortId = (id) => id.slice(-6).toUpperCase();
-export const orderCode = (id) => `#CG${id.slice(-4).toUpperCase()}`;
+// Mã đơn: số tăng dần (#1234); đơn cũ chưa có số thì lấy theo id
+export const orderCode = (o) => (typeof o.no === 'number' ? `#${String(o.no).padStart(4, '0')}` : `#CG${o.id.slice(-4).toUpperCase()}`);
 // Món nào có ảnh cốc riêng: khớp theo tên như app khách
 export const kindOf = (name) => {
   const n = (name || '').toLowerCase();

@@ -6,7 +6,8 @@ import { CustomerPicker } from './Customers.jsx';
 const ORDER = ['bac', 'den', 'nau'];
 const METHODS = [['debt', 'Ghi nợ nhé!', 'i-debt'], ['bank', 'Chuyển khoản', 'i-qr'], ['cash', 'Tiền mặt', 'i-cash']];
 
-const extraOf = (m) => (typeof m.upsize === 'number' ? m.upsize : XL_EXTRA);
+// Đen: size L và XL cùng giá
+const extraOf = (m) => (kindOf(m.name) === 'den' ? 0 : typeof m.upsize === 'number' ? m.upsize : XL_EXTRA);
 const sameOpts = (a, b) => a.menuId === b.menuId && a.size === b.size && a.sweet === b.sweet && a.ice === b.ice;
 const qtyText = (n) => String(n).padStart(2, '0');
 

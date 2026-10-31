@@ -1,5 +1,5 @@
 import {
-  collection, doc, getDoc, onSnapshot, query, where, setDoc, updateDoc, deleteDoc, addDoc, writeBatch,
+  collection, doc, getDoc, onSnapshot, query, where, setDoc, updateDoc, deleteDoc, addDoc, writeBatch, runTransaction,
 } from 'firebase/firestore';
 import { db } from './firebase';
 
@@ -9,7 +9,8 @@ import { db } from './firebase';
 // pins/{phone}        { pin }                      không đọc được từ app, chỉ quy tắc so sánh
 // devices/{uid}       { phone, pin, createdAt }    thiết bị đã mở khóa bằng PIN
 // menu/{id}           { name, price, cost, image, active }
-// orders/{id}         { customerPhone, customerName, items, note, totalAmount, status, paid, createdAt }
+// orders/{id}         { no, customerPhone, customerName, items, note, totalAmount, status, paid, createdAt }
+// counters/orders     { n }                        số đơn gần nhất; đơn mới lấy n + 1, đơn đầu tiên là #1234
 // transactions/{id}   { type, amount, description, customerPhone?, createdAt }
 
 const nowIso = () => new Date().toISOString();
@@ -88,7 +89,24 @@ export const seedMenu = async (items) => {
 };
 
 // --- Đơn hàng ---
-export const createOrder = (order) => addDoc(collection(db, 'orders'), { ...order, createdAt: nowIso() });
+export const FIRST_ORDER_NO = 1234;
+// Mỗi đơn lấy số kế tiếp của bộ đếm trong cùng một giao dịch, nên hai đơn không trùng số
+const nextOrder = (order) => runTransaction(db, async (tx) => {
+  const counter = doc(db, 'counters', 'orders');
+  const snap = await tx.get(counter);
+  const no = snap.exists() ? snap.data().n + 1 : FIRST_ORDER_NO;
+  const ref = doc(collection(db, 'orders'));
+  tx.set(counter, { n: no });
+  tx.set(ref, { ...order, no, createdAt: nowIso() });
+  return { id: ref.id, no };
+});
+// Hai máy đặt cùng lúc: máy chậm hơn bị quy tắc từ chối vì số đã bị lấy, nên thử lại với số mới
+export const createOrder = async (order) => {
+  for (let i = 0; ; i++) {
+    try { return await nextOrder(order); }
+    catch (e) { if (i >= 4 || e.code !== 'permission-denied') throw e; }
+  }
+};
 
 export const updateOrder = (id, patch) => updateDoc(doc(db, 'orders', id), patch);
 

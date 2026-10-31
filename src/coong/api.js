@@ -77,10 +77,10 @@ window.CoongAPI = {
   watchMenu: (cb, onError) => watchMenu(cb, onError),
   watchOrders: (phone, cb, onError) => watchOrders(phone, false, cb, onError),
 
-  /** Trả về id đơn vừa tạo */
+  /** Trả về id và số của đơn vừa tạo */
   async placeOrder(order) {
     const ref = await createOrder(order);
-    return ref.id;
+    return { id: ref.id, no: ref.no };
   },
   cancelOrder: (id) => updateOrder(id, { status: 'cancelled' }),
   claimPaid: (ids) => Promise.all(ids.map((id) => updateOrder(id, { paymentStatus: 'awaiting' }))),
