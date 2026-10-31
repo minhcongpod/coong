@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { saveMenuItem, deleteMenuItem, updateUserName, setPin, deleteCustomer } from '../db';
-import { Icon, Page, Btn, Toggle, Field, Empty, fmt, phoneText, XL_EXTRA, useUI, errText } from './ui.jsx';
+import { Icon, Page, Btn, Toggle, Field, Empty, fmt, phoneText, useUI, errText } from './ui.jsx';
 import { customersOf, NewCustomer } from './Customers.jsx';
 
 // Hàng nhập: nhãn bên trái, giá trị bên phải
@@ -118,7 +118,7 @@ function EditDish({ dish, onBack }) {
   const isNew = !dish.id;
   const [name, setName] = useState(dish.name || '');
   const [price, setPrice] = useState(dish.price ? String(dish.price) : '');
-  const [upsize, setUpsize] = useState(String(typeof dish.upsize === 'number' ? dish.upsize : XL_EXTRA));
+  const [upsize, setUpsize] = useState(String(typeof dish.upsize === 'number' ? dish.upsize : 0));
   const [on, setOn] = useState(dish.active !== false);
 
   const save = async () => {

@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createOrder } from '../db';
-import { Icon, Sym, Page, Btn, Chip, Empty, fmt, dmy, timeOf, phoneText, kindOf, XL_EXTRA, useUI, errText } from './ui.jsx';
+import { Icon, Sym, Page, Btn, Chip, Empty, fmt, dmy, timeOf, phoneText, kindOf, useUI, errText } from './ui.jsx';
 import { CustomerPicker } from './Customers.jsx';
 
 const ORDER = ['bac', 'den', 'nau'];
 const METHODS = [['debt', 'Ghi nợ nhé!', 'i-debt'], ['bank', 'Chuyển khoản', 'i-qr'], ['cash', 'Tiền mặt', 'i-cash']];
 
-const extraOf = (m) => (typeof m.upsize === 'number' ? m.upsize : XL_EXTRA);
+const extraOf = (m) => (typeof m.upsize === 'number' ? m.upsize : 0);
 const sameOpts = (a, b) => a.menuId === b.menuId && a.size === b.size && a.sweet === b.sweet && a.ice === b.ice;
 const qtyText = (n) => String(n).padStart(2, '0');
 
@@ -76,7 +76,7 @@ export default function OrderTab({ menu, users, orders }) {
       customerName: customer.name,
       items: lines.map((l) => ({
         menuId: l.menuId, name: l.name, price: unit(l), cost: 0, quantity: l.qty,
-        sweetness: `${l.sweet} ngọt`, ice: `${l.ice} đá`, caffeine: l.size === 'XL' ? 'Size XL' : 'Size L',
+        sweetness: l.sweet === 0 ? 'Không đường' : `${l.sweet}% ngọt`, ice: `${l.ice}% cafe`, caffeine: l.size === 'XL' ? 'Size XL' : 'Size L',
         opts: { upsize: l.size === 'XL' ? 1 : 0, sweet: l.sweet === 50 ? 50 : 0, cafe: l.ice === 50 ? 50 : 0 },
       })),
       note: '',
@@ -137,7 +137,7 @@ export default function OrderTab({ menu, users, orders }) {
                 <button className="o-line" onClick={() => setOpen(open === i ? -1 : i)} aria-expanded={open === i} aria-label={`Sửa ${l.name}`}>
                   <span className="grow">
                     <b className="a-t" style={{ display: 'block' }}>{qtyText(l.qty)} x {l.name}</b>
-                    <span className="a-s">{l.size} / {l.sweet} ngọt / {l.ice} đá</span>
+                    <span className="a-s">{l.size} / {l.sweet}% ngọt / {l.ice}% cafe</span>
                   </span>
                   <b className="a-t a-num">{fmt(unit(l) * l.qty)}</b>
                 </button>
@@ -145,8 +145,8 @@ export default function OrderTab({ menu, users, orders }) {
                   <div className="o-opts">
                     <div className="a-chips wrap">
                       {['L', 'XL'].map((v) => <Chip key={v} on={l.size === v} onClick={() => setOpt(i, { size: v })} aria-label={`Size ${v}`}>{v}</Chip>)}
-                      {[50, 100].map((v) => <Chip key={`s${v}`} on={l.sweet === v} onClick={() => setOpt(i, { sweet: v })} aria-label={`${v} ngọt`}>{v} ngọt</Chip>)}
-                      {[50, 100].map((v) => <Chip key={`i${v}`} on={l.ice === v} onClick={() => setOpt(i, { ice: v })} aria-label={`${v} đá`}>{v} đá</Chip>)}
+                      {[50, 100].map((v) => <Chip key={`s${v}`} on={l.sweet === v} onClick={() => setOpt(i, { sweet: v })} aria-label={`${v}% ngọt`}>{v}% ngọt</Chip>)}
+                      {[50, 100].map((v) => <Chip key={`i${v}`} on={l.ice === v} onClick={() => setOpt(i, { ice: v })} aria-label={`${v}% cafe`}>{v}% cafe</Chip>)}
                     </div>
                     <span className="a-step">
                       <button className="a-circ" onClick={() => { setQty(i, -1); if (l.qty === 1) { setOpen(-1); if (lines.length === 1) setPage(null); } }} aria-label={`Bớt ${l.name}`}><Icon n="minus" /></button>
