@@ -464,7 +464,7 @@ input{user-select:text;-webkit-user-select:text}
 #fx{position:fixed;inset:0;pointer-events:none;z-index:50}
 #fx .veil{position:absolute;inset:0}
 #fx .fly{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
-.toast{position:absolute;transform-origin:0 0;box-sizing:border-box;min-height:52px;max-width:282px;background:#1c1c1c;color:#fff;border-radius:26px;padding:8px 20px 8px 14px;border:1px solid rgba(255,255,255,.08);font-size:16px;line-height:1.25;font-weight:700;display:flex;gap:8px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.4);pointer-events:none}
+.toast{position:absolute;transform-origin:0 0;box-sizing:border-box;min-height:52px;max-width:238px;background:#1c1c1c;color:#fff;border-radius:26px;padding:8px 20px 8px 14px;border:1px solid rgba(255,255,255,.08);font-size:16px;line-height:1.25;font-weight:700;display:flex;gap:8px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.4);pointer-events:none}
 .toast svg{width:22px;height:22px;flex:none;color:#fff}
 @media (prefers-reduced-motion:reduce){.add .shine{animation:none;-webkit-mask-image:none;mask-image:none}}
 </style>
@@ -1372,9 +1372,10 @@ function toast(msg, icon){
   icon = icon || (warn ? 'warn' : 'check');
   const t = document.createElement('div'); t.className = 'toast';
   t.innerHTML = `<svg><use href="#i-${icon}"/></svg><span></span>`; t.lastChild.textContent = msg;
-  /* sits on the same row as the back button (x 84, y 24, 52 high); no sliding, it only fades in, stays about 2s and fades out */
-  const r = scr(); t.style.left = (r.left + 84*S) + 'px'; t.style.top = (r.top + 24*S) + 'px'; t.style.transform = `scale(${S})`;
+  /* sits on the same row as the back button (y 24, 52 high), centred across the screen; no sliding, it only fades in, stays about 2s and fades out */
+  const r = scr(); t.style.top = (r.top + 24*S) + 'px'; t.style.transform = `scale(${S})`;
   fx.appendChild(t);
+  t.style.left = (r.left + (r.width - t.offsetWidth*S)/2) + 'px';
   const D = T(2400) < 600 ? 1600 : 2400;
   t.animate([{opacity:0},{opacity:1, offset:.1},{opacity:1, offset:.83},{opacity:0}], {duration:D, easing:'ease-in-out'}).onfinish = () => t.remove();
 }
@@ -1577,7 +1578,6 @@ function renderOrder(o){
   if (o.status === 'wait') {
     const b = document.createElement('button'); b.className = 'btn danger'; b.textContent = 'Huỷ đơn';
     b.addEventListener('click', () => cancelOrder(o)); ob.appendChild(b);
-    ob.insertAdjacentHTML('beforeend', '<p class="onote">Bạn có thể huỷ khi quán chưa xác nhận.</p>');
   } else if (o.status === 'brew') {
     /* brewing: nothing to do but wait */
   } else {
@@ -1857,7 +1857,7 @@ async function busyBtn(form, label, ms = 600){
 }
 function readPhone(f){
   const i = f.elements.phone; let p = digits(i.value); if (p.startsWith('84')) p = p.slice(2); if (p && p[0] !== '0') p = '0' + p;
-  if (p.length < 10 || p.length > 11) { bad(f, [i], 'Số điện thoại chưa đúng, kiểm tra lại giúp mình nhé.'); return null; }
+  if (p.length < 10 || p.length > 11) { bad(f, [i], 'Số điện thoại của mình mà cũng sai...'); return null; }
   return p;
 }
 formOf('phone').addEventListener('submit', async e => {
