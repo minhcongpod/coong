@@ -78,9 +78,11 @@ function OrderDetail({ o, onBack, users }) {
 
   const cancelled = o.status === 'cancelled';
   const steps = cancelled
-    ? [['placed', 'Đã đặt', 'var(--yellow)'], ['cancelled', 'Đã huỷ', 'var(--err)']]
-    : [['pending', 'Chờ xác nhận', 'var(--yellow)'], ['brewing', 'Đang pha chế', 'var(--info)'], ['completed', 'Hoàn thành', 'var(--ok)']];
+    ? [['placed', 'Đã đặt'], ['cancelled', 'Đã huỷ']]
+    : [['pending', 'Chờ xác nhận'], ['brewing', 'Đang pha chế'], ['completed', 'Hoàn thành']];
   const cur = cancelled ? 1 : steps.findIndex(([k]) => k === o.status);
+  // một màu theo trạng thái hiện tại, giống app khách: vàng chờ, xanh dương pha chế, xanh lá hoàn thành, đỏ đã huỷ
+  const sc = cancelled ? 'var(--err)' : o.status === 'pending' ? 'var(--yellow)' : o.status === 'brewing' ? 'var(--info)' : 'var(--ok)';
   const d = timeOf(o);
   const phone = users[o.customerPhone] ? phoneText(o.customerPhone) : o.customerPhone;
 
@@ -88,7 +90,7 @@ function OrderDetail({ o, onBack, users }) {
   if (o.status === 'pending') {
     footer = (
       <div style={{ display: 'flex', gap: 8 }}>
-        <Btn kind="danger" className="sm" onClick={cancel}>Huỷ</Btn>
+        <Btn kind="danger" className="sm" onClick={cancel}>Huỷ đơn</Btn>
         <Btn kind="yellow" className="sm" onClick={() => run({ status: 'brewing' })}>Xác nhận</Btn>
       </div>
     );
@@ -111,9 +113,10 @@ function OrderDetail({ o, onBack, users }) {
       )}
     >
       <div className="a-card" style={{ padding: '12px 24px' }}>
-        <div className="a-tl" style={cancelled ? { '--tl': '1' } : undefined}>
-          {steps.map(([k, label, color], i) => (
-            <div key={k} className={`a-st ${i <= cur ? 'on' : ''} ${i === cur ? 'cur' : ''}`} style={{ '--c': color }}><i />{label}</div>
+        <div className="a-tl" style={{ '--c': sc, '--i': cur, ...(cancelled ? { '--tl': '1' } : null) }}>
+          <span className="bar" />
+          {steps.map(([k, label], i) => (
+            <div key={k} className={`a-st ${i <= cur ? 'on' : ''} ${i === cur && o.status !== 'completed' && !cancelled ? 'cur' : ''}`}><i />{label}</div>
           ))}
         </div>
       </div>

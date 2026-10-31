@@ -110,9 +110,11 @@ button.a-card:active{transform:scale(.97)}
 .a-kv.tot b{font-size:24px;font-variant-numeric:tabular-nums}
 
 .a-tl{position:relative;display:flex;justify-content:space-between;padding:12px 8px 8px}
-.a-tl::before{content:"";position:absolute;left:50px;right:50px;top:21px;height:2px;border-radius:2px;background:var(--s10)}
+.a-tl::before,.a-tl .bar{content:"";position:absolute;left:50px;top:21px;height:2px;border-radius:2px}
+.a-tl::before{right:50px;background:#5f5f5f}
+.a-tl .bar{width:calc((100% - 100px) * var(--i,0) / 2);background:var(--c)}
 .a-st{position:relative;width:84px;display:flex;flex-direction:column;align-items:center;gap:9px;font-size:12px;font-weight:700;color:var(--mute);text-align:center}
-.a-st i{width:20px;height:20px;border-radius:20px;background:var(--s10)}
+.a-st i{position:relative;width:20px;height:20px;border-radius:20px;background:#5f5f5f}
 .a-st.on{color:#fff}.a-st.on i{background:var(--c)}
 
 .a-empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding-top:56px}
@@ -204,9 +206,10 @@ button.a-card:active{transform:scale(.97)}
 .o-cups.login img:nth-child(1){top:50px;height:163px}
 .o-cups.login img:nth-child(2){height:208px}
 .o-cups.login img:nth-child(3){top:25px;height:163px}
+.a-st.cur{color:var(--c)}
 .a-st.cur i{box-shadow:0 0 0 5px color-mix(in srgb,var(--c) 30%,transparent)}
-.a-st.on:not(.cur){color:var(--mute)}
 .a-tl[style*="--tl"]::before{left:84px;right:84px}
+.a-tl[style*="--tl"] .bar{left:84px;width:calc(100% - 168px)}
 
 /* ---------- Thống kê ---------- */
 .w-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
