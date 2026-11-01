@@ -83,7 +83,7 @@ svg{display:block}
 .arows{display:flex;flex-direction:column;gap:8px}
 .arow{background:rgba(255,255,255,.1);border-radius:32px;padding:16px 24px;display:flex;gap:10px;font-size:18px;color:#fff;text-align:left}
 .arow[hidden]{display:none}
-.arow.tgcard{align-items:center;padding:20px 24px;gap:16px}.arow.tgcard svg{width:20px;height:20px;flex:none;color:#fff}.arow.tgcard>span{font-weight:700}
+button.tgcard{text-align:left;color:#fff;padding:20px 24px}.tgcard svg{width:20px;height:20px;flex:none}.tgcard span{flex:1;min-width:0;display:block}
 .arow:has(.tgl){align-items:center}#tgBtn>span:first-child{font-weight:700}
 .tgl{flex:none;position:relative;width:48px;height:28px;border-radius:28px;background:rgba(255,255,255,.2);transition:background .25s}
 .tgl b{position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:22px;background:#fff;transition:transform .3s var(--ease-out)}
@@ -531,6 +531,7 @@ input{user-select:text;-webkit-user-select:text}
     <div class="tab" id="tOrder">
     <div class="abs hello"><svg class="hlogo" viewBox="0 0 91.42 35.78" role="img" aria-label="Coong"><use href="#i-logo"/></svg><b id="helloName" style="display:none">LieuNT</b></div>
     <div class="abs order" id="lastOrder" style="display:none"><span><b id="orderTxt"></b><small id="orderWhen"></small></span><button id="reorder">Đặt lại</button><button class="oclose" id="lastClose" aria-label="Ẩn thẻ đặt lại"><svg><use href="#i-close"/></svg></button></div>
+    <button class="abs order tgcard" id="tgCard" style="display:none" aria-label="Bật thông báo Telegram"><svg><use href="#i-bell"/></svg><span>Bật thông báo Telegram</span><i class="tgl"><b></b></i></button>
     <div id="carousel" class="abs"></div>
     <div class="abs dots" id="dots" hidden></div>
     </div>
@@ -562,8 +563,7 @@ input{user-select:text;-webkit-user-select:text}
         <div class="arows">
           <label class="arow" data-s><span>Tên đặt hàng</span><input class="r aname" id="aName" value="LieuNT" maxlength="16" enterkeyhint="done" autocomplete="nickname" aria-label="Tên đặt hàng"></label>
           <div class="arow" data-s><span>Số điện thoại</span><span class="r m" id="aPhone"></span></div>
-          <button class="arow tgcard" id="tgCard" data-s hidden aria-label="Bật thông báo Telegram"><svg><use href="#i-bell"/></svg><span>Bật thông báo Telegram</span><i class="tgl"><b></b></i></button>
-          <button class="arow" id="tgBtn" data-s hidden aria-label="Tắt thông báo Telegram"><span>Telegram</span><i class="tgl on"><b></b></i></button>
+          <button class="arow" id="tgBtn" data-s hidden role="switch" aria-checked="false" aria-label="Thông báo Telegram"><span>Telegram</span><i class="tgl"><b></b></i></button>
           <button class="arow" id="resetPw" data-s><span>Mã PIN</span><span class="y">Đặt lại</span></button>
           <button class="logout" id="logout" data-s>Đăng xuất</button>
         </div>
@@ -944,8 +944,10 @@ const hideKey = () => 'coong-lasthide-' + (session ? session.phone : '');
 function renderLast(){
   let o = lastPlacedOrder();
   if (o && store.get(hideKey()) === o.id) o = null;
+  const tgShow = !o && !!session && !!tgSt && tgSt.on && !tgSt.linked && !store.get(tgDoneKey());
   $('#lastOrder').style.display = o ? '' : 'none';
-  $('#home').classList.toggle('noorder', !o);
+  if (tgCard) { tgCard.style.display = tgShow ? '' : 'none'; if (tgShow) tgCard.querySelector('.tgl').classList.remove('on'); }
+  $('#home').classList.toggle('noorder', !o && !tgShow);
   if (o) { $('#orderTxt').textContent = oSummary(o); $('#orderWhen').textContent = listDate(o.at); }
 }
 function reorder(o){
@@ -2041,24 +2043,31 @@ const RESET_KEY = 'coong-pinreset';
 const pendingReset = () => { try { return localStorage.getItem(RESET_KEY) || ''; } catch (e) { return ''; } };
 const setPendingReset = v => { try { v ? localStorage.setItem(RESET_KEY, v) : localStorage.removeItem(RESET_KEY); } catch (e) {} };
 /* Telegram: quán cài bot thì khách bật để nhận tin đơn cần thanh toán, đang chế, hoàn thành */
-const tgBtn = $('#tgBtn'), tgCard = $('#tgCard');
+var tgBtn = $('#tgBtn'), tgCard = $('#tgCard'), tgDoneKey = () => 'coong-tgdone-' + (session ? session.phone : '');
+var tgSt = { on: false, linked: false };
 async function tgRefresh(){
-  tgBtn.hidden = true; tgCard.hidden = true; tgCard.querySelector('.tgl').classList.remove('on'); if (!session) return;
-  try { const t = await (await api()).tgState(session.phone); tgCard.hidden = !t.on || t.linked; tgBtn.hidden = !t.on || !t.linked; } catch (e) {}
+  tgBtn.hidden = true; if (!session) { tgSt = { on: false, linked: false }; return renderLast(); }
+  try {
+    tgSt = await (await api()).tgState(session.phone);
+    if (tgSt.linked) store.set(tgDoneKey(), '1');
+    tgBtn.hidden = !tgSt.on; tgBtn.setAttribute('aria-checked', tgSt.linked ? 'true' : 'false'); tgBtn.querySelector('.tgl').classList.toggle('on', !!tgSt.linked);
+  } catch (e) {}
+  renderLast();
 }
-tgBtn.addEventListener('click', async () => {
-  if (!session) return;
-  if (!(await ask({title:'Tắt thông báo Telegram?', text:'Bạn sẽ không nhận tin về đơn hàng qua Telegram nữa. Có thể bật lại bất cứ lúc nào.', ok:'Tắt', danger:true}))) return;
-  try { await (await api()).tgOff(session.phone); toast('Telegram đã tắt'); } catch (e) { toast('Chưa tắt được, thử lại nhé'); }
-  tgRefresh();
-});
-tgCard.addEventListener('click', async () => {
-  if (!session) return;
-  const tg = tgCard.querySelector('.tgl'); tg.classList.add('on'); toast('Mở Telegram và bấm Start nhé');
+async function tgToggle(from){
+  if (!session || busy) return;
+  if (tgSt.linked) {
+    if (!(await ask({title:'Tắt thông báo Telegram?', text:'Bạn sẽ không nhận tin về đơn hàng qua Telegram nữa. Có thể bật lại bất cứ lúc nào.', ok:'Tắt', danger:true}))) return;
+    try { await (await api()).tgOff(session.phone); toast('Telegram đã tắt'); } catch (e) { toast('Chưa tắt được, thử lại nhé'); }
+    return tgRefresh();
+  }
+  const tg = from.querySelector('.tgl'); tg.classList.add('on'); toast('Mở Telegram và bấm Start nhé');
   let ok = false; try { ok = await (await api()).tgConnect(session.phone); } catch (e) {}
-  if (!ok) { tg.classList.remove('on'); toast('Chưa kết nối được Telegram, thử lại nhé'); } else toast('Telegram đã bật');
+  if (ok) { store.set(tgDoneKey(), '1'); toast('Telegram đã bật'); } else { tg.classList.remove('on'); toast('Chưa kết nối được Telegram, thử lại nhé'); }
   tgRefresh();
-});
+}
+tgBtn.addEventListener('click', () => tgToggle(tgBtn));
+tgCard.addEventListener('click', () => tgToggle(tgCard));
 $('#resetPw').addEventListener('click', async () => {
   if (!session) return;
   if (!await ask({title:'Đặt lại mã PIN?', text:'Đăng nhập lại để đổi mã PIN mới.\nGiỏ hàng chưa đặt vẫn được giữ.', ok:'Đặt lại'})) return;
