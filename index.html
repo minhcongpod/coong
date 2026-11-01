@@ -89,7 +89,7 @@ svg{display:block}
 .tgl b{position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:22px;background:#fff;transition:transform .3s var(--ease-out)}
 .tgl.on{background:var(--ok)}.tgl.on b{transform:translateX(20px)}
 .arow>span:first-child{flex:1;font-size:16px}.arow .y{flex:none}
-.aname{flex:1;min-width:0;background:none;border:0;outline:0;padding:0;margin:0;font:inherit;color:inherit;text-align:right;caret-color:var(--yellow)}
+.aname{flex:1;min-width:0;background:none;border:0;outline:0;padding:0;margin:0;font:inherit;color:inherit;text-align:right;caret-color:var(--yellow);text-overflow:ellipsis;overflow:hidden;white-space:nowrap}label.arow>span:first-child{flex:none}.aname:focus{text-overflow:clip}
 .aname:focus{color:var(--yellow)}.arow .r{text-align:right}.arow .y{color:var(--yellow)}.arow .m{color:rgba(255,255,255,.5)}
 .logout{width:100%;height:44px;padding:0;text-align:center;color:var(--err);font-size:18px;font-weight:700}
 button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
