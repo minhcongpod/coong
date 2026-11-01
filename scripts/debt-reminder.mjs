@@ -6,6 +6,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 
 initializeApp({ credential: applicationDefault(), projectId: process.env.GCLOUD_PROJECT || 'coong-59ede' });
 const db = getFirestore();
+const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const dry = process.env.DRY_RUN === '1';
 
 const cfg = (await db.doc('meta/telegram').get()).data() || {};
@@ -29,7 +30,7 @@ for (const [phone, g] of debts) {
   if (!chat) { skipped++; continue; }
   const text = `🧾 Nhắc nhẹ: bạn còn ${g.n} đơn chưa thanh toán, tổng ${vnd(g.total)}.\nVào Tài khoản trong app Coong, bấm Thanh toán nhé!`;
   if (dry) { console.log('[dry]', phone, text.replace(/\n/g, ' ')); sent++; continue; }
-  const r = await fetch(`https://api.telegram.org/bot${cfg.token}/sendMessage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: chat, text }) }).then((x) => x.json()).catch(() => null);
+  const r = await fetch(`https://api.telegram.org/bot${cfg.token}/sendMessage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: chat, text: esc(text) + `\n<a href="https://coongcafe.web.app">Xem ngay</a>`, parse_mode: 'HTML', disable_web_page_preview: true }) }).then((x) => x.json()).catch(() => null);
   if (r && r.ok) sent++; else console.warn('gửi lỗi', phone, r && r.description);
 }
 console.log(`Khách còn nợ: ${debts.size}, đã nhắc: ${sent}, chưa bật Telegram: ${skipped}`);

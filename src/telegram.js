@@ -47,20 +47,24 @@ export const tgWaitChat = async (token, code, ms = 120000) => {
   return null;
 };
 
-const send = async (token, chat, text) => {
-  const r = await call(token, 'sendMessage', { chat_id: chat, text });
+// Mỗi tin có dòng "Xem ngay" gắn link vào app (chủ quán: /admin, khách: trang chủ)
+export const APP_URL = 'https://coongcafe.web.app';
+const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const send = async (token, chat, text, link) => {
+  const body = esc(text) + (link ? `\n<a href="${link}">Xem ngay</a>` : '');
+  const r = await call(token, 'sendMessage', { chat_id: chat, text: body, parse_mode: 'HTML', disable_web_page_preview: true });
   if (!r || !r.ok) console.warn('telegram: gửi lỗi', r && r.description);
   return r;
 };
 
 // Gửi cho chủ quán / cho khách; lỗi thì bỏ qua để không làm hỏng việc đang làm
-export const tgToAdmin = async (text) => {
-  try { const c = await getTgCfg(); if (!c.token || !c.adminChat) return console.warn('telegram: chủ quán chưa kết nối'); await send(c.token, c.adminChat, text); } catch (e) {}
+export const tgToAdmin = async (text, link = `${APP_URL}/admin`) => {
+  try { const c = await getTgCfg(); if (!c.token || !c.adminChat) return console.warn('telegram: chủ quán chưa kết nối'); await send(c.token, c.adminChat, text, link); } catch (e) {}
 };
-export const tgToCustomer = async (phone, text) => {
+export const tgToCustomer = async (phone, text, link = APP_URL) => {
   try {
     const c = await getTgCfg(); if (!c.token || !phone) return;
-    const chat = await getTgChat(phone); if (!chat) return console.warn('telegram: khách chưa bật Telegram'); await send(c.token, chat, text);
+    const chat = await getTgChat(phone); if (!chat) return console.warn('telegram: khách chưa bật Telegram'); await send(c.token, chat, text, link);
   } catch (e) {}
 };
 
@@ -72,7 +76,7 @@ export const tgBroadcast = async (text) => {
   const chats = (await getDocs(collection(db, 'tg'))).docs.map((d) => d.data().chatId).filter(Boolean);
   let sent = 0;
   for (const chat of chats) {
-    const r = await send(c.token, chat, text);
+    const r = await send(c.token, chat, text, APP_URL);
     if (r && r.ok) sent++;
     await new Promise((res) => setTimeout(res, 60));
   }
