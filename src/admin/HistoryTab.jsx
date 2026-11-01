@@ -152,9 +152,9 @@ function OrderDetail({ o, onBack, users }) {
   const cancelled = o.status === 'cancelled';
   const steps = cancelled
     ? [['placed', 'Đã đặt'], ['cancelled', 'Đã huỷ']]
-    : [['pending', 'Chờ xác nhận'], ['brewing', 'Đang pha chế'], ['completed', 'Hoàn thành']];
+    : [['pending', 'Chờ xác nhận'], ['brewing', 'Đang chế'], ['completed', 'Hoàn thành']];
   const cur = cancelled ? 1 : steps.findIndex(([k]) => k === o.status);
-  // một màu theo trạng thái hiện tại, giống app khách: vàng chờ, xanh dương pha chế, xanh lá hoàn thành, đỏ đã huỷ
+  // một màu theo trạng thái hiện tại, giống app khách: vàng chờ, xanh dương đang chế, xanh lá hoàn thành, đỏ đã huỷ
   // màu theo trạng thái và màu vòng sáng nhấp nháy ở bước hiện tại, như app khách
   const [sc, cg] = cancelled ? ['#ff383c', 'rgba(255,56,60,.45)'] : o.status === 'pending' ? ['#fc0', 'rgba(255,204,0,.45)'] : o.status === 'brewing' ? ['#00c0e8', 'rgba(0,192,232,.45)'] : ['#34c759', 'rgba(52,199,89,.45)'];
   const d = timeOf(o);

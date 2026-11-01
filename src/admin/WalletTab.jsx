@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { addDoc, collection } from 'firebase/firestore';
 import { db } from '../firebase';
 import { updateOrder, deleteTransaction } from '../db';
@@ -22,11 +22,13 @@ const extraIncome = (t) => t.type === 'income' && !t.customerPhone;
 const qtyText = (n) => String(n).padStart(2, '0');
 
 // Tab Thống kê: số đơn, doanh thu, chi tiêu, đơn chưa thanh toán, thu chi
-export default function WalletTab({ orders, txs, users, unread, onBell }) {
+export default function WalletTab({ orders, txs, users, unread, onBell, focus }) {
   const [kind, setKind] = useState('day');
   const [filter, setFilter] = useState('all');
   const [page, setPage] = useState(null); // unpaid | { add }
   const { toast, confirm } = useUI();
+  // Chủ quán bấm thông báo "Khách hàng báo đã thanh toán": mở thẳng đơn chưa thanh toán của khách đó
+  useEffect(() => { if (focus && focus.phone) setPage({ unpaid: focus.phone }); }, [focus]);
 
   const stats = useMemo(() => {
     const r = range(kind, new Date());
@@ -46,6 +48,7 @@ export default function WalletTab({ orders, txs, users, unread, onBell }) {
   };
 
   if (page === 'unpaid') return <Unpaid orders={unpaid} onBack={() => setPage(null)} />;
+  if (page && page.unpaid) return <Unpaid orders={unpaid.filter((o) => o.customerPhone === page.unpaid)} only onBack={() => setPage(null)} />;
   if (page && page.add) return <AddTx onBack={() => setPage(null)} initial={page.add} />;
 
   const debt = unpaid.reduce((n, o) => n + (o.totalAmount || 0), 0);
@@ -104,7 +107,7 @@ export default function WalletTab({ orders, txs, users, unread, onBell }) {
   );
 }
 
-function Unpaid({ orders, onBack }) {
+function Unpaid({ orders, onBack, only }) {
   const { toast, confirm } = useUI();
   const groups = useMemo(() => {
     const m = {};
@@ -129,7 +132,7 @@ function Unpaid({ orders, onBack }) {
   };
 
   return (
-    <Page title="Chưa thanh toán" sub={groups.length ? `${orders.length} đơn · ${fmt(total)} · ${groups.length} khách` : undefined} onBack={onBack}>
+    <Page title="Chưa thanh toán" sub={groups.length ? `${orders.length} đơn · ${fmt(total)} · ${only ? groups[0].name : `${groups.length} khách`}` : undefined} onBack={onBack}>
       {groups.map((g) => (
         <div key={g.phone} className="a-card w-debt">
           <div className="a-between">

@@ -25,7 +25,7 @@ const INITIAL_MENU = [
 
 const STATUS_LABELS = {
   pending: 'Chờ xử lý',
-  brewing: 'Đang pha...',
+  brewing: 'Đang chế',
   completed: 'Hoàn thành',
   cancelled: 'Đã hủy ❌',
 };
@@ -745,7 +745,7 @@ function AdminOrdersTab({ orders }) {
                   className="bg-slate-800 text-xs border border-slate-700 text-slate-200 rounded px-2 py-1 focus:outline-none"
                 >
                   <option value="pending">Chờ xử lý</option>
-                  <option value="brewing">Đang pha</option>
+                  <option value="brewing">Đang chế</option>
                   <option value="completed">Đã xong</option>
                   <option value="cancelled">Đã HỦY ❌</option>
                 </select>

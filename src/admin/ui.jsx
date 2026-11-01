@@ -67,7 +67,7 @@ export const XL_EXTRA = 5000;
 export const payLabel = (o) => PAY[o.payMethod] || 'Ghi nợ';
 export const STATUS = {
   pending: { label: 'Chờ xác nhận', cls: 'y', color: 'var(--yellow)' },
-  brewing: { label: 'Đang pha chế', cls: 'b', color: 'var(--info)' },
+  brewing: { label: 'Đang chế', cls: 'b', color: 'var(--info)' },
   completed: { label: 'Hoàn thành', cls: 'g', color: 'var(--ok)' },
   cancelled: { label: 'Hủy', cls: 'r', color: 'var(--err)' },
 };
