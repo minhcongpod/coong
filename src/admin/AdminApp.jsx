@@ -8,6 +8,7 @@ import OrderTab, { Notifs, claimGroups } from './OrderTab.jsx';
 import HistoryTab from './HistoryTab.jsx';
 import WalletTab from './WalletTab.jsx';
 import SettingsTab from './SettingsTab.jsx';
+import { LOGO_PATH } from './logo.js';
 
 const FW = 390, FH = 660;
 
@@ -43,6 +44,15 @@ function Device({ children }) {
 
 export default function AdminApp() {
   return <Device><UIProvider><Gate /></UIProvider></Device>;
+}
+
+// Màn chờ lúc mở app: ảnh nền và logo như splash app khách
+function Splash() {
+  return (
+    <div className="a-splash" role="img" aria-label="Coong">
+      <svg className="a-slogo" viewBox="0 0 91.42 35.78"><path fill="currentColor" d={LOGO_PATH} /></svg>
+    </div>
+  );
 }
 
 function Center({ children }) {
@@ -90,7 +100,7 @@ function Gate() {
     await unlockDevice(uid, adminPhone, pin);
   };
 
-  if (stage === 'loading') return <Center><p className="a-sub">Đang kết nối...</p></Center>;
+  if (stage === 'loading') return <Splash />;
   if (stage === 'error') {
     return (
       <Center>

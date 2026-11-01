@@ -487,3 +487,7 @@ button.a-card:active{transform:scale(.97)}
 .o-lopt{white-space:normal;overflow:visible;text-overflow:clip}
 
 .w-foot{display:flex;flex-direction:column;gap:8px;width:100%}
+
+/* Splash lúc mở app, giống app khách */
+.a-splash{position:absolute;inset:0;z-index:90;background:#000 url(/cover.webp) center bottom/100% auto no-repeat}
+.a-slogo{position:absolute;left:100px;top:227px;width:189px;height:74px;color:#fff}
