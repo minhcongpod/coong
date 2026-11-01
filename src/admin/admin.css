@@ -485,3 +485,5 @@ button.a-card:active{transform:scale(.97)}
 .w-plus{background:rgba(255,204,0,.16);color:var(--yellow)}
 .o-citem{gap:16px}
 .o-lopt{white-space:normal;overflow:visible;text-overflow:clip}
+
+.w-foot{display:flex;flex-direction:column;gap:8px;width:100%}

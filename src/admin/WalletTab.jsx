@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { updateOrder, deleteTransaction } from '../db';
 import { tgToCustomer } from '../telegram';
@@ -27,7 +27,7 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus })
   const [kind, setKind] = useState('day');
   const [filter, setFilter] = useState('all');
   const [page, setPage] = useState(null); // unpaid | { add }
-  const { toast, confirm } = useUI();
+  const { toast } = useUI();
   // Chủ quán bấm thông báo "Khách hàng báo đã thanh toán": mở thẳng đơn chưa thanh toán của khách đó
   useEffect(() => { if (focus && focus.phone) setPage({ unpaid: focus.phone }); }, [focus]);
 
@@ -43,14 +43,9 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus })
   const unpaid = orders.filter((o) => isLive(o) && !o.paid);
   const list = txs.filter((t) => filter === 'all' || t.type === filter);
 
-  const del = async (t) => {
-    if (!(await confirm({ title: 'Xoá khoản này?', msg: `${txName(t)} · ${fmt(t.amount)}`, ok: 'Xoá', danger: true }))) return;
-    deleteTransaction(t.id).catch((e) => toast(errText(e)));
-  };
-
   if (page === 'unpaid') return <Unpaid orders={unpaid} onBack={() => setPage(null)} />;
   if (page && page.unpaid) return <Unpaid orders={unpaid.filter((o) => o.customerPhone === page.unpaid)} only onBack={() => setPage(null)} />;
-  if (page && page.add) return <AddTx onBack={() => setPage(null)} initial={page.add} />;
+  if (page && (page.add || page.edit)) return <AddTx onBack={() => setPage(null)} initial={page.add} edit={page.edit} />;
 
   const debt = unpaid.reduce((n, o) => n + (o.totalAmount || 0), 0);
   return (
@@ -92,7 +87,7 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus })
           const inc = t.type === 'income';
           const d = timeOf(t);
           return (
-            <button key={t.id} className="w-tx" onClick={() => del(t)} aria-label={`${txName(t)}, bấm để xoá`}>
+            <button key={t.id} className="w-tx" onClick={() => (t.customerPhone ? toast('Thu nợ không sửa được') : setPage({ edit: t }))} aria-label={`${txName(t)}, bấm để sửa`}>
               <span className={`a-ibg ${inc ? 'g' : 'r'}`} style={{ color: inc ? 'var(--ok)' : 'var(--err)' }}><Icon n={inc ? 'inn' : 'out'} /></span>
               <span className="grow w-txt">
                 <b className="a-t a-ell" style={{ display: 'block' }}>{txName(t)}</b>
@@ -163,12 +158,13 @@ function Unpaid({ orders, onBack, only }) {
   );
 }
 
-function AddTx({ onBack, initial = 'expense' }) {
-  const { toast } = useUI();
-  const [type, setType] = useState(initial);
-  const [amount, setAmount] = useState('');
-  const [cat, setCat] = useState(EXPENSE_CATS[0]);
-  const [note, setNote] = useState('');
+function AddTx({ onBack, initial = 'expense', edit }) {
+  const { toast, confirm } = useUI();
+  const c0 = edit ? txCat(edit) : '';
+  const [type, setType] = useState(edit ? edit.type : initial);
+  const [amount, setAmount] = useState(edit ? String(edit.amount || '') : '');
+  const [cat, setCat] = useState(edit && edit.type === 'expense' ? (EXPENSE_CATS.includes(c0) ? c0 : 'Khác') : EXPENSE_CATS[0]);
+  const [note, setNote] = useState(edit ? txNote(edit) || (edit.type === 'expense' && !EXPENSE_CATS.includes(c0) ? c0 : '') : '');
   const [busy, setBusy] = useState(false);
 
   const save = async () => {
@@ -178,16 +174,34 @@ function AddTx({ onBack, initial = 'expense' }) {
     const label = type === 'income' ? 'Khoản thu' : cat;
     const text = type === 'income' || cat === 'Khác' ? note.trim() : '';
     try {
-      await addDoc(collection(db, 'transactions'), {
-        type, amount: n, description: `[${label}] ${text}`.trim(), createdAt: new Date().toISOString(),
-      });
-      toast(type === 'income' ? 'Đã ghi khoản thu' : 'Đã ghi khoản chi', true);
+      if (edit) {
+        await updateDoc(doc(db, 'transactions', edit.id), { type, amount: n, description: `[${label}] ${text}`.trim() });
+        toast('Đã lưu thay đổi', true);
+      } else {
+        await addDoc(collection(db, 'transactions'), {
+          type, amount: n, description: `[${label}] ${text}`.trim(), createdAt: new Date().toISOString(),
+        });
+        toast(type === 'income' ? 'Đã ghi khoản thu' : 'Đã ghi khoản chi', true);
+      }
       onBack();
     } catch (e) { toast(errText(e)); setBusy(false); }
   };
 
+  const remove = async () => {
+    if (!(await confirm({ title: 'Xoá khoản này?', msg: `${txName(edit)} · ${fmt(edit.amount)}`, ok: 'Xoá', danger: true }))) return;
+    try { await deleteTransaction(edit.id); toast('Đã xoá khoản', true); onBack(); } catch (e) { toast(errText(e)); }
+  };
+
   return (
-    <Page className="w-addpg" onBack={onBack} footer={<Btn onClick={save} disabled={busy}>{busy ? 'Đang lưu...' : 'Lưu lại'}</Btn>}>
+    <Page
+      className="w-addpg" onBack={onBack}
+      footer={(
+        <div className="w-foot">
+          <Btn onClick={save} disabled={busy}>{busy ? 'Đang lưu...' : 'Lưu lại'}</Btn>
+          {edit && <Btn kind="danger" onClick={remove} disabled={busy}>Xoá khoản</Btn>}
+        </div>
+      )}
+    >
       <Seg items={[['expense', 'Chi'], ['income', 'Thu']]} value={type} onChange={setType} />
       <label className="a-card w-money">
         <span className="a-s" style={{ fontSize: 16 }}>Số tiền</span>
