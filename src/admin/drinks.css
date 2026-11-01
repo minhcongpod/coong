@@ -125,3 +125,4 @@
 .dr-detail .qty,.dr-detail .dprice{pointer-events:none}
 .dr .dacts{position:absolute}
 .dr-detail .abs[hidden]{display:none}
+.dr-detail .dr-stage .cartbtn{color:var(--fg)}
