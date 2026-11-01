@@ -323,7 +323,8 @@ input{user-select:text;-webkit-user-select:text}
 
 /* ---------- Home ---------- */
 #home{background:#000}
-.hello{left:24px;top:27px;width:214px}
+.hello{left:24px;top:24px;width:214px;height:52px;color:#fff}
+.hlogo{display:block;height:52px;width:133px}
 .hello b{display:block;font-size:32px;line-height:46px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cartbtn{width:52px;height:52px;background:rgba(255,255,255,.1);top:24px;left:314px;color:#fff}
 .cartbtn svg{width:28px;height:28px}
@@ -342,6 +343,8 @@ input{user-select:text;-webkit-user-select:text}
 #home.noorder #carousel{top:42px}
 /* the carousel reaches under the header, so keep the header buttons on top of it */
 #home .bellbtn,#home .cartbtn{z-index:3}
+#home .cartbtn{left:254px}
+#home .bellbtn{left:314px}
 .card{position:absolute;left:60px;top:96px;width:270px;height:360px;will-change:transform;cursor:pointer}
 .card .surf{position:absolute;inset:0;width:270px;height:360px;overflow:visible}
 .card .cup{position:absolute;left:92px;top:66px;height:245px;transform:rotate(11.7deg);pointer-events:none}
@@ -514,7 +517,7 @@ input{user-select:text;-webkit-user-select:text}
 <div id="home" class="screen noorder" aria-label="Trang chủ">
   <div class="stage">
     <div class="tab" id="tOrder">
-    <div class="abs hello"><b id="helloName">LieuNT</b></div>
+    <div class="abs hello"><svg class="hlogo" viewBox="0 0 91.42 35.78" role="img" aria-label="Coong"><use href="#i-logo"/></svg><b id="helloName" style="display:none">LieuNT</b></div>
     <button class="abs circ cartbtn" aria-label="Giỏ hàng"><svg><use href="#i-bag"/></svg><span class="badge"></span></button>
     <button class="abs circ bellbtn" id="bell" aria-label="Thông báo"><svg><use href="#i-bell"/></svg><span class="nbadge"></span></button>
     <div class="abs order" id="lastOrder" style="display:none"><span><b id="orderTxt"></b><small id="orderWhen"></small></span><button id="reorder">ĐẶT LẠI</button><button class="oclose" id="lastClose" aria-label="Ẩn thẻ đặt lại"><svg><use href="#i-close"/></svg></button></div>
@@ -1999,7 +2002,7 @@ function homeIntro(delay = 160){
   const E = 'cubic-bezier(.22,1,.36,1)', B = 'cubic-bezier(.34,1.56,.64,1)';
   const go = (el, kf, o) => el && el.animate(kf, {fill:'backwards', ...o, duration:T(o.duration), delay:T(o.delay)});
   go($('.hello'), [{opacity:0, translate:'-28px 0', filter:'blur(8px)'},{opacity:1, translate:'0 0', filter:'blur(0)'}], {duration:700, delay:delay, easing:E});
-  [$('#bell'), $('#home .cartbtn')].forEach((el, k) => go(el, [{opacity:0, scale:.3, rotate:k ? '12deg' : '-12deg'},{opacity:1, scale:1, rotate:'0deg'}], {duration:720, delay:delay + 80 + k*90, easing:B}));
+  [$('#home .cartbtn'), $('#bell')].forEach((el, k) => go(el, [{opacity:0, scale:.3, rotate:k ? '12deg' : '-12deg'},{opacity:1, scale:1, rotate:'0deg'}], {duration:720, delay:delay + 80 + k*90, easing:B}));
   const order = [cur, ...cards.map((_, i) => i).filter(i => i !== cur)];
   order.forEach((i, k) => {
     const c = cards[i]; if (!c) return;

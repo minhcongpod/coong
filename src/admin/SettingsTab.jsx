@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { saveMenuItem, deleteMenuItem, saveShop } from '../db';
+import { saveMenuItem, saveShop } from '../db';
 import { Icon, Sym, Page, Btn, Toggle, Field, Empty, fmt, phoneText, XL_EXTRA, kindOf, useUI, errText, BellBtn } from './ui.jsx';
 import { customersOf, CustomerPicker, NewCustomer, EditCustomerForm } from './Customers.jsx';
 
@@ -77,7 +77,7 @@ function MenuList({ menu, onBack, onOpen }) {
 const digits = (v) => v.replace(/\D/g, '').slice(0, 7);
 
 function EditDish({ dish, onBack }) {
-  const { toast, confirm } = useUI();
+  const { toast } = useUI();
   const isNew = !dish.id;
   const name = dish.name || ''; // tên món cố định, không sửa
   const [price, setPrice] = useState(dish.price ? String(dish.price) : '');
@@ -93,18 +93,11 @@ function EditDish({ dish, onBack }) {
       toast('Đã lưu', true); onBack();
     } catch (e) { toast(errText(e)); }
   };
-  const remove = async () => {
-    if (!(await confirm({ title: `Xoá ${dish.name}?`, msg: 'Đơn cũ vẫn giữ nguyên.', ok: 'Xoá món', danger: true }))) return;
-    try { await deleteMenuItem(dish.id); onBack(); } catch (e) { toast(errText(e)); }
-  };
   return (
     <Page
       className="s-pg" title={isNew ? 'Thêm món' : 'Sửa món'} onBack={onBack}
       footer={(
-        <div style={{ display: 'flex', gap: 8 }}>
-          {!isNew && <Btn kind="danger" onClick={remove}>Xoá món</Btn>}
-          <Btn onClick={save}>Lưu lại</Btn>
-        </div>
+        <Btn onClick={save}>Lưu lại</Btn>
       )}
     >
       <div className="s-row"><span>Tên món</span><span className="s-ro">{name}</span></div>

@@ -16,10 +16,10 @@
 .a-root svg{display:block}
 .a-device{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%)}
 .a-stage{position:absolute;left:0;top:0;width:390px;height:660px;transform-origin:0 0;background:#000;overflow:hidden;isolation:isolate}
-.a-dev .a-stage{border-radius:34px}
+.a-dev .a-device{border-radius:34px;overflow:hidden;clip-path:inset(0 round 34px)}
 
 /* khung một tab */
-.a-tab{position:absolute;inset:0;display:flex;flex-direction:column;padding:38px 24px 79px}
+.a-tab{position:absolute;inset:0;display:flex;flex-direction:column;padding:24px 24px 79px}
 .a-tab[hidden]{display:none}
 .a-title{font-size:32px;line-height:46px;font-weight:700}
 .a-sub{font-size:16px;color:var(--mute);font-weight:500;line-height:1.4}
@@ -38,7 +38,7 @@
 .a-badge{position:absolute;top:0;left:calc(50% + 6px);min-width:20px;height:20px;padding:0 6px;border-radius:20px;background:var(--yellow);color:#000;font-size:12px;font-weight:700;line-height:20px;text-align:center}
 
 /* trang con: phủ lên tab, có nút quay lại */
-.a-page{position:absolute;inset:0;z-index:10;background:#000;display:flex;flex-direction:column;padding:23px 24px 31px;animation:a-in .3s var(--ease-out)}
+.a-page{position:absolute;inset:0;z-index:10;background:#000;display:flex;flex-direction:column;padding:24px 24px 31px;animation:a-in .3s var(--ease-out)}
 @keyframes a-in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.a-page{animation:none}}
 .a-back{flex:none;width:52px;height:52px;border-radius:100px;background:var(--s10);display:flex;align-items:center;justify-content:center;margin-bottom:19px}
@@ -139,7 +139,7 @@ button.a-card:active{transform:scale(.97)}
 @keyframes a-toast{0%{opacity:0}10%,83%{opacity:1}100%{opacity:0}}
 
 /* ---------- Đặt hàng (giống Trang chủ app khách) ---------- */
-.o-head{flex:none;display:flex;align-items:center;gap:24px;margin-top:11px}
+.o-head{flex:none;display:flex;align-items:center;gap:8px;margin-top:0}
 .o-head>div{flex:1}
 .o-hi{font-size:18px;color:var(--mute);line-height:normal}
 .o-brand{font-size:32px;font-weight:700;line-height:normal}
@@ -244,7 +244,7 @@ button.a-card:active{transform:scale(.97)}
 
 /* Ví tiền */
 .w-head{display:flex;align-items:center;justify-content:space-between}
-.w-plus{width:44px;height:44px;border-radius:50%;background:var(--s10);display:flex;align-items:center;justify-content:center;flex:none}
+.w-plus{width:52px;height:52px;border-radius:50%;background:var(--s10);display:flex;align-items:center;justify-content:center;flex:none}
 .w-stats{gap:12px}
 .w-rev{display:block;font-size:24px;line-height:31px;font-weight:700;font-variant-numeric:tabular-nums}
 .w-two{display:grid;grid-template-columns:1fr 1fr;gap:24px}
@@ -264,7 +264,7 @@ button.a-card:active{transform:scale(.97)}
 
 /* ---------- Đặt hàng: chi tiết món, giỏ hàng, thông báo (giống app khách) ---------- */
 .o-head .grow{flex:1}
-.o-head{gap:12px}
+.o-head{gap:8px}
 .o-card{cursor:pointer}
 .o-line{width:100%;display:flex;align-items:center;gap:12px;padding:8px 0;text-align:left;color:#fff}
 
@@ -441,7 +441,7 @@ button.a-card:active{transform:scale(.97)}
 .w-unpaid{padding:16px 24px;gap:12px}
 .w-acts{display:flex;gap:8px;flex:none}
 /* chuông thông báo ở đầu các tab */
-.a-bell{position:relative;flex:none;width:44px;height:44px;border-radius:50%;background:var(--s10);display:flex;align-items:center;justify-content:center;color:#fff}
+.a-bell{position:relative;flex:none;width:52px;height:52px;border-radius:50%;background:var(--s10);display:flex;align-items:center;justify-content:center;color:#fff}
 .a-bell .a-badge{top:-4px;left:auto;right:-4px}
 .a-over{z-index:5;background:#000}
 .w-stats{gap:8px}
@@ -458,3 +458,9 @@ button.a-card:active{transform:scale(.97)}
 .s-days{flex:none;display:flex;gap:12px;padding:4px 8px 0}
 .s-days button{flex:1;min-width:0;height:34px;border-radius:32px;background:var(--s10);color:#fff;font-size:14px;font-weight:700;line-height:normal;transition:background .2s,color .2s}
 .s-days button.on{background:#fff;color:#000}
+/* đầu trang: tiêu đề cao tự nhiên, chuông và nút cùng cỡ 52 như trang Menu */
+.w-head .a-title{line-height:normal}
+.w-acts{gap:8px}
+/* ngày mở cửa 36x36, cách đều */
+.s-days{justify-content:space-between;gap:0}
+.s-days button{flex:none;width:36px;height:36px;padding:0}

@@ -203,5 +203,5 @@ export const shopClosed = (shop = {}) => {
 
 // Nút chuông thông báo ở đầu các tab
 export const BellBtn = ({ n = 0, onClick }) => (
-  <button className="a-bell" onClick={onClick} aria-label="Thông báo"><Sym id="i-bell" size={24} />{n > 0 && <span className="a-badge">{n}</span>}</button>
+  <button className="a-bell" onClick={onClick} aria-label="Thông báo"><Sym id="i-bell" size={26} />{n > 0 && <span className="a-badge">{n}</span>}</button>
 );

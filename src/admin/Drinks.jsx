@@ -83,11 +83,12 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
     };
     const move = (e) => {
       const d = s.drag; if (!d) return;
-      const dx = e.clientX - d.x;
+      const S = car.offsetWidth ? car.getBoundingClientRect().width / car.offsetWidth : 1; // khung co giãn: đổi px màn hình về px khung
+      const dx = (e.clientX - d.x) / S;
       if (Math.abs(dx) > 6) d.moved = true;
       if (!d.moved) return;
       const now = performance.now();
-      d.v = (e.clientX - d.lx) / Math.max(1, now - d.lt); d.lx = e.clientX; d.lt = now;
+      d.v = ((e.clientX - d.lx) / S) / Math.max(1, now - d.lt); d.lx = e.clientX; d.lt = now;
       cancelAnimationFrame(s.raf); s.vel = 0;
       s.pos = d.p - dx / N_SIDE; layout();
     };
@@ -157,10 +158,10 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
   return (
     <div className="dr dr-home">
       <div className="o-head">
-        <span ref={(n) => { partsRef.current.logo = n; }}><Sym id="i-logo" size={110} /></span>
+        <span ref={(n) => { partsRef.current.logo = n; }}><Sym id="i-logo" size={133} /></span>
         <span className="grow" />
-        <button ref={(n) => { partsRef.current.bell = n; }} className="o-bag" onClick={onBell} aria-label="Thông báo"><Sym id="i-bell" size={26} />{unread > 0 && <span className="a-badge">{unread}</span>}</button>
         <button ref={(n) => { partsRef.current.cart = n; }} className="o-bag" onClick={onCart} aria-label="Giỏ hàng"><Sym id="i-bag" size={28} />{count > 0 && <span className="a-badge">{count}</span>}</button>
+        <button ref={(n) => { partsRef.current.bell = n; }} className="o-bag" onClick={onBell} aria-label="Thông báo"><Sym id="i-bell" size={26} />{unread > 0 && <span className="a-badge">{unread}</span>}</button>
       </div>
       <div className="dr-mid">
         <div className="dr-car" ref={carRef} tabIndex={0}>
