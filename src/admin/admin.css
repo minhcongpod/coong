@@ -238,7 +238,7 @@ button.a-card:active{transform:scale(.97)}
 .o-ok{position:relative;width:120px;height:120px;flex:none}
 .o-ring{position:absolute;inset:0;border-radius:200px;background:rgba(255,204,0,.16)}
 .o-ok svg{position:absolute;inset:0;width:120px;height:120px}
-.o-donecard{gap:0;width:100%;margin-top:20px;box-sizing:border-box}
+.o-donecard{gap:0;width:100%;margin-top:12px;margin-bottom:8px;box-sizing:border-box}
 
 .o-done .a-title{margin-top:24px;position:relative}
 .o-done .a-sub{margin-top:8px;max-width:310px;position:relative}
