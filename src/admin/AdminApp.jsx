@@ -230,7 +230,7 @@ function Shell({ adminPhone, onLogout }) {
           <Notifs orders={data.orders} onBack={() => setNotif(false)} onOpen={(id) => { setNotif(false); setTrack({ id, n: Date.now() }); setTab('history'); }} />
         </div>
       )}
-      <nav className="a-nav" style={{ position: 'absolute', left: 24, right: 24, bottom: 0, margin: '0 0 31px' }}>
+      <nav className="a-nav" style={{ position: 'absolute', left: 24, right: 24, bottom: 0, margin: '0 0 24px' }}>
         {NAV.map(([k, label]) => (
           <button key={k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)} aria-label={label} title={label}>
             <NavIcon k={k} />
