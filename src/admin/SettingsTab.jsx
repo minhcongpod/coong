@@ -200,8 +200,11 @@ function Telegram({ onBack }) {
       {c.adminChat && <Btn kind="ghost" onClick={test}>Gửi tin thử</Btn>}
       {c.token && (
         <>
-          <p className="a-sub" style={{ marginTop: 16 }}>Gửi món mới hoặc khuyến mãi cho khách{count != null ? ` (${count} khách đã bật Telegram)` : ''}</p>
-          <textarea className="a-field" rows={4} value={promo} onChange={(e) => setPromo(e.target.value)} placeholder="Ví dụ: Hôm nay có món mới, giảm 5.000đ cho đơn đầu tiên!" aria-label="Nội dung thông báo" style={{ padding: 16, height: 'auto', resize: 'none', color: '#fff' }} />
+          <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <b style={{ color: '#fff', fontWeight: 700, fontSize: 16 }}>Gửi tin khuyến mãi</b>
+            {count != null && <span style={{ color: 'var(--mute)', fontWeight: 500, fontSize: 14 }}>{count} khách đã bật Telegram</span>}
+          </div>
+          <textarea className="a-field" rows={4} value={promo} onChange={(e) => setPromo(e.target.value)} placeholder="Nhập tin khuyến mãi" aria-label="Nội dung thông báo" style={{ padding: 16, height: 'auto', resize: 'none', color: '#fff' }} />
           <Btn onClick={sendPromo} disabled={busy || !promo.trim()}>Gửi cho khách</Btn>
         </>
       )}
