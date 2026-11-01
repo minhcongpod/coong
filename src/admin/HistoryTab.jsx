@@ -146,7 +146,7 @@ function OrderDetail({ o, onBack, users }) {
   };
   const togglePaid = async () => {
     if (!paid) return run({ paid: true, paymentStatus: 'confirmed' });
-    if (await confirm({ title: 'Bỏ đánh dấu đã thu?', msg: `${orderCode(o)} · ${fmt(o.totalAmount)}`, ok: 'Bỏ đánh dấu', danger: true })) run({ paid: false, paymentStatus: null });
+    if (await confirm({ title: 'Bỏ đánh dấu đã thanh toán?', msg: `${orderCode(o)} · ${fmt(o.totalAmount)}`, ok: 'Bỏ đánh dấu', danger: true })) run({ paid: false, paymentStatus: null });
   };
 
   const cancelled = o.status === 'cancelled';
@@ -195,8 +195,8 @@ function OrderDetail({ o, onBack, users }) {
           <div className="a-between" data-s>
             <h1 className="a-title">{orderCode(o)}</h1>
             {!cancelled && (
-              <button className={`o-pill${paid ? ' on' : ''}`} onClick={togglePaid} aria-label={paid ? 'Bỏ đánh dấu đã thu' : 'Đánh dấu đã thu'}>
-                {paid && <Sym id="i-verified" size={16} />}{paid ? 'Đã thanh toán' : 'Thu tiền'}
+              <button className={`o-pill${paid ? ' on' : ''}`} onClick={togglePaid} aria-label={paid ? 'Bỏ đánh dấu đã thanh toán' : 'Đánh dấu đã thanh toán'}>
+                <Sym id="i-verified" size={16} />Đã thanh toán
               </button>
             )}
           </div>
@@ -219,11 +219,11 @@ function OrderDetail({ o, onBack, users }) {
             <div key={i} className="o-item">
               <span className="o-thumb">{kind ? <img src={`/${kind}.webp`} alt="" /> : <Sym id="i-cup" size={22} />}</span>
               <span className="grow" style={{ minWidth: 0 }}>
-                <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
                   <b className="a-t">{qtyText(x.quantity || 1)} x {x.name}</b>
                   <b className="a-t a-num">{fmt(x.price * (x.quantity || 1))}</b>
                 </span>
-                <span className="a-s" style={{ display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{[x.caffeine && x.caffeine.replace('Size ', ''), x.temp, x.sweetness, x.ice].filter(Boolean).join(' / ')}</span>
+                <span className="a-s" style={{ display: 'block' }}>{[x.caffeine && x.caffeine.replace('Size ', ''), x.temp, x.sweetness, x.ice].filter(Boolean).join(' / ')}</span>
               </span>
             </div>
           );

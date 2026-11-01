@@ -55,7 +55,7 @@ export default function WalletTab({ orders, txs, users, unread, onBell }) {
         <h1 className="a-title">Ví tiền</h1>
         <span className="w-acts">
           <BellBtn n={unread} onClick={onBell} />
-          <button className="w-plus" onClick={() => setPage({ add: 'expense' })} aria-label="Thêm khoản thu chi"><Icon n="plus" size={24} /></button>
+          <button className="w-plus" onClick={() => setPage({ add: 'expense' })} aria-label="Thêm khoản thu chi"><Icon n="plus" size={26} /></button>
         </span>
       </div>
       <div className="a-body w-body">
@@ -118,7 +118,7 @@ function Unpaid({ orders, onBack }) {
   const total = groups.reduce((n, g) => n + g.total, 0);
 
   const collect = async (g) => {
-    if (!(await confirm({ title: `Thu đủ ${fmt(g.total)}?`, msg: `Đánh dấu ${g.orders.length} đơn của ${g.name} là đã thanh toán.`, ok: 'Đã thu' }))) return;
+    if (!(await confirm({ title: `Thu đủ ${fmt(g.total)}?`, ok: 'Đã thu' }))) return;
     try {
       await Promise.all(g.orders.map((o) => updateOrder(o.id, { paid: true, paymentStatus: 'confirmed' })));
       await addDoc(collection(db, 'transactions'), {
