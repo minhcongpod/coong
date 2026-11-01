@@ -5,6 +5,7 @@ import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { doc, writeBatch } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import { vietQR, qrMatrix } from './qr';
+import { fireworks } from './fireworks';
 import {
   getUser, watchDevice, unlockDevice, lockDevice, watchMenu, watchOrders, watchShop,
   createOrder, updateOrder, updateUserName, setPin, resetPinByName,
@@ -29,6 +30,7 @@ const isWrongPin = (e) => e && e.code === 'permission-denied';
 
 // Mã QR chuyển khoản thật cho tờ thanh toán
 window.CoongQR = { vietQR, qrMatrix };
+window.CoongFX = { fireworks };
 
 window.CoongAPI = {
   ready: uidReady,
@@ -90,8 +92,8 @@ window.CoongAPI = {
   },
   cancelOrder: async (id, info) => {
     await updateOrder(id, { status: 'cancelled' });
-    if (info && info.phone) tgToCustomer(info.phone, `Đơn ${info.code} đã huỷ`);
-    if (info) tgToAdmin(`❌ ${info.name} đã huỷ đơn ${info.code}${info.total ? ` · ${info.total.toLocaleString('vi-VN')}đ` : ''}`);
+    if (info && info.phone) tgToCustomer(info.phone, `Đơn ${info.code}${info.items ? ` - ${info.items}` : ''} đã huỷ`);
+    if (info) tgToAdmin(`❌ ${info.name} đã huỷ đơn ${info.code}${info.lines || info.total ? `\n${info.lines || ''}${info.lines && info.total ? ' · ' : ''}${info.total ? `${info.total.toLocaleString('vi-VN')}đ` : ''}` : ''}`);
   },
   claimPaid: async (ids, info) => {
     await Promise.all(ids.map((id) => updateOrder(id, { paymentStatus: 'awaiting' })));

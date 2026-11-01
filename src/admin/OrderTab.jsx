@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createOrder } from '../db';
+import { fireworks } from '../coong/fireworks';
 import { Icon, Sym, Page, Btn, Empty, fmt, dmy, hm, timeOf, phoneText, kindOf, XL_EXTRA, orderCode, useUI, errText, shopClosed } from './ui.jsx';
 import { CustomerPicker, NewCustomer, EditCustomerForm } from './Customers.jsx';
 import { DrinkHome, DrinkDetail, drinkOf } from './Drinks.jsx';
@@ -329,7 +330,8 @@ function Done({ d, onTrack, onMore }) {
     run(el.querySelector('path'), [{ strokeDashoffset: 100 }, { strokeDashoffset: 0 }], { duration: 460, delay: 280, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'both' });
     run(el.querySelector('.o-ring'), [{ transform: 'scale(.6)', opacity: 1 }, { transform: 'scale(1.6)', opacity: 0 }], { duration: 1400, delay: 300, easing: 'ease-out', iterations: 3, fill: 'both' });
     el.querySelectorAll('[data-s]').forEach((r, k) => run(r, [{ opacity: 0, transform: 'translateY(16px) scale(.97)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: 120 + k * 45, easing: 'cubic-bezier(.34,1.4,.64,1)', fill: 'backwards' }));
-    return () => an.forEach((a) => a.cancel());
+    const stopFx = fireworks(el);
+    return () => { an.forEach((a) => a.cancel()); stopFx(); };
   }, []);
   return (
     <div className="a-page o-done" ref={root}>

@@ -27,7 +27,7 @@ export function vietQR(amount, note) {
 
 /** Ma trận ô đen/trắng của mã QR */
 export function qrMatrix(text) {
-  const q = qrcode(0, 'M');
+  const q = qrcode(0, 'Q');
   q.addData(text);
   q.make();
   const n = q.getModuleCount();

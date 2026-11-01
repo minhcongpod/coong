@@ -216,8 +216,11 @@ function AddTx({ onBack, initial = 'expense', edit }) {
       {/* Chi: ô ghi chú chỉ hiện khi chọn Khác. Thu: ô Lý do */}
       {(type === 'income' || cat === 'Khác') && (
         <label className="a-card w-notecard">
-          <span>{type === 'income' ? 'Lý do' : 'Khác'}</span>
-          <input className="w-note" value={note} onChange={(e) => setNote(e.target.value)} aria-label={type === 'income' ? 'Lý do' : 'Khác'} autoFocus={type === 'expense'} />
+          <textarea
+            className="w-note" rows={2} value={note} placeholder="Nhập nội dung" aria-label="Nội dung"
+            ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } }}
+            onChange={(e) => setNote(e.target.value.slice(0, 300))} autoFocus={type === 'expense'}
+          />
         </label>
       )}
     </Page>
