@@ -1,7 +1,7 @@
 // Thông báo qua Telegram, gửi thẳng từ app (không cần máy chủ):
 //   meta/telegram { token, bot, adminChat }  chỉ chủ quán ghi, các máy đã đăng nhập đọc
 //   tg/{phone}     { chatId }                khách tự gắn Telegram của mình
-import { doc, getDoc, setDoc, collection, getDocs } from 'firebase/firestore';
+import { doc, getDoc, setDoc, deleteDoc, collection, getDocs } from 'firebase/firestore';
 import { db } from './firebase';
 
 const api = (token, method) => `https://api.telegram.org/bot${token}/${method}`;
@@ -31,6 +31,7 @@ export const tgCheckToken = async (token) => {
 export const getTgChat = async (phone) => {
   try { const s = await getDoc(doc(db, 'tg', phone)); return s.exists() ? s.data().chatId : null; } catch (e) { return null; }
 };
+export const clearTgChat = (phone) => deleteDoc(doc(db, 'tg', phone));
 export const setTgChat = (phone, chatId) => setDoc(doc(db, 'tg', phone), { chatId: String(chatId) });
 
 // Mở bot kèm mã, rồi chờ tin "/start <mã>" để biết chat id của người đó. Trả về chat id hoặc null nếu hết giờ.

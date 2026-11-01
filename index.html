@@ -2041,7 +2041,12 @@ async function tgRefresh(){
   try { const t = await (await api()).tgState(session.phone); tgBtn.hidden = !t.on; tgTxt.textContent = t.linked ? 'Đã bật' : 'Bật thông báo'; tgBtn.dataset.on = t.linked ? '1' : ''; } catch (e) {}
 }
 tgBtn.addEventListener('click', async () => {
-  if (!session || tgBtn.dataset.on) return toast('Telegram đã được bật rồi');
+  if (!session) return;
+  if (tgBtn.dataset.on) {
+    if (!(await ask({title:'Tắt thông báo Telegram?', text:'Bạn sẽ không nhận tin về đơn hàng qua Telegram nữa. Có thể bật lại bất cứ lúc nào.', ok:'Tắt', danger:true}))) return;
+    try { await (await api()).tgOff(session.phone); toast('Đã tắt thông báo Telegram'); } catch (e) { toast('Chưa tắt được, thử lại nhé'); }
+    return tgRefresh();
+  }
   tgTxt.textContent = 'Đang chờ…'; toast('Mở Telegram và bấm Start nhé');
   let ok = false; try { ok = await (await api()).tgConnect(session.phone); } catch (e) {}
   toast(ok ? 'Đã bật thông báo Telegram' : 'Chưa kết nối được Telegram, thử lại nhé'); tgRefresh();

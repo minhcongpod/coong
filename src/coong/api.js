@@ -1,6 +1,6 @@
 // Cầu nối giữa giao diện Coong (index.html, JS thuần) và Firebase.
 // Giao diện gọi window.CoongAPI; mọi đọc/ghi đi qua src/db.js như app chủ quán.
-import { tgToAdmin, tgToCustomer, getTgCfg, peekTgCfg, getTgChat, setTgChat, tgNewCode, tgDeepLink, tgWaitChat } from '../telegram';
+import { tgToAdmin, tgToCustomer, getTgCfg, peekTgCfg, getTgChat, setTgChat, clearTgChat, tgNewCode, tgDeepLink, tgWaitChat } from '../telegram';
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { doc, writeBatch } from 'firebase/firestore';
 import { auth, db } from '../firebase';
@@ -103,6 +103,8 @@ window.CoongAPI = {
     const c = await getTgCfg(true);
     return { on: !!(c.token && c.bot), linked: !!(await getTgChat(phone)) };
   },
+  /** Khách tắt thông báo Telegram: bỏ liên kết, quán không gửi tin nữa */
+  tgOff(phone) { return clearTgChat(phone); },
   /** Mở bot Telegram kèm mã rồi chờ khách bấm Start; gọi ngay trong lúc bấm nút để trình duyệt cho mở cửa sổ */
   tgConnect(phone) {
     const c = peekTgCfg();
