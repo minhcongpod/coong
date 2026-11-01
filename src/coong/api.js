@@ -60,6 +60,7 @@ window.CoongAPI = {
     batch.set(doc(db, 'pins', phone), { pin });
     batch.set(doc(db, 'devices', uid), { phone, pin, createdAt: nowIso() });
     await batch.commit();
+    tgToAdmin(`🆕 Khách mới đăng ký: ${name} · ${phone}`);
   },
 
   async signOut() { await lockDevice(await uidReady); },
@@ -87,7 +88,11 @@ window.CoongAPI = {
     if (!order.paid && order.paymentStatus !== 'awaiting') tgToCustomer(order.customerPhone, `🧾 Đơn #${ref.no} cần thanh toán ${order.totalAmount.toLocaleString('vi-VN')}đ`);
     return { id: ref.id, no: ref.no };
   },
-  cancelOrder: (id) => updateOrder(id, { status: 'cancelled' }),
+  cancelOrder: async (id, info) => {
+    await updateOrder(id, { status: 'cancelled' });
+    if (info && info.phone) tgToCustomer(info.phone, `Đơn ${info.code} đã huỷ`);
+    if (info) tgToAdmin(`❌ ${info.name} đã huỷ đơn ${info.code}${info.total ? ` · ${info.total.toLocaleString('vi-VN')}đ` : ''}`);
+  },
   claimPaid: async (ids, info) => {
     await Promise.all(ids.map((id) => updateOrder(id, { paymentStatus: 'awaiting' })));
     if (info) tgToAdmin(`💰 ${info.name} báo đã thanh toán ${info.n} đơn · ${info.total.toLocaleString('vi-VN')}đ\nBấm chuông trong app chủ quán để xác nhận.`);

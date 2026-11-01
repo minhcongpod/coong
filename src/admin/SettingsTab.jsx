@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { saveMenuItem, saveShop } from '../db';
 import { Icon, Sym, Page, Btn, Toggle, Field, Empty, fmt, phoneText, XL_EXTRA, kindOf, useUI, errText, BellBtn } from './ui.jsx';
-import { getTgCfg, saveTgCfg, tgCheckToken, tgNewCode, tgDeepLink, tgWaitChat, tgToAdmin } from '../telegram';
+import { getTgCfg, saveTgCfg, tgCheckToken, tgNewCode, tgDeepLink, tgWaitChat, tgToAdmin, tgBroadcast, tgChatCount } from '../telegram';
 import { customersOf, CustomerPicker, NewCustomer, EditCustomerForm } from './Customers.jsx';
 
 // Hàng nhập: nhãn bên trái, giá trị bên phải
@@ -150,7 +150,10 @@ function Hours({ shop, onBack }) {
 
 // Thông báo Telegram: dán token bot, rồi kết nối Telegram của chủ quán để nhận tin đơn mới và khách báo đã thanh toán
 function Telegram({ onBack }) {
-  const { toast } = useUI();
+  const { toast, confirm } = useUI();
+  const [promo, setPromo] = useState('');
+  const [count, setCount] = useState(null);
+  useEffect(() => { tgChatCount().then(setCount).catch(() => {}); }, []);
   const [cfg, setCfg] = useState(null);
   const [token, setToken] = useState('');
   const [busy, setBusy] = useState(false);
@@ -180,6 +183,14 @@ function Telegram({ onBack }) {
       setCfg({ ...c, adminChat: String(chat) }); toast('Đã kết nối Telegram của chủ quán', true);
     } catch (e) { toast(errText(e)); } finally { setBusy(false); }
   };
+  const sendPromo = async () => {
+    const text = promo.trim();
+    if (!text) return;
+    if (!(await confirm({ title: `Gửi cho ${count != null ? count : 'tất cả'} khách?`, msg: text, ok: 'Gửi' }))) return;
+    setBusy(true);
+    try { const r = await tgBroadcast(`📣 ${text}`); setPromo(''); toast(`Đã gửi ${r.sent}/${r.total} khách`, true); }
+    catch (e) { toast(errText(e)); } finally { setBusy(false); }
+  };
   const test = async () => { await tgToAdmin('✅ Coong: thông báo Telegram hoạt động'); toast('Đã gửi tin thử'); };
   return (
     <Page className="s-pg" title="Thông báo Telegram" sub={c.bot ? `Bot @${c.bot}${c.adminChat ? ' · đã kết nối' : ' · chưa kết nối'}` : 'Chưa cài bot'} onBack={onBack}>
@@ -187,6 +198,13 @@ function Telegram({ onBack }) {
       <Btn onClick={saveToken} disabled={busy}>Lưu token</Btn>
       <Btn kind="ghost" onClick={connect} disabled={busy || !c.token}>Kết nối Telegram của chủ quán</Btn>
       {c.adminChat && <Btn kind="ghost" onClick={test}>Gửi tin thử</Btn>}
+      {c.token && (
+        <>
+          <p className="a-sub" style={{ marginTop: 16 }}>Gửi món mới hoặc khuyến mãi cho khách{count != null ? ` (${count} khách đã bật Telegram)` : ''}</p>
+          <textarea className="a-field" rows={4} value={promo} onChange={(e) => setPromo(e.target.value)} placeholder="Ví dụ: Hôm nay có món mới, giảm 5.000đ cho đơn đầu tiên!" aria-label="Nội dung thông báo" style={{ padding: 16, height: 'auto', resize: 'none', color: '#fff' }} />
+          <Btn onClick={sendPromo} disabled={busy || !promo.trim()}>Gửi cho khách</Btn>
+        </>
+      )}
     </Page>
   );
 }
