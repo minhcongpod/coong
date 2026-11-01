@@ -1,5 +1,6 @@
 // Cầu nối giữa giao diện Coong (index.html, JS thuần) và Firebase.
 // Giao diện gọi window.CoongAPI; mọi đọc/ghi đi qua src/db.js như app chủ quán.
+import { tgToAdmin, tgToCustomer, getTgCfg, peekTgCfg, getTgChat, setTgChat, tgNewCode, tgDeepLink, tgWaitChat } from '../telegram';
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { doc, writeBatch } from 'firebase/firestore';
 import { auth, db } from '../firebase';
@@ -81,10 +82,30 @@ window.CoongAPI = {
   /** Trả về id và số của đơn vừa tạo */
   async placeOrder(order) {
     const ref = await createOrder(order);
+    tgToAdmin(`🔔 Đơn mới #${ref.no} từ ${order.customerName}\n${(order.items || []).map((it) => `${it.quantity}x ${it.name}`).join(', ')} · ${order.totalAmount.toLocaleString('vi-VN')}đ`);
+    // khách chưa trả (tiền mặt, ghi nợ, hoặc chuyển khoản chưa báo) thì nhắc thanh toán ngay trong Telegram của khách
+    if (!order.paid && order.paymentStatus !== 'awaiting') tgToCustomer(order.customerPhone, `🧾 Đơn #${ref.no} cần thanh toán ${order.totalAmount.toLocaleString('vi-VN')}đ`);
     return { id: ref.id, no: ref.no };
   },
   cancelOrder: (id) => updateOrder(id, { status: 'cancelled' }),
-  claimPaid: (ids) => Promise.all(ids.map((id) => updateOrder(id, { paymentStatus: 'awaiting' }))),
+  claimPaid: async (ids, info) => {
+    await Promise.all(ids.map((id) => updateOrder(id, { paymentStatus: 'awaiting' })));
+    if (info) tgToAdmin(`💰 ${info.name} báo đã thanh toán ${info.n} đơn · ${info.total.toLocaleString('vi-VN')}đ\nBấm chuông trong app chủ quán để xác nhận.`);
+  },
+
+  /** Telegram: quán đã cài bot chưa, và khách này đã gắn Telegram chưa */
+  async tgState(phone) {
+    const c = await getTgCfg(true);
+    return { on: !!(c.token && c.bot), linked: !!(await getTgChat(phone)) };
+  },
+  /** Mở bot Telegram kèm mã rồi chờ khách bấm Start; gọi ngay trong lúc bấm nút để trình duyệt cho mở cửa sổ */
+  tgConnect(phone) {
+    const c = peekTgCfg();
+    if (!c || !c.token || !c.bot) return Promise.resolve(false);
+    const code = tgNewCode();
+    window.open(tgDeepLink(c.bot, code), '_blank');
+    return tgWaitChat(c.token, code).then(async (chat) => { if (!chat) return false; await setTgChat(phone, chat); return true; });
+  },
 };
 
 window.dispatchEvent(new Event('coong-api'));
