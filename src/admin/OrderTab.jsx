@@ -6,7 +6,7 @@ import { CustomerPicker, NewCustomer, EditCustomerForm } from './Customers.jsx';
 import { DrinkHome, DrinkDetail, drinkOf } from './Drinks.jsx';
 
 const ORDER = ['bac', 'den', 'nau'];
-const METHODS = [['bank', 'Chuyển khoản', 'i-qr'], ['cash', 'Tiền mặt', 'i-cash'], ['debt', 'Ghi nợ nhé!', 'i-debt']];
+const METHODS = [['debt', 'Ghi nợ nhé!', 'i-debt'], ['bank', 'Chuyển khoản', 'i-qr'], ['cash', 'Tiền mặt', 'i-cash']];
 const PAY_NAME = { bank: 'Chuyển khoản', cash: 'Tiền mặt', debt: 'Ghi nợ' };
 
 // Giá thêm khi lên XL: theo Upsize chủ quán đặt cho từng món
@@ -78,10 +78,10 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, shop = {
       note: '',
       totalAmount: total,
       status: 'completed',
-      paid: pay === 'cash',
+      paid: pay !== 'debt',
       payMethod: pay,
     };
-    if (pay === 'cash') order.paymentStatus = 'confirmed';
+    if (pay !== 'debt') order.paymentStatus = 'confirmed';
     try {
       const made = await createOrder(order);
       // cả 3 cách thanh toán đều sang màn Đặt hàng thành công
