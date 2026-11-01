@@ -1618,7 +1618,7 @@ function openOrder(o){ curOrder = o; const prev = $('#oBody .bar'); if (prev) pr
 async function cancelOrder(o){
   if (!await ask({title:'Huỷ đơn này?', text:'Ủa alo???', ok:'Huỷ đơn', cancel:'Thôi', danger:true})) return;
   if (o.status !== 'wait') { toast('Quán vừa nhận đơn, không huỷ được nữa'); return; }
-  try { await (await api()).cancelOrder(o.id, {name:session.name, code:'#' + o.code, total:oTotal(o)}); }
+  try { await (await api()).cancelOrder(o.id, {name:session.name, phone:session.phone, code:'#' + o.code, total:oTotal(o)}); }
   catch (e) { toast('Quán vừa nhận đơn, không huỷ được nữa'); return; }
   toast(`Đã huỷ đơn #${o.code}`, 'x');
 }
