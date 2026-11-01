@@ -204,7 +204,13 @@ function Telegram({ onBack }) {
             <b style={{ color: '#fff', fontWeight: 700, fontSize: 16 }}>Gửi tin khuyến mãi</b>
             {count != null && <span style={{ color: 'var(--mute)', fontWeight: 500, fontSize: 14 }}>{count} khách đã bật Telegram</span>}
           </div>
-          <textarea className="a-field" rows={4} value={promo} onChange={(e) => setPromo(e.target.value)} placeholder="Nhập tin khuyến mãi" aria-label="Nội dung thông báo" style={{ padding: 16, height: 'auto', resize: 'none', color: '#fff' }} />
+          <label className="a-card w-notecard">
+            <textarea
+              className="w-note" rows={2} value={promo} placeholder="Nhập nội dung" aria-label="Nội dung thông báo"
+              ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } }}
+              onChange={(e) => setPromo(e.target.value.slice(0, 500))}
+            />
+          </label>
           <Btn onClick={sendPromo} disabled={busy || !promo.trim()}>Gửi cho khách</Btn>
         </>
       )}
