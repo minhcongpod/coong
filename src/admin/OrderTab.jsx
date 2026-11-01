@@ -62,7 +62,7 @@ export default function OrderTab({ menu, users, orders, onTrack, shop = {} }) {
   const drinkText = ['den', 'nau', 'bac'].map((k) => [k, lines.filter((l) => kindOf(l.name) === k).reduce((n, l) => n + l.qty, 0)]).filter((x) => x[1] > 0).map(([k, n]) => `${n} ${SHORT[k]}`).join(' / ') || `${count}`;
 
   const place = async () => {
-    if (!customer) return toast('Chọn khách hàng cho đơn này');
+    if (!customer) return toast('Chọn khách');
     if (!lines.length || busy) return;
     setBusy(true);
     const order = {
