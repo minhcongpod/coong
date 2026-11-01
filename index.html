@@ -73,7 +73,7 @@ svg{display:block}
 .seg[hidden]{display:none}
 .seg i{position:absolute;left:2.7px;top:2.7px;bottom:2.7px;width:calc((100% - 5.4px)/3);border-radius:100px;background:#fff;transition:transform .35s var(--ease-out)}
 .adebt{display:flex;align-items:center;gap:12px;padding:16px 24px;background:rgba(255,204,0,.12)}
-.adebt>div{flex:1;display:flex;flex-direction:column;gap:4px}
+.adebt>div{flex:1;display:flex;flex-direction:column;gap:0}
 .adebt>div>b{display:flex;align-items:center;gap:8px;font-size:24px;line-height:31px;color:var(--yellow);font-variant-numeric:tabular-nums}
 .adebt>div>b svg{width:16px;height:16px}
 .adebt small{white-space:nowrap;font-size:14px;color:rgba(255,255,255,.5);font-weight:500}
@@ -259,7 +259,7 @@ input{user-select:text;-webkit-user-select:text}
 .pscroll::-webkit-scrollbar{display:none}
 .psum{flex:none;width:342px;padding:16px 24px}
 .pfoot{left:24px;bottom:24px;width:342px;height:60px;display:flex;align-items:center;gap:16px}
-.ptot{width:139px;display:flex;flex-direction:column;align-items:flex-end;line-height:normal;font-weight:700}
+.ptot{flex:none;width:auto;display:flex;flex-direction:column;align-items:flex-end;line-height:normal;font-weight:700}
 .ptot span{font-size:16px}
 .ptot b{font-size:24px;font-variant-numeric:tabular-nums}
 .pgo{flex:1;height:60px;border-radius:32px;background:#fff;color:#000;font-size:18px;font-weight:700;transition:transform .25s var(--ease-out),opacity .2s}
@@ -268,7 +268,7 @@ input{user-select:text;-webkit-user-select:text}
 .prow{display:flex;align-items:center;height:52px;line-height:normal}
 .prow .nm{flex:1;min-width:0}
 #pTotal{color:var(--yellow)}
-.pmeth{flex:none;width:342px;display:flex;flex-direction:column;gap:8px}
+.pmeth{flex:none;width:342px;display:flex;flex-direction:column;gap:16px}
 .mrow{height:52px;box-sizing:border-box;border-radius:32px;background:rgba(255,255,255,.1);display:flex;align-items:center;gap:12px;padding:0 24px;color:#fff;text-align:left;line-height:normal;transition:background .3s,color .3s,transform .25s var(--ease-out)}
 .mrow:active{transform:scale(.97)}
 .mrow svg{width:24px;height:24px;flex:none}
@@ -279,7 +279,7 @@ input{user-select:text;-webkit-user-select:text}
 .mrow.on i{box-shadow:inset 0 0 0 7px #000}
 .psheet{position:absolute;left:0;top:0;width:390px;height:100%;visibility:hidden;z-index:5}
 .psheet .sb{position:absolute;inset:0;background:rgba(0,0,0,.6)}
-.psheet .sp{position:absolute;left:0;right:0;bottom:0;background:#1a1a1a;border-radius:32px 32px 0 0;padding:32px 24px 24px;display:flex;flex-direction:column;align-items:stretch;gap:16px;line-height:normal}
+.psheet .sp{position:absolute;left:0;right:0;bottom:0;background:#1a1a1a;border-radius:34px 34px 0 0;padding:32px 24px 24px;display:flex;flex-direction:column;align-items:stretch;gap:16px;line-height:normal}
 .psheet .sp::before{content:"";position:absolute;left:170px;top:9px;width:50px;height:7px;border-radius:7px;background:#fff}
 .qrcard{display:flex;flex-direction:column;gap:8px;box-sizing:border-box;padding:8px;border-radius:20px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
 .qtop{display:flex;gap:16px;height:150px}
@@ -291,7 +291,8 @@ input{user-select:text;-webkit-user-select:text}
 .qact button{width:150px;height:32px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px;font-weight:700;color:#fff}
 .qact svg{width:24px;height:24px}
 .qact i{width:1px;height:24px;background:rgba(255,255,255,.1)}
-.salt{height:32px;font-size:18px;font-weight:700;color:#fff}
+.qacts{display:flex;flex-direction:column;gap:8px}
+.salt{display:flex;align-items:center;justify-content:center;height:60px;border-radius:32px;background:rgba(255,255,255,.1);font-size:18px;font-weight:700;color:#fff}
 .sp h3{margin:0;font-size:24px;font-weight:700}
 .sp .amt{font-size:32px;font-weight:700;color:var(--yellow);font-variant-numeric:tabular-nums}
 .qrbox{flex:none;width:149px;height:150px;box-sizing:border-box;padding:10px;background:#fff;border-radius:14px}
@@ -517,10 +518,10 @@ input{user-select:text;-webkit-user-select:text}
 <div id="device"><div id="app">
 <div id="home" class="screen noorder" aria-label="Trang chủ">
   <div class="stage">
-    <div class="tab" id="tOrder">
-    <div class="abs hello"><svg class="hlogo" viewBox="0 0 91.42 35.78" role="img" aria-label="Coong"><use href="#i-logo"/></svg><b id="helloName" style="display:none">LieuNT</b></div>
     <button class="abs circ cartbtn" aria-label="Giỏ hàng"><svg><use href="#i-bag"/></svg><span class="badge"></span></button>
     <button class="abs circ bellbtn" id="bell" aria-label="Thông báo"><svg><use href="#i-bell"/></svg><span class="nbadge"></span></button>
+    <div class="tab" id="tOrder">
+    <div class="abs hello"><svg class="hlogo" viewBox="0 0 91.42 35.78" role="img" aria-label="Coong"><use href="#i-logo"/></svg><b id="helloName" style="display:none">LieuNT</b></div>
     <div class="abs order" id="lastOrder" style="display:none"><span><b id="orderTxt"></b><small id="orderWhen"></small></span><button id="reorder">ĐẶT LẠI</button><button class="oclose" id="lastClose" aria-label="Ẩn thẻ đặt lại"><svg><use href="#i-close"/></svg></button></div>
     <div id="carousel" class="abs"></div>
     <div class="abs dots" id="dots" hidden></div>
@@ -1729,8 +1730,8 @@ function qrPng(qr){
 function qrSheet(sheet, {amt, code, onPaid, alt, onAlt}){
   const sp = $('.sp', sheet), qr = qrSvg(amt, code);
   sp.innerHTML = `<div class="qrcard"><div class="qtop"><div class="qrbox">${qr}</div><div class="qri"><div><span>Chuyển khoản</span><b class="amt">${fmt(amt)}</b></div><div><span>${BANK.name}</span><small>${BANK.acc}</small></div></div></div>
-    <div class="qact"><button data-q="copy"><svg><use href="#i-copy"/></svg>Sao chép QR</button><i></i><button data-q="save"><svg><use href="#i-down"/></svg>Tải mã</button></div></div>
-    <button class="btn" data-q="paid">Tôi đã thanh toán</button><button class="salt" data-q="alt">${alt}</button>`;
+    <div class="qact"><button data-q="copy"><svg><use href="#i-copy"/></svg>Sao chép mã</button><i></i><button data-q="save"><svg><use href="#i-down"/></svg>Tải mã</button></div></div>
+    <div class="qacts"><button class="btn" data-q="paid">Tôi đã thanh toán</button><button class="salt" data-q="alt">${alt}</button></div>`;
   const q = k => $(`[data-q=${k}]`, sp);
   /* copy the QR as a PNG image (to paste into a banking app or chat), and save it as one */
   q('copy').addEventListener('click', async () => {

@@ -19,7 +19,7 @@
 .a-dev .a-device{border-radius:34px;overflow:hidden;clip-path:inset(0 round 34px)}
 
 /* khung một tab */
-.a-tab{position:absolute;inset:0;display:flex;flex-direction:column;padding:24px 24px 79px}
+.a-tab{position:absolute;inset:0;display:flex;flex-direction:column;padding:24px 24px 72px}
 .a-tab[hidden]{display:none}
 .a-title{font-size:32px;line-height:46px;font-weight:700}
 .a-sub{font-size:16px;color:var(--mute);font-weight:500;line-height:1.4}

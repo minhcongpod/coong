@@ -220,7 +220,7 @@ export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, o
 
   // lớp hiệu ứng nằm ngoài khung nên cắt theo khung 390×660
   useLayoutEffect(() => {
-    const clip = () => { const r = rootRect(); if (fxRef.current) fxRef.current.style.clipPath = `inset(${r.top}px ${innerWidth - r.right}px ${innerHeight - r.bottom}px ${r.left}px)`; };
+    const clip = () => { const r = rootRect(); if (fxRef.current) fxRef.current.style.clipPath = `inset(${r.top}px ${innerWidth - r.right}px ${innerHeight - r.bottom}px ${r.left}px round ${parseFloat(getComputedStyle(document.querySelector(".a-device")).borderTopLeftRadius) || 0}px)`; };
     clip(); addEventListener('resize', clip); return () => removeEventListener('resize', clip);
   }, []);
 
