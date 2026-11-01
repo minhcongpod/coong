@@ -9,14 +9,18 @@ const call = (token, method, body) =>
   fetch(api(token, method), body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : undefined)
     .then((r) => r.json()).catch(() => null);
 
-let cache = null;
+// Cấu hình giữ trong bộ nhớ 30 giây; đọc lỗi hoặc chưa có thì không giữ để lần sau đọc lại
+let cache = null, cacheAt = 0;
 export const getTgCfg = async (fresh) => {
-  if (cache && !fresh) return cache;
-  try { const s = await getDoc(doc(db, 'meta', 'telegram')); cache = s.exists() ? s.data() : {}; } catch (e) { cache = {}; }
+  if (cache && cache.token && !fresh && Date.now() - cacheAt < 30000) return cache;
+  try {
+    const s = await getDoc(doc(db, 'meta', 'telegram'));
+    cache = s.exists() ? s.data() : {}; cacheAt = Date.now();
+  } catch (e) { console.warn('telegram: không đọc được cấu hình', e && e.code); return cache || {}; }
   return cache;
 };
 export const peekTgCfg = () => cache;
-export const saveTgCfg = async (patch) => { await setDoc(doc(db, 'meta', 'telegram'), patch, { merge: true }); cache = { ...(cache || {}), ...patch }; };
+export const saveTgCfg = async (patch) => { await setDoc(doc(db, 'meta', 'telegram'), patch, { merge: true }); cache = { ...(cache || {}), ...patch }; cacheAt = Date.now(); };
 
 // Kiểm tra token và lấy tên bot
 export const tgCheckToken = async (token) => {
@@ -43,15 +47,19 @@ export const tgWaitChat = async (token, code, ms = 120000) => {
   return null;
 };
 
-const send = (token, chat, text) => call(token, 'sendMessage', { chat_id: chat, text });
+const send = async (token, chat, text) => {
+  const r = await call(token, 'sendMessage', { chat_id: chat, text });
+  if (!r || !r.ok) console.warn('telegram: gửi lỗi', r && r.description);
+  return r;
+};
 
 // Gửi cho chủ quán / cho khách; lỗi thì bỏ qua để không làm hỏng việc đang làm
 export const tgToAdmin = async (text) => {
-  try { const c = await getTgCfg(); if (c.token && c.adminChat) await send(c.token, c.adminChat, text); } catch (e) {}
+  try { const c = await getTgCfg(); if (!c.token || !c.adminChat) return console.warn('telegram: chủ quán chưa kết nối'); await send(c.token, c.adminChat, text); } catch (e) {}
 };
 export const tgToCustomer = async (phone, text) => {
   try {
     const c = await getTgCfg(); if (!c.token || !phone) return;
-    const chat = await getTgChat(phone); if (chat) await send(c.token, chat, text);
+    const chat = await getTgChat(phone); if (!chat) return console.warn('telegram: khách chưa bật Telegram'); await send(c.token, chat, text);
   } catch (e) {}
 };
