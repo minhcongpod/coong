@@ -429,7 +429,7 @@ button.a-card:active{transform:scale(.97)}
 .s-cust{flex:none;display:flex;align-items:center;gap:12px;padding:16px 24px;border-radius:32px;background:var(--s10);cursor:pointer}
 .s-cust .g{display:flex}
 .s-add svg{color:#000}
-.s-form .a-body{gap:12px}
+.s-form .a-body{gap:8px}
 .s-search{margin-bottom:8px}
 
 /* Ví tiền theo Figma 91-5347: tiêu đề cách 16, 2 thẻ trên cách 8, còn lại cách 16; bộ lọc ngày/tháng/năm dạng bấm */
