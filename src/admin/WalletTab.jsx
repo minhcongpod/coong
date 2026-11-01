@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { addDoc, collection } from 'firebase/firestore';
 import { db } from '../firebase';
 import { updateOrder, deleteTransaction } from '../db';
+import { tgToCustomer } from '../telegram';
 import { Icon, Sym, Page, Btn, Seg, Chip, Empty, fmt, dayLabel, timeOf, isLive, useUI, errText, BellBtn } from './ui.jsx';
 import { summary } from './HistoryTab.jsx';
 
@@ -127,6 +128,7 @@ function Unpaid({ orders, onBack, only }) {
       await addDoc(collection(db, 'transactions'), {
         type: 'income', amount: g.total, description: `[Thu nợ] ${g.name}`, customerPhone: g.phone, createdAt: new Date().toISOString(),
       });
+      tgToCustomer(g.phone, `💚 Quán đã xác nhận thanh toán ${fmt(g.total)} (${g.orders.length} đơn). Cảm ơn bạn!`);
       toast(`Đã thu của ${g.name}`, true);
     } catch (e) { toast(errText(e)); }
   };

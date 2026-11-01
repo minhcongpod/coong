@@ -82,6 +82,7 @@ svg{display:block}
 .adebt.clear{display:none}
 .arows{display:flex;flex-direction:column;gap:8px}
 .arow{background:rgba(255,255,255,.1);border-radius:32px;padding:16px 24px;display:flex;gap:10px;font-size:18px;color:#fff;text-align:left}
+.arow[hidden]{display:none}
 .arow>span:first-child{flex:1;font-size:16px}.arow .y{flex:none}
 .aname{flex:1;min-width:0;background:none;border:0;outline:0;padding:0;margin:0;font:inherit;color:inherit;text-align:right;caret-color:var(--yellow)}
 .aname:focus{color:var(--yellow)}.arow .r{text-align:right}.arow .y{color:var(--yellow)}.arow .m{color:rgba(255,255,255,.5)}
@@ -555,6 +556,7 @@ input{user-select:text;-webkit-user-select:text}
         <div class="arows">
           <label class="arow" data-s><span>Tên đặt hàng</span><input class="r aname" id="aName" value="LieuNT" maxlength="16" enterkeyhint="done" autocomplete="nickname" aria-label="Tên đặt hàng"></label>
           <div class="arow" data-s><span>Số điện thoại</span><span class="r m" id="aPhone"></span></div>
+          <button class="arow" id="tgBtn" data-s hidden><span>Telegram</span><span class="y" id="tgTxt">Bật thông báo</span></button>
           <button class="arow" id="resetPw" data-s><span>Mã PIN</span><span class="y">Đặt lại</span></button>
           <button class="logout" id="logout" data-s>Đăng xuất</button>
         </div>
@@ -1561,7 +1563,7 @@ const aSheet = $('#aSheet'); sheetDismiss(aSheet);
 $('#aPayNow').addEventListener('click', () => {
   const due = dueOrders(); if (!due.length) return;
   qrSheet(aSheet, {amt:due.reduce((n, o) => n + oTotal(o), 0), code:('NO' + due.map(o => o.code).join('')).slice(0, 25), alt:'Để sau', onAlt:() => {},
-    onPaid:async () => { try { await (await api()).claimPaid(due.map(o => o.id)); toast('Đã gửi, chờ quán xác nhận', 'bank'); } catch (e) { toast('Chưa gửi được, thử lại nhé'); } }});
+    onPaid:async () => { try { await (await api()).claimPaid(due.map(o => o.id), {name:session.name, n:due.length, total:due.reduce((n, o) => n + oTotal(o), 0)}); toast('Đã gửi, chờ quán xác nhận', 'bank'); } catch (e) { toast('Chưa gửi được, thử lại nhé'); } }});
 });
 
 function setStatus(o, s){ o.status = s; renderHistory(); if (curOrder === o && isOpen(orderEl)) renderOrder(o); }
@@ -1983,7 +1985,7 @@ formOf('pin').addEventListener('submit', async e => {
 });
 /* signed in: load the customer's orders and the shop menu, live */
 function startSession(s){
-  session = s; setName(s.name); $('#aPhone').textContent = prettyPhone(s.phone);
+  session = s; setName(s.name); $('#aPhone').textContent = prettyPhone(s.phone); setTimeout(() => typeof tgRefresh === 'function' && tgRefresh(), 800);
   if (stopOrders) stopOrders(); if (stopMenu) stopMenu();
   api().then(a => {
     let prev = null;
@@ -2031,6 +2033,18 @@ function finish(isNew){
 const RESET_KEY = 'coong-pinreset';
 const pendingReset = () => { try { return localStorage.getItem(RESET_KEY) || ''; } catch (e) { return ''; } };
 const setPendingReset = v => { try { v ? localStorage.setItem(RESET_KEY, v) : localStorage.removeItem(RESET_KEY); } catch (e) {} };
+/* Telegram: quán cài bot thì khách bật để nhận tin đơn cần thanh toán, đang chế, hoàn thành */
+const tgBtn = $('#tgBtn'), tgTxt = $('#tgTxt');
+async function tgRefresh(){
+  tgBtn.hidden = true; if (!session) return;
+  try { const t = await (await api()).tgState(session.phone); tgBtn.hidden = !t.on; tgTxt.textContent = t.linked ? 'Đã bật' : 'Bật thông báo'; tgBtn.dataset.on = t.linked ? '1' : ''; } catch (e) {}
+}
+tgBtn.addEventListener('click', async () => {
+  if (!session || tgBtn.dataset.on) return toast('Telegram đã được bật rồi');
+  tgTxt.textContent = 'Đang chờ…'; toast('Mở Telegram và bấm Start nhé');
+  let ok = false; try { ok = await (await api()).tgConnect(session.phone); } catch (e) {}
+  toast(ok ? 'Đã bật thông báo Telegram' : 'Chưa kết nối được Telegram, thử lại nhé'); tgRefresh();
+});
 $('#resetPw').addEventListener('click', async () => {
   if (!session) return;
   if (!await ask({title:'Đặt lại mã PIN?', text:'Đăng nhập lại để đổi mã PIN mới.\nGiỏ hàng chưa đặt vẫn được giữ.', ok:'Đặt lại'})) return;

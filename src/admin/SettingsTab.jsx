@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { saveMenuItem, saveShop } from '../db';
 import { Icon, Sym, Page, Btn, Toggle, Field, Empty, fmt, phoneText, XL_EXTRA, kindOf, useUI, errText, BellBtn } from './ui.jsx';
+import { getTgCfg, saveTgCfg, tgCheckToken, tgNewCode, tgDeepLink, tgWaitChat, tgToAdmin } from '../telegram';
 import { customersOf, CustomerPicker, NewCustomer, EditCustomerForm } from './Customers.jsx';
 
 // Hàng nhập: nhãn bên trái, giá trị bên phải
@@ -19,6 +20,7 @@ export default function SettingsTab({ menu, users, shop = {}, onLogout, unread, 
   if (page === 'newCustomer') return <NewCustomer users={users} onBack={() => setPage('customers')} onCreated={() => setPage('customers')} />;
   if (page && page.customer) return <EditCustomerForm customer={page.customer} onBack={() => setPage('customers')} onSaved={() => setPage('customers')} onDeleted={() => setPage('customers')} />;
   if (page === 'hours') return <Hours shop={shop} onBack={back} />;
+  if (page === 'telegram') return <Telegram onBack={back} />;
   if (page === 'menu') return <MenuList menu={menu} onBack={back} onOpen={(m) => setPage({ dish: m })} />;
   if (page && page.dish) return <EditDish dish={page.dish} onBack={() => setPage('menu')} />;
 
@@ -26,6 +28,7 @@ export default function SettingsTab({ menu, users, shop = {}, onLogout, unread, 
     ['i-s-user', 'Quản lý khách hàng', 'customers'],
     ['i-s-cup', 'Quản lý menu', 'menu'],
     ['i-s-clock', 'Giờ đóng mở cửa', 'hours'],
+    ['i-bell', 'Thông báo Telegram', 'telegram'],
   ];
   const flipSold = async (v) => { try { await saveShop({ soldOut: v }); } catch (e) { toast(errText(e)); } };
   return (
@@ -141,6 +144,49 @@ function Hours({ shop, onBack }) {
       <div className="s-days">
         {DAYS.map(([k, l]) => <button key={k} className={days.includes(k) ? 'on' : ''} aria-pressed={days.includes(k)} onClick={() => flip(k)}>{l}</button>)}
       </div>
+    </Page>
+  );
+}
+
+// Thông báo Telegram: dán token bot, rồi kết nối Telegram của chủ quán để nhận tin đơn mới và khách báo đã thanh toán
+function Telegram({ onBack }) {
+  const { toast } = useUI();
+  const [cfg, setCfg] = useState(null);
+  const [token, setToken] = useState('');
+  const [busy, setBusy] = useState(false);
+  useEffect(() => { getTgCfg(true).then((c) => { setCfg(c); }); }, []);
+  const c = cfg || {};
+  const saveToken = async () => {
+    const t = token.trim();
+    if (!t) return toast('Dán token của bot');
+    setBusy(true);
+    try {
+      const bot = await tgCheckToken(t);
+      if (!bot) { toast('Token chưa đúng, kiểm tra lại nhé'); return; }
+      await saveTgCfg({ token: t, bot });
+      setCfg({ ...c, token: t, bot }); setToken(''); toast(`Đã lưu bot @${bot}`, true);
+    } catch (e) { toast(errText(e)); } finally { setBusy(false); }
+  };
+  // mở Telegram ngay trong lúc bấm để trình duyệt không chặn cửa sổ
+  const connect = async () => {
+    if (!c.token || !c.bot) return toast('Lưu token bot trước nhé');
+    const code = tgNewCode();
+    window.open(tgDeepLink(c.bot, code), '_blank');
+    setBusy(true); toast('Mở Telegram và bấm Start nhé');
+    try {
+      const chat = await tgWaitChat(c.token, code);
+      if (!chat) { toast('Chưa kết nối được, thử lại nhé'); return; }
+      await saveTgCfg({ adminChat: String(chat) });
+      setCfg({ ...c, adminChat: String(chat) }); toast('Đã kết nối Telegram của chủ quán', true);
+    } catch (e) { toast(errText(e)); } finally { setBusy(false); }
+  };
+  const test = async () => { await tgToAdmin('✅ Coong: thông báo Telegram hoạt động'); toast('Đã gửi tin thử'); };
+  return (
+    <Page className="s-pg" title="Thông báo Telegram" sub={c.bot ? `Bot @${c.bot}${c.adminChat ? ' · đã kết nối' : ' · chưa kết nối'}` : 'Chưa cài bot'} onBack={onBack}>
+      <Field value={token} onChange={(e) => setToken(e.target.value)} placeholder={c.token ? 'Dán token mới để đổi bot' : 'Dán token của bot (từ @BotFather)'} aria-label="Token bot Telegram" autoComplete="off" />
+      <Btn onClick={saveToken} disabled={busy}>Lưu token</Btn>
+      <Btn kind="ghost" onClick={connect} disabled={busy || !c.token}>Kết nối Telegram của chủ quán</Btn>
+      {c.adminChat && <Btn kind="ghost" onClick={test}>Gửi tin thử</Btn>}
     </Page>
   );
 }

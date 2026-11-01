@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { updateOrder } from '../db';
+import { tgToCustomer } from '../telegram';
 import { Icon, Sym, Page, Btn, Seg, fmt, hm, dmy, timeOf, phoneText, payLabel, payState, orderCode, kindOf, STATUS, isLive, useUI, errText, BellBtn } from './ui.jsx';
 
 const FILTERS = [['all', 'Tất cả'], ['pending', 'Chờ xác nhận'], ['brewing', 'Đang chế'], ['completed', 'Hoàn thành'], ['cancelled', 'Hủy']];
@@ -27,6 +28,17 @@ const itemNames = (o) => [...new Set((o.items || []).map((x) => x.name))].join('
 const itemQty = (o) => (o.items || []).reduce((n, x) => n + (x.quantity || 1), 0);
 const whenText = (d) => (!d ? '' : d.toDateString() === new Date().toDateString() ? 'Hôm nay' : dmy(d));
 
+// Báo khách qua Telegram khi quán đổi trạng thái đơn hoặc xác nhận thanh toán
+const TG_STATUS = {
+  brewing: (c) => `☕ Đơn ${c} đang chế`,
+  completed: (c) => `✅ Đơn ${c} đã xong, mời bạn ra lấy nhé!`,
+  cancelled: (c) => `Đơn ${c} đã huỷ`,
+};
+const tellCustomer = (o, patch) => {
+  if (patch.status && TG_STATUS[patch.status] && patch.status !== o.status) tgToCustomer(o.customerPhone, TG_STATUS[patch.status](orderCode(o)));
+  else if (patch.paid === true && !o.paid) tgToCustomer(o.customerPhone, `💚 Quán đã xác nhận thanh toán đơn ${orderCode(o)}`);
+};
+
 // Tab Đơn hàng: danh sách đơn, xem chi tiết, thu tiền, nhận đơn, hoàn thành, huỷ
 export default function HistoryTab({ orders, users, loading, onGoOrder, track, unread, onBell }) {
   const [filter, setFilter] = useState('all');
@@ -36,7 +48,7 @@ export default function HistoryTab({ orders, users, loading, onGoOrder, track, u
   const list = orders.filter((o) => filter === 'all' || o.status === filter);
   const open = openId ? orders.find((o) => o.id === openId) : null;
   const { toast, confirm } = useUI();
-  const run = (o, patch) => updateOrder(o.id, patch).catch((e) => toast(errText(e)));
+  const run = (o, patch) => updateOrder(o.id, patch).then(() => tellCustomer(o, patch)).catch((e) => toast(errText(e)));
   const cancel = async (o) => {
     if (await confirm({ title: 'Huỷ đơn này?', ok: 'Huỷ đơn', danger: true })) run(o, { status: 'cancelled' });
   };
@@ -137,7 +149,7 @@ function OrderDetail({ o, onBack, users }) {
   const { toast, confirm } = useUI();
   const pay = payState(o);
   const paid = pay === 'paid';
-  const run = (patch) => updateOrder(o.id, patch).catch((e) => toast(errText(e)));
+  const run = (patch) => updateOrder(o.id, patch).then(() => tellCustomer(o, patch)).catch((e) => toast(errText(e)));
   const cancel = async () => {
     if (await confirm({ title: 'Huỷ đơn này?', ok: 'Huỷ đơn', danger: true })) {
       await run({ status: 'cancelled' });
