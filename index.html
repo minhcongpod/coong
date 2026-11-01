@@ -83,6 +83,11 @@ svg{display:block}
 .arows{display:flex;flex-direction:column;gap:8px}
 .arow{background:rgba(255,255,255,.1);border-radius:32px;padding:16px 24px;display:flex;gap:10px;font-size:18px;color:#fff;text-align:left}
 .arow[hidden]{display:none}
+.arow.tgcard{align-items:center;padding:20px 24px;gap:16px}.arow.tgcard svg{width:20px;height:20px;flex:none;color:#fff}.arow.tgcard>span{font-weight:700}
+.arow:has(.tgl){align-items:center}#tgBtn>span:first-child{font-weight:700}
+.tgl{flex:none;position:relative;width:48px;height:28px;border-radius:28px;background:rgba(255,255,255,.2);transition:background .25s}
+.tgl b{position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:22px;background:#fff;transition:transform .3s var(--ease-out)}
+.tgl.on{background:var(--ok)}.tgl.on b{transform:translateX(20px)}
 .arow>span:first-child{flex:1;font-size:16px}.arow .y{flex:none}
 .aname{flex:1;min-width:0;background:none;border:0;outline:0;padding:0;margin:0;font:inherit;color:inherit;text-align:right;caret-color:var(--yellow)}
 .aname:focus{color:var(--yellow)}.arow .r{text-align:right}.arow .y{color:var(--yellow)}.arow .m{color:rgba(255,255,255,.5)}
@@ -525,7 +530,7 @@ input{user-select:text;-webkit-user-select:text}
     <button class="abs circ bellbtn" id="bell" aria-label="Thông báo"><svg><use href="#i-bell"/></svg><span class="nbadge"></span></button>
     <div class="tab" id="tOrder">
     <div class="abs hello"><svg class="hlogo" viewBox="0 0 91.42 35.78" role="img" aria-label="Coong"><use href="#i-logo"/></svg><b id="helloName" style="display:none">LieuNT</b></div>
-    <div class="abs order" id="lastOrder" style="display:none"><span><b id="orderTxt"></b><small id="orderWhen"></small></span><button id="reorder">ĐẶT LẠI</button><button class="oclose" id="lastClose" aria-label="Ẩn thẻ đặt lại"><svg><use href="#i-close"/></svg></button></div>
+    <div class="abs order" id="lastOrder" style="display:none"><span><b id="orderTxt"></b><small id="orderWhen"></small></span><button id="reorder">Đặt lại</button><button class="oclose" id="lastClose" aria-label="Ẩn thẻ đặt lại"><svg><use href="#i-close"/></svg></button></div>
     <div id="carousel" class="abs"></div>
     <div class="abs dots" id="dots" hidden></div>
     </div>
@@ -557,7 +562,8 @@ input{user-select:text;-webkit-user-select:text}
         <div class="arows">
           <label class="arow" data-s><span>Tên đặt hàng</span><input class="r aname" id="aName" value="LieuNT" maxlength="16" enterkeyhint="done" autocomplete="nickname" aria-label="Tên đặt hàng"></label>
           <div class="arow" data-s><span>Số điện thoại</span><span class="r m" id="aPhone"></span></div>
-          <button class="arow" id="tgBtn" data-s hidden><span>Telegram</span><span class="y" id="tgTxt">Bật thông báo</span></button>
+          <button class="arow tgcard" id="tgCard" data-s hidden aria-label="Bật thông báo Telegram"><svg><use href="#i-bell"/></svg><span>Bật thông báo Telegram</span><i class="tgl"><b></b></i></button>
+          <button class="arow" id="tgBtn" data-s hidden aria-label="Tắt thông báo Telegram"><span>Telegram</span><i class="tgl on"><b></b></i></button>
           <button class="arow" id="resetPw" data-s><span>Mã PIN</span><span class="y">Đặt lại</span></button>
           <button class="logout" id="logout" data-s>Đăng xuất</button>
         </div>
@@ -2035,21 +2041,23 @@ const RESET_KEY = 'coong-pinreset';
 const pendingReset = () => { try { return localStorage.getItem(RESET_KEY) || ''; } catch (e) { return ''; } };
 const setPendingReset = v => { try { v ? localStorage.setItem(RESET_KEY, v) : localStorage.removeItem(RESET_KEY); } catch (e) {} };
 /* Telegram: quán cài bot thì khách bật để nhận tin đơn cần thanh toán, đang chế, hoàn thành */
-const tgBtn = $('#tgBtn'), tgTxt = $('#tgTxt');
+const tgBtn = $('#tgBtn'), tgCard = $('#tgCard');
 async function tgRefresh(){
-  tgBtn.hidden = true; if (!session) return;
-  try { const t = await (await api()).tgState(session.phone); tgBtn.hidden = !t.on; tgTxt.textContent = t.linked ? 'Đã bật' : 'Bật thông báo'; tgBtn.dataset.on = t.linked ? '1' : ''; } catch (e) {}
+  tgBtn.hidden = true; tgCard.hidden = true; tgCard.querySelector('.tgl').classList.remove('on'); if (!session) return;
+  try { const t = await (await api()).tgState(session.phone); tgCard.hidden = !t.on || t.linked; tgBtn.hidden = !t.on || !t.linked; } catch (e) {}
 }
 tgBtn.addEventListener('click', async () => {
   if (!session) return;
-  if (tgBtn.dataset.on) {
-    if (!(await ask({title:'Tắt thông báo Telegram?', text:'Bạn sẽ không nhận tin về đơn hàng qua Telegram nữa. Có thể bật lại bất cứ lúc nào.', ok:'Tắt', danger:true}))) return;
-    try { await (await api()).tgOff(session.phone); toast('Telegram đã tắt'); } catch (e) { toast('Chưa tắt được, thử lại nhé'); }
-    return tgRefresh();
-  }
-  tgTxt.textContent = 'Đang chờ…'; toast('Mở Telegram và bấm Start nhé');
+  if (!(await ask({title:'Tắt thông báo Telegram?', text:'Bạn sẽ không nhận tin về đơn hàng qua Telegram nữa. Có thể bật lại bất cứ lúc nào.', ok:'Tắt', danger:true}))) return;
+  try { await (await api()).tgOff(session.phone); toast('Telegram đã tắt'); } catch (e) { toast('Chưa tắt được, thử lại nhé'); }
+  tgRefresh();
+});
+tgCard.addEventListener('click', async () => {
+  if (!session) return;
+  const tg = tgCard.querySelector('.tgl'); tg.classList.add('on'); toast('Mở Telegram và bấm Start nhé');
   let ok = false; try { ok = await (await api()).tgConnect(session.phone); } catch (e) {}
-  toast(ok ? 'Telegram đã bật' : 'Chưa kết nối được Telegram, thử lại nhé'); tgRefresh();
+  if (!ok) { tg.classList.remove('on'); toast('Chưa kết nối được Telegram, thử lại nhé'); } else toast('Telegram đã bật');
+  tgRefresh();
 });
 $('#resetPw').addEventListener('click', async () => {
   if (!session) return;
