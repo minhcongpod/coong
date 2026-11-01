@@ -1835,7 +1835,11 @@ function openSuccess(o){
   $('circle', ok).style.transformOrigin = '60px 60px';
   path.animate([{strokeDashoffset:100},{strokeDashoffset:0}], {duration:T(460), delay:T(280), easing:'cubic-bezier(.65,0,.35,1)', fill:'both'});
   $('.ring', ok).animate([{transform:'scale(.6)', opacity:1},{transform:'scale(1.6)', opacity:0}], {duration:T(1400), delay:T(300), easing:'ease-out', iterations:RM ? 1 : 3, fill:'both'});
+  /* fireworks from both sides */
+  if (stopFx) stopFx(); stopFx = null; $$('canvas', successEl).forEach(c => c.remove());
+  if (window.CoongFX) { const st = $('.stage', successEl) || successEl; stopFx = window.CoongFX.fireworks(st, {w:390, h:st.offsetHeight || 844}); }
 }
+let stopFx = null;
 /* leave the order flow: close what sits under the success screen without animating it */
 function dropFlow(){
   hideSheet(true); hidePage(payEl, 'right', true); hidePage(orderEl, 'right', true);

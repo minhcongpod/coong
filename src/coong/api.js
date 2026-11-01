@@ -5,6 +5,7 @@ import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { doc, writeBatch } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import { vietQR, qrMatrix } from './qr';
+import { fireworks } from './fireworks';
 import {
   getUser, watchDevice, unlockDevice, lockDevice, watchMenu, watchOrders, watchShop,
   createOrder, updateOrder, updateUserName, setPin, resetPinByName,
@@ -29,6 +30,7 @@ const isWrongPin = (e) => e && e.code === 'permission-denied';
 
 // Mã QR chuyển khoản thật cho tờ thanh toán
 window.CoongQR = { vietQR, qrMatrix };
+window.CoongFX = { fireworks };
 
 window.CoongAPI = {
   ready: uidReady,
