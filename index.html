@@ -279,7 +279,7 @@ input{user-select:text;-webkit-user-select:text}
 .mrow.on i{box-shadow:inset 0 0 0 7px #000}
 .psheet{position:absolute;left:0;top:0;width:390px;height:100%;visibility:hidden;z-index:5}
 .psheet .sb{position:absolute;inset:0;background:rgba(0,0,0,.6)}
-.psheet .sp{position:absolute;left:0;right:0;bottom:0;background:#1a1a1a;border-radius:32px 32px 0 0;padding:32px 24px 24px;display:flex;flex-direction:column;align-items:stretch;gap:16px;line-height:normal}
+.psheet .sp{position:absolute;left:0;right:0;bottom:0;background:#1a1a1a;border-radius:34px 34px 0 0;padding:32px 24px 24px;display:flex;flex-direction:column;align-items:stretch;gap:16px;line-height:normal}
 .psheet .sp::before{content:"";position:absolute;left:170px;top:9px;width:50px;height:7px;border-radius:7px;background:#fff}
 .qrcard{display:flex;flex-direction:column;gap:8px;box-sizing:border-box;padding:8px;border-radius:20px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
 .qtop{display:flex;gap:16px;height:150px}
@@ -291,7 +291,8 @@ input{user-select:text;-webkit-user-select:text}
 .qact button{width:150px;height:32px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px;font-weight:700;color:#fff}
 .qact svg{width:24px;height:24px}
 .qact i{width:1px;height:24px;background:rgba(255,255,255,.1)}
-.salt{height:32px;font-size:18px;font-weight:700;color:#fff}
+.qacts{display:flex;flex-direction:column;gap:8px}
+.salt{display:flex;align-items:center;justify-content:center;height:60px;border-radius:32px;background:rgba(255,255,255,.1);font-size:18px;font-weight:700;color:#fff}
 .sp h3{margin:0;font-size:24px;font-weight:700}
 .sp .amt{font-size:32px;font-weight:700;color:var(--yellow);font-variant-numeric:tabular-nums}
 .qrbox{flex:none;width:149px;height:150px;box-sizing:border-box;padding:10px;background:#fff;border-radius:14px}
@@ -1729,8 +1730,8 @@ function qrPng(qr){
 function qrSheet(sheet, {amt, code, onPaid, alt, onAlt}){
   const sp = $('.sp', sheet), qr = qrSvg(amt, code);
   sp.innerHTML = `<div class="qrcard"><div class="qtop"><div class="qrbox">${qr}</div><div class="qri"><div><span>Chuyển khoản</span><b class="amt">${fmt(amt)}</b></div><div><span>${BANK.name}</span><small>${BANK.acc}</small></div></div></div>
-    <div class="qact"><button data-q="copy"><svg><use href="#i-copy"/></svg>Sao chép QR</button><i></i><button data-q="save"><svg><use href="#i-down"/></svg>Tải mã</button></div></div>
-    <button class="btn" data-q="paid">Tôi đã thanh toán</button><button class="salt" data-q="alt">${alt}</button>`;
+    <div class="qact"><button data-q="copy"><svg><use href="#i-copy"/></svg>Sao chép mã</button><i></i><button data-q="save"><svg><use href="#i-down"/></svg>Tải mã</button></div></div>
+    <div class="qacts"><button class="btn" data-q="paid">Tôi đã thanh toán</button><button class="salt" data-q="alt">${alt}</button></div>`;
   const q = k => $(`[data-q=${k}]`, sp);
   /* copy the QR as a PNG image (to paste into a banking app or chat), and save it as one */
   q('copy').addEventListener('click', async () => {
