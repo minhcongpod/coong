@@ -76,7 +76,7 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, shop = {
       })),
       note: '',
       totalAmount: total,
-      status: 'pending',
+      status: 'completed',
       paid: pay === 'cash',
       payMethod: pay,
     };
