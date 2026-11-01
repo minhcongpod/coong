@@ -47,6 +47,7 @@
 .dr .card .ico span{background:var(--ib);color:var(--ic)}
 .dr .card[data-id=den] .pricebar b{color:#fff}
 .dr .card[data-id=nau] .pricebar b,.dr .card[data-id=bac] .pricebar b{color:#000}
+.dr .card.sold[data-id] .pricebar b{color:#fff}
 .dr .dots{position:relative;flex:none;width:390px;margin:0 auto;height:6px;display:flex;justify-content:center;gap:6px}
 .dr .dots i{width:6px;height:6px;border-radius:6px;background:rgba(255,255,255,.3);transition:width .4s var(--ease-out),background .4s}
 .dr .dots i.on{width:18px;background:#fff}
