@@ -73,7 +73,7 @@ svg{display:block}
 .seg[hidden]{display:none}
 .seg i{position:absolute;left:2.7px;top:2.7px;bottom:2.7px;width:calc((100% - 5.4px)/3);border-radius:100px;background:#fff;transition:transform .35s var(--ease-out)}
 .adebt{display:flex;align-items:center;gap:12px;padding:16px 24px;background:rgba(255,204,0,.12)}
-.adebt>div{flex:1;display:flex;flex-direction:column;gap:4px}
+.adebt>div{flex:1;display:flex;flex-direction:column;gap:0}
 .adebt>div>b{display:flex;align-items:center;gap:8px;font-size:24px;line-height:31px;color:var(--yellow);font-variant-numeric:tabular-nums}
 .adebt>div>b svg{width:16px;height:16px}
 .adebt small{white-space:nowrap;font-size:14px;color:rgba(255,255,255,.5);font-weight:500}
@@ -517,10 +517,10 @@ input{user-select:text;-webkit-user-select:text}
 <div id="device"><div id="app">
 <div id="home" class="screen noorder" aria-label="Trang chủ">
   <div class="stage">
-    <div class="tab" id="tOrder">
-    <div class="abs hello"><svg class="hlogo" viewBox="0 0 91.42 35.78" role="img" aria-label="Coong"><use href="#i-logo"/></svg><b id="helloName" style="display:none">LieuNT</b></div>
     <button class="abs circ cartbtn" aria-label="Giỏ hàng"><svg><use href="#i-bag"/></svg><span class="badge"></span></button>
     <button class="abs circ bellbtn" id="bell" aria-label="Thông báo"><svg><use href="#i-bell"/></svg><span class="nbadge"></span></button>
+    <div class="tab" id="tOrder">
+    <div class="abs hello"><svg class="hlogo" viewBox="0 0 91.42 35.78" role="img" aria-label="Coong"><use href="#i-logo"/></svg><b id="helloName" style="display:none">LieuNT</b></div>
     <div class="abs order" id="lastOrder" style="display:none"><span><b id="orderTxt"></b><small id="orderWhen"></small></span><button id="reorder">ĐẶT LẠI</button><button class="oclose" id="lastClose" aria-label="Ẩn thẻ đặt lại"><svg><use href="#i-close"/></svg></button></div>
     <div id="carousel" class="abs"></div>
     <div class="abs dots" id="dots" hidden></div>
