@@ -4,7 +4,7 @@ import { auth } from '../firebase';
 import { getSetup, watchDevice, unlockDevice, lockDevice, watchOrders, watchMenu, watchUsers, watchTransactions, watchShop } from '../db';
 import './admin.css';
 import { Sym, UIProvider, useUI, errText, stagger } from './ui.jsx';
-import OrderTab, { Notifs } from './OrderTab.jsx';
+import OrderTab, { Notifs, claimGroups } from './OrderTab.jsx';
 import HistoryTab from './HistoryTab.jsx';
 import WalletTab from './WalletTab.jsx';
 import SettingsTab from './SettingsTab.jsx';
@@ -202,6 +202,7 @@ function Shell({ adminPhone, onLogout }) {
   const [txs, setTxs] = useState([]);
   const [shop, setShop] = useState({});
   const [track, setTrack] = useState(null); // { id, n }: mở chi tiết đơn vừa đặt
+  const [payFocus, setPayFocus] = useState(null); // { phone, n }: mở trang Chưa thanh toán của một khách
   const [notif, setNotif] = useState(false); // trang Thông báo mở từ chuông ở các tab
 
   useEffect(() => {
@@ -217,17 +218,19 @@ function Shell({ adminPhone, onLogout }) {
   }, [toast]);
 
   const pending = (orders || []).filter((o) => o.status === 'pending').length;
-  const data = { shop, menu, orders: orders || [], users, txs, loading: orders === null, unread: pending, onBell: () => setNotif(true) };
+  const claims = claimGroups(orders || []).length;
+  const openClaim = (phone) => { setNotif(false); setPayFocus({ phone, n: Date.now() }); setTab('wallet'); };
+  const data = { shop, menu, orders: orders || [], users, txs, loading: orders === null, unread: pending + claims, onBell: () => setNotif(true), onPay: openClaim };
 
   return (
     <>
       <div className="a-tab" ref={(e) => { panes.current.order = e; }} hidden={tab !== 'order' && leaving !== 'order'}><OrderTab {...data} onTrack={(id) => { setTrack({ id, n: Date.now() }); setTab('history'); }} /></div>
       <div className="a-tab" ref={(e) => { panes.current.history = e; }} hidden={tab !== 'history' && leaving !== 'history'}><HistoryTab {...data} track={track} onGoOrder={() => setTab('order')} /></div>
-      <div className="a-tab" ref={(e) => { panes.current.wallet = e; }} hidden={tab !== 'wallet' && leaving !== 'wallet'}><WalletTab {...data} /></div>
+      <div className="a-tab" ref={(e) => { panes.current.wallet = e; }} hidden={tab !== 'wallet' && leaving !== 'wallet'}><WalletTab {...data} focus={payFocus} /></div>
       <div className="a-tab" ref={(e) => { panes.current.settings = e; }} hidden={tab !== 'settings' && leaving !== 'settings'}><SettingsTab {...data} adminPhone={adminPhone} onLogout={onLogout} /></div>
       {notif && (
         <div className="a-tab a-over">
-          <Notifs orders={data.orders} onBack={() => setNotif(false)} onOpen={(id) => { setNotif(false); setTrack({ id, n: Date.now() }); setTab('history'); }} />
+          <Notifs orders={data.orders} onPay={openClaim} onBack={() => setNotif(false)} onOpen={(id) => { setNotif(false); setTrack({ id, n: Date.now() }); setTab('history'); }} />
         </div>
       )}
       <nav className="a-nav" style={{ position: 'absolute', left: 24, right: 24, bottom: 0, margin: '0 0 24px' }}>

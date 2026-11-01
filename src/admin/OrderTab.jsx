@@ -31,7 +31,7 @@ const SHORT = { den: 'Đen', nau: 'Nâu', bac: 'Bạc' };
 const shortOf = (name) => SHORT[kindOf(name)] || name;
 const THUMB = { den: '/den.webp', nau: '/nau.webp', bac: '/bac.webp' };
 
-export default function OrderTab({ menu, users, orders, onTrack, shop = {} }) {
+export default function OrderTab({ menu, users, orders, onTrack, onPay, shop = {} }) {
   // quán bật Hết hàng hoặc đang ngoài giờ mở cửa: 3 món hiện Hết hàng, không mở được món
   const [, tick] = useState(0);
   useEffect(() => { const t = setInterval(() => tick((n) => n + 1), 30000); return () => clearInterval(t); }, []);
@@ -107,7 +107,7 @@ export default function OrderTab({ menu, users, orders, onTrack, shop = {} }) {
       />
     );
   }
-  if (page === 'notif') return <Notifs orders={orders} onBack={() => setPage(null)} onOpen={(id) => { setPage(null); onTrack && onTrack(id); }} />;
+  if (page === 'notif') return <Notifs orders={orders} onPay={onPay} onBack={() => setPage(null)} onOpen={(id) => { setPage(null); onTrack && onTrack(id); }} />;
   if (page === 'pay') {
     return (
       <Page
@@ -281,10 +281,28 @@ const agoText = (d) => {
 };
 
 // Thông báo: trạng thái các đơn gần đây
-export function Notifs({ orders, onBack, onOpen }) {
+// Khách bấm "Thanh toán" ở trang Tài khoản: các đơn chuyển sang "awaiting"; gom theo khách để chủ quán xác nhận
+export const claimGroups = (orders) => {
+  const m = {};
+  orders.filter((o) => o.paymentStatus === 'awaiting' && !o.paid && o.status !== 'cancelled').forEach((o) => {
+    const g = (m[o.customerPhone] = m[o.customerPhone] || { phone: o.customerPhone, name: o.customerName, n: 0, total: 0, at: null });
+    g.n += 1; g.total += o.totalAmount || 0;
+    const d = timeOf(o); if (d && (!g.at || d > g.at)) g.at = d;
+  });
+  return Object.values(m).sort((a, b) => (b.at || 0) - (a.at || 0));
+};
+
+export function Notifs({ orders, onBack, onOpen, onPay }) {
   const list = orders.slice(0, 30);
+  const claims = claimGroups(orders);
   return (
     <Page title="Thông báo" onBack={onBack}>
+      {claims.map((g) => (
+        <button key={`claim-${g.phone}`} className="o-nrow wait new" onClick={() => onPay && onPay(g.phone)}>
+          <span className="ni"><Sym id="i-verified" size={20} /></span>
+          <div><b>Khách hàng báo đã thanh toán</b><small>{g.name} · {g.n} đơn · {fmt(g.total)}</small></div>
+        </button>
+      ))}
       {list.map((o) => {
         const k = NT[o.status] ? o.status : 'pending';
         return (
@@ -294,7 +312,7 @@ export function Notifs({ orders, onBack, onOpen }) {
           </button>
         );
       })}
-      {list.length === 0 && <Empty icon="bell" title="Chưa có thông báo" text="Trạng thái đơn hàng sẽ được báo ở đây." />}
+      {list.length === 0 && claims.length === 0 && <Empty icon="bell" title="Chưa có thông báo" text="Trạng thái đơn hàng sẽ được báo ở đây." />}
     </Page>
   );
 }
