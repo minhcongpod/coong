@@ -8,11 +8,11 @@ const LIST_LABEL = { brewing: 'Đang chế' };
 const MENU_ORDER = ['den', 'nau', 'bac'];
 const SHORT = { den: 'Đen', nau: 'Nâu', bac: 'Bạc' };
 // "3 Đen / 3 Nâu / 3 Bạc": mỗi loại một lần, theo thứ tự Đen, Nâu, Bạc
-export const summary = (o) => {
+export const summary = (o, sep = ' / ') => {
   const by = new Map();
   (o.items || []).forEach((x) => { const k = kindOf(x.name) || x.name; by.set(k, (by.get(k) || 0) + (x.quantity || 1)); });
   const rank = (k) => { const i = MENU_ORDER.indexOf(k); return i < 0 ? 99 : i; };
-  return [...by].sort((a, b) => rank(a[0]) - rank(b[0])).map(([k, n]) => `${n} ${SHORT[k] || k}`).join(' / ');
+  return [...by].sort((a, b) => rank(a[0]) - rank(b[0])).map(([k, n]) => `${n} ${SHORT[k] || k}`).join(sep);
 };
 
 // nhóm theo thời gian: Hôm nay, Hôm qua, 7 ngày trước, 30 ngày trước, Cũ hơn
@@ -30,12 +30,12 @@ const whenText = (d) => (!d ? '' : d.toDateString() === new Date().toDateString(
 
 // Báo khách qua Telegram khi quán đổi trạng thái đơn hoặc xác nhận thanh toán
 const TG_STATUS = {
-  brewing: (c) => `☕ Đơn ${c} đang chế`,
-  completed: (c) => `✅ Đơn ${c} đã xong, mời bạn ra lấy nhé!`,
-  cancelled: (c) => `Đơn ${c} đã huỷ`,
+  brewing: (c, it) => `☕ Đơn ${c}${it} đang chế`,
+  completed: (c, it) => `✅ Đơn ${c}${it} đã hoàn thành`,
+  cancelled: (c, it) => `Đơn ${c}${it} đã huỷ`,
 };
 const tellCustomer = (o, patch) => {
-  if (patch.status && TG_STATUS[patch.status] && patch.status !== o.status) tgToCustomer(o.customerPhone, TG_STATUS[patch.status](orderCode(o)));
+  if (patch.status && TG_STATUS[patch.status] && patch.status !== o.status) tgToCustomer(o.customerPhone, TG_STATUS[patch.status](orderCode(o), summary(o, ', ') ? ` - ${summary(o, ', ')}` : ''));
   else if (patch.paid === true && !o.paid) tgToCustomer(o.customerPhone, `💚 Quán đã xác nhận thanh toán đơn ${orderCode(o)}`);
 };
 

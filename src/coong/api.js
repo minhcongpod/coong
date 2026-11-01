@@ -90,8 +90,8 @@ window.CoongAPI = {
   },
   cancelOrder: async (id, info) => {
     await updateOrder(id, { status: 'cancelled' });
-    if (info && info.phone) tgToCustomer(info.phone, `Đơn ${info.code} đã huỷ`);
-    if (info) tgToAdmin(`❌ ${info.name} đã huỷ đơn ${info.code}${info.total ? ` · ${info.total.toLocaleString('vi-VN')}đ` : ''}`);
+    if (info && info.phone) tgToCustomer(info.phone, `Đơn ${info.code}${info.items ? ` - ${info.items}` : ''} đã huỷ`);
+    if (info) tgToAdmin(`❌ ${info.name} đã huỷ đơn ${info.code}${info.lines || info.total ? `\n${info.lines || ''}${info.lines && info.total ? ' · ' : ''}${info.total ? `${info.total.toLocaleString('vi-VN')}đ` : ''}` : ''}`);
   },
   claimPaid: async (ids, info) => {
     await Promise.all(ids.map((id) => updateOrder(id, { paymentStatus: 'awaiting' })));

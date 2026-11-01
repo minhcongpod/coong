@@ -1501,6 +1501,13 @@ function oSummary(o){
   const rank = k => { const i = MENU_ORDER.indexOf(k); return i < 0 ? 99 : i; };
   return [...by].sort((a, b) => rank(a[0]) - rank(b[0])).map(([, g]) => `${g.n} ${g.name}`).join(' / ');
 }
+/* "1 Đen, 1 Nâu" (hoặc "1x Đen, 1x Nâu") cho tin Telegram */
+function oItems(o, sep, x){
+  const by = new Map();
+  o.items.forEach(i => { const d = drink(i.id), k = d ? d.id : i.name; const g = by.get(k) || {name: i.name || d.name, n: 0}; g.n += i.qty; by.set(k, g); });
+  const rank = k => { const i = MENU_ORDER.indexOf(k); return i < 0 ? 99 : i; };
+  return [...by].sort((a, b) => rank(a[0]) - rank(b[0])).map(([, g]) => `${g.n}${x ? 'x' : ''} ${g.name}`).join(sep);
+}
 const sameDay = (a, b) => a.toDateString() === b.toDateString();
 const hm = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 const dmy = d => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
@@ -1627,7 +1634,7 @@ function openOrder(o){ curOrder = o; const prev = $('#oBody .bar'); if (prev) pr
 async function cancelOrder(o){
   if (!await ask({title:'Huỷ đơn này?', text:'Ủa alo???', ok:'Huỷ đơn', cancel:'Thôi', danger:true})) return;
   if (o.status !== 'wait') { toast('Quán vừa nhận đơn, không huỷ được nữa'); return; }
-  try { await (await api()).cancelOrder(o.id, {name:session.name, phone:session.phone, code:'#' + o.code, total:oTotal(o)}); }
+  try { await (await api()).cancelOrder(o.id, {name:session.name, phone:session.phone, code:'#' + o.code, total:oTotal(o), items:oItems(o, ', ', false), lines:oItems(o, ', ', true)}); }
   catch (e) { toast('Quán vừa nhận đơn, không huỷ được nữa'); return; }
   toast(`Đã huỷ đơn #${o.code}`, 'x');
 }
