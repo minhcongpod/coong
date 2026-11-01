@@ -1,7 +1,7 @@
 // Thông báo qua Telegram, gửi thẳng từ app (không cần máy chủ):
 //   meta/telegram { token, bot, adminChat }  chỉ chủ quán ghi, các máy đã đăng nhập đọc
 //   tg/{phone}     { chatId }                khách tự gắn Telegram của mình
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, getDocs } from 'firebase/firestore';
 import { db } from './firebase';
 
 const api = (token, method) => `https://api.telegram.org/bot${token}/${method}`;
@@ -62,4 +62,19 @@ export const tgToCustomer = async (phone, text) => {
     const c = await getTgCfg(); if (!c.token || !phone) return;
     const chat = await getTgChat(phone); if (!chat) return console.warn('telegram: khách chưa bật Telegram'); await send(c.token, chat, text);
   } catch (e) {}
+};
+
+// Chủ quán gửi một tin cho tất cả khách đã bật Telegram. Trả về { sent, total }.
+export const tgChatCount = async () => (await getDocs(collection(db, 'tg'))).size;
+export const tgBroadcast = async (text) => {
+  const c = await getTgCfg(true);
+  if (!c.token) return { sent: 0, total: 0 };
+  const chats = (await getDocs(collection(db, 'tg'))).docs.map((d) => d.data().chatId).filter(Boolean);
+  let sent = 0;
+  for (const chat of chats) {
+    const r = await send(c.token, chat, text);
+    if (r && r.ok) sent++;
+    await new Promise((res) => setTimeout(res, 60));
+  }
+  return { sent, total: chats.length };
 };
