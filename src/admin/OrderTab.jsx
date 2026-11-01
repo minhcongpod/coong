@@ -124,11 +124,11 @@ export default function OrderTab({ menu, users, orders, onTrack, shop = {} }) {
         <div className="a-card o-sum-card">
           {lines.map((l, i) => (
             <div key={i} className="o-line">
-              <span className="grow">
-                <b className="a-t" style={{ display: 'block' }}>{qtyText(l.qty)} x {shortOf(l.name)}</b>
-                <span className="a-s">{optText(l)}</span>
-              </span>
-              <b className="a-t a-num">{fmt(unitOf(l) * l.qty)}</b>
+              <div className="o-lhead">
+                <b className="a-t grow">{qtyText(l.qty)} x {shortOf(l.name)}</b>
+                <b className="a-t a-num">{fmt(unitOf(l) * l.qty)}</b>
+              </div>
+              <span className="a-s o-lopt">{optText(l)}</span>
             </div>
           ))}
         </div>
@@ -167,15 +167,17 @@ export default function OrderTab({ menu, users, orders, onTrack, shop = {} }) {
                 <div key={i} className="o-citem">
                   <button className="o-cthumb" onClick={() => setSheet(i)} aria-label={`Sửa ${l.name}`}>{THUMB[l.kind] ? <img src={THUMB[l.kind]} alt="" draggable="false" /> : <Sym id="i-cup" size={36} />}</button>
                   <div className="o-cinfo">
-                    <b className="o-cname">{shortOf(l.name)}</b>
-                    <button className="o-copt" onClick={() => setSheet(i)}>{optText(l)}<Sym id="i-chev" size={14} /></button>
+                    <div className="o-chead">
+                      <b className="o-cname">{shortOf(l.name)}</b>
+                      <span className="o-cprice a-num">{fmt(unitOf(l) * l.qty)}</span>
+                    </div>
+                    <button className="o-copt" onClick={() => setSheet(i)}><span>{optText(l)}</span><Sym id="i-caret" size={16} /></button>
                     <div className="o-crow">
                       <span className="o-cqty">
                         <button className="o-cpm" onClick={() => setQty(i, -1)} aria-label={`Bớt ${l.name}`}><Sym id="i-minus" size={20} /></button>
                         <span>{l.qty}</span>
                         <button className="o-cpm" onClick={() => setQty(i, 1)} aria-label={`Thêm ${l.name}`}><Sym id="i-plus" size={20} /></button>
                       </span>
-                      <span className="o-cprice a-num">{fmt(unitOf(l) * l.qty)}</span>
                     </div>
                   </div>
                 </div>

@@ -107,8 +107,10 @@ button.a-card:active{transform:scale(.97)}
 
 .a-kv{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:16px;font-weight:700;padding:5px 0}
 .a-kv>span:first-child{color:var(--mute);font-weight:500}
-.a-kv.tot{font-size:18px;padding-top:12px;margin-top:6px;border-top:1px solid var(--s10)}
-.a-kv.tot b{font-size:24px;font-variant-numeric:tabular-nums}
+/* row/Tổng (Figma 91:4028): chữ Tổng 16 medium xám, số tiền 24 bold trắng, căn giữa theo chiều dọc */
+.a-kv.tot{align-items:center;font-size:16px;padding:12px 0 5px;margin-top:6px;border-top:1px solid var(--s10)}
+.a-kv.tot>span:first-child{font-size:16px;font-weight:500;color:var(--mute)}
+.a-kv.tot b{font-size:24px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
 
 .a-tl{position:relative;display:flex;justify-content:space-between;padding:12px 8px 8px}
 .a-tl::before,.a-tl .bar{content:"";position:absolute;left:50px;top:21px;height:2px;border-radius:2px}
@@ -236,7 +238,7 @@ button.a-card:active{transform:scale(.97)}
 .o-ring{position:absolute;inset:0;border-radius:200px;background:rgba(255,204,0,.16)}
 .o-ok svg{position:absolute;inset:0;width:120px;height:120px}
 .o-donecard{gap:0;width:100%;margin-top:20px;box-sizing:border-box}
-.o-donecard .a-kv.tot{font-size:16px}.o-donecard .a-kv.tot b{font-size:16px}
+
 .o-done .a-title{margin-top:24px;position:relative}
 .o-done .a-sub{margin-top:8px;max-width:310px;position:relative}
 .o-done .a-card{position:relative}
@@ -377,7 +379,7 @@ button.a-card:active{transform:scale(.97)}
 .a-tl .bar{transition:width .7s var(--ease-out)}
 .o-pill{display:inline-flex;align-items:center;gap:8px;height:40px}
 .o-pill.on{color:#fff}
-.a-kv16 .a-kv.tot{font-size:16px}
+
 .o-pill{font-size:14px;padding:0 16px}
 .h-head{flex:none;font-size:14px;font-weight:700;color:var(--gray);padding:8px 8px 0}
 .h-head:first-child{padding-top:0}
@@ -464,3 +466,20 @@ button.a-card:active{transform:scale(.97)}
 /* ngày mở cửa 36x36, cách đều */
 .s-days{justify-content:space-between;gap:0}
 .s-days button{flex:none;width:36px;height:36px;padding:0}
+
+/* Dòng món: tên và giá cùng một dòng, option một dòng riêng bên dưới (Figma 64:953) */
+.o-line{flex-direction:column;align-items:stretch;gap:2px}
+.o-lhead{display:flex;align-items:flex-start;gap:12px}
+.o-lhead .grow{flex:1;min-width:0}
+.o-lopt{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.o-chead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.o-chead .o-cname{flex:1;min-width:0}
+.o-chead .o-cprice{flex:none}
+.o-copt{gap:0;max-width:100%;min-width:0}
+.o-copt>span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.o-copt svg{width:16px;height:16px;flex:none}
+.o-crow{justify-content:flex-start}
+/* nút thêm khoản thu chi: nền vàng nhạt, dấu cộng vàng (Figma 91-5349) */
+.w-plus{background:rgba(255,204,0,.16);color:var(--yellow)}
+.o-citem{gap:16px}
+.o-lopt{white-space:normal;overflow:visible;text-overflow:clip}

@@ -55,7 +55,7 @@ export default function WalletTab({ orders, txs, users, unread, onBell }) {
         <h1 className="a-title">Ví tiền</h1>
         <span className="w-acts">
           <BellBtn n={unread} onClick={onBell} />
-          <button className="w-plus" onClick={() => setPage({ add: 'expense' })} aria-label="Thêm khoản thu chi"><Icon n="plus" size={24} /></button>
+          <button className="w-plus" onClick={() => setPage({ add: 'expense' })} aria-label="Thêm khoản thu chi"><Icon n="plus" size={26} /></button>
         </span>
       </div>
       <div className="a-body w-body">

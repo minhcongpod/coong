@@ -157,9 +157,10 @@ input{user-select:text;-webkit-user-select:text}
 .card2{background:rgba(255,255,255,.1);border-radius:32px;padding:16px 24px;box-sizing:border-box;line-height:normal}
 .kv{display:flex;justify-content:space-between;gap:12px;font-size:16px;font-weight:700;padding:5px 0}
 .kv span{color:rgba(255,255,255,.5);font-weight:500}
-.kv.tot{font-size:16px;padding-top:12px;margin-top:6px;border-top:1px solid rgba(255,255,255,.1)}
-.kv.tot b{font-size:24px;font-variant-numeric:tabular-nums}
-#sCard .kv.tot{font-size:16px}#sCard .kv.tot b{font-size:16px}
+/* row/Tổng (Figma 91:4028): chữ Tổng 16 medium xám, số tiền 24 bold trắng, cùng căn giữa theo chiều dọc */
+.kv.tot{align-items:center;font-size:16px;padding:12px 0 5px;margin-top:6px;border-top:1px solid rgba(255,255,255,.1)}
+.kv.tot span{font-size:16px;font-weight:500;color:rgba(255,255,255,.5)}
+.kv.tot b{font-size:24px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
 .g{color:var(--ok)}.yl{color:var(--yellow)}.rd{color:var(--err)}
 .shake{animation:shake .4s}
 @keyframes shake{20%{translate:-8px 0}40%{translate:7px 0}60%{translate:-5px 0}80%{translate:3px 0}}

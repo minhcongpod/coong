@@ -219,11 +219,11 @@ function OrderDetail({ o, onBack, users }) {
             <div key={i} className="o-item">
               <span className="o-thumb">{kind ? <img src={`/${kind}.webp`} alt="" /> : <Sym id="i-cup" size={22} />}</span>
               <span className="grow" style={{ minWidth: 0 }}>
-                <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
                   <b className="a-t">{qtyText(x.quantity || 1)} x {x.name}</b>
                   <b className="a-t a-num">{fmt(x.price * (x.quantity || 1))}</b>
                 </span>
-                <span className="a-s" style={{ display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{[x.caffeine && x.caffeine.replace('Size ', ''), x.temp, x.sweetness, x.ice].filter(Boolean).join(' / ')}</span>
+                <span className="a-s" style={{ display: 'block' }}>{[x.caffeine && x.caffeine.replace('Size ', ''), x.temp, x.sweetness, x.ice].filter(Boolean).join(' / ')}</span>
               </span>
             </div>
           );
