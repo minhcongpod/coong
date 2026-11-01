@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef, useMemo } from 'react';
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { auth } from '../firebase';
 import { getSetup, watchDevice, unlockDevice, lockDevice, watchOrders, watchMenu, watchUsers, watchTransactions, watchShop } from '../db';
@@ -230,7 +230,9 @@ function Shell({ adminPhone, onLogout }) {
   const pending = (orders || []).filter((o) => o.status === 'pending').length;
   const claims = claimGroups(orders || []).length;
   const openClaim = (phone) => { setNotif(false); setPayFocus({ phone, n: Date.now() }); setTab('wallet'); };
-  const data = { shop, menu, orders: orders || [], users, txs, loading: orders === null, unread: pending + claims, onBell: () => setNotif(true), onPay: openClaim };
+  // tên khách luôn theo hồ sơ hiện tại, không theo tên lúc đặt đơn
+  const named = useMemo(() => (orders || []).map((o) => (users[o.customerPhone] && users[o.customerPhone].name && users[o.customerPhone].name !== o.customerName ? { ...o, customerName: users[o.customerPhone].name } : o)), [orders, users]);
+  const data = { shop, menu, orders: named, users, txs, loading: orders === null, unread: pending + claims, onBell: () => setNotif(true), onPay: openClaim };
 
   return (
     <>

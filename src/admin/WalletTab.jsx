@@ -219,7 +219,7 @@ function AddTx({ onBack, initial = 'expense', edit }) {
           <textarea
             className="w-note" rows={2} value={note} placeholder="Nhập nội dung" aria-label="Nội dung"
             ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } }}
-            onChange={(e) => setNote(e.target.value.slice(0, 300))} autoFocus={type === 'expense'}
+            onChange={(e) => setNote(e.target.value.slice(0, 300))}
           />
         </label>
       )}
