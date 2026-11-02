@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { updateOrder } from '../db';
-import { tgToCustomer, tgDebtText } from '../telegram';
+import { APP_URL, tgToCustomer, tgDebtText } from '../telegram';
 import { Icon, Sym, Page, Btn, Seg, fmt, hm, dmy, timeOf, phoneText, payLabel, payState, orderCode, kindOf, STATUS, isLive, useUI, errText, BellBtn } from './ui.jsx';
 
 const FILTERS = [['all', 'Tất cả'], ['pending', 'Chờ xác nhận'], ['brewing', 'Đang chế'], ['completed', 'Hoàn thành'], ['cancelled', 'Hủy']];
@@ -31,9 +31,10 @@ const whenText = (d) => (!d ? '' : d.toDateString() === new Date().toDateString(
 // Báo khách qua Telegram khi quán nhận đơn (đang chế), huỷ đơn hoặc xác nhận thanh toán
 const tellCustomer = async (o, patch) => {
   const its = summary(o, ', ');
-  if (patch.status === 'brewing' && o.status !== 'brewing') tgToCustomer(o.customerPhone, `📣 Coong đã xác nhận đơn hàng ${its}.${await tgDebtText(o.customerPhone)}`);
-  else if (patch.status === 'cancelled' && o.status !== 'cancelled') tgToCustomer(o.customerPhone, `❌ Coong đã huỷ đơn hàng ${its} của bạn. Tiếc ghê, hẹn gặp lại bạn lần sau nhé!`);
-  else if (patch.paid === true && !o.paid) tgToCustomer(o.customerPhone, `📣 Coong đã nhận ${fmt(o.totalAmount)}đ đơn hàng ${orderCode(o)}.${await tgDebtText(o.customerPhone)}`);
+  const link = `${APP_URL}/?order=${o.id}`;
+  if (patch.status === 'brewing' && o.status !== 'brewing') tgToCustomer(o.customerPhone, `📣 Coong đã xác nhận đơn hàng ${its}.${await tgDebtText(o.customerPhone)}`, link);
+  else if (patch.status === 'cancelled' && o.status !== 'cancelled') tgToCustomer(o.customerPhone, `❌ Coong đã huỷ đơn hàng ${its} của bạn. Tiếc ghê, hẹn gặp lại bạn lần sau nhé!`, link);
+  else if (patch.paid === true && !o.paid) tgToCustomer(o.customerPhone, `📣 Coong đã nhận ${fmt(o.totalAmount)}đ đơn hàng ${orderCode(o)}.${await tgDebtText(o.customerPhone)}`, link);
 };
 
 // Tab Đơn hàng: danh sách đơn, xem chi tiết, thu tiền, nhận đơn, hoàn thành, huỷ

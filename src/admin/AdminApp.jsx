@@ -229,6 +229,17 @@ function Shell({ adminPhone, onLogout }) {
 
   const pending = (orders || []).filter((o) => o.status === 'pending').length;
   const claims = claimGroups(orders || []).length;
+  // Mở từ link trong Telegram: /admin?order=<id> vào chi tiết đơn, /admin?pay=<SĐT> vào trang chưa thanh toán của khách
+  const deep = useRef(new URLSearchParams(window.location.search));
+  useEffect(() => {
+    if (orders === null) return;
+    const id = deep.current.get('order'), ph = deep.current.get('pay');
+    if (!id && !ph) return;
+    deep.current = new URLSearchParams();
+    window.history.replaceState(null, '', window.location.pathname);
+    if (id) { setTrack({ id, n: Date.now() }); setTab('history'); }
+    else { setPayFocus({ phone: ph, n: Date.now() }); setTab('wallet'); }
+  }, [orders]);
   const openClaim = (phone) => { setNotif(false); setPayFocus({ phone, n: Date.now() }); setTab('wallet'); };
   // tên khách luôn theo hồ sơ hiện tại, không theo tên lúc đặt đơn
   const named = useMemo(() => (orders || []).map((o) => (users[o.customerPhone] && users[o.customerPhone].name && users[o.customerPhone].name !== o.customerName ? { ...o, customerName: users[o.customerPhone].name } : o)), [orders, users]);

@@ -1579,7 +1579,7 @@ const aSheet = $('#aSheet'); sheetDismiss(aSheet);
 $('#aPayNow').addEventListener('click', () => {
   const due = dueOrders(); if (!due.length) return;
   qrSheet(aSheet, {amt:due.reduce((n, o) => n + oTotal(o), 0), code:('NO' + due.map(o => o.code).join('')).slice(0, 25), alt:'Để sau', onAlt:() => {},
-    onPaid:async () => { try { await (await api()).claimPaid(due.map(o => o.id), {name:session.name, n:due.length, total:due.reduce((n, o) => n + oTotal(o), 0)}); toast('Đã gửi, chờ quán xác nhận', 'bank'); } catch (e) { toast('Chưa gửi được, thử lại nhé'); } }});
+    onPaid:async () => { try { await (await api()).claimPaid(due.map(o => o.id), {name:session.name, phone:session.phone, n:due.length, total:due.reduce((n, o) => n + oTotal(o), 0)}); toast('Đã gửi, chờ quán xác nhận', 'bank'); } catch (e) { toast('Chưa gửi được, thử lại nhé'); } }});
 });
 
 function setStatus(o, s){ o.status = s; renderHistory(); if (curOrder === o && isOpen(orderEl)) renderOrder(o); }
@@ -2008,6 +2008,7 @@ formOf('pin').addEventListener('submit', async e => {
   toast('Đã đổi mã PIN'); hidePage(authEl);
 });
 /* signed in: load the customer's orders and the shop menu, live */
+let deepOrder = new URLSearchParams(location.search).get('order');
 function startSession(s){
   session = s; setName(s.name); $('#aPhone').textContent = prettyPhone(s.phone); setTimeout(() => typeof tgRefresh === 'function' && tgRefresh(), 800);
   if (stopOrders) stopOrders(); if (stopMenu) stopMenu();
@@ -2015,7 +2016,8 @@ function startSession(s){
     let prev = null;
     stopOrders = a.watchOrders(s.phone, list => {
       orders = list.map(fromDb);
-      renderHistory(); syncNotifs(prev); prev = new Map(orders.map(o => [o.id, o.status]));
+      renderHistory(); syncNotifs(prev);
+      if (deepOrder) { const d = orders.find(x => x.id === deepOrder); if (d) { deepOrder = null; history.replaceState(null, '', location.pathname); setTimeout(() => openOrder(d), 1000); } } prev = new Map(orders.map(o => [o.id, o.status]));
       if (curOrder && isOpen(orderEl)) { const o = orders.find(x => x.id === curOrder.id); if (o) { curOrder = o; renderOrder(o); } }
     }, () => toast('Mất kết nối tới quán', 'wifioff'));
     stopMenu = a.watchMenu(applyMenu, () => {});
