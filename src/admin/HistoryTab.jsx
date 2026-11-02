@@ -44,7 +44,7 @@ const tellCustomer = async (o, patch) => {
 };
 
 // Tab Đơn hàng: danh sách đơn, xem chi tiết, thu tiền, nhận đơn, hoàn thành, huỷ
-export default function HistoryTab({ orders, users, loading, onGoOrder, track, unread, onBell }) {
+export default function HistoryTab({ orders, users, loading, onGoOrder, track, unread, onBell, onClose }) {
   const [filter, setFilter] = useState('all');
   const [openId, setOpenId] = useState(null);
   useEffect(() => { if (track) setOpenId(track.id); }, [track]);
@@ -118,7 +118,7 @@ export default function HistoryTab({ orders, users, loading, onGoOrder, track, u
           </div>
         ) : <p className="a-s" style={{ textAlign: 'center', padding: 24 }}>{loading ? 'Đang tải...' : 'Không có đơn phù hợp'}</p>)}
       </div>
-      {open && <OrderDetail o={open} onBack={() => setOpenId(null)} users={users} />}
+      {open && <OrderDetail o={open} onBack={() => { setOpenId(null); if (onClose) onClose(); }} users={users} />}
     </>
   );
 }

@@ -221,6 +221,7 @@ function Shell({ adminPhone, onLogout }) {
     go(nav, [{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], { duration: 500, delay: 200 });
     nav && nav.querySelectorAll('button').forEach((b, k) => go(b, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 400, delay: 260 + k * 50 }));
   }, []);
+  const backTo = useRef(null); // mở đơn từ trang Trạng thái thanh toán: back lại về đó
   const [menu, setMenu] = useState([]);
   const [orders, setOrders] = useState(null);
   const [users, setUsersRaw] = useState(null); // null: chưa tải
@@ -281,8 +282,8 @@ function Shell({ adminPhone, onLogout }) {
   return (
     <>
       <div className="a-tab" ref={(e) => { panes.current.order = e; }} hidden={tab !== 'order' && leaving !== 'order'}><OrderTab {...data} dive={dive} onTrack={(id) => { setTrack({ id, n: Date.now() }); setTab('history'); }} /></div>
-      <div className="a-tab" ref={(e) => { panes.current.history = e; }} hidden={tab !== 'history' && leaving !== 'history'}><HistoryTab {...data} track={track} onGoOrder={() => setTab('order')} /></div>
-      <div className="a-tab" ref={(e) => { panes.current.wallet = e; }} hidden={tab !== 'wallet' && leaving !== 'wallet'}><WalletTab {...data} focus={payFocus} onOpenOrder={(id) => { setTrack({ id, n: Date.now() }); setTab('history'); }} /></div>
+      <div className="a-tab" ref={(e) => { panes.current.history = e; }} hidden={tab !== 'history' && leaving !== 'history'}><HistoryTab {...data} track={track} onClose={() => { const t = backTo.current; backTo.current = null; if (t) setTab(t); }} onGoOrder={() => setTab('order')} /></div>
+      <div className="a-tab" ref={(e) => { panes.current.wallet = e; }} hidden={tab !== 'wallet' && leaving !== 'wallet'}><WalletTab {...data} focus={payFocus} onOpenOrder={(id) => { backTo.current = 'wallet'; setTrack({ id, n: Date.now() }); setTab('history'); }} /></div>
       <div className="a-tab" ref={(e) => { panes.current.settings = e; }} hidden={tab !== 'settings' && leaving !== 'settings'}><SettingsTab {...data} adminPhone={adminPhone} onLogout={onLogout} /></div>
       {notif && (
         <div className="a-tab a-over">
@@ -291,7 +292,7 @@ function Shell({ adminPhone, onLogout }) {
       )}
       <nav className="a-nav" style={{ position: 'absolute', left: 24, right: 24, bottom: 0, margin: '0 0 24px' }}>
         {NAV.map(([k, label]) => (
-          <button key={k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)} aria-label={label} title={label}>
+          <button key={k} className={tab === k ? 'on' : ''} onClick={() => { backTo.current = null; setTab(k); }} aria-label={label} title={label}>
             <NavIcon k={k} />
             {k === 'history' && pending > 0 && <span key={pending} className="a-badge pop">{pending}</span>}
           </button>
