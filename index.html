@@ -258,7 +258,9 @@ input{user-select:text;-webkit-user-select:text}
 .nl b{display:block;font-size:16px;line-height:20px;min-width:0}
 .nl .pr{flex:none;font-size:16px;line-height:20px;font-weight:700;font-variant-numeric:tabular-nums}
 .nm small{display:block;margin-top:2px;font-size:14px;line-height:18px;color:rgba(255,255,255,.5);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.obar{left:24px;width:342px;bottom:24px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.obar{left:24px;width:342px;bottom:24px;display:flex;flex-direction:row;align-items:center;gap:10px}
+.obar .btn{flex:1;min-width:0}
+.btn.yel{background:var(--yellow);color:#000}
 .onote{font-size:14px;color:var(--mute);font-weight:500;text-align:center}
 
 /* payment */
@@ -684,6 +686,7 @@ input{user-select:text;-webkit-user-select:text}
     <div class="abs odate" id="oDate" data-s></div>
     <div class="abs oscroll" id="oBody"></div>
     <div class="abs obar" id="oBar"></div>
+    <div class="psheet" id="oSheet"><div class="sb"></div><div class="sp"></div></div>
   </div>
 </div>
 
@@ -1624,6 +1627,7 @@ $$('#aSeg button').forEach((b, k) => b.addEventListener('click', () => {
 }));
 /* "Chờ thanh toán" page: orders still owed, and orders the customer reported paid that the shop has yet to confirm */
 const dSheet = $('#dSheet'); sheetDismiss(dSheet);
+const oSheet = $('#oSheet'); sheetDismiss(oSheet);
 const dateShort = d => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}`;
 function dueCard(list, title, sub, pay){
   const c = document.createElement('div'); c.className = 'card2 dcard';
@@ -1643,6 +1647,11 @@ function renderDues(){
   if (due.length) body.appendChild(dueCard(due, 'đơn chưa thanh toán', '', payDues));
   if (wait.length) body.appendChild(dueCard(wait, 'đơn chờ xác nhận thanh toán', 'Coong đã nhận yêu cầu, bạn đợi chút nha!'));
   if (!due.length && !wait.length && isOpen(duesEl)) duesEl.goBack();
+}
+/* pay one debt order by bank transfer; the shop then confirms it */
+function payOne(o){
+  qrSheet(oSheet, {amt:oTotal(o), code:('NO' + o.code).slice(0, 25), alt:'Để sau', onAlt:() => {},
+    onPaid:async () => { try { await (await api()).claimPaid([o.id], {name:session.name, phone:session.phone, n:1, total:oTotal(o)}); toast('Đã gửi, chờ quán xác nhận', 'bank'); } catch (e) { toast('Chưa gửi được, thử lại nhé'); } }});
 }
 /* pay everything owed by bank transfer; the shop then confirms it */
 function payDues(){
@@ -1690,12 +1699,15 @@ function renderOrder(o){
   if (o.status === 'wait') {
     const b = document.createElement('button'); b.className = 'btn danger'; b.textContent = 'Huỷ đơn';
     b.addEventListener('click', () => cancelOrder(o)); ob.appendChild(b);
-  } else if (o.status === 'brew') {
-    /* brewing: nothing to do but wait */
-  } else {
+  } else if (o.status !== 'brew') {
     const b = document.createElement('button'); b.className = 'btn'; b.textContent = 'Đặt lại';
     b.addEventListener('click', () => reorder(o));
     ob.appendChild(b);
+  }
+  /* a debt order that is still owed can be paid right from its page */
+  if (o.pay === 'debt' && !o.paid && !o.claimed && o.status !== 'cancel') {
+    const b = document.createElement('button'); b.className = 'btn yel'; b.textContent = 'Thanh toán';
+    b.addEventListener('click', () => payOne(o)); ob.appendChild(b);
   }
   /* the list ends 8px above the bottom bar (or above the 24px margin when there is no bar) */
   body.style.height = (FH - 24 - (ob.children.length ? ob.offsetHeight + 8 : 0) - 174) + 'px';
