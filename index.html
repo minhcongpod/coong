@@ -654,10 +654,10 @@ input{user-select:text;-webkit-user-select:text}
   </div>
 </div>
 
-<div id="dues" class="screen page" data-how="right" aria-label="Chờ thanh toán">
+<div id="dues" class="screen page" data-how="right" aria-label="Trạng thái thanh toán">
   <div class="stage">
     <button class="abs circ pback" data-back aria-label="Quay lại"><svg><use href="#i-back"/></svg></button>
-    <h2 class="abs pt" data-s>Chờ thanh toán</h2>
+    <h2 class="abs pt" data-s>Trạng thái thanh toán</h2>
     <div class="abs pscroll" id="dBody"></div>
     <div class="psheet" id="dSheet"><div class="sb"></div><div class="sp"></div></div>
   </div>
@@ -1612,7 +1612,7 @@ const dSheet = $('#dSheet'); sheetDismiss(dSheet);
 const dateShort = d => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}`;
 function dueCard(list, title, sub, pay){
   const c = document.createElement('div'); c.className = 'card2 dcard';
-  c.innerHTML = `<div class="dh"><b>${pad(list.length)} ${title}</b>${sub ? `<small>${sub}</small>` : ''}</div><div class="drows"></div><div class="dtot"><span>Tổng</span><b>${fmt(sumOf(list))}</b></div>${pay ? '<button class="dpay">Thanh toán ngay</button>' : ''}`;
+  c.innerHTML = `<div class="dh"><b>${pad(list.length)} ${title}</b>${sub ? `<small>${sub}</small>` : ''}</div><div class="drows"></div><div class="dtot"><span>Tổng</span><b>${fmt(sumOf(list))}</b></div>${pay ? '<button class="dpay">Thanh toán</button>' : ''}`;
   const rows = $('.drows', c);
   list.forEach(o => {
     const r = document.createElement('button'); r.className = 'drow'; r.innerHTML = '<span></span><b></b><svg><use href="#i-rchev"/></svg>';
