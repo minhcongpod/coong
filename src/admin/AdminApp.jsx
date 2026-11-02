@@ -3,16 +3,16 @@ import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { auth } from '../firebase';
 import { getSetup, watchDevice, unlockDevice, lockDevice, watchOrders, watchMenu, watchUsers, watchTransactions, watchShop } from '../db';
 import './admin.css';
-import { Sym, UIProvider, useUI, errText, stagger, orderCode } from './ui.jsx';
+import { Sym, UIProvider, useUI, errText, stagger, orderCode, phoneText } from './ui.jsx';
 import OrderTab, { Notifs, claimGroups } from './OrderTab.jsx';
 import HistoryTab from './HistoryTab.jsx';
 import WalletTab from './WalletTab.jsx';
 import SettingsTab from './SettingsTab.jsx';
 import { LOGO_PATH } from './logo.js';
 
-const FW = 390, FH = 660;
+const FW = 390, FH = 700;
 
-// Khung 390×660 co giãn vừa cửa sổ, giống app khách
+// Khung 390×700 co giãn vừa cửa sổ, giống app khách
 function Device({ children }) {
   const [size, setSize] = useState({ w: window.innerWidth, h: window.innerHeight });
   useEffect(() => {
@@ -31,11 +31,13 @@ function Device({ children }) {
     document.body.className = '';
     return () => { link.remove(); document.title = prev.title; document.body.style.background = prev.bg; document.body.className = prev.theme; };
   }, []);
+  // điện thoại: lấp đầy màn hình, co theo chiều ngang và cao thêm nếu máy dài; cửa sổ lớn: khung 390×700 ở giữa
   const st = Math.min(size.w / FW, size.h / FH);
-  const dev = Math.abs(size.w - FW * st) > 1 || Math.abs(size.h - FH * st) > 1;
+  const fh = size.w <= 500 ? Math.min(Math.round(size.h / st), 900) : FH;
+  const dev = Math.abs(size.w - FW * st) > 1 || Math.abs(size.h - fh * st) > 1;
   return (
-    <div className={`a-root${dev ? ' a-dev' : ''}`}>
-      <div className="a-device" style={{ width: FW * st, height: FH * st }}>
+    <div className={`a-root${dev ? ' a-dev' : ''}`} style={{ '--fh': fh + 'px' }}>
+      <div className="a-device" style={{ width: FW * st, height: fh * st }}>
         <div className="a-stage" style={{ transform: `scale(${st})` }}>{children}</div>
       </div>
     </div>
@@ -222,7 +224,8 @@ function Shell({ adminPhone, onLogout }) {
   }, []);
   const [menu, setMenu] = useState([]);
   const [orders, setOrders] = useState(null);
-  const [users, setUsers] = useState({});
+  const [users, setUsersRaw] = useState(null); // null: chưa tải
+  const setUsers = setUsersRaw;
   const [txs, setTxs] = useState([]);
   useEffect(() => {
     if (orders === null || !introCards.current) return;
@@ -273,8 +276,14 @@ function Shell({ adminPhone, onLogout }) {
   }, [orders]);
   const openClaim = (phone) => { setNotif(false); setPayFocus({ phone, n: Date.now() }); setTab('wallet'); };
   // tên khách luôn theo hồ sơ hiện tại, không theo tên lúc đặt đơn
-  const named = useMemo(() => (orders || []).map((o) => (users[o.customerPhone] && users[o.customerPhone].name && users[o.customerPhone].name !== o.customerName ? { ...o, customerName: users[o.customerPhone].name } : o)), [orders, users]);
-  const data = { shop, menu, orders: named, users, txs, loading: orders === null, unread: pending + claims, onBell: () => setNotif(true), onPay: openClaim };
+  // tên khách lấy theo tài khoản hiện tại; khách đã bị xoá thì hiện số điện thoại đặt hàng
+  const named = useMemo(() => (orders || []).map((o) => {
+    if (!users) return o;
+    const u = users[o.customerPhone];
+    if (!u) return { ...o, customerName: phoneText(o.customerPhone) || o.customerName };
+    return u.name && u.name !== o.customerName ? { ...o, customerName: u.name } : o;
+  }), [orders, users]);
+  const data = { shop, menu, orders: named, users: users || {}, txs, loading: orders === null, unread: pending + claims, onBell: () => setNotif(true), onPay: openClaim };
 
   return (
     <>
