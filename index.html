@@ -850,7 +850,7 @@ function fit(){
   K = 1; S = st; DH = FH - 844;
   const GX = Math.max(0, (app.clientWidth/st - 390)/2);   /* extra room beside the stage, so edge pieces can stay on the screen edge */
   $$('.stage').forEach(s => { s.style.transform = `translate(-50%,-50%) scale(${st})`; s.style.setProperty('--dh', DH + 'px'); s.style.setProperty('--gx', GX + 'px'); });
-  try { sizeSpin(); } catch (e) {}  /* detail state not ready on first call */
+  try { sizeSpin(); centerDetail(); } catch (e) {}  /* detail state not ready on first call */
 }
 const scr = () => app.getBoundingClientRect();
 const scrRad = () => DEV ? 34*S : 0;
@@ -1009,6 +1009,13 @@ function sizeSpin(){
   const d = DRINKS[cur], h = 310, w = h*d.aspect;
   spin.style.height = h + 'px'; spin.style.width = w + 'px'; spin.style.left = (261 - w/2) + 'px';
 }
+/* tên món + option + ảnh nằm giữa hàng nút trên (X / giỏ) và hàng nút dưới (− / +) */
+function centerDetail(){
+  const c = (76 + 637 + DH) / 2, o = $('#opts'), t = $('#dTitle');
+  const tb = 46 + 19 + o.offsetHeight;
+  t.style.top = Math.round(c - tb/2) + 'px'; o.style.top = Math.round(c - tb/2 + 65) + 'px';
+  spin.style.top = Math.round(c - 155) + 'px';
+}
 const spin2 = document.createElement('i'); spin2.className = 'spin2'; spin.appendChild(spin2);
 /* the cup is a still photo now: no turning */
 function setFrame(){ frame = 0; }
@@ -1022,6 +1029,7 @@ function fillDetail(i){
   qty = 1; Object.keys(opts).forEach(k => opts[k] = 0);
   $$('.opt').forEach(g => { $$('.chip', g).forEach(c => c.classList.toggle('on', c.dataset.v === '0')); if (g.dataset.k in d) g.hidden = !d[g.dataset.k]; });
   $('#sw0').hidden = d.id !== 'bac';
+  centerDetail();
   $('#qty').innerHTML = `<span>${pad(qty)}</span>`;
   $('#dPrice').textContent = fmt(unit()*qty);
   resetKnob(true);

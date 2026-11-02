@@ -224,6 +224,13 @@ export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, o
     clip(); addEventListener('resize', clip); return () => removeEventListener('resize', clip);
   }, []);
 
+  // tên món + option + ảnh nằm giữa hàng nút trên (X / giỏ) và hàng nút dưới (− / +)
+  useLayoutEffect(() => {
+    const st = stage.current, t = st.querySelector('.dtitle'), op = st.querySelector('.opts'), c = (76 + st.offsetHeight - 207) / 2;
+    const tb = 46 + 19 + op.offsetHeight;
+    t.style.top = Math.round(c - tb / 2) + 'px'; op.style.top = Math.round(c - tb / 2 + 65) + 'px'; spin.current.style.top = Math.round(c - 155) + 'px';
+  }, [k, d.sweet, d.cafe]);
+
   const parts = () => [...root.current.querySelectorAll('[data-a]')];
   const S = () => stage.current.getBoundingClientRect().width / 390;
 
