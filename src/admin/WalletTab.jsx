@@ -246,7 +246,7 @@ function AddTx({ users, onBack, initial = 'expense', edit }) {
     try { await removeTx(edit.id); toast('Đã xoá khoản', true); onBack(); } catch (e) { toast(errText(e)); }
   };
 
-  if (picking) return <CustomerPicker users={users} selected={cust ? { phone: cust } : null} onBack={() => setPicking(false)} onPick={(u) => { setCust(u.phone); setPicking(false); }} />;
+  if (picking) return <CustomerPicker users={users} selected={cust ? { phone: cust } : null} onBack={() => setPicking(false)} onPick={(u) => { setCust(u.phone === cust ? '' : u.phone); setPicking(false); }} />;
   return (
     <Page
       className="w-addpg" onBack={onBack}
@@ -270,10 +270,11 @@ function AddTx({ users, onBack, initial = 'expense', edit }) {
       )}
       {/* Chi: ô ghi chú chỉ hiện khi chọn Khác. Thu: ô Lý do */}
       {type === 'income' && (
-        <div className="a-card w-cust" role="button" tabIndex={0} onClick={() => setPicking(true)} aria-label="Chọn khách hàng">
-          <span className="w-cn"><small>Khách hàng (không bắt buộc)</small><b className="a-ell">{custName || 'Chọn khách để nạp ví'}</b></span>
-          {cust ? <button className="w-cx" onClick={(e) => { e.stopPropagation(); setCust(''); }} aria-label="Bỏ chọn khách"><Icon n="x" size={18} /></button> : <Sym id="i-s-right" size={20} />}
-        </div>
+        <button className="a-card h o-cust" onClick={() => setPicking(true)} aria-label="Chọn khách">
+          <span className="grow o-clabel">Khách hàng</span>
+          <b className={`a-t ${cust ? '' : 'y'}`}>{custName || 'Chọn khách'}</b>
+          <span className="m"><Icon n="right" size={24} /></span>
+        </button>
       )}
       {(type === 'income' || cat === 'Khác') && (
         <label className="a-card w-notecard">
