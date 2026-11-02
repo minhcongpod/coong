@@ -150,13 +150,10 @@ export const collectDebt = async (orderIds, tx) => {
 // --- Khách hàng ---
 export const createCustomer = async ({ phone, name, pin }) => {
   const batch = writeBatch(db);
-  batch.set(doc(db, 'users', phone), { name, role: 'customer', fresh: true }); // fresh: khách chưa tự đặt PIN
+  batch.set(doc(db, 'users', phone), { name, role: 'customer' });
   batch.set(doc(db, 'pins', phone), { pin });
   await batch.commit();
 };
-
-// Khách đã tự đặt PIN: bỏ cờ fresh
-export const clearFresh = (phone) => updateDoc(doc(db, 'users', phone), { fresh: false });
 
 export const updateUserName = (phone, name) => updateDoc(doc(db, 'users', phone), { name });
 

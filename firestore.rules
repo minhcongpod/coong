@@ -103,8 +103,7 @@ service cloud.firestore {
             && request.resource.data.name.size() > 0
             && isSelfSignup(phone)));
       allow update: if (isAdmin() && request.resource.data.role == resource.data.role)
-        || (isOwner(phone) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'fresh'])
-          && request.resource.data.get('fresh', false) == false
+        || (isOwner(phone) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name'])
           && request.resource.data.name is string && request.resource.data.name.size() > 0);
       allow delete: if isAdmin() && resource.data.role != 'admin';
     }
