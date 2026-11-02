@@ -1,6 +1,6 @@
 # CongCa Coffee
 
-Web app đặt café cho quán CongCa (React + Vite + Tailwind + Firebase).
+Web app đặt café cho quán CongCa (React + Vite + Firebase).
 
 ## Cách hoạt động
 
