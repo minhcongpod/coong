@@ -28,8 +28,8 @@ function veilKF(r, s, rad0, rad1) {
 }
 function placeVeil(v, s) { Object.assign(v.style, { inset: 'auto', left: s.left + 'px', top: s.top + 'px', width: s.width + 'px', height: s.height + 'px', transformOrigin: '0 0', overflow: 'hidden', willChange: 'transform,opacity' }); }
 
-const N_SIDE = 135 + 10 + 135 * (1 - 0.12); // 270px thẻ, 10px khe, thẻ bên 88%
-const SIDE_SHRINK = 0.12;
+const MID_W = 260, SIDE_W = 220; // thẻ giữa 260px, thẻ bên 220px (hình gốc 270px)
+const N_SIDE = MID_W / 2 + 10 + SIDE_W / 2; // 10px khe
 
 // ---------------- Trang chủ: 3 thẻ, kéo ngang, 3 chấm ----------------
 export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, onCart, onBell, onOpen, sold }, ref) {
@@ -51,7 +51,7 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
       cards.current.forEach((el, i) => {
         if (!el) return;
         const o = wrap(i - s.pos), a = Math.abs(o);
-        const sc = 1 - SIDE_SHRINK * Math.min(a, 1), x = o * N_SIDE;
+        const sc = (MID_W - (MID_W - SIDE_W) * Math.min(a, 1)) / 270, x = o * N_SIDE;
         el.style.transform = `translate(${x}px,0) scale(${sc})`;
         el.style.opacity = a > 1 ? Math.max(0, 1 - (a - 1) * 2.2) : 1;
         el.style.zIndex = 10 - Math.round(a * 3);

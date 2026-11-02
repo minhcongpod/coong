@@ -894,7 +894,7 @@ const cards = DRINKS.map((d,i) => {
 
 let pos = 1, target = 1, vel = 0, raf = 0;
 const CARD_S = 1;
-const SIDE_SHRINK = .12, SIDE_STEP = 135 + 10 + 135*(1 - SIDE_SHRINK);   /* 270px card, 10px gap, neighbours at 88% */
+const MID_W = 260, SIDE_W = 220, SIDE_STEP = MID_W/2 + 10 + SIDE_W/2;   /* 270px-wide artwork shown 260px in the middle and 220px beside it, 10px gap */
 const wrap = o => { o = ((o % N) + N) % N; return o >= N/2 ? o - N : o; };
 const active = () => ((Math.round(pos) % N) + N) % N;
 
@@ -903,7 +903,7 @@ function layout(){
   cards.forEach((el,i) => {
     const o = wrap(i - pos), a = Math.abs(o);
     /* cards sit upright in a row: neighbours are smaller, with a 10px gap to the main card */
-    const s = CARD_S*(1 - SIDE_SHRINK*Math.min(a, 1)), x = o*SIDE_STEP;
+    const s = CARD_S*(MID_W - (MID_W - SIDE_W)*Math.min(a, 1))/270, x = o*SIDE_STEP;
     el.style.transform = `translate(${x}px,0) scale(${s})`;
     el.style.opacity = a > 1 ? Math.max(0, 1 - (a-1)*2.2) : 1;
     el.style.zIndex = 10 - Math.round(a*3);
