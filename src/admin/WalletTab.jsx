@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { addDoc, collection, doc, updateDoc } from 'firebase/firestore';
-import { db } from '../firebase';
-import { updateOrder, deleteTransaction } from '../db';
+import { updateOrder, saveTx, removeTx } from '../db';
+import { CustomerPicker } from './Customers.jsx';
 import { tgToCustomer, tgDebt, APP_URL } from '../telegram';
 import { Icon, Sym, Page, Btn, Seg, Chip, Empty, fmt, hm, timeOf, isLive, useUI, errText, BellBtn } from './ui.jsx';
 import { summary } from './HistoryTab.jsx';
@@ -35,6 +34,7 @@ const txLines = (t) => {
     return [name, rest.startsWith('#') ? `Thanh toán đơn ${rest}` : /^\d+ đơn$/.test(rest) ? `Thanh toán ${rest}` : 'Thanh toán'];
   }
   const cat = txCat(t), note = txNote(t);
+  if (t.type === 'income' && t.walletPhone) return [t.walletName || 'Khách', note ? `Nạp ví · ${note}` : 'Nạp ví'];
   if (t.type === 'income') return [note || 'Khoản thu', ''];
   return [cat, note];
 };
@@ -76,7 +76,7 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
 
   if (page === 'unpaid') return <Unpaid orders={unpaid} onOpen={onOpenOrder} onBack={() => setPage(null)} />;
   if (page && page.unpaid) return <Unpaid orders={unpaid.filter((o) => o.customerPhone === page.unpaid)} only focus onOpen={onOpenOrder} onBack={() => setPage(null)} />;
-  if (page && (page.add || page.edit)) return <AddTx onBack={() => setPage(null)} initial={page.add} edit={page.edit} />;
+  if (page && (page.add || page.edit)) return <AddTx users={users} onBack={() => setPage(null)} initial={page.add} edit={page.edit} />;
 
   const waitN = unpaid.filter((o) => o.paymentStatus === 'awaiting').length;
   const debt = unpaid.reduce((n, o) => n + (o.totalAmount || 0), 0);
@@ -202,7 +202,7 @@ function Unpaid({ orders, onBack, only, focus, onOpen }) {
   );
 }
 
-function AddTx({ onBack, initial = 'expense', edit }) {
+function AddTx({ users, onBack, initial = 'expense', edit }) {
   const { toast, confirm } = useUI();
   const c0 = edit ? txCat(edit) : '';
   const [type, setType] = useState(edit ? edit.type : initial);
@@ -211,25 +211,30 @@ function AddTx({ onBack, initial = 'expense', edit }) {
   const [note, setNote] = useState(edit ? txNote(edit) || (edit.type === 'expense' && !EXPENSE_CATS.includes(c0) ? c0 : '') : '');
   const [skip, setSkip] = useState(edit ? !!edit.excludeRevenue : false); // không tính vào doanh thu
   const [busy, setBusy] = useState(false);
+  const [cust, setCust] = useState(edit && edit.walletPhone ? edit.walletPhone : ''); // khách được nạp ví (không bắt buộc)
+  const [picking, setPicking] = useState(false);
+  const custName = cust ? ((users && users[cust] && users[cust].name) || (edit && edit.walletName) || cust) : '';
+  const wallet = type === 'income' && !!cust;
 
   const save = async () => {
     const n = Number(amount);
     if (!(n > 0)) return toast('Nhập số tiền');
-    if ((type === 'income' || cat === 'Khác') && !note.trim()) return toast('Nhập ghi chú');
+    if (((type === 'income' && !wallet) || (type === 'expense' && cat === 'Khác')) && !note.trim()) return toast('Nhập ghi chú');
     setBusy(true);
-    const label = type === 'income' ? 'Khoản thu' : cat;
+    const label = wallet ? 'Nạp ví' : type === 'income' ? 'Khoản thu' : cat;
     const text = type === 'income' || cat === 'Khác' ? note.trim() : '';
+    const data = { type, amount: n, description: `[${label}] ${text}`.trim(), excludeRevenue: skip || wallet };
+    if (wallet) { data.walletPhone = cust; data.walletName = custName; }
     try {
       if (edit) {
-        await updateDoc(doc(db, 'transactions', edit.id), { type, amount: n, description: `[${label}] ${text}`.trim(), excludeRevenue: skip });
+        await saveTx(edit.id, data);
         toast('Đã lưu thay đổi', true);
       } else {
-        await addDoc(collection(db, 'transactions'), {
-          type, amount: n, description: `[${label}] ${text}`.trim(), excludeRevenue: skip, createdAt: new Date().toISOString(),
-        });
-        toast(type === 'income' ? 'Đã ghi khoản thu' : 'Đã ghi khoản chi', true);
+        await saveTx(null, data);
+        if (wallet) tgToCustomer(cust, `💰 Coong vừa nạp ${fmt(n)}đ vào ví tiền của bạn. Bạn có thể dùng để thanh toán đơn hàng nhé!`, APP_URL, 'Đặt hàng');
+        toast(wallet ? `Đã nạp ${fmt(n)}đ vào ví ${custName}` : type === 'income' ? 'Đã ghi khoản thu' : 'Đã ghi khoản chi', true);
         // thêm mới: ở lại trang để nhập tiếp khoản khác
-        setAmount(''); setNote(''); setSkip(false); setBusy(false);
+        setAmount(''); setNote(''); setSkip(false); setCust(''); setBusy(false);
         return;
       }
       onBack();
@@ -238,9 +243,10 @@ function AddTx({ onBack, initial = 'expense', edit }) {
 
   const remove = async () => {
     if (!(await confirm({ title: 'Xoá khoản này?', msg: `${txName(edit)} · ${fmt(edit.amount)}`, ok: 'Xoá', danger: true }))) return;
-    try { await deleteTransaction(edit.id); toast('Đã xoá khoản', true); onBack(); } catch (e) { toast(errText(e)); }
+    try { await removeTx(edit.id); toast('Đã xoá khoản', true); onBack(); } catch (e) { toast(errText(e)); }
   };
 
+  if (picking) return <CustomerPicker users={users} selected={cust ? { phone: cust } : null} onBack={() => setPicking(false)} onPick={(u) => { setCust(u.phone); setPicking(false); }} />;
   return (
     <Page
       className="w-addpg" onBack={onBack}
@@ -263,6 +269,12 @@ function AddTx({ onBack, initial = 'expense', edit }) {
         <div className="a-chips wrap w-chips">{EXPENSE_CATS.map((c) => <Chip key={c} on={cat === c} onClick={() => setCat(c)}>{c}</Chip>)}</div>
       )}
       {/* Chi: ô ghi chú chỉ hiện khi chọn Khác. Thu: ô Lý do */}
+      {type === 'income' && (
+        <div className="a-card w-cust" role="button" tabIndex={0} onClick={() => setPicking(true)} aria-label="Chọn khách hàng">
+          <span className="w-cn"><small>Khách hàng (không bắt buộc)</small><b className="a-ell">{custName || 'Chọn khách để nạp ví'}</b></span>
+          {cust ? <button className="w-cx" onClick={(e) => { e.stopPropagation(); setCust(''); }} aria-label="Bỏ chọn khách"><Icon n="x" size={18} /></button> : <Sym id="i-s-right" size={20} />}
+        </div>
+      )}
       {(type === 'income' || cat === 'Khác') && (
         <label className="a-card w-notecard">
           <textarea
@@ -272,8 +284,8 @@ function AddTx({ onBack, initial = 'expense', edit }) {
           />
         </label>
       )}
-      <button type="button" className="w-chk" role="checkbox" aria-checked={skip} onClick={() => setSkip(!skip)}>
-        <i className={skip ? 'on' : ''}>{skip && <Icon n="check" size={16} />}</i>Không tính vào doanh thu
+      <button type="button" className="w-chk" role="checkbox" aria-checked={skip || wallet} disabled={wallet} onClick={() => setSkip(!skip)}>
+        <i className={skip || wallet ? 'on' : ''}>{(skip || wallet) && <Icon n="check" size={16} />}</i>Không tính vào doanh thu
       </button>
     </Page>
   );

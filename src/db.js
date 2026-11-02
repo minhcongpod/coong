@@ -1,5 +1,5 @@
 import {
-  collection, doc, getDoc, onSnapshot, query, where, setDoc, updateDoc, deleteDoc, addDoc, writeBatch, runTransaction,
+  collection, doc, getDoc, onSnapshot, query, where, setDoc, updateDoc, deleteDoc, addDoc, writeBatch, runTransaction, increment,
 } from 'firebase/firestore';
 import { db } from './firebase';
 
@@ -12,7 +12,8 @@ import { db } from './firebase';
 // menu/{id}           { name, price, cost, image, active }
 // orders/{id}         { no, customerPhone, customerName, items, note, totalAmount, status, paid, createdAt }
 // counters/orders     { n }                        số đơn gần nhất; đơn mới lấy n + 1, đơn đầu tiên là #1234
-// transactions/{id}   { type, amount, description, customerPhone?, createdAt }
+// transactions/{id}   { type, amount, description, customerPhone?, walletPhone?, createdAt }
+// wallets/{phone}     { balance, last?, refund? }   ví tiền của khách: chủ quán nạp, khách trả đơn bằng ví
 
 const nowIso = () => new Date().toISOString();
 
@@ -102,6 +103,13 @@ const nextOrder = (order) => runTransaction(db, async (tx) => {
   const snap = await tx.get(counter);
   const no = snap.exists() ? snap.data().n + 1 : FIRST_ORDER_NO;
   const ref = doc(collection(db, 'orders'));
+  let wallet = null;
+  if (order.payMethod === 'wallet') {
+    wallet = doc(db, 'wallets', order.customerPhone);
+    const w = await tx.get(wallet), bal = w.exists() ? w.data().balance || 0 : 0;
+    if (bal < order.totalAmount) { const e = new Error('Không đủ tiền trong ví'); e.code = 'wallet/insufficient'; throw e; }
+    tx.update(wallet, { balance: bal - order.totalAmount, last: ref.id });
+  }
   tx.set(counter, { n: no });
   tx.set(ref, { ...order, no, createdAt: nowIso() });
   return { id: ref.id, no };
@@ -115,18 +123,62 @@ export const createOrder = async (order) => {
 };
 
 // Xoá đơn kèm khoản thu tự tạo của đơn (nếu có)
-export const deleteOrder = async (id) => {
+export const deleteOrder = async (id, o) => {
   const b = writeBatch(db);
+  if (o && walletPaid(o) && o.status !== 'cancelled') b.set(doc(db, 'wallets', o.customerPhone), { balance: increment(o.totalAmount || 0) }, { merge: true });
   b.delete(doc(db, 'orders', id));
   b.delete(doc(db, 'transactions', 'pay_' + id));
   await b.commit();
 };
+const walletPaid = (o) => o.payMethod === 'wallet' && o.paid;
 export const updateOrder = (id, patch) => updateDoc(doc(db, 'orders', id), patch);
+// Chủ quán huỷ đơn: đơn đã trả bằng ví thì hoàn tiền vào ví của khách
+export const cancelOrderRefund = async (o) => {
+  const b = writeBatch(db);
+  b.update(doc(db, 'orders', o.id), { status: 'cancelled' });
+  if (walletPaid(o) && o.status !== 'cancelled') b.set(doc(db, 'wallets', o.customerPhone), { balance: increment(o.totalAmount || 0) }, { merge: true });
+  await b.commit();
+};
+
+// --- Ví tiền của khách ---
+export const watchWallet = (phone, cb, onError) =>
+  onSnapshot(doc(db, 'wallets', phone), (snap) => cb(snap.exists() ? snap.data().balance || 0 : null), onError);
+export const watchWallets = (cb, onError) =>
+  onSnapshot(collection(db, 'wallets'), (snap) => { const m = {}; snap.docs.forEach((d) => { m[d.id] = d.data().balance || 0; }); cb(m); }, onError);
 
 // --- Sổ thu chi ---
 export const addTransaction = (tx) => addDoc(collection(db, 'transactions'), { ...tx, createdAt: nowIso() });
 
 export const deleteTransaction = (id) => deleteDoc(doc(db, 'transactions', id));
+
+// Khoản thu gắn tên khách = nạp ví. Thêm/sửa/xoá khoản thu thì ví của khách cộng/trừ tương ứng trong cùng một lần ghi.
+const walletOf = (t) => (t && t.type === 'income' && t.walletPhone ? { phone: t.walletPhone, n: t.amount || 0 } : null);
+const walletDelta = (b, before, after) => {
+  const d = {};
+  const a = walletOf(before), z = walletOf(after);
+  if (a) d[a.phone] = (d[a.phone] || 0) - a.n;
+  if (z) d[z.phone] = (d[z.phone] || 0) + z.n;
+  Object.entries(d).forEach(([phone, n]) => { if (n) b.set(doc(db, 'wallets', phone), { balance: increment(n) }, { merge: true }); });
+};
+export const saveTx = async (id, data) => {
+  const b = writeBatch(db);
+  const ref = id ? doc(db, 'transactions', id) : doc(collection(db, 'transactions'));
+  if (id) {
+    const old = await getDoc(ref);
+    walletDelta(b, old.exists() ? old.data() : null, data);
+    b.update(ref, { ...data, walletPhone: data.walletPhone || null, walletName: data.walletName || null });
+  } else {
+    walletDelta(b, null, data);
+    b.set(ref, { ...data, createdAt: nowIso() });
+  }
+  await b.commit();
+};
+export const removeTx = async (id) => {
+  const ref = doc(db, 'transactions', id), snap = await getDoc(ref), b = writeBatch(db);
+  if (snap.exists()) walletDelta(b, snap.data(), null);
+  b.delete(ref);
+  await b.commit();
+};
 
 // Đơn đã thanh toán: ghi ngày thu (paidAt) và một khoản thu "Thu đơn" (id cố định để bỏ đánh dấu thì xoá lại được)
 const payTxRef = (orderId) => doc(db, 'transactions', 'pay_' + orderId);

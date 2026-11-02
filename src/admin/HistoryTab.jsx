@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
-import { updateOrder, markPaid, markUnpaid, deleteOrder } from '../db';
+import { updateOrder, cancelOrderRefund, markPaid, markUnpaid, deleteOrder } from '../db';
 import { APP_URL, tgToCustomer, tgDebtText, tgDebt } from '../telegram';
 import { Icon, Sym, Page, Btn, Seg, fmt, hm, dmy, timeOf, phoneText, payLabel, payState, orderCode, kindOf, STATUS, isLive, useUI, errText, BellBtn } from './ui.jsx';
 
@@ -52,7 +52,7 @@ export default function HistoryTab({ orders, users, loading, onGoOrder, track, u
   const list = orders.filter((o) => filter === 'all' || o.status === filter);
   const open = openId ? orders.find((o) => o.id === openId) : null;
   const { toast, confirm } = useUI();
-  const run = (o, patch) => updateOrder(o.id, patch).then(() => tellCustomer(o, patch)).catch((e) => toast(errText(e)));
+  const run = (o, patch) => (patch.status === 'cancelled' ? cancelOrderRefund(o) : updateOrder(o.id, patch)).then(() => tellCustomer(o, patch)).catch((e) => toast(errText(e)));
   const cancel = async (o) => {
     if (await confirm({ title: 'Huỷ đơn này?', ok: 'Huỷ đơn', danger: true })) run(o, { status: 'cancelled' });
   };
@@ -64,7 +64,7 @@ export default function HistoryTab({ orders, users, loading, onGoOrder, track, u
     const p = press.current; p.fired = false; clearTimeout(p.t);
     p.t = setTimeout(async () => {
       p.fired = true;
-      if (await confirm({ title: 'Xoá đơn hàng', ok: 'Xoá đơn', danger: true })) deleteOrder(o.id).catch((err) => toast(errText(err)));
+      if (await confirm({ title: 'Xoá đơn hàng', ok: 'Xoá đơn', danger: true })) deleteOrder(o.id, o).catch((err) => toast(errText(err)));
     }, 600);
   };
   const endPress = () => clearTimeout(press.current.t);
@@ -165,7 +165,7 @@ function OrderDetail({ o, onBack, users }) {
   const { toast, confirm } = useUI();
   const pay = payState(o);
   const paid = pay === 'paid';
-  const run = (patch) => updateOrder(o.id, patch).then(() => tellCustomer(o, patch)).catch((e) => toast(errText(e)));
+  const run = (patch) => (patch.status === 'cancelled' ? cancelOrderRefund(o) : updateOrder(o.id, patch)).then(() => tellCustomer(o, patch)).catch((e) => toast(errText(e)));
   const cancel = async () => {
     if (await confirm({ title: 'Huỷ đơn này?', ok: 'Huỷ đơn', danger: true })) {
       await run({ status: 'cancelled' });

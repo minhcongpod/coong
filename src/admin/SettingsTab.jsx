@@ -224,7 +224,7 @@ function Telegram({ onBack }) {
 
 // Sao lưu / khôi phục: lưu toàn bộ dữ liệu quán lên Firebase (collection backups), và nạp lại từ bản đã lưu.
 // Không gồm mã PIN và token Telegram (bí mật). Khôi phục chỉ ghi đè/bổ sung, không xóa dữ liệu mới hơn.
-const BK_COLS = ['orders', 'transactions', 'menu'];
+const BK_COLS = ['orders', 'transactions', 'menu', 'wallets'];
 const BK_CHUNK = 250000; // ký tự mỗi phần (mỗi tài liệu Firestore tối đa 1MB)
 // Sao lưu lên chính Firebase: backups/{id} (thông tin) + backups/{id}/parts/{n} (nội dung JSON chia phần)
 async function makeBackup() {
@@ -299,6 +299,7 @@ function Backup({ adminPhone, onBack }) {
       (d.orders || []).forEach((r) => put(['orders'], r));
       (d.transactions || []).forEach((r) => put(['transactions'], r));
       (d.menu || []).forEach((r) => put(['menu'], r));
+      (d.wallets || []).forEach((r) => put(['wallets'], r));
       (d.users || []).filter((r) => r.role === 'customer').forEach((r) => put(['users'], r));
       if (d.shop) ops.push([doc(fdb, 'meta', 'shop'), d.shop]);
       if (d.counter) ops.push([doc(fdb, 'counters', 'orders'), d.counter]);
@@ -370,6 +371,7 @@ function Wipe({ adminPhone, onBack }) {
       await del((await getDocs(collection(fdb, 'orders'))).docs.map((d) => d.ref));
       setStep('Đang xoá thu chi...');
       await del((await getDocs(collection(fdb, 'transactions'))).docs.map((d) => d.ref));
+      await del((await getDocs(collection(fdb, 'wallets'))).docs.map((d) => d.ref));
       setStep('Đang xoá khách hàng...');
       const cust = (await getDocs(collection(fdb, 'users'))).docs.filter((d) => d.data().role === 'customer' && d.id !== adminPhone);
       await del([...cust.map((d) => d.ref), ...cust.map((d) => doc(fdb, 'pins', d.id)), ...cust.map((d) => doc(fdb, 'tg', d.id))]);

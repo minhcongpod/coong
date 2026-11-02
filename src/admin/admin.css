@@ -493,3 +493,12 @@ button.a-card:active{transform:scale(.97)}
 .c-head small{font-size:14px;color:var(--mute)}
 .c-box{width:100%;box-sizing:border-box;resize:none;border:0;outline:0;border-radius:24px;background:var(--s10);color:#fff;caret-color:#fff;font:inherit;font-size:17px;line-height:24px;padding:16px 20px}
 .c-box::placeholder{color:var(--mute)}
+
+/* khoản thu gắn khách (nạp ví) */
+.w-cust{display:flex;align-items:center;gap:12px;padding:16px 24px;cursor:pointer;flex:none}
+.w-cn{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.w-cn small{font-size:14px;color:var(--mute)}
+.w-cn b{font-size:18px}
+.w-cust>svg{flex:none;color:rgba(255,255,255,.5)}
+.w-cx{flex:none;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.1);color:#fff}
+.w-chk:disabled{opacity:.6}
