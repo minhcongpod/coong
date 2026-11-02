@@ -6,8 +6,8 @@ import { CustomerPicker, NewCustomer, EditCustomerForm } from './Customers.jsx';
 import { DrinkHome, DrinkDetail, drinkOf } from './Drinks.jsx';
 
 const ORDER = ['bac', 'den', 'nau'];
-const METHODS = [['debt', 'Ghi nợ nhé!', 'i-debt'], ['bank', 'Chuyển khoản', 'i-qr'], ['cash', 'Tiền mặt', 'i-cash']];
-const PAY_NAME = { bank: 'Chuyển khoản', cash: 'Tiền mặt', debt: 'Ghi nợ' };
+const METHODS = [['debt', 'Ghi nợ nhé!', 'i-debt'], ['cash', 'Chuyển khoản / Tiền mặt', 'i-cash']];
+const PAY_NAME = { bank: 'Chuyển khoản', cash: 'Chuyển khoản / Tiền mặt', debt: 'Ghi nợ' };
 
 // Giá thêm khi lên XL: theo Upsize chủ quán đặt cho từng món
 const extraOf = (m) => (typeof m.upsize === 'number' ? m.upsize : XL_EXTRA);
