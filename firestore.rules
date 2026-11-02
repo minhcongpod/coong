@@ -135,6 +135,8 @@ service cloud.firestore {
       allow read: if hasDevice();
       allow create: if hasDevice() && request.resource.data.keys().hasOnly(['n']) && request.resource.data.n == 1234;
       allow update: if hasDevice() && request.resource.data.keys().hasOnly(['n']) && request.resource.data.n == resource.data.n + 1;
+      // Chủ quán khôi phục từ bản sao lưu
+      allow write: if isAdmin();
     }
 
     // Đơn có số thì số đó phải là số bộ đếm vừa tăng lên trong cùng lần ghi
@@ -150,8 +152,8 @@ service cloud.firestore {
     match /orders/{orderId} {
       allow read: if isAdmin() || (hasDevice() && resource.data.customerPhone == myPhone());
       // Chủ quán đặt đơn hộ khách (gán số điện thoại của khách), có thể đã thanh toán ngay
-      allow create: if validNo() && ((isAdmin() && request.resource.data.totalAmount is number && request.resource.data.customerPhone is string)
-        || (hasDevice()
+      allow create: if (isAdmin() && request.resource.data.totalAmount is number && request.resource.data.customerPhone is string)
+        || (validNo() && hasDevice()
           && request.resource.data.customerPhone == myPhone()
           && request.resource.data.status == 'pending'
           && request.resource.data.paid == false
