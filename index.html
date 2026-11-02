@@ -86,7 +86,7 @@ svg{display:block}
 .arows{display:flex;flex-direction:column;gap:8px}
 .arow{background:rgba(255,255,255,.1);border-radius:32px;padding:16px 24px;display:flex;gap:10px;font-size:18px;color:#fff;text-align:left}
 .arow[hidden]{display:none}
-button.tgcard{text-align:left;color:#fff;padding:20px 24px}.tgcard svg{width:20px;height:20px;flex:none}.tgcard span{flex:1;min-width:0;display:block}
+button.tgcard{text-align:left;color:#24C8FF;padding:16px 20px;gap:12px;overflow:hidden;border-radius:100px;background:rgba(36,200,255,.12);box-shadow:inset 0 0 0 1px rgba(36,200,255,.35)}.tgcard svg{width:28px;height:28px;flex:none}.tgcard span{flex:1;min-width:0;display:block;position:relative}.tgcard .tgl{position:relative;background:rgba(255,255,255,.25)}.tgcard .glint{background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.28) 50%,rgba(255,255,255,0))}
 .arow:has(.tgl){align-items:center}#tgBtn>span:first-child{font-weight:700}
 .tgl{flex:none;position:relative;width:48px;height:28px;border-radius:28px;background:rgba(255,255,255,.2);transition:background .25s}
 .tgl b{position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:22px;background:#fff;transition:transform .3s var(--ease-out)}
@@ -550,7 +550,7 @@ input{user-select:text;-webkit-user-select:text}
     <div class="tab" id="tOrder">
     <div class="abs hello"><svg class="hlogo" viewBox="0 0 91.42 35.78" role="img" aria-label="Coong"><use href="#i-logo"/></svg><b id="helloName" style="display:none">LieuNT</b></div>
     <div class="abs order" id="lastOrder" style="display:none"><span><b id="orderTxt"></b><small id="orderWhen"></small></span><button id="reorder">Đặt lại</button><button class="oclose" id="lastClose" aria-label="Ẩn thẻ đặt lại"><svg><use href="#i-close"/></svg></button></div>
-    <button class="abs order tgcard" id="tgCard" style="display:none" aria-label="Bật thông báo Telegram"><svg><use href="#i-bell"/></svg><span>Bật thông báo Telegram</span><i class="tgl"><b></b></i></button>
+    <button class="abs order tgcard" id="tgCard" style="display:none" aria-label="Bật thông báo Telegram"><svg class="tgico" viewBox="0 0 28 28"><circle cx="14" cy="14" r="14" fill="#2AABEE"/><path d="M6.4 13.7l12.9-5c.6-.2 1.1.1.9 1l-2.2 10.3c-.2.7-.6.9-1.2.6l-3.3-2.4-1.6 1.5c-.2.2-.3.3-.7.3l.2-3.4 6.2-5.6c.3-.2-.1-.4-.4-.2l-7.7 4.8-3.3-1c-.7-.2-.7-.7.2-1z" fill="#fff"/></svg><span>Bật thông báo Telegram</span><i class="tgl"><b></b></i><i class="glint"></i></button>
     <div id="carousel" class="abs"></div>
     <div class="abs dots" id="dots" hidden></div>
     </div>
