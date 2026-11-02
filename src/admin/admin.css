@@ -502,3 +502,8 @@ button.a-card:active{transform:scale(.97)}
 .w-tx .a-ibg{width:24px;height:24px}
 .w-tx .a-ibg svg{width:20px;height:20px}
 .a-btn.yellow{background:var(--yellow,#fc0);color:#000}
+.w-two{grid-template-columns:repeat(3,auto);justify-content:space-between;gap:12px}
+.w-two .w-val{font-size:17px;white-space:nowrap}
+.w-chk{display:flex;align-items:center;gap:12px;padding:0 16px;font-size:16px;font-weight:700;color:#fff;text-align:left}
+.w-chk i{flex:none;width:24px;height:24px;border-radius:7px;border:2px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;transition:background .2s,border-color .2s}
+.w-chk i.on{background:var(--yellow);border-color:var(--yellow);color:#000}

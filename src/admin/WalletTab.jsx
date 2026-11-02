@@ -28,7 +28,7 @@ const legacyTT = (t) => {
 };
 const txName = (t) => (t.customerPhone ? legacyTT(t) : txNote(t) ? `${txCat(t)} · ${txNote(t)}` : txCat(t));
 // Khoản thu nợ khách đã nằm trong đơn đã thanh toán, không cộng lần nữa vào doanh thu
-const extraIncome = (t) => t.type === 'income' && !t.customerPhone;
+const extraIncome = (t) => t.type === 'income' && !t.customerPhone && !t.excludeRevenue;
 const qtyText = (n) => String(n).padStart(2, '0');
 
 // Tab Thống kê: số đơn, doanh thu, chi tiêu, đơn chưa thanh toán, thu chi
@@ -46,8 +46,10 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
     // doanh thu tính theo ngày thu tiền (đơn cũ chưa có paidAt thì theo ngày đặt)
     const paid = orders.filter((o) => isLive(o) && o.paid && within({ createdAt: o.paidAt || o.createdAt }, r)).reduce((n, o) => n + (o.totalAmount || 0), 0);
     const inc = txs.filter((t) => extraIncome(t) && within(t, r)).reduce((n, t) => n + (t.amount || 0), 0);
-    const exp = txs.filter((t) => t.type === 'expense' && within(t, r)).reduce((n, t) => n + (t.amount || 0), 0);
-    return { orders: live.length, revenue: paid + inc, expense: exp, profit: paid + inc - exp };
+    const exp = txs.filter((t) => t.type === 'expense' && !t.excludeRevenue && within(t, r)).reduce((n, t) => n + (t.amount || 0), 0);
+    // Ví: tổng tất cả các khoản thu trừ chi (mọi thời gian, kể cả khoản không tính vào doanh thu)
+    const wallet = txs.reduce((n, t) => n + (t.type === 'income' ? 1 : -1) * (t.amount || 0), 0);
+    return { orders: live.length, revenue: paid + inc, expense: exp, profit: paid + inc - exp, wallet };
   }, [orders, txs, kind]);
 
   const unpaid = orders.filter((o) => isLive(o) && !o.paid);
@@ -81,8 +83,9 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
             </div>
           </div>
           <div className="w-two">
-            <span><span className="a-s" style={{ display: 'block' }}>Chi tiêu</span><b className="w-val r">{fmt(stats.expense)}</b></span>
+            <span><span className="a-s" style={{ display: 'block' }}>Chi phí</span><b className="w-val r">{fmt(stats.expense)}</b></span>
             <span><span className="a-s" style={{ display: 'block' }}>Lợi nhuận</span><b className={`w-val ${stats.profit < 0 ? 'r' : 'g'}`}>{stats.profit < 0 ? '−' : ''}{fmt(Math.abs(stats.profit))}</b></span>
+            <span><span className="a-s" style={{ display: 'block' }}>Ví</span><b className={`w-val ${stats.wallet < 0 ? 'r' : 'g'}`}>{stats.wallet < 0 ? '−' : ''}{fmt(Math.abs(stats.wallet))}</b></span>
           </div>
         </div>
         {unpaid.length > 0 && <button className="a-card w-unpaid" onClick={() => setPage('unpaid')} aria-label="Xem trạng thái thanh toán">
@@ -180,6 +183,7 @@ function AddTx({ onBack, initial = 'expense', edit }) {
   const [amount, setAmount] = useState(edit ? String(edit.amount || '') : '');
   const [cat, setCat] = useState(edit && edit.type === 'expense' ? (EXPENSE_CATS.includes(c0) ? c0 : 'Khác') : EXPENSE_CATS[0]);
   const [note, setNote] = useState(edit ? txNote(edit) || (edit.type === 'expense' && !EXPENSE_CATS.includes(c0) ? c0 : '') : '');
+  const [skip, setSkip] = useState(edit ? !!edit.excludeRevenue : false); // không tính vào doanh thu
   const [busy, setBusy] = useState(false);
 
   const save = async () => {
@@ -191,15 +195,15 @@ function AddTx({ onBack, initial = 'expense', edit }) {
     const text = type === 'income' || cat === 'Khác' ? note.trim() : '';
     try {
       if (edit) {
-        await updateDoc(doc(db, 'transactions', edit.id), { type, amount: n, description: `[${label}] ${text}`.trim() });
+        await updateDoc(doc(db, 'transactions', edit.id), { type, amount: n, description: `[${label}] ${text}`.trim(), excludeRevenue: skip });
         toast('Đã lưu thay đổi', true);
       } else {
         await addDoc(collection(db, 'transactions'), {
-          type, amount: n, description: `[${label}] ${text}`.trim(), createdAt: new Date().toISOString(),
+          type, amount: n, description: `[${label}] ${text}`.trim(), excludeRevenue: skip, createdAt: new Date().toISOString(),
         });
         toast(type === 'income' ? 'Đã ghi khoản thu' : 'Đã ghi khoản chi', true);
         // thêm mới: ở lại trang để nhập tiếp khoản khác
-        setAmount(''); setNote(''); setBusy(false);
+        setAmount(''); setNote(''); setSkip(false); setBusy(false);
         return;
       }
       onBack();
@@ -242,6 +246,9 @@ function AddTx({ onBack, initial = 'expense', edit }) {
           />
         </label>
       )}
+      <button type="button" className="w-chk" role="checkbox" aria-checked={skip} onClick={() => setSkip(!skip)}>
+        <i className={skip ? 'on' : ''}>{skip && <Icon n="check" size={16} />}</i>Không tính vào doanh thu
+      </button>
     </Page>
   );
 }
