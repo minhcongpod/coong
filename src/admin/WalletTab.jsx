@@ -85,6 +85,7 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
         </button>}
         </div>
         <Seg items={[['all', 'Tất cả'], ['income', 'Thu'], ['expense', 'Chi']]} value={filter} onChange={setFilter} />
+        <div className="w-list">
         {list.map((t) => {
           const inc = t.type === 'income';
           const d = timeOf(t);
@@ -99,6 +100,7 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
             </button>
           );
         })}
+        </div>
         {list.length === 0 && <Empty icon="wallet" title="Chưa có khoản nào" text="Bấm Thu hoặc Chi để ghi." />}
       </div>
     </>

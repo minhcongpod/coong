@@ -504,3 +504,10 @@ button.a-card:active{transform:scale(.97)}
 .w-drow svg{flex:none}
 .w-collect{width:100%;height:44px;justify-content:center;background:var(--s10);color:#fff;font-size:14px;font-weight:700;border-radius:32px}
 .w-collect.ok{background:rgba(52,199,89,.16);color:var(--ok)}
+
+.a-tab .w-body{gap:8px}
+.w-top{margin-bottom:8px}
+.w-list{display:flex;flex-direction:column;gap:16px;padding:8px 0}
+.w-tx{align-items:flex-start;gap:16px}
+.w-tx .a-ibg{width:24px;height:24px}
+.w-tx .a-ibg svg{width:20px;height:20px}
