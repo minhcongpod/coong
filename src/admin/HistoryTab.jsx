@@ -15,18 +15,18 @@ export const summary = (o, sep = ' / ') => {
   return [...by].sort((a, b) => rank(a[0]) - rank(b[0])).map(([k, n]) => `${n} ${SHORT[k] || k}`).join(sep);
 };
 
-// nhóm theo thời gian: Hôm nay, Hôm qua, 7 ngày trước, 30 ngày trước, Cũ hơn
+// nhóm theo thời gian: Hôm nay, Hôm qua, 7 ngày trước, Cũ hơn
 const groupOf = (d) => {
   if (!d) return 'Cũ hơn';
   const t = new Date(); t.setHours(0, 0, 0, 0);
   const days = Math.round((t - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 86400000);
-  return days <= 0 ? 'Hôm nay' : days === 1 ? 'Hôm qua' : days <= 7 ? '7 ngày trước' : days <= 30 ? '30 ngày trước' : 'Cũ hơn';
+  return days <= 0 ? 'Hôm nay' : days === 1 ? 'Hôm qua' : days <= 7 ? '7 ngày trước' : 'Cũ hơn';
 };
 
 const qtyText = (n) => String(n).padStart(2, '0');
 const itemNames = (o) => [...new Set((o.items || []).map((x) => x.name))].join(', ');
 const itemQty = (o) => (o.items || []).reduce((n, x) => n + (x.quantity || 1), 0);
-const whenText = (d) => (!d ? '' : d.toDateString() === new Date().toDateString() ? 'Hôm nay' : dmy(d));
+const whenText = (d) => (!d ? '' : groupOf(d) === 'Hôm nay' || groupOf(d) === 'Hôm qua' ? hm(d) : `${hm(d)} · ${dmy(d)}`);
 
 // Báo khách qua Telegram khi quán nhận đơn (đang chế), huỷ đơn hoặc xác nhận thanh toán
 const tellCustomer = async (o, patch) => {
