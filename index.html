@@ -980,7 +980,7 @@ const hideKey = () => 'coong-lasthide-' + (session ? session.phone : '');
 function renderLast(){
   let o = lastPlacedOrder();
   if (o && store.get(hideKey()) === o.id) o = null;
-  const tgShow = !o && !!session && !!tgSt && tgSt.on && !tgSt.linked && !store.get(tgDoneKey());
+  const tgShow = !o && !!session && !!tgSt && tgSt.on && !tgSt.linked;
   $('#lastOrder').style.display = o ? '' : 'none';
   if (tgCard) { tgCard.style.display = tgShow ? '' : 'none'; if (tgShow) tgCard.querySelector('.tgl').classList.remove('on'); }
   $('#home').classList.toggle('noorder', !o && !tgShow);
@@ -2164,13 +2164,12 @@ const RESET_KEY = 'coong-pinreset';
 const pendingReset = () => { try { return localStorage.getItem(RESET_KEY) || ''; } catch (e) { return ''; } };
 const setPendingReset = v => { try { v ? localStorage.setItem(RESET_KEY, v) : localStorage.removeItem(RESET_KEY); } catch (e) {} };
 /* Telegram: quán cài bot thì khách bật để nhận tin đơn cần thanh toán, đang chế, hoàn thành */
-var tgBtn = $('#tgBtn'), tgCard = $('#tgCard'), tgDoneKey = () => 'coong-tgdone-' + (session ? session.phone : '');
+var tgBtn = $('#tgBtn'), tgCard = $('#tgCard');
 var tgSt = { on: false, linked: false };
 async function tgRefresh(){
   tgBtn.hidden = true; if (!session) { tgSt = { on: false, linked: false }; return renderLast(); }
   try {
     tgSt = await (await api()).tgState(session.phone);
-    if (tgSt.linked) store.set(tgDoneKey(), '1');
     tgBtn.hidden = !tgSt.on; tgBtn.setAttribute('aria-checked', tgSt.linked ? 'true' : 'false'); tgBtn.querySelector('.tgl').classList.toggle('on', !!tgSt.linked);
   } catch (e) {}
   renderLast();
@@ -2184,11 +2183,11 @@ async function tgToggle(from){
   }
   const tg = from.querySelector('.tgl'); tg.classList.add('on'); toast('Mở Telegram và bấm Start nhé');
   let ok = false; try { ok = await (await api()).tgConnect(session.phone); } catch (e) {}
-  if (ok) { store.set(tgDoneKey(), '1'); toast('Telegram đã bật'); } else { tg.classList.remove('on'); toast('Chưa kết nối được Telegram, thử lại nhé'); }
+  if (ok) { toast('Telegram đã bật'); } else { tg.classList.remove('on'); toast('Chưa kết nối được Telegram, thử lại nhé'); }
   tgRefresh();
 }
 tgBtn.addEventListener('click', () => tgToggle(tgBtn));
-tgCard.addEventListener('click', () => { if (!session) return; store.set(tgDoneKey(), '1'); tgCard.style.display = 'none'; $('#home').classList.toggle('noorder', !lastPlacedOrder()); tgToggle(tgCard); });
+tgCard.addEventListener('click', () => { if (!session) return; tgCard.style.display = 'none'; $('#home').classList.add('noorder'); tgToggle(tgCard); });
 $('#resetPw').addEventListener('click', async () => {
   if (!session) return;
   if (!await ask({title:'Đặt lại mã PIN?', text:'Đăng nhập lại để đổi mã PIN mới.\nGiỏ hàng chưa đặt vẫn được giữ.', ok:'Đặt lại'})) return;
