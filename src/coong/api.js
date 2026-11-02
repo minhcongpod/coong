@@ -113,7 +113,11 @@ window.CoongAPI = {
     if (!c || !c.token || !c.bot) return Promise.resolve(false);
     const code = tgNewCode();
     window.open(tgDeepLink(c.bot, code), '_blank');
-    return tgWaitChat(c.token, code).then(async (chat) => { if (!chat) return false; await setTgChat(phone, chat); return true; });
+    return tgWaitChat(c.token, code).then(async (chat) => { if (!chat) return false; await setTgChat(phone, chat);
+      // chào và hướng dẫn nhanh ngay sau khi khách bấm Start
+      tgToCustomer(phone, '📣 Đã kết nối Telegram với Coong! Cách đặt nhanh: chọn ly trong menu, chỉnh tuỳ chọn rồi bấm "Thanh toán ngay". Giữ nút + để thêm nhanh nhiều ly. Coong sẽ nhắn bạn khi quán xác nhận hoặc huỷ đơn, và khi nhận được tiền. Xem đơn và công nợ ở tab Đơn hàng và Tài khoản.', `${APP_URL}/menu`, 'Đặt hàng');
+      return true;
+    });
   },
 };
 
