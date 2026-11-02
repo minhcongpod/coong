@@ -198,6 +198,9 @@ function AddTx({ onBack, initial = 'expense', edit }) {
           type, amount: n, description: `[${label}] ${text}`.trim(), createdAt: new Date().toISOString(),
         });
         toast(type === 'income' ? 'Đã ghi khoản thu' : 'Đã ghi khoản chi', true);
+        // thêm mới: ở lại trang để nhập tiếp khoản khác
+        setAmount(''); setNote(''); setBusy(false);
+        return;
       }
       onBack();
     } catch (e) { toast(errText(e)); setBusy(false); }
