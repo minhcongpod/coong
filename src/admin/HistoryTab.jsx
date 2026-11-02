@@ -160,10 +160,8 @@ function OrderDetail({ o, onBack, users }) {
       onBack();
     }
   };
-  const togglePaid = async () => {
-    if (!paid) return markPaid(o, orderCode(o)).then(() => tellCustomer(o, { paid: true })).catch((e) => toast(errText(e)));
-    if (await confirm({ title: 'Bỏ đánh dấu đã thanh toán?', msg: `${orderCode(o)} · ${fmt(o.totalAmount)}`, ok: 'Bỏ đánh dấu', danger: true })) markUnpaid(o).catch((e) => toast(errText(e)));
-  };
+  // xác nhận luôn, không hoàn tác
+  const collect = () => markPaid(o, orderCode(o)).then(() => tellCustomer(o, { paid: true })).catch((e) => toast(errText(e)));
 
   const cancelled = o.status === 'cancelled';
   const steps = cancelled
@@ -185,6 +183,8 @@ function OrderDetail({ o, onBack, users }) {
     );
   } else if (o.status === 'brewing') {
     footer = <Btn onClick={() => run({ status: 'completed' })}>Hoàn thành</Btn>;
+  } else if (o.status === 'completed' && !paid) {
+    footer = <Btn kind="yellow" onClick={collect}><Sym id="i-verified" size={20} />Xác nhận thanh toán</Btn>;
   }
 
   // thanh tiến trình chạy từ bước đầu tới bước hiện tại, như app khách
@@ -210,11 +210,6 @@ function OrderDetail({ o, onBack, users }) {
         <>
           <div className="a-between" data-s>
             <h1 className="a-title">{orderCode(o)}</h1>
-            {!cancelled && (
-              <button className={`o-pill${paid ? ' on' : ''}`} onClick={togglePaid} aria-label={paid ? 'Bỏ đánh dấu đã thanh toán' : 'Đánh dấu đã thanh toán'}>
-                <Sym id="i-verified" size={16} />Đã thanh toán
-              </button>
-            )}
           </div>
           <p className="a-s" data-s style={{ marginBottom: 12 }}>{d ? `${hm(d)} · ${dmy(d)} · ${count} món` : ''}</p>
         </>
@@ -239,7 +234,7 @@ function OrderDetail({ o, onBack, users }) {
                   <b className="a-t">{qtyText(x.quantity || 1)} x {x.name}</b>
                   <b className="a-t a-num">{fmt(x.price * (x.quantity || 1))}</b>
                 </span>
-                <span className="a-s" style={{ display: 'block' }}>{[x.caffeine && x.caffeine.replace('Size ', ''), x.temp, x.sweetness, x.ice].filter(Boolean).join(' / ')}</span>
+                <span className="a-s" style={{ display: 'block' }}>{[x.caffeine && x.caffeine.replace('Size ', ''), x.temp, x.sweetness, kindOf(x.name) === 'bac' && x.ice].filter(Boolean).join(' / ').replace(/%/g, '')}</span>
               </span>
             </div>
           );

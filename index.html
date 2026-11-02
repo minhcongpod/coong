@@ -1305,8 +1305,8 @@ aName.addEventListener('blur', () => { aName.value = aName.value.trim() || 'Bạ
 const cartItems = [];   /* {id, qty, unit} */
 const cartEl = $('#cart'), clist = $('#clist');
 /* Đen is always unsweetened; only Bạc lets you pick the coffee amount */
-const sweetText = (o, d) => d.sweet ? `${o.sweet === 1 ? 0 : o.sweet || 100}% ngọt` : 'Không đường';
-const optText = (o, id) => { const d = drink(id); return [o.upsize ? 'XL' : 'L', o.hot ? 'Nóng' : 'Lạnh', sweetText(o, d), ...(d.cafe ? [`${o.cafe || 100}% cafe`] : [])].join(' / '); };
+const sweetText = (o, d) => d.sweet ? `${o.sweet === 1 ? 0 : o.sweet || 100} ngọt` : 'Không đường';
+const optText = (o, id) => { const d = drink(id); return [o.upsize ? 'XL' : 'L', o.hot ? 'Nóng' : 'Lạnh', sweetText(o, d), ...(d.cafe ? [`${o.cafe || 100} cafe`] : [])].join(' / '); };
 function addToCart(id, q, u, o = O0){
   const it = cartItems.find(x => x.id === id && x.unit === u && optText(x.o, id) === optText(o, id));
   if (it) it.qty = Math.min(99, it.qty + q); else cartItems.push({id, qty:q, unit:u, o:{...o}});
@@ -1876,7 +1876,7 @@ async function placeOrder(paid, claimed = false){
   placing = true;
   const items = cartItems.map(x => { const d = drink(x.id);
     return {menuId:d.menuId || null, drink:x.id, name:d.menuName || d.name, price:x.unit, cost:d.cost || 0, quantity:x.qty,
-      sweetness:sweetText(x.o, d), ice:`${x.o.cafe || 100}% cafe`, caffeine:x.o.upsize ? 'Size XL' : 'Size L', temp:x.o.hot ? 'Nóng' : 'Lạnh', opts:{...x.o}}; });
+      sweetness:sweetText(x.o, d), ice:`${x.o.cafe || 100} cafe`, caffeine:x.o.upsize ? 'Size XL' : 'Size L', temp:x.o.hot ? 'Nóng' : 'Lạnh', opts:{...x.o}}; });
   const doc = {customerPhone:session.phone, customerName:session.name, items, note:'', totalAmount:cartTotal(), status:'pending', paid:false, payMethod:payM};
   if (claimed) doc.paymentStatus = 'awaiting';
   try {

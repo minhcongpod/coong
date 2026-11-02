@@ -512,3 +512,4 @@ button.a-card:active{transform:scale(.97)}
 .w-tx{align-items:flex-start;gap:16px}
 .w-tx .a-ibg{width:24px;height:24px}
 .w-tx .a-ibg svg{width:20px;height:20px}
+.a-btn.yellow{background:var(--yellow,#fc0);color:#000}
