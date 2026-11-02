@@ -19,7 +19,7 @@ const pctOf = (v) => (v === 1 ? 0 : v || 100); // sweet: 1 = 0% (chỉ Bạc)
 const flagsOf = (kind) => ({ sweet: kind === 'nau' || kind === 'bac', cafe: kind === 'bac' });
 const optText = (l) => {
   const f = flagsOf(l.kind), o = l.o;
-  return [o.upsize ? 'XL' : 'L', o.hot ? 'Nóng' : 'Lạnh', f.sweet ? `${pctOf(o.sweet)}% ngọt` : 'Không đường', ...(f.cafe ? [`${o.cafe || 100}% cafe`] : [])].join(' / ');
+  return [o.upsize ? 'XL' : 'L', o.hot ? 'Nóng' : 'Lạnh', f.sweet ? `${pctOf(o.sweet)} ngọt` : 'Không đường', ...(f.cafe ? [`${o.cafe || 100} cafe`] : [])].join(' / ');
 };
 const sameLine = (a, b) => a.menuId === b.menuId && optText(a) === optText(b);
 const unitOf = (l) => l.price + (l.o.upsize ? l.extra : 0);
@@ -78,8 +78,8 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
       customerName: customer.name,
       items: lines.map((l) => ({
         menuId: l.menuId, name: l.name, price: unitOf(l), cost: 0, quantity: l.qty,
-        sweetness: flagsOf(l.kind).sweet ? `${pctOf(l.o.sweet)}% ngọt` : 'Không đường',
-        ice: `${l.o.cafe || 100}% cafe`, caffeine: l.o.upsize ? 'Size XL' : 'Size L', temp: l.o.hot ? 'Nóng' : 'Lạnh',
+        sweetness: flagsOf(l.kind).sweet ? `${pctOf(l.o.sweet)} ngọt` : 'Không đường',
+        ice: `${l.o.cafe || 100} cafe`, caffeine: l.o.upsize ? 'Size XL' : 'Size L', temp: l.o.hot ? 'Nóng' : 'Lạnh',
         opts: { ...l.o },
       })),
       note: '',
