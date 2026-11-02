@@ -17,7 +17,16 @@ const range = (kind, a) => {
 const within = (rec, [s, e]) => { const d = timeOf(rec); return d && d >= s && d < e; };
 const txCat = (t) => (t.description || '').match(/^\[([^\]]*)\]/)?.[1] || (t.type === 'income' ? 'Khoản thu' : 'Khoản chi');
 const txNote = (t) => (t.description || '').replace(/^\[[^\]]*\]\s*/, '');
-const txName = (t) => (txNote(t) ? `${txCat(t)} · ${txNote(t)}` : txCat(t));
+// Khoản thu tự tạo từ đơn: "Tên TT #1234" / "Tên TT 3 đơn" (khoản cũ dạng [Thu đơn]/[Thu nợ] đổi sang cùng dạng khi hiển thị)
+const legacyTT = (t) => {
+  const d = t.description || '';
+  const m = d.match(/^\[Thu đơn\]\s*(.*?)\s*(#?(?:\d{4}|CG\w{4}))?$/);
+  if (m) return `${m[1]} TT ${m[2] ? (m[2][0] === '#' ? m[2] : '#' + m[2]) : ''}`.trim();
+  const n = d.match(/^\[Thu nợ\]\s*(.*?)(?:\s*\((\d+) đơn\))?$/);
+  if (n) return n[2] ? `${n[1]} TT ${n[2]} đơn` : `${n[1]} TT`;
+  return d;
+};
+const txName = (t) => (t.customerPhone ? legacyTT(t) : txNote(t) ? `${txCat(t)} · ${txNote(t)}` : txCat(t));
 // Khoản thu nợ khách đã nằm trong đơn đã thanh toán, không cộng lần nữa vào doanh thu
 const extraIncome = (t) => t.type === 'income' && !t.customerPhone;
 const qtyText = (n) => String(n).padStart(2, '0');
@@ -128,7 +137,7 @@ function Unpaid({ orders, onBack, only, focus, onOpen }) {
     try {
       await Promise.all(g.orders.map((o) => updateOrder(o.id, { paid: true, paymentStatus: 'confirmed', paidAt: new Date().toISOString() })));
       await addDoc(collection(db, 'transactions'), {
-        type: 'income', amount: g.total, description: `[Thu nợ] ${g.name}`, customerPhone: g.phone, createdAt: new Date().toISOString(),
+        type: 'income', amount: g.total, description: `${g.name} TT ${g.orders.length} đơn`, customerPhone: g.phone, createdAt: new Date().toISOString(),
       });
       tgToCustomer(g.phone, `📣 Coong đã nhận ${fmt(g.total)}đ · ${g.orders.length} đơn. Cảm ơn bạn rất nhiều! Tiếp tục ủng hộ Coong nhé.`, undefined, 'Đặt hàng');
       toast(`Đã thu của ${g.name}`, true);
@@ -176,6 +185,7 @@ function AddTx({ onBack, initial = 'expense', edit }) {
   const save = async () => {
     const n = Number(amount);
     if (!(n > 0)) return toast('Nhập số tiền');
+    if ((type === 'income' || cat === 'Khác') && !note.trim()) return toast('Nhập ghi chú');
     setBusy(true);
     const label = type === 'income' ? 'Khoản thu' : cat;
     const text = type === 'income' || cat === 'Khác' ? note.trim() : '';
