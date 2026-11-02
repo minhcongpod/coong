@@ -894,7 +894,7 @@ const cards = DRINKS.map((d,i) => {
 
 let pos = 1, target = 1, vel = 0, raf = 0;
 const CARD_S = 1;
-const MID_W = 260, SIDE_W = 220, SIDE_STEP = MID_W/2 + 10 + SIDE_W/2;   /* 270px-wide artwork shown 260px in the middle and 220px beside it, 10px gap */
+const MID_W = 300, SIDE_W = 250, SIDE_STEP = MID_W/2 + 10 + SIDE_W/2;   /* 270px-wide artwork shown 300px in the middle and 250px beside it, 10px gap */
 const wrap = o => { o = ((o % N) + N) % N; return o >= N/2 ? o - N : o; };
 const active = () => ((Math.round(pos) % N) + N) % N;
 

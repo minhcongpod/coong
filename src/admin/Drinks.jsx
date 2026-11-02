@@ -28,7 +28,7 @@ function veilKF(r, s, rad0, rad1) {
 }
 function placeVeil(v, s) { Object.assign(v.style, { inset: 'auto', left: s.left + 'px', top: s.top + 'px', width: s.width + 'px', height: s.height + 'px', transformOrigin: '0 0', overflow: 'hidden', willChange: 'transform,opacity' }); }
 
-const MID_W = 260, SIDE_W = 220; // thẻ giữa 260px, thẻ bên 220px (hình gốc 270px)
+const MID_W = 300, SIDE_W = 250; // thẻ giữa 300px, thẻ bên 250px (hình gốc 270px)
 const N_SIDE = MID_W / 2 + 10 + SIDE_W / 2; // 10px khe
 
 // ---------------- Trang chủ: 3 thẻ, kéo ngang, 3 chấm ----------------
