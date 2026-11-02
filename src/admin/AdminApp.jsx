@@ -259,7 +259,7 @@ function Shell({ adminPhone, onLogout }) {
     <>
       <div className="a-tab" ref={(e) => { panes.current.order = e; }} hidden={tab !== 'order' && leaving !== 'order'}><OrderTab {...data} dive={dive} onTrack={(id) => { setTrack({ id, n: Date.now() }); setTab('history'); }} /></div>
       <div className="a-tab" ref={(e) => { panes.current.history = e; }} hidden={tab !== 'history' && leaving !== 'history'}><HistoryTab {...data} track={track} onGoOrder={() => setTab('order')} /></div>
-      <div className="a-tab" ref={(e) => { panes.current.wallet = e; }} hidden={tab !== 'wallet' && leaving !== 'wallet'}><WalletTab {...data} focus={payFocus} /></div>
+      <div className="a-tab" ref={(e) => { panes.current.wallet = e; }} hidden={tab !== 'wallet' && leaving !== 'wallet'}><WalletTab {...data} focus={payFocus} onOpenOrder={(id) => { setTrack({ id, n: Date.now() }); setTab('history'); }} /></div>
       <div className="a-tab" ref={(e) => { panes.current.settings = e; }} hidden={tab !== 'settings' && leaving !== 'settings'}><SettingsTab {...data} adminPhone={adminPhone} onLogout={onLogout} /></div>
       {notif && (
         <div className="a-tab a-over">
