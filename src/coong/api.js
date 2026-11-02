@@ -91,8 +91,8 @@ window.CoongAPI = {
     return { id: ref.id, no: ref.no };
   },
   cancelOrder: async (id, info) => {
-    // khách tự huỷ: không báo lại cho khách, chỉ báo quán
-    await updateOrder(id, { status: 'cancelled', cancelledBy: 'customer' });
+    await updateOrder(id, { status: 'cancelled' });
+    if (info && info.phone) tgToCustomer(info.phone, `❌ Coong đã huỷ đơn hàng ${info.items || ''} của bạn. Tiếc ghê, hẹn gặp lại bạn lần sau nhé!`, `${APP_URL}/order/${info.code}`);
     if (info) tgToAdmin(`❌ ${info.name} đã hủy đơn ${info.items || info.code}.`, `${APP_URL}/admin/order/${info.code}`);
   },
   claimPaid: async (ids, info) => {
