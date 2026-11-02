@@ -92,12 +92,14 @@ export const itemsText = (items = []) => {
   const rank = (n) => { const i = order.findIndex((k) => n.toLowerCase().includes(k)); return i < 0 ? 99 : i; };
   return [...by].sort((a, b) => rank(a[0]) - rank(b[0])).map(([n, q]) => `${q} ${n}`).join(', ');
 };
-// Các đơn khách còn nợ (chưa trả, chưa huỷ): " Bạn còn n đơn (tổng đ) chưa thanh toán." hoặc '' nếu hết nợ
-export const tgDebtText = async (phone) => {
+// Các đơn khách còn nợ (chưa trả, chưa huỷ): { n, total, text } với text = " Bạn còn n đơn (tổng đ) chưa thanh toán." ('' nếu hết nợ)
+export const tgDebt = async (phone) => {
   try {
     const snap = await getDocs(query(collection(db, 'orders'), where('customerPhone', '==', phone)));
     const due = snap.docs.map((d) => d.data()).filter((o) => !o.paid && o.status !== 'cancelled');
-    if (!due.length) return '';
-    return ` Bạn còn ${due.length} đơn (${due.reduce((n, o) => n + (o.totalAmount || 0), 0).toLocaleString('vi-VN')}đ) chưa thanh toán.`;
-  } catch (e) { return ''; }
+    if (!due.length) return { n: 0, total: 0, text: '' };
+    const total = due.reduce((n, o) => n + (o.totalAmount || 0), 0);
+    return { n: due.length, total, text: ` Bạn còn ${due.length} đơn (${total.toLocaleString('vi-VN')}đ) chưa thanh toán.` };
+  } catch (e) { return { n: 0, total: 0, text: '' }; }
 };
+export const tgDebtText = async (phone) => (await tgDebt(phone)).text;
