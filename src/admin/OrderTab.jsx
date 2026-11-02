@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { createOrder, recordPaidOrder } from '../db';
+import { createOrder, recordPaidOrder, watchWallets } from '../db';
 import { fireworks } from '../coong/fireworks';
 import { Icon, Sym, Page, Btn, Empty, fmt, dmy, hm, timeOf, phoneText, kindOf, XL_EXTRA, orderCode, useUI, errText, shopClosed } from './ui.jsx';
 import { CustomerPicker, NewCustomer, EditCustomerForm } from './Customers.jsx';
@@ -7,7 +7,7 @@ import { DrinkHome, DrinkDetail, drinkOf } from './Drinks.jsx';
 
 const ORDER = ['bac', 'den', 'nau'];
 const METHODS = [['debt', 'Ghi nợ nhé!', 'i-debt'], ['cash', 'Chuyển khoản / Tiền mặt', 'i-cash']];
-const PAY_NAME = { bank: 'Chuyển khoản', cash: 'Chuyển khoản / Tiền mặt', debt: 'Ghi nợ' };
+const PAY_NAME = { bank: 'Chuyển khoản', cash: 'Chuyển khoản / Tiền mặt', debt: 'Ghi nợ', wallet: 'Ví tiền' };
 
 // Giá thêm khi lên XL: theo Upsize chủ quán đặt cho từng món
 const extraOf = (m) => (typeof m.upsize === 'number' ? m.upsize : XL_EXTRA);
@@ -47,6 +47,11 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
   const [busy, setBusy] = useState(false);
   const [sheet, setSheet] = useState(-1); // dòng đang chỉnh trong giỏ
   const homeRef = useRef(null);
+  const [wallets, setWallets] = useState({}); // số dư ví tiền của từng khách
+  useEffect(() => watchWallets(setWallets, () => {}), []);
+  const bal = customer ? wallets[customer.phone] || 0 : 0;
+  // khách không có tiền trong ví thì không dùng phương thức Ví tiền
+  useEffect(() => { if (pay === 'wallet' && bal <= 0) setPay('debt'); }, [pay, bal]);
 
   const items = menu
     .filter((m) => m.active !== false)
@@ -73,6 +78,7 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
   const place = async () => {
     if (!customer) return toast('Chọn khách');
     if (!lines.length || busy) return;
+    if (pay === 'wallet' && total > bal) return toast('Không đủ tiền trong ví');
     setBusy(true);
     const order = {
       customerPhone: customer.phone,
@@ -92,11 +98,11 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
     if (pay !== 'debt') { order.paymentStatus = 'confirmed'; order.paidAt = new Date().toISOString(); }
     try {
       const made = await createOrder(order);
-      if (pay !== 'debt') await recordPaidOrder({ ...order, id: made.id }, `#${String(made.no).padStart(4, '0')}`).catch(() => {});
+      if (pay !== 'debt' && pay !== 'wallet') await recordPaidOrder({ ...order, id: made.id }, `#${String(made.no).padStart(4, '0')}`).catch(() => {});
       // cả 3 cách thanh toán đều sang màn Đặt hàng thành công
       setPage({ done: { id: made.id, no: made.no, drinks: drinkText, customer: customer.name, method: PAY_NAME[pay], total } });
       setLines([]); setPay('debt'); setCustomer(null); setSheet(-1);
-    } catch (e) { toast(errText(e)); }
+    } catch (e) { toast(e && e.code === 'wallet/insufficient' ? 'Không đủ tiền trong ví' : errText(e)); }
     setBusy(false);
   };
 
@@ -148,7 +154,7 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
           <span className="m"><Icon n="right" size={24} /></span>
         </button>
         <div className="o-methods" role="radiogroup">
-          {METHODS.map(([k, label, sym]) => (
+          {[...METHODS, ...(bal > 0 ? [['wallet', `Ví tiền: ${fmt(bal)}`, 'i-wallet']] : [])].map(([k, label, sym]) => (
             <button key={k} className={`o-method ${pay === k ? 'on' : ''}`} role="radio" aria-checked={pay === k} onClick={() => setPay(k)}>
               <Sym id={sym} size={24} />
               <span className="grow">{label}</span>

@@ -486,7 +486,7 @@ button.a-card:active{transform:scale(.97)}
 .w-list .h-head{padding:8px 0 0}.w-list .h-head:first-child{padding-top:0}
 
 /* nhắn riêng cho khách */
-.s-chat{flex:none;display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);color:#fff}
+.s-chat{flex:none;display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);color:#fff;margin-right:16px}
 .c-sheet{gap:16px;padding-top:36px}
 .c-grab{position:absolute;left:0;right:0;top:0;height:32px;touch-action:none;cursor:grab}
 .c-head{display:flex;flex-direction:column;gap:2px;font-size:18px}

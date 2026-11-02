@@ -22,7 +22,7 @@ export function CustomerPicker({ users, selected, onPick, onBack, onAdd, onEdit,
         <div key={u.phone} className="s-cust" role="button" tabIndex={0} onClick={() => onPick(u)} aria-label={`Chọn ${u.name}`}>
           <span className="s-name"><b className="a-ell">{u.name}</b><small>{phoneText(u.phone)}</small></span>
           {selected && selected.phone === u.phone && <span className="g"><Icon n="check" /></span>}
-          {onChat && <button className="s-chat" onClick={(e) => { e.stopPropagation(); setChat(u); }} aria-label={`Nhắn ${u.name}`}><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 4.5A1.5 1.5 0 0 1 4.5 3h11A1.5 1.5 0 0 1 17 4.5v8a1.5 1.5 0 0 1-1.5 1.5H8l-4 3v-3h0A1.5 1.5 0 0 1 3 12.5z" /></svg></button>}
+          {onChat && <button className="s-chat" onClick={(e) => { e.stopPropagation(); setChat(u); }} aria-label={`Nhắn ${u.name}`}><svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M4.5 2.5h11A2.5 2.5 0 0 1 18 5v7a2.5 2.5 0 0 1-2.5 2.5H9L5.2 17.6a.6.6 0 0 1-1-.5v-2.6H4.5A2.5 2.5 0 0 1 2 12V5a2.5 2.5 0 0 1 2.5-2.5z" /></svg></button>}
           {onEdit
             ? <button className="s-chev" onClick={(e) => { e.stopPropagation(); onEdit(u); }} aria-label={`Sửa ${u.name}`}><Sym id="i-s-right" size={20} /></button>
             : <span className="s-chev"><Sym id="i-s-right" size={20} /></span>}
@@ -60,7 +60,13 @@ function ChatSheet({ customer, onClose }) {
       <div className="o-sheet c-sheet" ref={box} role="dialog" aria-label={`Nhắn ${customer.name}`} onClick={(e) => e.stopPropagation()}>
         <div className="c-grab" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}><div className="o-handle" /></div>
         <div className="c-head"><b className="a-ell">{customer.name}</b><small>{phoneText(customer.phone)}</small></div>
-        <textarea className="c-box" rows={4} placeholder="Nội dung tin nhắn, ví dụ khuyến mãi..." value={text} onChange={(e) => setText(e.target.value)} aria-label="Nội dung tin nhắn" />
+        <label className="a-card w-notecard">
+          <textarea
+            className="w-note" rows={3} value={text} placeholder="Nhập nội dung" aria-label="Nội dung"
+            ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } }}
+            onChange={(e) => setText(e.target.value.slice(0, 1000))}
+          />
+        </label>
         <Btn onClick={send} disabled={busy || !text.trim()}>{busy ? 'Đang gửi...' : 'Gửi'}</Btn>
       </div>
     </div>
