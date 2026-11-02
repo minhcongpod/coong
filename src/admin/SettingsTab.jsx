@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { saveMenuItem, saveShop } from '../db';
-import { collection, getDocs, getDoc, doc, writeBatch } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc, writeBatch, query, orderBy, limit } from 'firebase/firestore';
 import { db as fdb } from '../firebase';
 import { Icon, Sym, Page, Btn, Toggle, Field, Empty, fmt, phoneText, XL_EXTRA, kindOf, useUI, errText, BellBtn } from './ui.jsx';
 import { getTgCfg, saveTgCfg, tgCheckToken, tgNewCode, tgDeepLink, tgWaitChat, tgToAdmin, tgBroadcast, tgChatCount } from '../telegram';
@@ -222,14 +222,16 @@ function Telegram({ onBack }) {
   );
 }
 
-// Sao lưu / khôi phục: tải toàn bộ dữ liệu quán thành 1 file JSON, và nạp lại từ file đó.
+// Sao lưu / khôi phục: lưu toàn bộ dữ liệu quán lên Firebase (collection backups), và nạp lại từ bản đã lưu.
 // Không gồm mã PIN và token Telegram (bí mật). Khôi phục chỉ ghi đè/bổ sung, không xóa dữ liệu mới hơn.
 const BK_COLS = ['orders', 'transactions', 'menu'];
 function Backup({ onBack }) {
   const { toast, confirm } = useUI();
   const [busy, setBusy] = useState(false);
-  const fileRef = React.useRef(null);
+  const [list, setList] = useState(null); // null: đang ẩn danh sách; mảng: các bản sao lưu trên Firebase
+  const CHUNK = 250000; // ký tự mỗi phần (mỗi tài liệu Firestore tối đa 1MB)
 
+  // Sao lưu lên chính Firebase: backups/{id} (thông tin) + backups/{id}/parts/{n} (nội dung JSON chia phần)
   const backup = async () => {
     setBusy(true);
     try {
@@ -240,27 +242,46 @@ function Backup({ onBack }) {
       data.shop = shop.exists() ? shop.data() : null;
       const cnt = await getDoc(doc(fdb, 'counters', 'orders'));
       data.counter = cnt.exists() ? cnt.data() : null;
-      const out = { app: 'coong', version: 1, createdAt: new Date().toISOString(), data };
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(new Blob([JSON.stringify(out)], { type: 'application/json' }));
-      a.download = `coong-sao-luu-${new Date().toISOString().slice(0, 10)}.json`;
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      const createdAt = new Date().toISOString();
+      const text = JSON.stringify({ app: 'coong', version: 1, createdAt, data });
+      const parts = [];
+      for (let i = 0; i < text.length; i += CHUNK) parts.push(text.slice(i, i + CHUNK));
+      const id = createdAt.replace(/[:.]/g, '-');
+      for (let i = 0; i < parts.length; i += 3) {
+        const b = writeBatch(fdb);
+        parts.slice(i, i + 3).forEach((t, k) => b.set(doc(fdb, 'backups', id, 'parts', String(i + k).padStart(4, '0')), { i: i + k, text: t }));
+        await b.commit();
+      }
+      // thông tin ghi sau cùng: bản sao lưu dở dang sẽ không hiện trong danh sách
+      await writeBatch(fdb).set(doc(fdb, 'backups', id), {
+        createdAt, parts: parts.length, orders: data.orders.length, transactions: data.transactions.length, customers: data.users.length, menu: data.menu.length,
+      }).commit();
       toast(`Đã sao lưu ${data.orders.length} đơn, ${data.transactions.length} khoản thu chi`, true);
     } catch (e) { toast(errText(e)); } finally { setBusy(false); }
   };
 
-  const restore = async (file) => {
-    if (!file) return;
-    let d;
+  const openList = async () => {
+    setBusy(true);
     try {
-      const j = JSON.parse(await file.text());
+      const snap = await getDocs(query(collection(fdb, 'backups'), orderBy('createdAt', 'desc'), limit(30)));
+      setList(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    } catch (e) { toast(errText(e)); } finally { setBusy(false); }
+  };
+
+  const restore = async (bk) => {
+    let d;
+    setBusy(true);
+    try {
+      const ps = await getDocs(collection(fdb, 'backups', bk.id, 'parts'));
+      const text = ps.docs.map((x) => x.data()).sort((a, b) => a.i - b.i).map((x) => x.text).join('');
+      const j = JSON.parse(text);
       if (j.app !== 'coong' || !j.data) throw new Error();
       d = j.data;
-    } catch (e) { return toast('File không phải bản sao lưu của Coong'); }
+    } catch (e) { setBusy(false); return toast('Không đọc được bản sao lưu này'); }
+    setBusy(false);
     const ok = await confirm({
       title: 'Khôi phục dữ liệu?',
-      msg: `Nạp lại ${(d.orders || []).length} đơn, ${(d.transactions || []).length} khoản thu chi, ${(d.users || []).length} khách, ${(d.menu || []).length} món. Dữ liệu trùng sẽ bị ghi đè bằng bản sao lưu.`,
+      msg: `Nạp lại ${(d.orders || []).length} đơn, ${(d.transactions || []).length} khoản thu chi, ${(d.users || []).length} khách, ${(d.menu || []).length} món từ bản ${fmtBk(bk.createdAt)}. Dữ liệu trùng sẽ bị ghi đè bằng bản sao lưu.`,
       ok: 'Khôi phục', danger: true,
     });
     if (!ok) return;
@@ -280,19 +301,35 @@ function Backup({ onBack }) {
         await b.commit();
       }
       toast(`Đã khôi phục ${ops.length} mục`, true);
-    } catch (e) { toast(errText(e)); } finally { setBusy(false); if (fileRef.current) fileRef.current.value = ''; }
+    } catch (e) { toast(errText(e)); } finally { setBusy(false); }
   };
+
+  if (list) {
+    return (
+      <Page className="s-pg" title="Khôi phục" sub="Chọn bản sao lưu trên Firebase" onBack={() => setList(null)}>
+        <div className="a-body s-list" style={{ gap: 8 }}>
+          {list.map((bk) => (
+            <button key={bk.id} className="a-card" disabled={busy} onClick={() => restore(bk)} aria-label={`Khôi phục bản ${fmtBk(bk.createdAt)}`}>
+              <b className="a-t">{fmtBk(bk.createdAt)}</b>
+              <span className="a-s">{bk.orders} đơn · {bk.transactions} thu chi · {bk.customers} khách · {bk.menu} món</span>
+            </button>
+          ))}
+          {list.length === 0 && <Empty icon="check" title="Chưa có bản sao lưu" text="Bấm Sao lưu ngay để tạo bản đầu tiên." />}
+        </div>
+      </Page>
+    );
+  }
 
   return (
     <Page className="s-pg" title="Sao lưu dữ liệu" onBack={onBack}>
       <div className="a-body s-list" style={{ gap: 12 }}>
         <p style={{ color: 'var(--mute)', fontSize: 15, lineHeight: 1.5, margin: 0 }}>
-          Tải về 1 file gồm đơn hàng, thu chi, khách hàng, menu và giờ mở cửa. Không gồm mã PIN và token Telegram. Nên sao lưu mỗi tuần và cất file ở nơi an toàn.
+          Lưu đơn hàng, thu chi, khách hàng, menu và giờ mở cửa ngay trên Firebase, không cần tải file về. Không gồm mã PIN và token Telegram. Nên sao lưu mỗi tuần.
         </p>
         <Btn onClick={backup} disabled={busy}>{busy ? 'Đang xử lý...' : 'Sao lưu ngay'}</Btn>
-        <Btn onClick={() => fileRef.current && fileRef.current.click()} disabled={busy}>Khôi phục từ file</Btn>
-        <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={(e) => restore(e.target.files[0])} />
+        <Btn onClick={openList} disabled={busy}>Khôi phục từ bản đã lưu</Btn>
       </div>
     </Page>
   );
 }
+const fmtBk = (iso) => { const d = new Date(iso); const p = (n) => String(n).padStart(2, '0'); return `${p(d.getHours())}:${p(d.getMinutes())} · ${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()}`; };

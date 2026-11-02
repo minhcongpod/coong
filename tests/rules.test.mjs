@@ -108,6 +108,13 @@ await t('khách A không lưu token mạo danh chủ quán', assertFails(setDoc(
 await t('không ai đọc được token', assertFails(getDoc(doc(aDb, 'pushTokens/tokA'))));
 await t('admin không xóa được chính tài khoản admin', assertFails(deleteDoc(doc(adminDb, 'users', ADMIN))));
 
+await t('admin ghi sao lưu', assertSucceeds(setDoc(doc(adminDb, 'backups/b1'), { createdAt: 'x', parts: 1 })));
+await t('admin ghi phần sao lưu', assertSucceeds(setDoc(doc(adminDb, 'backups/b1/parts/0000'), { i: 0, text: 'x' })));
+await t('admin đọc sao lưu', assertSucceeds(getDocs(collection(adminDb, 'backups'))));
+await t('khách không đọc sao lưu', assertFails(getDoc(doc(aDb, 'backups/b1'))));
+await t('khách không đọc phần sao lưu', assertFails(getDoc(doc(aDb, 'backups/b1/parts/0000'))));
+await t('khách không ghi sao lưu', assertFails(setDoc(doc(aDb, 'backups/b2'), { createdAt: 'x' })));
+
 console.log(`\n${pass} ok, ${fail} fail`);
 await env.cleanup();
 process.exit(fail ? 1 : 0);

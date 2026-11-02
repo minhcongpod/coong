@@ -67,6 +67,14 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Sao lưu dữ liệu ngay trên Firebase: chỉ chủ quán đọc, ghi
+    match /backups/{id} {
+      allow read, write: if isAdmin();
+      match /parts/{part} {
+        allow read, write: if isAdmin();
+      }
+    }
+
     // Telegram: token bot và chat chủ quán. Máy đã đăng nhập đọc được để gửi thông báo; chỉ chủ quán ghi
     match /meta/telegram {
       allow read: if hasDevice();
