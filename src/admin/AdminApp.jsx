@@ -3,7 +3,7 @@ import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { auth } from '../firebase';
 import { getSetup, watchDevice, unlockDevice, lockDevice, watchOrders, watchMenu, watchUsers, watchTransactions, watchShop } from '../db';
 import './admin.css';
-import { Sym, UIProvider, useUI, errText, stagger } from './ui.jsx';
+import { Sym, UIProvider, useUI, errText, stagger, orderCode } from './ui.jsx';
 import OrderTab, { Notifs, claimGroups } from './OrderTab.jsx';
 import HistoryTab from './HistoryTab.jsx';
 import WalletTab from './WalletTab.jsx';
@@ -229,6 +229,27 @@ function Shell({ adminPhone, onLogout }) {
 
   const pending = (orders || []).filter((o) => o.status === 'pending').length;
   const claims = claimGroups(orders || []).length;
+  // Link từ Telegram: /admin/order/#1234, /admin/wallet, /admin/menu/bac, /admin/account (?pay=SĐT mở trang chưa thanh toán của khách)
+  const deep = useRef((() => {
+    const seg = window.location.pathname.replace(/^\/(admin|quanly)/, '').split('/').filter(Boolean);
+    return { a: seg[0] || '', b: seg[1] || '', h: decodeURIComponent(window.location.hash.slice(1)), pay: new URLSearchParams(window.location.search).get('pay') };
+  })());
+  const [dive, setDive] = useState(null); // { kind, n }: mở món trong tab Menu
+  useEffect(() => {
+    const d = deep.current;
+    if (!d || orders === null) return;
+    deep.current = null;
+    if (!d.a && !d.pay) return;
+    window.history.replaceState(null, '', window.location.pathname.startsWith('/quanly') ? '/quanly' : '/admin');
+    if (d.pay) { setPayFocus({ phone: d.pay, n: Date.now() }); setTab('wallet'); }
+    else if (['order', 'orders', 'history'].includes(d.a)) {
+      const o = d.h && orders.find((x) => orderCode(x) === `#${d.h}`);
+      if (o) setTrack({ id: o.id, n: Date.now() });
+      setTab('history');
+    } else if (d.a === 'wallet') setTab('wallet');
+    else if (d.a === 'menu') { setTab('order'); if (d.b) setDive({ kind: d.b, n: Date.now() }); }
+    else if (['account', 'settings'].includes(d.a)) setTab('settings');
+  }, [orders]);
   const openClaim = (phone) => { setNotif(false); setPayFocus({ phone, n: Date.now() }); setTab('wallet'); };
   // tên khách luôn theo hồ sơ hiện tại, không theo tên lúc đặt đơn
   const named = useMemo(() => (orders || []).map((o) => (users[o.customerPhone] && users[o.customerPhone].name && users[o.customerPhone].name !== o.customerName ? { ...o, customerName: users[o.customerPhone].name } : o)), [orders, users]);
@@ -236,7 +257,7 @@ function Shell({ adminPhone, onLogout }) {
 
   return (
     <>
-      <div className="a-tab" ref={(e) => { panes.current.order = e; }} hidden={tab !== 'order' && leaving !== 'order'}><OrderTab {...data} onTrack={(id) => { setTrack({ id, n: Date.now() }); setTab('history'); }} /></div>
+      <div className="a-tab" ref={(e) => { panes.current.order = e; }} hidden={tab !== 'order' && leaving !== 'order'}><OrderTab {...data} dive={dive} onTrack={(id) => { setTrack({ id, n: Date.now() }); setTab('history'); }} /></div>
       <div className="a-tab" ref={(e) => { panes.current.history = e; }} hidden={tab !== 'history' && leaving !== 'history'}><HistoryTab {...data} track={track} onGoOrder={() => setTab('order')} /></div>
       <div className="a-tab" ref={(e) => { panes.current.wallet = e; }} hidden={tab !== 'wallet' && leaving !== 'wallet'}><WalletTab {...data} focus={payFocus} /></div>
       <div className="a-tab" ref={(e) => { panes.current.settings = e; }} hidden={tab !== 'settings' && leaving !== 'settings'}><SettingsTab {...data} adminPhone={adminPhone} onLogout={onLogout} /></div>

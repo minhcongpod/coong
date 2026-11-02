@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { saveMenuItem, saveShop } from '../db';
+import { collection, getDocs, getDoc, doc, writeBatch } from 'firebase/firestore';
+import { db as fdb } from '../firebase';
 import { Icon, Sym, Page, Btn, Toggle, Field, Empty, fmt, phoneText, XL_EXTRA, kindOf, useUI, errText, BellBtn } from './ui.jsx';
 import { getTgCfg, saveTgCfg, tgCheckToken, tgNewCode, tgDeepLink, tgWaitChat, tgToAdmin, tgBroadcast, tgChatCount } from '../telegram';
 import { customersOf, CustomerPicker, NewCustomer, EditCustomerForm } from './Customers.jsx';
@@ -21,6 +23,7 @@ export default function SettingsTab({ menu, users, shop = {}, onLogout, unread, 
   if (page && page.customer) return <EditCustomerForm customer={page.customer} onBack={() => setPage('customers')} onSaved={() => setPage('customers')} onDeleted={() => setPage('customers')} />;
   if (page === 'hours') return <Hours shop={shop} onBack={back} />;
   if (page === 'telegram') return <Telegram onBack={back} />;
+  if (page === 'backup') return <Backup onBack={back} />;
   if (page === 'menu') return <MenuList menu={menu} onBack={back} onOpen={(m) => setPage({ dish: m })} />;
   if (page && page.dish) return <EditDish dish={page.dish} onBack={() => setPage('menu')} />;
 
@@ -29,6 +32,7 @@ export default function SettingsTab({ menu, users, shop = {}, onLogout, unread, 
     ['i-s-cup', 'Quản lý menu', 'menu'],
     ['i-s-clock', 'Giờ đóng mở cửa', 'hours'],
     ['i-bell', 'Thông báo Telegram', 'telegram'],
+    ['i-s-down', 'Sao lưu dữ liệu', 'backup'],
   ];
   const flipSold = async (v) => { try { await saveShop({ soldOut: v }); } catch (e) { toast(errText(e)); } };
   return (
@@ -191,7 +195,7 @@ function Telegram({ onBack }) {
     try { const r = await tgBroadcast(`📣 ${text}`); setPromo(''); toast(`Đã gửi ${r.sent}/${r.total} khách`, true); }
     catch (e) { toast(errText(e)); } finally { setBusy(false); }
   };
-  const test = async () => { await tgToAdmin('✅ Coong: thông báo Telegram hoạt động'); toast('Đã gửi tin thử'); };
+  const test = async () => { await tgToAdmin('📣 Coong: thông báo Telegram hoạt động'); toast('Đã gửi tin thử'); };
   return (
     <Page className="s-pg" title="Thông báo Telegram" sub={c.bot ? `Bot @${c.bot}${c.adminChat ? ' · đã kết nối' : ' · chưa kết nối'}` : 'Chưa cài bot'} onBack={onBack}>
       <Field value={token} onChange={(e) => setToken(e.target.value)} placeholder={c.token ? 'Dán token mới để đổi bot' : 'Dán token của bot (từ @BotFather)'} aria-label="Token bot Telegram" autoComplete="off" />
@@ -214,6 +218,81 @@ function Telegram({ onBack }) {
           <Btn onClick={sendPromo} disabled={busy || !promo.trim()}>Gửi cho khách</Btn>
         </>
       )}
+    </Page>
+  );
+}
+
+// Sao lưu / khôi phục: tải toàn bộ dữ liệu quán thành 1 file JSON, và nạp lại từ file đó.
+// Không gồm mã PIN và token Telegram (bí mật). Khôi phục chỉ ghi đè/bổ sung, không xóa dữ liệu mới hơn.
+const BK_COLS = ['orders', 'transactions', 'menu'];
+function Backup({ onBack }) {
+  const { toast, confirm } = useUI();
+  const [busy, setBusy] = useState(false);
+  const fileRef = React.useRef(null);
+
+  const backup = async () => {
+    setBusy(true);
+    try {
+      const data = {};
+      for (const c of BK_COLS) data[c] = (await getDocs(collection(fdb, c))).docs.map((d) => ({ id: d.id, ...d.data() }));
+      data.users = (await getDocs(collection(fdb, 'users'))).docs.filter((d) => d.data().role === 'customer').map((d) => ({ id: d.id, ...d.data() }));
+      const shop = await getDoc(doc(fdb, 'meta', 'shop'));
+      data.shop = shop.exists() ? shop.data() : null;
+      const cnt = await getDoc(doc(fdb, 'counters', 'orders'));
+      data.counter = cnt.exists() ? cnt.data() : null;
+      const out = { app: 'coong', version: 1, createdAt: new Date().toISOString(), data };
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([JSON.stringify(out)], { type: 'application/json' }));
+      a.download = `coong-sao-luu-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      toast(`Đã sao lưu ${data.orders.length} đơn, ${data.transactions.length} khoản thu chi`, true);
+    } catch (e) { toast(errText(e)); } finally { setBusy(false); }
+  };
+
+  const restore = async (file) => {
+    if (!file) return;
+    let d;
+    try {
+      const j = JSON.parse(await file.text());
+      if (j.app !== 'coong' || !j.data) throw new Error();
+      d = j.data;
+    } catch (e) { return toast('File không phải bản sao lưu của Coong'); }
+    const ok = await confirm({
+      title: 'Khôi phục dữ liệu?',
+      msg: `Nạp lại ${(d.orders || []).length} đơn, ${(d.transactions || []).length} khoản thu chi, ${(d.users || []).length} khách, ${(d.menu || []).length} món. Dữ liệu trùng sẽ bị ghi đè bằng bản sao lưu.`,
+      ok: 'Khôi phục', danger: true,
+    });
+    if (!ok) return;
+    setBusy(true);
+    try {
+      const ops = [];
+      const put = (path, row) => { const { id, ...rest } = row; ops.push([doc(fdb, ...path, ...(id ? [id] : [])), rest]); };
+      (d.orders || []).forEach((r) => put(['orders'], r));
+      (d.transactions || []).forEach((r) => put(['transactions'], r));
+      (d.menu || []).forEach((r) => put(['menu'], r));
+      (d.users || []).filter((r) => r.role === 'customer').forEach((r) => put(['users'], r));
+      if (d.shop) ops.push([doc(fdb, 'meta', 'shop'), d.shop]);
+      if (d.counter) ops.push([doc(fdb, 'counters', 'orders'), d.counter]);
+      for (let i = 0; i < ops.length; i += 400) {
+        const b = writeBatch(fdb);
+        ops.slice(i, i + 400).forEach(([ref, val]) => b.set(ref, val));
+        await b.commit();
+      }
+      toast(`Đã khôi phục ${ops.length} mục`, true);
+    } catch (e) { toast(errText(e)); } finally { setBusy(false); if (fileRef.current) fileRef.current.value = ''; }
+  };
+
+  return (
+    <Page className="s-pg" title="Sao lưu dữ liệu" onBack={onBack}>
+      <div className="a-body s-list" style={{ gap: 12 }}>
+        <p style={{ color: 'var(--mute)', fontSize: 15, lineHeight: 1.5, margin: 0 }}>
+          Tải về 1 file gồm đơn hàng, thu chi, khách hàng, menu và giờ mở cửa. Không gồm mã PIN và token Telegram. Nên sao lưu mỗi tuần và cất file ở nơi an toàn.
+        </p>
+        <Btn onClick={backup} disabled={busy}>{busy ? 'Đang xử lý...' : 'Sao lưu ngay'}</Btn>
+        <Btn onClick={() => fileRef.current && fileRef.current.click()} disabled={busy}>Khôi phục từ file</Btn>
+        <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={(e) => restore(e.target.files[0])} />
+      </div>
     </Page>
   );
 }

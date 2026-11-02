@@ -15,10 +15,11 @@ const qtyText = (n) => String(n).padStart(2, '0');
 
 // Chọn món như app khách: Trang chủ → Chi tiết → Giỏ hàng → Thanh toán (gán khách) → Đặt hàng thành công
 const O0 = { upsize: 0, hot: 0, sweet: 0, cafe: 0 }; // sweet/cafe: 0 = 100%, 50 = 50%
+const pctOf = (v) => (v === 1 ? 0 : v || 100); // sweet: 1 = 0% (chỉ Bạc)
 const flagsOf = (kind) => ({ sweet: kind === 'nau' || kind === 'bac', cafe: kind === 'bac' });
 const optText = (l) => {
   const f = flagsOf(l.kind), o = l.o;
-  return [o.upsize ? 'XL' : 'L', o.hot ? 'Nóng' : 'Lạnh', f.sweet ? `${o.sweet || 100}% ngọt` : 'Không đường', ...(f.cafe ? [`${o.cafe || 100}% cafe`] : [])].join(' / ');
+  return [o.upsize ? 'XL' : 'L', o.hot ? 'Nóng' : 'Lạnh', f.sweet ? `${pctOf(o.sweet)}% ngọt` : 'Không đường', ...(f.cafe ? [`${o.cafe || 100}% cafe`] : [])].join(' / ');
 };
 const sameLine = (a, b) => a.menuId === b.menuId && optText(a) === optText(b);
 const unitOf = (l) => l.price + (l.o.upsize ? l.extra : 0);
@@ -32,7 +33,7 @@ const SHORT = { den: 'Đen', nau: 'Nâu', bac: 'Bạc' };
 const shortOf = (name) => SHORT[kindOf(name)] || name;
 const THUMB = { den: '/den.webp', nau: '/nau.webp', bac: '/bac.webp' };
 
-export default function OrderTab({ menu, users, orders, onTrack, onPay, shop = {} }) {
+export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, shop = {} }) {
   // quán bật Hết hàng hoặc đang ngoài giờ mở cửa: 3 món hiện Hết hàng, không mở được món
   const [, tick] = useState(0);
   useEffect(() => { const t = setInterval(() => tick((n) => n + 1), 30000); return () => clearInterval(t); }, []);
@@ -52,6 +53,12 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, shop = {
       const ia = ORDER.indexOf(kindOf(a.name)), ib = ORDER.indexOf(kindOf(b.name));
       return (ia < 0 ? 9 : ia) - (ib < 0 ? 9 : ib);
     });
+  // link /admin/menu/bac: mở thẳng món đó
+  useEffect(() => {
+    if (!dive || !items.length) return;
+    const i = items.findIndex((m) => kindOf(m.name) === dive.kind);
+    if (i >= 0 && !closed) setPage({ detail: i });
+  }, [dive, menu]); // eslint-disable-line react-hooks/exhaustive-deps
   const qtyOf = (id) => lines.filter((l) => l.menuId === id).reduce((n, l) => n + l.qty, 0);
   const count = lines.reduce((n, l) => n + l.qty, 0);
   const total = lines.reduce((n, l) => n + unitOf(l) * l.qty, 0);
@@ -71,7 +78,7 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, shop = {
       customerName: customer.name,
       items: lines.map((l) => ({
         menuId: l.menuId, name: l.name, price: unitOf(l), cost: 0, quantity: l.qty,
-        sweetness: flagsOf(l.kind).sweet ? `${l.o.sweet || 100}% ngọt` : 'Không đường',
+        sweetness: flagsOf(l.kind).sweet ? `${pctOf(l.o.sweet)}% ngọt` : 'Không đường',
         ice: `${l.o.cafe || 100}% cafe`, caffeine: l.o.upsize ? 'Size XL' : 'Size L', temp: l.o.hot ? 'Nóng' : 'Lạnh',
         opts: { ...l.o },
       })),
@@ -233,7 +240,7 @@ function Opts({ kind, o, set, cls }) {
     <>
       <div className="op" data-k="upsize"><div>{chip('upsize', 0, 'Size L', <Sym id="i-sizeL" size={40} />)}{chip('upsize', 1, 'Size XL', <Sym id="i-sizeXL" size={40} />)}</div></div>
       <div className="op" data-k="hot"><div>{chip('hot', 0, 'Lạnh', <Sym id="i-snow" size={22} />)}{chip('hot', 1, 'Nóng', <Sym id="i-steam" size={22} />)}</div></div>
-      {f.sweet && <div className="op" data-k="sweet"><label>Ngọt</label><div>{chip('sweet', 0, 'Ngọt 100%', '100')}{chip('sweet', 50, 'Ngọt 50%', '50')}</div></div>}
+      {f.sweet && <div className="op" data-k="sweet"><label>Ngọt</label><div>{chip('sweet', 0, 'Ngọt 100%', '100')}{chip('sweet', 50, 'Ngọt 50%', '50')}{kind === 'bac' && chip('sweet', 1, 'Ngọt 0%', '0')}</div></div>}
       {f.cafe && <div className="op" data-k="cafe"><label>Cafe</label><div>{chip('cafe', 0, 'Cafe 100%', '100')}{chip('cafe', 50, 'Cafe 50%', '50')}</div></div>}
     </>
   );

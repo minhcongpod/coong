@@ -1,6 +1,6 @@
 // Cầu nối giữa giao diện Coong (index.html, JS thuần) và Firebase.
 // Giao diện gọi window.CoongAPI; mọi đọc/ghi đi qua src/db.js như app chủ quán.
-import { tgToAdmin, tgToCustomer, getTgCfg, peekTgCfg, getTgChat, setTgChat, clearTgChat, tgNewCode, tgDeepLink, tgWaitChat } from '../telegram';
+import { APP_URL, tgToAdmin, tgToCustomer, getTgCfg, peekTgCfg, itemsText, tgDebtText, getTgChat, setTgChat, clearTgChat, tgNewCode, tgDeepLink, tgWaitChat } from '../telegram';
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { doc, writeBatch } from 'firebase/firestore';
 import { auth, db } from '../firebase';
@@ -62,7 +62,7 @@ window.CoongAPI = {
     batch.set(doc(db, 'pins', phone), { pin });
     batch.set(doc(db, 'devices', uid), { phone, pin, createdAt: nowIso() });
     await batch.commit();
-    tgToAdmin(`🆕 Khách mới đăng ký: ${name} · ${phone}`);
+    tgToAdmin(`📣 Khách mới: ${name} · ${phone}`);
   },
 
   async signOut() { await lockDevice(await uidReady); },
@@ -85,19 +85,19 @@ window.CoongAPI = {
   /** Trả về id và số của đơn vừa tạo */
   async placeOrder(order) {
     const ref = await createOrder(order);
-    tgToAdmin(`🔔 Đơn mới #${ref.no} từ ${order.customerName}\n${(order.items || []).map((it) => `${it.quantity}x ${it.name}`).join(', ')} · ${order.totalAmount.toLocaleString('vi-VN')}đ`);
-    // khách chưa trả (tiền mặt, ghi nợ, hoặc chuyển khoản chưa báo) thì nhắc thanh toán ngay trong Telegram của khách
-    if (!order.paid && order.paymentStatus !== 'awaiting') tgToCustomer(order.customerPhone, `🧾 Đơn #${ref.no} cần thanh toán ${order.totalAmount.toLocaleString('vi-VN')}đ`);
+    const its = itemsText(order.items);
+    tgToAdmin(`📣 ${order.customerName} đã đặt ${its}.`, `${APP_URL}/admin/order/#${String(ref.no).padStart(4, '0')}`, 'Xác nhận ngay');
+    tgToCustomer(order.customerPhone, `📣 Bạn đã đặt thành công ${its}. Coong sẽ xác nhận đơn của bạn trong giây lát.`, `${APP_URL}/order/#${String(ref.no).padStart(4, '0')}`);
     return { id: ref.id, no: ref.no };
   },
   cancelOrder: async (id, info) => {
     await updateOrder(id, { status: 'cancelled' });
-    if (info && info.phone) tgToCustomer(info.phone, `Đơn ${info.code}${info.items ? ` - ${info.items}` : ''} đã huỷ`);
-    if (info) tgToAdmin(`❌ ${info.name} đã huỷ đơn ${info.code}${info.lines || info.total ? `\n${info.lines || ''}${info.lines && info.total ? ' · ' : ''}${info.total ? `${info.total.toLocaleString('vi-VN')}đ` : ''}` : ''}`);
+    if (info && info.phone) tgToCustomer(info.phone, `❌ Coong đã huỷ đơn hàng ${info.items || ''} của bạn. Tiếc ghê, hẹn gặp lại bạn lần sau nhé!`, `${APP_URL}/order/${info.code}`);
+    if (info) tgToAdmin(`❌ ${info.name} đã hủy đơn ${info.items || info.code}.`, `${APP_URL}/admin/order/${info.code}`);
   },
   claimPaid: async (ids, info) => {
     await Promise.all(ids.map((id) => updateOrder(id, { paymentStatus: 'awaiting' })));
-    if (info) tgToAdmin(`💰 ${info.name} báo đã thanh toán ${info.n} đơn · ${info.total.toLocaleString('vi-VN')}đ\nBấm chuông trong app chủ quán để xác nhận.`);
+    if (info) tgToAdmin(`📣 ${info.name} báo đã thanh toán ${info.total.toLocaleString('vi-VN')}đ.`, `${APP_URL}/admin/wallet${info.phone ? `?pay=${info.phone}` : ''}`, 'Xác nhận ngay');
   },
 
   /** Telegram: quán đã cài bot chưa, và khách này đã gắn Telegram chưa */

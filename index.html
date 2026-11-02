@@ -90,7 +90,7 @@ button.tgcard{text-align:left;color:#fff;padding:20px 24px}.tgcard svg{width:20p
 .tgl.on{background:var(--ok)}.tgl.on b{transform:translateX(20px)}
 .arow>span:first-child{flex:1;font-size:16px}.arow .y{flex:none}
 .aname{flex:1;min-width:0;background:none;border:0;outline:0;padding:0;margin:0;font:inherit;color:inherit;text-align:right;caret-color:var(--yellow);text-overflow:ellipsis;overflow:hidden;white-space:nowrap}label.arow>span:first-child{flex:none}.aname:focus{text-overflow:clip}
-.aname:focus{color:var(--yellow)}.arow .r{text-align:right}.arow .y{color:var(--yellow)}.arow .m{color:rgba(255,255,255,.5)}
+.aname:focus{color:var(--yellow)}.aname:not(:focus){direction:rtl}.arow .r{text-align:right}.arow .y{color:var(--yellow)}.arow .m{color:rgba(255,255,255,.5)}
 .logout{width:100%;height:44px;padding:0;text-align:center;color:var(--err);font-size:18px;font-weight:700}
 button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 .arow,.logout,.hrow{transition:transform .25s var(--ease-out)}
@@ -371,13 +371,16 @@ input{user-select:text;-webkit-user-select:text}
   0%,100%{filter:drop-shadow(0 0 22px var(--glow0))}
   50%{filter:drop-shadow(0 0 30px var(--glow))}
 }
+/* the cup on the detail screen floats gently */
+.spin{animation:beat 4.8s ease-in-out infinite,drift 7s ease-in-out infinite}
+@keyframes drift{0%,100%{translate:0 0;rotate:0deg}50%{translate:0 -8px;rotate:1.4deg}}
 @media (prefers-reduced-motion:reduce){.card .cup img,.spin{animation:none;filter:drop-shadow(0 0 26px var(--glow))}}
 .card .top{position:absolute;left:24px;right:20px;top:21px;display:flex;gap:8px;align-items:flex-start}
 .card .top h3{flex:1;margin:0;font-size:32px;line-height:40px;font-weight:700}
 .card[data-id=bac] .top{flex-direction:column;gap:0}
-.card[data-id=bac] .top .ico{margin-top:-2px}
+.card[data-id=bac] .top .ico{margin-top:8px}
 .card .row{display:flex;gap:10px;align-items:center;width:100%}
-.card .ico{display:flex;gap:8px}
+.card .ico{display:flex;gap:4px}
 .card .ico span{width:36px;height:36px}
 .card .ico svg{width:16px;height:16px}
 .rec{display:flex;gap:3px;align-items:center;height:24px;padding:0 8px 0 7px;background:#fff;border-radius:100px;color:#f90;font-size:12px;font-weight:700;letter-spacing:.02em}
@@ -434,6 +437,7 @@ input{user-select:text;-webkit-user-select:text}
 .opt div{display:flex;gap:8px}
 .chip{width:40px;height:40px;border-radius:100px;background:var(--chip);color:var(--chipT);font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background .3s,color .3s,opacity .3s,transform .3s var(--ease-out)}
 .chip svg{width:40px;height:40px}
+.chip[hidden],.echips button[hidden]{display:none}
 .chip.on{background:#fff;color:var(--xOn)}
 .chip.on.val{color:var(--valOn)}
 .chip:active{transform:scale(.92)}
@@ -561,7 +565,7 @@ input{user-select:text;-webkit-user-select:text}
           </div>
         </div>
         <div class="arows">
-          <label class="arow" data-s><span>Tên đặt hàng</span><input class="r aname" id="aName" value="LieuNT" maxlength="16" enterkeyhint="done" autocomplete="nickname" aria-label="Tên đặt hàng"></label>
+          <label class="arow" data-s><span>Tên đặt hàng</span><input class="r aname" id="aName" value="LieuNT" enterkeyhint="done" autocomplete="nickname" aria-label="Tên đặt hàng"></label>
           <div class="arow" data-s><span>Số điện thoại</span><span class="r m" id="aPhone"></span></div>
           <button class="arow" id="tgBtn" data-s hidden role="switch" aria-checked="false" aria-label="Thông báo Telegram"><span>Telegram</span><i class="tgl"><b></b></i></button>
           <button class="arow" id="resetPw" data-s><span>Mã PIN</span><span class="y">Đặt lại</span></button>
@@ -588,7 +592,7 @@ input{user-select:text;-webkit-user-select:text}
     <div class="abs opts" id="opts">
       <div class="opt" data-a="left" data-k="upsize"><div><button class="chip on" data-v="0" aria-label="Size L"><svg><use href="#i-sizeL"/></svg></button><button class="chip val" data-v="1" aria-label="Size XL"><svg><use href="#i-sizeXL"/></svg></button></div></div>
       <div class="opt" data-a="left" data-k="hot"><div><button class="chip on" data-v="0" aria-label="Lạnh"><svg><use href="#i-snow"/></svg></button><button class="chip val" data-v="1" aria-label="Nóng"><svg><use href="#i-steam"/></svg></button></div></div>
-      <div class="opt" data-a="left" data-k="sweet"><label>Ngọt</label><div><button class="chip on" data-v="0" aria-label="Ngọt 100%">100</button><button class="chip val" data-v="50" aria-label="Ngọt 50%">50</button></div></div>
+      <div class="opt" data-a="left" data-k="sweet"><label>Ngọt</label><div><button class="chip on" data-v="0" aria-label="Ngọt 100%">100</button><button class="chip val" data-v="50" aria-label="Ngọt 50%">50</button><button class="chip val" data-v="1" aria-label="Ngọt 0%" id="sw0">0</button></div></div>
       <div class="opt" data-a="left" data-k="cafe"><label>Cafe</label><div><button class="chip on" data-v="0" aria-label="Cafe 100%">100</button><button class="chip val" data-v="50" aria-label="Cafe 50%">50</button></div></div>
     </div>
     <div class="abs spin" id="spin" role="img"></div>
@@ -624,8 +628,8 @@ input{user-select:text;-webkit-user-select:text}
           <div class="ehead"><div class="cthumb"><img alt="" draggable="false"></div><b class="ename"></b></div>
           <div class="egroup" data-k="upsize"><div class="echips"><button class="esz" data-v="0" aria-label="Size L"><svg><use href="#i-sizeL"/></svg></button><button class="esz" data-v="1" aria-label="Size XL"><svg><use href="#i-sizeXL"/></svg></button></div></div>
           <div class="egroup" data-k="hot"><div class="echips"><button data-v="0" aria-label="Lạnh"><svg><use href="#i-snow"/></svg></button><button data-v="1" aria-label="Nóng"><svg><use href="#i-steam"/></svg></button></div></div>
-          <div class="egroup" data-k="sweet"><label>Ngọt</label><div class="echips"><button class="val" data-v="50">50</button><button data-v="100">100</button></div></div>
-          <div class="egroup" data-k="cafe"><label>Cafe</label><div class="echips"><button class="val" data-v="50">50</button><button data-v="100">100</button></div></div>
+          <div class="egroup" data-k="sweet"><label>Ngọt</label><div class="echips"><button data-v="100">100</button><button class="val" data-v="50">50</button><button class="val" data-v="1" id="esw0" aria-label="Ngọt 0%">0</button></div></div>
+          <div class="egroup" data-k="cafe"><label>Cafe</label><div class="echips"><button data-v="100">100</button><button class="val" data-v="50">50</button></div></div>
         </div>
         <div class="eacts">
           <button class="btn edel" id="eDel">Xoá khỏi giỏ</button>
@@ -719,7 +723,7 @@ input{user-select:text;-webkit-user-select:text}
     <form class="abs aform off" data-m="reg" novalidate>
       <div class="ahead"><h2 class="atitle" data-s>Chào bạn mới</h2><p class="asub" data-s>Đăng ký nha. 15s thôi!</p></div>
       <div class="fields">
-        <label class="field" data-s><input name="name" placeholder="Tên đặt hàng" autocomplete="nickname" maxlength="16" enterkeyhint="next"></label>
+        <label class="field" data-s><input name="name" placeholder="Tên đặt hàng" autocomplete="nickname" enterkeyhint="next"></label>
         <label class="field" data-s><input name="pin" type="password" inputmode="numeric" placeholder="Mã PIN 4 số" maxlength="4" autocomplete="new-password"><button type="button" class="peek" id="rPeek">Hiện</button></label>
         <p class="aerr" aria-live="polite"></p>
       </div>
@@ -729,7 +733,7 @@ input{user-select:text;-webkit-user-select:text}
       <div class="ahead"><h2 class="atitle" data-s>Quên mã PIN?</h2><p class="asub" data-s>Nhập số điện thoại và tên đặt hàng sau đó đăng nhập lại là có mã PIN mới liền!</p></div>
       <div class="fields">
         <label class="field" data-s><input name="phone" type="tel" inputmode="numeric" placeholder="Số điện thoại" autocomplete="tel" maxlength="13" aria-label="Số điện thoại"></label>
-        <label class="field" data-s><input name="name" placeholder="Tên đặt hàng" autocomplete="nickname" maxlength="16" aria-label="Tên đặt hàng"></label>
+        <label class="field" data-s><input name="name" placeholder="Tên đặt hàng" autocomplete="nickname" aria-label="Tên đặt hàng"></label>
         <p class="aerr" aria-live="polite"></p>
       </div>
       <div class="afoot"><button type="submit" class="btn" data-s>Đặt lại</button><p class="aswitch" data-s>Nhớ ra rồi? <button type="button" class="alink" data-to="phone">Đăng nhập</button></p></div>
@@ -790,7 +794,7 @@ function applyMenu(items){
     /* sold out: the owner switched every menu entry for this drink off */
     const all = items.filter(x => drinkIdOf(x.name) === d.id); d.sold = closed || (all.length > 0 && !m);
     if (m) Object.assign(d, {price:m.price, menuId:m.id, menuName:m.name, cost:m.cost || 0, ...(typeof m.upsize === 'number' ? {xl:m.upsize} : {})}); });
-  cards.forEach((c, i) => { const d = DRINKS[i]; c.classList.toggle('sold', !!d.sold); $('.pricebar b', c).textContent = d.sold ? 'Hết hàng' : fmt(d.price); });
+  cards.forEach((c, i) => { const d = DRINKS[i]; c.classList.toggle('sold', !!d.sold); $('.pricebar b', c).textContent = closed ? 'Sắp mở hàng' : d.sold ? 'Hết hàng' : fmt(d.price); });
   if (detail.style.visibility === 'visible') $('#dPrice').textContent = fmt(unit()*qty);
 }
 const GLOW = {den:'rgba(255,255,255,.5)', nau:'rgba(255,255,255,.5)', bac:'rgba(255,255,255,.5)'};
@@ -846,7 +850,7 @@ const cards = DRINKS.map((d,i) => {
   el.setAttribute('role','button'); el.setAttribute('aria-label', 'Xem ' + d.name);
   const icons = `<div class="ico"><span class="circ"><svg><use href="#i-snow"/></svg></span><span class="circ"><svg><use href="#i-steam"/></svg></span></div>`;
   el.innerHTML = `<svg class="surf" viewBox="0 0 270 360" aria-hidden="true"><defs><linearGradient id="g-${d.id}" x1="0" y1="0" x2="0" y2="1">${d.stops.map(([o,c]) => `<stop offset="${o}" stop-color="${c}"/>`).join('')}</linearGradient><linearGradient id="e-${d.id}" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#fff"/><stop offset=".5" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><rect width="270" height="360" rx="32" fill="url(#g-${d.id})"/><rect x=".75" y=".75" width="268.5" height="358.5" rx="31.25" fill="none" stroke="url(#e-${d.id})" stroke-opacity="${d.edge}" stroke-width="1.5"/></svg>
-    <div class="cup"${d.id === 'bac' ? '' : ` style="left:${(135 - 245*d.aspect/2).toFixed(1)}px"`}><img src="${d.id}.webp" alt="" draggable="false"></div>
+    <div class="cup"${d.id === 'bac' ? '' : ` style="left:${(135 - 245*d.aspect/2).toFixed(1)}px"`}><img src="/${d.id}.webp" alt="" draggable="false"></div>
     <div class="top">${d.rec
       ? `<div class="row"><h3>${d.name}</h3><span class="rec"><svg><use href="#i-star"/></svg>RECOMMEND</span></div>${icons}`
       : `<h3>${d.name}</h3>${icons}`}</div>
@@ -980,11 +984,12 @@ function fillDetail(i){
   cur = i; const d = DRINKS[i];
   detail.dataset.id = d.id;
   $('#dTitle').textContent = d.name;
-  spin.style.backgroundImage = `url(${d.id}.webp)`; spin.setAttribute('aria-label', d.name);
+  spin.style.backgroundImage = `url(/${d.id}.webp)`; spin.setAttribute('aria-label', d.name);
   sizeSpin();
   setFrame(0);
   qty = 1; Object.keys(opts).forEach(k => opts[k] = 0);
   $$('.opt').forEach(g => { $$('.chip', g).forEach(c => c.classList.toggle('on', c.dataset.v === '0')); if (g.dataset.k in d) g.hidden = !d[g.dataset.k]; });
+  $('#sw0').hidden = d.id !== 'bac';
   $('#qty').innerHTML = `<span>${pad(qty)}</span>`;
   $('#dPrice').textContent = fmt(unit()*qty);
   resetKnob(true);
@@ -1271,7 +1276,7 @@ aName.addEventListener('blur', () => { aName.value = aName.value.trim() || 'Bạ
 const cartItems = [];   /* {id, qty, unit} */
 const cartEl = $('#cart'), clist = $('#clist');
 /* Đen is always unsweetened; only Bạc lets you pick the coffee amount */
-const sweetText = (o, d) => d.sweet ? `${o.sweet || 100}% ngọt` : 'Không đường';
+const sweetText = (o, d) => d.sweet ? `${o.sweet === 1 ? 0 : o.sweet || 100}% ngọt` : 'Không đường';
 const optText = (o, id) => { const d = drink(id); return [o.upsize ? 'XL' : 'L', o.hot ? 'Nóng' : 'Lạnh', sweetText(o, d), ...(d.cafe ? [`${o.cafe || 100}% cafe`] : [])].join(' / '); };
 function addToCart(id, q, u, o = O0){
   const it = cartItems.find(x => x.id === id && x.unit === u && optText(x.o, id) === optText(o, id));
@@ -1294,6 +1299,7 @@ function openEdit(i){
   Object.assign(E, {i, o:{...it.o}, qty:it.qty});
   $('.ehead img', eSheet).src = d.id + '.webp'; $('.ename', eSheet).textContent = d.name;
   $$('.egroup', eSheet).forEach(g => { if (g.dataset.k in d) g.hidden = !d[g.dataset.k]; });
+  $('#esw0').hidden = d.id !== 'bac';
   eSync();
   eSheet.onDismiss = null;
   eSheet.getAnimations().forEach(a => a.cancel());
@@ -1326,7 +1332,7 @@ function renderCart(){
   cartItems.forEach((it, i) => {
     const d = DRINKS.find(x => x.id === it.id);
     const row = document.createElement('div'); row.className = 'citem';
-    row.innerHTML = `<div class="cthumb"><img src="${d.id}.webp" alt="" draggable="false"></div>
+    row.innerHTML = `<div class="cthumb"><img src="/${d.id}.webp" alt="" draggable="false"></div>
       <div class="cinfo"><span class="cname"></span><button class="copt" aria-label="Chỉnh món"><span></span><svg><use href="#i-caret"/></svg></button><div class="crow">
         <div class="cqty"><button class="cpm" data-d="-1" aria-label="Giảm"><svg><use href="#i-minus"/></svg></button><span>${it.qty}</span><button class="cpm" data-d="1" aria-label="Tăng"><svg><use href="#i-plus"/></svg></button></div>
         <span class="cprice">${fmt(it.qty*it.unit)}</span></div></div>`;
@@ -1579,7 +1585,7 @@ const aSheet = $('#aSheet'); sheetDismiss(aSheet);
 $('#aPayNow').addEventListener('click', () => {
   const due = dueOrders(); if (!due.length) return;
   qrSheet(aSheet, {amt:due.reduce((n, o) => n + oTotal(o), 0), code:('NO' + due.map(o => o.code).join('')).slice(0, 25), alt:'Để sau', onAlt:() => {},
-    onPaid:async () => { try { await (await api()).claimPaid(due.map(o => o.id), {name:session.name, n:due.length, total:due.reduce((n, o) => n + oTotal(o), 0)}); toast('Đã gửi, chờ quán xác nhận', 'bank'); } catch (e) { toast('Chưa gửi được, thử lại nhé'); } }});
+    onPaid:async () => { try { await (await api()).claimPaid(due.map(o => o.id), {name:session.name, phone:session.phone, n:due.length, total:due.reduce((n, o) => n + oTotal(o), 0)}); toast('Đã gửi, chờ quán xác nhận', 'bank'); } catch (e) { toast('Chưa gửi được, thử lại nhé'); } }});
 });
 
 function setStatus(o, s){ o.status = s; renderHistory(); if (curOrder === o && isOpen(orderEl)) renderOrder(o); }
@@ -1589,7 +1595,7 @@ const orderEl = $('#order');
 const SC = {wait:['#fc0','rgba(255,204,0,.45)'], brew:['#00c0e8','rgba(0,192,232,.45)'], done:['#34c759','rgba(52,199,89,.45)'], cancel:['#ff383c','rgba(255,56,60,.45)']};
 function itemRow(x, cls = 'oitem'){
   const d = drink(x.id), r = document.createElement('div'); r.className = cls;
-  r.innerHTML = `<div class="oth"><img src="${d.id}.webp" alt="" draggable="false"></div><div class="nm"><div class="nl"><b></b><span class="pr">${fmt(x.qty*x.unit)}</span></div><small></small></div>`;
+  r.innerHTML = `<div class="oth"><img src="/${d.id}.webp" alt="" draggable="false"></div><div class="nm"><div class="nl"><b></b><span class="pr">${fmt(x.qty*x.unit)}</span></div><small></small></div>`;
   $('b', r).textContent = `${pad(x.qty)} x ${x.name || d.name}`; $('.nm small', r).textContent = optText(x.o, x.id);
   return r;
 }
@@ -1655,7 +1661,7 @@ function syncNotifs(prev){
   const seen = seenSet();
   notifs = orders.slice(0, 30).map(o => { const [title, body] = NT[o.status](o), key = o.id + ':' + o.status;
     return {title, body, at:o.at, read:seen.has(key), order:o.code, kind:o.status, key}; });
-  if (!orders.length) notifs = [{title:'Chào mừng đến Coong', body:'Vuốt thẻ để chọn ly, giữ nút + để thêm nhanh nhiều ly.', at:new Date(), read:true, kind:'info'}];
+  if (!orders.length) notifs = [{title:'Chào bạn mới!', body:'Vuốt thẻ để chọn ly, giữ nút + để thêm nhanh nhiều ly.', at:new Date(), read:true, kind:'info'}];
   renderNotifs();
   if (!prev) return;
   orders.forEach(o => { const p = prev.get(o.id); if (p && p !== o.status && o.status !== 'cancel') notifyPop(NT[o.status](o)[0]); });
@@ -2008,14 +2014,28 @@ formOf('pin').addEventListener('submit', async e => {
   toast('Đã đổi mã PIN'); hidePage(authEl);
 });
 /* signed in: load the customer's orders and the shop menu, live */
+/* link vào thẳng từ Telegram: /order/#1234, /history, /account, /menu/bac, /cart */
+let route = (() => { const p = location.pathname.split('/').filter(Boolean); return p.length ? {a:p[0], b:p[1] || '', h:decodeURIComponent(location.hash.slice(1))} : null; })();
+let deepOrder = route && route.a === 'order' && /^\w+$/.test(route.h) ? route.h : null;
+function runRoute(tries = 0){
+  const r = route; if (!r || deepOrder) return;
+  if (busy && tries < 10) return setTimeout(() => runRoute(tries + 1), 400);
+  route = null; history.replaceState(null, '', '/');
+  if (r.a === 'history' || r.a === 'order') showTab(1);
+  else if (r.a === 'account') showTab(2);
+  else if (r.a === 'cart') openCart();
+  else if (r.a === 'menu' && r.b) { const i = DRINKS.findIndex(d => d.id === r.b); if (i >= 0) openDetail(i); }
+}
 function startSession(s){
+  if (route) setTimeout(runRoute, 1400);
   session = s; setName(s.name); $('#aPhone').textContent = prettyPhone(s.phone); setTimeout(() => typeof tgRefresh === 'function' && tgRefresh(), 800);
   if (stopOrders) stopOrders(); if (stopMenu) stopMenu();
   api().then(a => {
     let prev = null;
     stopOrders = a.watchOrders(s.phone, list => {
       orders = list.map(fromDb);
-      renderHistory(); syncNotifs(prev); prev = new Map(orders.map(o => [o.id, o.status]));
+      renderHistory(); syncNotifs(prev);
+      if (deepOrder) { const d = orders.find(x => x.code === deepOrder); if (d) { deepOrder = null; route = null; history.replaceState(null, '', '/'); setTimeout(() => openOrder(d), 1400); } } prev = new Map(orders.map(o => [o.id, o.status]));
       if (curOrder && isOpen(orderEl)) { const o = orders.find(x => x.id === curOrder.id); if (o) { curOrder = o; renderOrder(o); } }
     }, () => toast('Mất kết nối tới quán', 'wifioff'));
     stopMenu = a.watchMenu(applyMenu, () => {});
@@ -2049,7 +2069,7 @@ function finish(isNew){
   if (tab !== 0) showTab(0);
   homeIntro();
   /* the greeting is already on the home screen, so only a new account gets a snackbar */
-  if (isNew) toast('Đã tạo tài khoản', 'check');
+  if (isNew) toast('Chào bạn mới!', 'check');
 }
 
 /* account actions: resetting the PIN signs out, then the customer verifies the phone and picks a new PIN */

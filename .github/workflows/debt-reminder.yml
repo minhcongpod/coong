@@ -1,9 +1,6 @@
 name: Nhắc nợ qua Telegram
 
 on:
-  schedule:
-    # 11:30 UTC thứ 6 = 18:30 giờ Việt Nam
-    - cron: '30 11 * * 5'
   workflow_dispatch:
     inputs:
       dry_run:
