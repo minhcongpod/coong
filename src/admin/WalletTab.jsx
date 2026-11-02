@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { addDoc, collection, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { updateOrder, deleteTransaction } from '../db';
-import { tgToCustomer } from '../telegram';
+import { tgToCustomer, tgDebt, APP_URL } from '../telegram';
 import { Icon, Sym, Page, Btn, Seg, Chip, Empty, fmt, dayLabel, timeOf, isLive, useUI, errText, BellBtn } from './ui.jsx';
 import { summary } from './HistoryTab.jsx';
 
@@ -139,7 +139,9 @@ function Unpaid({ orders, onBack, only, focus, onOpen }) {
       await addDoc(collection(db, 'transactions'), {
         type: 'income', amount: g.total, description: `${g.name} TT ${g.orders.length} đơn`, customerPhone: g.phone, createdAt: new Date().toISOString(),
       });
-      tgToCustomer(g.phone, `📣 Coong đã nhận ${fmt(g.total)}đ · ${g.orders.length} đơn. Cảm ơn bạn rất nhiều! Tiếp tục ủng hộ Coong nhé.`, undefined, 'Đặt hàng');
+      const debt = await tgDebt(g.phone);
+      if (debt.n) tgToCustomer(g.phone, `📣 Coong đã nhận ${fmt(g.total)}đ · ${g.orders.length} đơn.${debt.text}`, `${APP_URL}/payment`);
+      else tgToCustomer(g.phone, `📣 Coong đã nhận ${fmt(g.total)}đ · ${g.orders.length} đơn. Cảm ơn bạn rất nhiều! Tiếp tục ủng hộ Coong nhé.`, `${APP_URL}/menu`, 'Đặt hàng');
       toast(`Đã thu của ${g.name}`, true);
     } catch (e) { toast(errText(e)); }
   };

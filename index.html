@@ -422,7 +422,7 @@ input{user-select:text;-webkit-user-select:text}
 .card[data-id=nau] .pricebar b,.card[data-id=bac] .pricebar b{color:#000}
 .card.sold[data-id] .pricebar b{color:#fff}
 
-.dots{left:0;width:390px;bottom:94px;display:flex;justify-content:center;gap:6px}
+.dots{left:0;width:390px;bottom:94px;display:none;justify-content:center;gap:6px}
 .dots i{width:6px;height:6px;border-radius:6px;background:rgba(255,255,255,.3);transition:width .4s var(--ease-out),background .4s}
 .dots i.on{width:18px;background:#fff}
 .nav{left:24px;width:342px;bottom:24px;height:48px;display:flex;gap:16px}
@@ -2075,7 +2075,7 @@ formOf('pin').addEventListener('submit', async e => {
   toast('Đã đổi mã PIN'); hidePage(authEl);
 });
 /* signed in: load the customer's orders and the shop menu, live */
-/* link vào thẳng từ Telegram: /order/#1234, /history, /account, /menu/bac, /cart */
+/* link vào thẳng từ Telegram: /order/#1234, /history, /account, /menu, /menu/bac, /cart, /payment */
 let route = (() => { const p = location.pathname.split('/').filter(Boolean); return p.length ? {a:p[0], b:p[1] || '', h:decodeURIComponent(location.hash.slice(1))} : null; })();
 let deepOrder = route && route.a === 'order' && /^\w+$/.test(route.h) ? route.h : null;
 function runRoute(tries = 0){
@@ -2085,6 +2085,8 @@ function runRoute(tries = 0){
   if (r.a === 'history' || r.a === 'order') showTab(1);
   else if (r.a === 'account') showTab(2);
   else if (r.a === 'cart') openCart();
+  else if (r.a === 'payment') { showTab(2); renderDues(); showPage(duesEl); }
+  else if (r.a === 'menu' && !r.b) showTab(0);
   else if (r.a === 'menu' && r.b) { const i = DRINKS.findIndex(d => d.id === r.b); if (i >= 0) openDetail(i); }
 }
 function startSession(s){

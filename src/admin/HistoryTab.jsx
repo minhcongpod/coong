@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { updateOrder, markPaid, markUnpaid } from '../db';
-import { APP_URL, tgToCustomer, tgDebtText } from '../telegram';
+import { APP_URL, tgToCustomer, tgDebtText, tgDebt } from '../telegram';
 import { Icon, Sym, Page, Btn, Seg, fmt, hm, dmy, timeOf, phoneText, payLabel, payState, orderCode, kindOf, STATUS, isLive, useUI, errText, BellBtn } from './ui.jsx';
 
 const FILTERS = [['all', 'Tất cả'], ['pending', 'Chờ xác nhận'], ['brewing', 'Đang chế'], ['completed', 'Hoàn thành'], ['cancelled', 'Hủy']];
@@ -34,7 +34,13 @@ const tellCustomer = async (o, patch) => {
   const link = `${APP_URL}/order/${orderCode(o)}`;
   if (patch.status === 'brewing' && o.status !== 'brewing') tgToCustomer(o.customerPhone, `📣 Coong đã xác nhận đơn hàng ${its}.${await tgDebtText(o.customerPhone)}`, link);
   else if (patch.status === 'cancelled' && o.status !== 'cancelled') tgToCustomer(o.customerPhone, `❌ Coong đã huỷ đơn hàng ${its} của bạn. Tiếc ghê, hẹn gặp lại bạn lần sau nhé!`, link);
-  else if (patch.paid === true && !o.paid) tgToCustomer(o.customerPhone, `📣 Coong đã nhận ${fmt(o.totalAmount)}đ đơn hàng ${orderCode(o)}.${await tgDebtText(o.customerPhone)}`, link);
+  else if (patch.paid === true && !o.paid) {
+    // còn nợ: dẫn vào trang trạng thái thanh toán; hết nợ: cảm ơn và dẫn vào menu
+    const debt = await tgDebt(o.customerPhone);
+    const got = `📣 Coong đã nhận ${fmt(o.totalAmount)}đ đơn hàng ${orderCode(o)}.`;
+    if (debt.n) tgToCustomer(o.customerPhone, got + debt.text, `${APP_URL}/payment`);
+    else tgToCustomer(o.customerPhone, `${got} Cảm ơn bạn rất nhiều! Tiếp tục ủng hộ Coong nhé.`, `${APP_URL}/menu`, 'Đặt hàng');
+  }
 };
 
 // Tab Đơn hàng: danh sách đơn, xem chi tiết, thu tiền, nhận đơn, hoàn thành, huỷ
