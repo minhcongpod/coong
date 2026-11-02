@@ -1623,8 +1623,8 @@ function dueCard(list, title, sub, pay){
 function renderDues(){
   const due = dueOrders(), wait = waitOrders(), body = $('#dBody');
   body.innerHTML = '';
-  if (due.length) body.appendChild(dueCard(due, 'Đơn chờ thanh toán', '', payDues));
-  if (wait.length) body.appendChild(dueCard(wait, 'Đơn chờ quán xác nhận', 'Coong đã nhận yêu cầu, bạn đợi chút nha!'));
+  if (due.length) body.appendChild(dueCard(due, 'đơn chờ thanh toán', '', payDues));
+  if (wait.length) body.appendChild(dueCard(wait, 'đơn chờ quán xác nhận', 'Coong đã nhận yêu cầu, bạn đợi chút nha!'));
   if (!due.length && !wait.length && isOpen(duesEl)) duesEl.goBack();
 }
 /* pay everything owed by bank transfer; the shop then confirms it */
