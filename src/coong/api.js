@@ -2,13 +2,13 @@
 // Giao diện gọi window.CoongAPI; mọi đọc/ghi đi qua src/db.js như app chủ quán.
 import { APP_URL, tgToAdmin, tgToCustomer, getTgCfg, peekTgCfg, itemsText, tgDebtText, getTgChat, setTgChat, clearTgChat, tgNewCode, tgDeepLink, tgWaitChat } from '../telegram';
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
-import { doc, writeBatch } from 'firebase/firestore';
+import { doc, writeBatch, increment } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import { vietQR, qrMatrix } from './qr';
 import { fireworks } from './fireworks';
 import {
   getUser, watchDevice, unlockDevice, lockDevice, watchMenu, watchOrders, watchShop,
-  createOrder, updateOrder, updateUserName, setPin, resetPinByName,
+  createOrder, updateOrder, watchWallet, updateUserName, setPin, resetPinByName,
 } from '../db';
 
 const nowIso = () => new Date().toISOString();
@@ -81,17 +81,26 @@ window.CoongAPI = {
   watchMenu: (cb, onError) => watchMenu(cb, onError),
   watchShop: (cb, onError) => watchShop(cb, onError),
   watchOrders: (phone, cb, onError) => watchOrders(phone, false, cb, onError),
+  /** Số dư ví tiền (null nếu quán chưa nạp cho khách này) */
+  watchWallet: (phone, cb, onError) => watchWallet(phone, cb, onError),
 
   /** Trả về id và số của đơn vừa tạo */
   async placeOrder(order) {
     const ref = await createOrder(order);
     const its = itemsText(order.items);
-    tgToAdmin(`📣 ${order.customerName} đã đặt ${its}.`, `${APP_URL}/admin/order/#${String(ref.no).padStart(4, '0')}`, 'Xác nhận ngay');
+    const wl = order.payMethod === 'wallet' ? ' (đã trả bằng ví tiền)' : '';
+    tgToAdmin(`📣 ${order.customerName} đã đặt ${its}${wl}.`, `${APP_URL}/admin/order/#${String(ref.no).padStart(4, '0')}`, 'Xác nhận ngay');
     tgToCustomer(order.customerPhone, `📣 Bạn đã đặt thành công ${its}. Coong sẽ xác nhận đơn của bạn trong giây lát.`, `${APP_URL}/order/#${String(ref.no).padStart(4, '0')}`);
     return { id: ref.id, no: ref.no };
   },
   cancelOrder: async (id, info) => {
-    await updateOrder(id, { status: 'cancelled' });
+    if (info && info.wallet) {
+      // đơn đã trả bằng ví: huỷ và hoàn tiền vào ví trong cùng một lần ghi
+      const b = writeBatch(db);
+      b.update(doc(db, 'orders', id), { status: 'cancelled' });
+      b.set(doc(db, 'wallets', info.phone), { balance: increment(info.total), refund: id }, { merge: true });
+      await b.commit();
+    } else await updateOrder(id, { status: 'cancelled' });
     // khách tự huỷ: Telegram không nhắn lại cho khách, chỉ báo quán
     if (info) tgToAdmin(`❌ ${info.name} đã hủy đơn ${info.items || info.code}.`, `${APP_URL}/admin/order/${info.code}`);
   },

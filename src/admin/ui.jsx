@@ -62,7 +62,7 @@ export const phoneText = (p) => (p && p.length === 10 ? `${p.slice(0, 4)} ${p.sl
 export const byName = (a, b) => (a.name || '').localeCompare(b.name || '', 'vi');
 export const errText = (e) => (e && (e.code === 'permission-denied' ? 'Không có quyền thực hiện' : e.code || e.message)) || 'Lỗi';
 
-export const PAY = { cash: 'Tiền mặt', bank: 'Chuyển khoản', debt: 'Ghi nợ' };
+export const PAY = { cash: 'Tiền mặt', bank: 'Chuyển khoản', debt: 'Ghi nợ', wallet: 'Ví tiền' };
 export const XL_EXTRA = 5000;
 export const payLabel = (o) => PAY[o.payMethod] || 'Ghi nợ';
 export const STATUS = {

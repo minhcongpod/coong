@@ -166,7 +166,18 @@ service cloud.firestore {
           && request.resource.data.status == 'pending'
           && request.resource.data.paid == false
           && request.resource.data.totalAmount is number
-          && (!('paymentStatus' in request.resource.data) || request.resource.data.paymentStatus == 'awaiting'));
+          && (!('paymentStatus' in request.resource.data) || request.resource.data.paymentStatus == 'awaiting'))
+        // Thanh toán bằng ví: đơn đã trả và ví bị trừ đúng số tiền của đơn trong cùng một lần ghi
+        || (validNo() && hasDevice()
+          && request.resource.data.customerPhone == myPhone()
+          && request.resource.data.status == 'pending'
+          && request.resource.data.paid == true
+          && request.resource.data.payMethod == 'wallet'
+          && request.resource.data.totalAmount is number
+          && request.resource.data.totalAmount > 0
+          && get(/databases/$(database)/documents/wallets/$(myPhone())).data.balance >= request.resource.data.totalAmount
+          && getAfter(/databases/$(database)/documents/wallets/$(myPhone())).data.balance
+            == get(/databases/$(database)/documents/wallets/$(myPhone())).data.balance - request.resource.data.totalAmount);
       // Chủ quán sửa mọi thứ; khách chỉ được tự hủy đơn đang chờ của mình,
       // hoặc báo "đã chuyển khoản" (paymentStatus 'awaiting') cho đơn chưa trả để quán xác nhận
       allow update: if isAdmin()
@@ -179,6 +190,37 @@ service cloud.firestore {
           && request.resource.data.paymentStatus == 'awaiting'
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['paymentStatus']));
       allow delete: if isAdmin();
+    }
+
+    // Ví tiền của khách: chủ quán nạp (khoản thu gắn tên khách); khách chỉ được trừ tiền khi đặt đơn bằng ví
+    // (đơn mới trả bằng ví tạo cùng lần ghi) hoặc nhận hoàn khi tự huỷ đơn đang chờ đã trả bằng ví
+    match /wallets/{phone} {
+      allow read: if isOwner(phone) || isAdmin();
+      allow write: if isAdmin();
+      allow update: if isOwner(phone)
+        && request.resource.data.balance is int
+        && request.resource.data.balance >= 0
+        && (
+          (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['balance', 'last'])
+            && request.resource.data.last is string
+            && !exists(/databases/$(database)/documents/orders/$(request.resource.data.last))
+            && existsAfter(/databases/$(database)/documents/orders/$(request.resource.data.last))
+            && getAfter(/databases/$(database)/documents/orders/$(request.resource.data.last)).data.customerPhone == phone
+            && getAfter(/databases/$(database)/documents/orders/$(request.resource.data.last)).data.payMethod == 'wallet'
+            && getAfter(/databases/$(database)/documents/orders/$(request.resource.data.last)).data.paid == true
+            && resource.data.balance - request.resource.data.balance
+              == getAfter(/databases/$(database)/documents/orders/$(request.resource.data.last)).data.totalAmount)
+          ||
+          (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['balance', 'refund'])
+            && request.resource.data.refund is string
+            && get(/databases/$(database)/documents/orders/$(request.resource.data.refund)).data.customerPhone == phone
+            && get(/databases/$(database)/documents/orders/$(request.resource.data.refund)).data.payMethod == 'wallet'
+            && get(/databases/$(database)/documents/orders/$(request.resource.data.refund)).data.paid == true
+            && get(/databases/$(database)/documents/orders/$(request.resource.data.refund)).data.status == 'pending'
+            && getAfter(/databases/$(database)/documents/orders/$(request.resource.data.refund)).data.status == 'cancelled'
+            && request.resource.data.balance - resource.data.balance
+              == get(/databases/$(database)/documents/orders/$(request.resource.data.refund)).data.totalAmount)
+        );
     }
 
     // Token nhận thông báo đẩy của từng thiết bị; chỉ Cloud Functions đọc (qua Admin SDK)

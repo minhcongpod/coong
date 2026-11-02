@@ -64,6 +64,9 @@ svg{display:block}
 .acc>*{flex:none}
 .agroup{display:flex;flex-direction:column;gap:8px}
 .astat{padding:16px 24px}
+.awal{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);font-size:16px;font-weight:700}
+.awal[hidden]{display:none}
+.awal b{color:var(--yellow);font-size:20px;font-variant-numeric:tabular-nums}
 .anum{display:flex;justify-content:space-between;align-items:flex-start}
 .anum>div:first-child{display:flex;flex-direction:column}
 .anum b{font-size:24px;line-height:31px;font-variant-numeric:tabular-nums}
@@ -294,6 +297,7 @@ input{user-select:text;-webkit-user-select:text}
 .pmeth{flex:none;width:342px;display:flex;flex-direction:column;gap:8px}
 .mrow{height:52px;box-sizing:border-box;border-radius:32px;background:rgba(255,255,255,.1);display:flex;align-items:center;gap:12px;padding:0 24px;color:#fff;text-align:left;line-height:normal;transition:background .3s,color .3s,transform .25s var(--ease-out)}
 .mrow:active{transform:scale(.97)}
+.mrow[hidden]{display:none}
 .mrow svg{width:24px;height:24px;flex:none}
 .mrow span{flex:1;font-size:16px;font-weight:700}
 .mrow small{font-size:12px;opacity:.55;font-weight:700;margin-right:4px}
@@ -575,6 +579,7 @@ input{user-select:text;-webkit-user-select:text}
           <div class="card2 astat" data-s>
             <div class="anum"><div><b id="aSpent">0</b><small id="aCount">0 đơn đã đặt</small></div>
               <div class="seg" id="aSeg" role="tablist"><i></i><button class="on" data-p="week">Tuần</button><button data-p="month">Tháng</button><button data-p="year">Năm</button></div></div>
+            <div class="awal" id="aWal" hidden><span>Ví tiền</span><b id="aWalN">0</b></div>
           </div>
           <div class="card2 adebt" id="aDebt" data-s role="button" tabindex="0" aria-label="Xem trạng thái thanh toán">
             <div><b><svg><use href="#i-due"/></svg><span id="aDue">0</span></b><small id="aDueN"></small></div>
@@ -700,6 +705,7 @@ input{user-select:text;-webkit-user-select:text}
         <button class="mrow on" data-m="bank" data-s><svg><use href="#i-qr"/></svg><span>Chuyển khoản</span><i></i></button>
         <button class="mrow" data-m="cash" data-s><svg><use href="#i-cash"/></svg><span>Tiền mặt</span><i></i></button>
         <button class="mrow" data-m="debt" data-s><svg><use href="#i-debt"/></svg><span>Ghi nợ nhé!</span><i></i></button>
+        <button class="mrow" data-m="wallet" id="mWallet" data-s hidden><svg><use href="#i-paid"/></svg><span>Ví tiền: 0</span><i></i></button>
       </div>
     </div>
     <div class="abs pfoot" data-s>
@@ -1523,7 +1529,7 @@ function ask({title, text, ok, cancel = 'Thôi', danger}){
 }
 
 /* ---------- orders ---------- */
-const PAY = {cash:'Tiền mặt', bank:'Chuyển khoản', debt:'Ghi nợ'};
+const PAY = {cash:'Tiền mặt', bank:'Chuyển khoản', debt:'Ghi nợ', wallet:'Ví tiền'};
 const ST = {wait:'Chờ xác nhận', brew:'Đang chế', done:'Hoàn thành', cancel:'Hủy'};
 const daysAgo = (n, h = 8, m = 30) => { const d = new Date(); d.setDate(d.getDate() - n); if (n) d.setHours(h, m); return d; };
 const O0 = {upsize:0, hot:0, sweet:0, cafe:0};
@@ -1606,6 +1612,13 @@ $$('#hSeg button').forEach((b, k) => b.addEventListener('click', () => {
 
 /* ---------- account: orders this week / month / year, unpaid money ---------- */
 let period = 'week';
+/* ví tiền: quán nạp cho khách; null = chưa từng nạp (ẩn), số dư > 0 mới có phương thức Ví tiền */
+let walletBal = null;
+function renderWallet(){
+  $('#aWal').hidden = walletBal === null; $('#aWalN').textContent = fmt(walletBal || 0);
+  const m = $('#mWallet'), ok = walletBal > 0; m.hidden = !ok; $('span', m).textContent = `Ví tiền: ${fmt(walletBal || 0)}`;
+  if (!ok && payM === 'wallet') setPay('bank');
+}
 function periodStart(p){
   const d = new Date(); d.setHours(0, 0, 0, 0);
   if (p === 'week') d.setDate(d.getDate() - (d.getDay() + 6) % 7);   /* weeks start on Monday */
@@ -1724,7 +1737,7 @@ function openOrder(o){ curOrder = o; const prev = $('#oBody .bar'); if (prev) pr
 async function cancelOrder(o){
   if (!await ask({title:'Huỷ đơn này?', text:'Ủa alo???', ok:'Huỷ đơn', cancel:'Thôi', danger:true})) return;
   if (o.status !== 'wait') { toast('Quán vừa nhận đơn, không huỷ được nữa'); return; }
-  try { await (await api()).cancelOrder(o.id, {name:session.name, phone:session.phone, code:'#' + o.code, total:oTotal(o), items:oItems(o, ', ', false), lines:oItems(o, ', ', true)}); }
+  try { await (await api()).cancelOrder(o.id, {name:session.name, phone:session.phone, wallet:o.pay === 'wallet' && o.paid, code:'#' + o.code, total:oTotal(o), items:oItems(o, ', ', false), lines:oItems(o, ', ', true)}); }
   catch (e) { toast('Quán vừa nhận đơn, không huỷ được nữa'); return; }
   toast(`Đã huỷ đơn #${o.code}`, 'x');
 }
@@ -1736,7 +1749,7 @@ const NT = {
   wait:o => [`Đơn #${o.code} đang chờ xác nhận`, 'Quán sẽ xác nhận trong ít phút.'],
   brew:o => [`Đơn #${o.code} đang chế`, 'Quán đã nhận đơn và đang chế.'],
   done:o => [`Đơn #${o.code} đã xong`, 'Mời bạn ra quầy nhận đồ nhé.'],
-  cancel:o => [`Đơn #${o.code} đã huỷ`, o.paid ? 'Tiền sẽ được hoàn lại trong 24 giờ.' : 'Bạn chưa bị thu tiền cho đơn này.'],
+  cancel:o => [`Đơn #${o.code} đã huỷ`, o.pay === 'wallet' && o.paid ? 'Tiền đã được hoàn vào ví của bạn.' : o.paid ? 'Tiền sẽ được hoàn lại trong 24 giờ.' : 'Bạn chưa bị thu tiền cho đơn này.'],
 };
 const seenKey = () => 'coong.seen.' + (session && session.phone);
 const seenSet = () => { try { return new Set(JSON.parse(store.get(seenKey()) || '[]')); } catch (e) { return new Set(); } };
@@ -1811,7 +1824,8 @@ function slider(el, onDone){
 /* "Đặt hàng": bank transfer opens the QR sheet first, cash and tab place the order straight away */
 const pGo = $('#pGo');
 const pSlide = {reset: () => { pGo.disabled = false; }};
-pGo.addEventListener('click', () => { if (pGo.disabled || !cartItems.length) return; pGo.disabled = true; payM === 'bank' ? openSheet() : placeOrder(false, payM === 'cash'); });
+pGo.addEventListener('click', () => { if (pGo.disabled || !cartItems.length) return; if (payM === 'wallet' && cartTotal() > (walletBal || 0)) return toast('Không đủ tiền trong ví');
+  pGo.disabled = true; payM === 'bank' ? openSheet() : placeOrder(payM === 'wallet', payM === 'cash'); });
 /* a stand-in QR: finder squares plus a pattern seeded from the order code */
 /* the shop's real VietQR, with the amount and the order code filled in; finder squares drawn rounded to match the card */
 function qrSvg(amt, code){
@@ -1902,6 +1916,7 @@ async function placeOrder(paid, claimed = false){
       sweetness:sweetText(x.o, d), ice:`${x.o.cafe || 100} cafe`, caffeine:x.o.upsize ? 'Size XL' : 'Size L', temp:x.o.hot ? 'Nóng' : 'Lạnh', opts:{...x.o}}; });
   const doc = {customerPhone:session.phone, customerName:session.name, items, note:'', totalAmount:cartTotal(), status:'pending', paid:false, payMethod:payM};
   if (claimed) doc.paymentStatus = 'awaiting';
+  if (paid && payM === 'wallet') { doc.paid = true; doc.paymentStatus = 'confirmed'; doc.paidAt = new Date().toISOString(); }
   try {
     const {id, no} = await (await api()).placeOrder(doc);
     const o = fromDb({...doc, id, no, createdAt:new Date().toISOString()});
@@ -1910,7 +1925,7 @@ async function placeOrder(paid, claimed = false){
     cartItems.length = 0; cart = 0; syncBadges(); renderCart();
     openSuccess(lastPlaced);
   } catch (e) {
-    toast('Chưa gửi được đơn, thử lại nhé'); pSlide.reset();
+    toast(e && e.code === 'wallet/insufficient' ? 'Không đủ tiền trong ví' : 'Chưa gửi được đơn, thử lại nhé'); pSlide.reset();
   } finally { placing = false; }
 }
 
@@ -1953,7 +1968,7 @@ const authEl = $('#auth'), forms = $$('.aform', authEl);
 const formOf = m => forms.find(f => f.dataset.m === m);
 let step = 'phone';
 const A = {phone:'', name:'', mode:'enter', first:'', viaReset:false};
-let session = null, stopOrders = null, stopMenu = null, stopShop = null;
+let session = null, stopOrders = null, stopMenu = null, stopShop = null, stopWallet = null;
 function setName(n){ $('#helloName').textContent = n; aName.value = n; savedName = n; }
 const prettyPhone = p => p.replace(/^(\d{4})(\d{3})(\d+)$/, '$1 $2 $3');
 const digits = v => v.replace(/\D/g, '');
@@ -2125,11 +2140,12 @@ function startSession(s){
       if (curOrder && isOpen(orderEl)) { const o = orders.find(x => x.id === curOrder.id); if (o) { curOrder = o; renderOrder(o); } }
     }, () => toast('Mất kết nối tới quán', 'wifioff'));
     stopMenu = a.watchMenu(applyMenu, () => {});
+    if (stopWallet) stopWallet(); stopWallet = a.watchWallet(s.phone, b => { walletBal = b; renderWallet(); }, () => {});
     if (stopShop) stopShop(); stopShop = a.watchShop(s2 => { shop = s2 || {}; applyMenu(lastMenu); }, () => {});
   });
 }
 function endSession(){
-  if (stopOrders) stopOrders(); if (stopMenu) stopMenu(); if (stopShop) stopShop(); stopOrders = stopMenu = stopShop = null; shop = {};
+  if (stopOrders) stopOrders(); if (stopMenu) stopMenu(); if (stopShop) stopShop(); if (stopWallet) stopWallet(); stopOrders = stopMenu = stopShop = stopWallet = null; shop = {}; walletBal = null; renderWallet();
   session = null; orders = []; notifs = []; renderHistory(); renderNotifs();
 }
 /* home entrance: everything arrives one after another (greeting, buttons, the three cups rising with a soft bounce, then the reorder card, dots and tab bar) */
