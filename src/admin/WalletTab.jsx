@@ -167,7 +167,7 @@ function Unpaid({ orders, onBack, only, focus, onOpen }) {
           </div>
           <div className="w-rule" />
           <div className="a-between"><span className="a-s">{g.orders.length} đơn tổng</span><b className="y a-num" style={{ fontSize: 18, lineHeight: '23px' }}>{fmt(g.total)}</b></div>
-          <button className={`o-pill w-collect${tab === 'wait' ? ' ok' : ''}`} onClick={() => collect(g)} aria-label={`${tab === 'wait' ? 'Xác nhận thanh toán' : 'Đã thu tiền'} của ${g.name}`}><Sym id="i-verified" size={16} />{tab === 'wait' ? 'Xác nhận thanh toán' : 'Đã thu tiền'}</button>
+          <button className="o-pill w-collect" onClick={() => collect(g)} aria-label={`Xác nhận thanh toán của ${g.name}`}><Sym id="i-verified" size={16} />Xác nhận thanh toán</button>
         </div>
       ))}
       {groups.length === 0 && <Empty icon="check" title={tab === 'wait' ? 'Không có đơn chờ xác nhận' : 'Không còn đơn nợ'} text="Mọi đơn đều đã thanh toán." />}
