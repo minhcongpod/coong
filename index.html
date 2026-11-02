@@ -79,6 +79,8 @@ svg{display:block}
 .adebt>div>b svg{width:20px;height:20px}
 .adebt small{white-space:nowrap;font-size:14px;color:rgba(255,255,255,.5);font-weight:500}
 .adebt .btn,.adebt .btn.sm{width:auto;min-width:0;height:44px;padding:0 16px;font-size:16px;margin:0;flex:none;background:var(--yellow);color:#000}
+.adebt{cursor:pointer}
+.adebt .adchev{width:20px;height:20px;flex:none;color:var(--yellow)}
 .adebt.clear{display:none}
 .arows{display:flex;flex-direction:column;gap:8px}
 .arow{background:rgba(255,255,255,.1);border-radius:32px;padding:16px 24px;display:flex;gap:10px;font-size:18px;color:#fff;text-align:left}
@@ -571,9 +573,9 @@ input{user-select:text;-webkit-user-select:text}
             <div class="anum"><div><b id="aSpent">0</b><small id="aCount">0 đơn đã đặt</small></div>
               <div class="seg" id="aSeg" role="tablist"><i></i><button class="on" data-p="week">Tuần</button><button data-p="month">Tháng</button><button data-p="year">Năm</button></div></div>
           </div>
-          <div class="card2 adebt" id="aDebt" data-s>
+          <div class="card2 adebt" id="aDebt" data-s role="button" tabindex="0" aria-label="Xem trạng thái thanh toán">
             <div><b><svg><use href="#i-due"/></svg><span id="aDue">0</span></b><small id="aDueN"></small></div>
-            <button class="btn sm" id="aPayNow">Xem</button>
+            <svg class="adchev" id="aPayNow"><use href="#i-rchev"/></svg>
           </div>
         </div>
         <div class="arows">
@@ -1595,7 +1597,7 @@ function renderAccount(){
   $('#aSpent').textContent = fmt(list.reduce((n, o) => n + oTotal(o), 0));
   const due = dueOrders(), wait = waitOrders();
   $('#aDue').textContent = fmt(sumOf(due) + sumOf(wait));
-  $('#aDueN').textContent = `Chờ xác nhận: ${wait.length}・Ghi nợ: ${due.length}`;
+  $('#aDueN').textContent = `Chưa thanh toán: ${due.length}・Chờ xác nhận: ${wait.length}`;
   $('#aDebt').classList.toggle('clear', !due.length && !wait.length);
   if (isOpen(duesEl)) renderDues();
 }
@@ -1633,7 +1635,7 @@ function payDues(){
   qrSheet(dSheet, {amt:sumOf(due), code:('NO' + due.map(o => o.code).join('')).slice(0, 25), alt:'Để sau', onAlt:() => {},
     onPaid:async () => { try { await (await api()).claimPaid(due.map(o => o.id), {name:session.name, phone:session.phone, n:due.length, total:sumOf(due)}); toast('Đã gửi, chờ quán xác nhận', 'bank'); } catch (e) { toast('Chưa gửi được, thử lại nhé'); } }});
 }
-$('#aPayNow').addEventListener('click', () => { renderDues(); showPage(duesEl); });
+$('#aDebt').addEventListener('click', () => { renderDues(); showPage(duesEl); });
 
 function setStatus(o, s){ o.status = s; renderHistory(); if (curOrder === o && isOpen(orderEl)) renderOrder(o); }
 
