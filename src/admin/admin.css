@@ -33,6 +33,7 @@
 .a-nav button{position:relative;flex:1;display:flex;align-items:center;justify-content:center;opacity:.2;color:#fff;transition:opacity .25s}
 .a-nav button.on{opacity:1}
 .a-nav svg{width:32px;height:32px}
+.a-nav button:first-child svg{width:28px;height:28px}
 .a-bars{display:flex;align-items:flex-end;justify-content:center;gap:3px;height:32px}
 .a-bars i{width:9px;background:#d9d9d9;display:block}
 .a-badge{position:absolute;top:0;left:calc(50% + 6px);min-width:20px;height:20px;padding:0 6px;border-radius:20px;background:var(--yellow);color:#000;font-size:12px;font-weight:700;line-height:20px;text-align:center}

@@ -209,31 +209,24 @@ function Shell({ adminPhone, onLogout }) {
   }, [leaving, tab]);
 
   // vào app (từ màn nhập PIN hoặc splash): tiêu đề trượt vào, thanh chuyển tab trồi lên, các thẻ đơn nảy lần lượt như trang chủ app khách
-  const introCards = useRef(true);
   const reduce = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   useLayoutEffect(() => {
     const pane = panes.current.history;
     if (!pane || reduce()) return;
     const E = 'cubic-bezier(.22,1,.36,1)', B = 'cubic-bezier(.34,1.56,.64,1)';
     const go = (el, kf, o) => el && el.animate(kf, { fill: 'backwards', easing: E, ...o });
-    go(pane.querySelector('.h-head, .a-title'), [{ opacity: 0, transform: 'translateX(-28px)', filter: 'blur(8px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }], { duration: 700, delay: 120 });
-    go(pane.querySelector('.h-seg'), [{ opacity: 0, transform: 'translateY(16px) scale(.94)' }, { opacity: 1, transform: 'none' }], { duration: 640, delay: 260, easing: B });
+    go(pane.querySelector('.h-head, .a-title'), [{ opacity: 0, transform: 'translateY(-8px)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: 60 });
+    go(pane.querySelector('.h-seg'), [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: 140 });
     const nav = document.querySelector('.a-nav');
-    go(nav, [{ opacity: 0, transform: 'translateY(60px)' }, { opacity: 1, transform: 'none' }], { duration: 780, delay: 420 });
-    nav && nav.querySelectorAll('button').forEach((b, k) => go(b, [{ opacity: 0, transform: 'scale(.3) rotate(-12deg)' }, { opacity: 1, transform: 'none' }], { duration: 720, delay: 520 + k * 90, easing: B }));
+    go(nav, [{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], { duration: 500, delay: 200 });
+    nav && nav.querySelectorAll('button').forEach((b, k) => go(b, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 400, delay: 260 + k * 50 }));
   }, []);
   const [menu, setMenu] = useState([]);
   const [orders, setOrders] = useState(null);
   const [users, setUsersRaw] = useState(null); // null: chưa tải
   const setUsers = setUsersRaw;
   const [txs, setTxs] = useState([]);
-  useEffect(() => {
-    if (orders === null || !introCards.current) return;
-    introCards.current = false;
-    const pane = panes.current.history;
-    if (!pane || reduce()) return;
-    pane.querySelectorAll('.h-card').forEach((c, k) => { if (k < 8) c.animate([{ opacity: 0, transform: 'translateY(90px) scale(.82)', filter: 'blur(14px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }], { duration: 900, delay: 160 + k * 120, easing: 'cubic-bezier(.34,1.56,.64,1)', fill: 'backwards' }); });
-  }, [orders]);
+
   const [shop, setShop] = useState({});
   const [track, setTrack] = useState(null); // { id, n }: mở chi tiết đơn vừa đặt
   const [payFocus, setPayFocus] = useState(null); // { phone, n }: mở trang Chưa thanh toán của một khách
