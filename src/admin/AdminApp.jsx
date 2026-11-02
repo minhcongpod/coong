@@ -49,9 +49,9 @@ export default function AdminApp() {
 }
 
 // Màn chờ lúc mở app: ảnh nền và logo như splash app khách
-function Splash() {
+function Splash({ out }) {
   return (
-    <div className="a-splash" role="img" aria-label="Coong">
+    <div className={`a-splash${out ? ' out' : ''}`} role="img" aria-label="Coong">
       <svg className="a-slogo" viewBox="0 0 91.42 35.78"><path fill="currentColor" d={LOGO_PATH} /></svg>
     </div>
   );
@@ -210,8 +210,21 @@ function Shell({ adminPhone, onLogout }) {
 
   // vào app (từ màn nhập PIN hoặc splash): tiêu đề trượt vào, thanh chuyển tab trồi lên, các thẻ đơn nảy lần lượt như trang chủ app khách
   const reduce = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // chờ dữ liệu về xong (màn splash che bên trên) rồi mới chạy hiệu ứng, để không bị giật khi React vẽ lại nhiều lần
+  const [late, setLate] = useState(false); // quá 4 giây vẫn chưa có dữ liệu: bỏ splash, không kẹt mãi
+  useEffect(() => { const t = setTimeout(() => setLate(true), 4000); return () => clearTimeout(t); }, []);
+  const ready = (orders !== null && users !== null) || late;
+  const [veil, setVeil] = useState(true); // true: splash còn che
+  const introDone = useRef(false);
+  useEffect(() => {
+    if (!ready) return;
+    const t = setTimeout(() => setVeil(false), 520);
+    return () => clearTimeout(t);
+  }, [ready]);
   useLayoutEffect(() => {
     const pane = panes.current.history;
+    if (!ready || introDone.current) return;
+    introDone.current = true;
     if (!pane || reduce()) return;
     const E = 'cubic-bezier(.22,1,.36,1)', B = 'cubic-bezier(.34,1.56,.64,1)';
     const go = (el, kf, o) => el && el.animate(kf, { fill: 'backwards', easing: E, ...o });
@@ -220,7 +233,7 @@ function Shell({ adminPhone, onLogout }) {
     const nav = document.querySelector('.a-nav');
     go(nav, [{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], { duration: 500, delay: 200 });
     nav && nav.querySelectorAll('button').forEach((b, k) => go(b, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 400, delay: 260 + k * 50 }));
-  }, []);
+  }, [ready]);
   const backTo = useRef(null); // mở đơn từ trang Trạng thái thanh toán: back lại về đó
   const [menu, setMenu] = useState([]);
   const [orders, setOrders] = useState(null);
@@ -281,6 +294,7 @@ function Shell({ adminPhone, onLogout }) {
 
   return (
     <>
+      {veil && <Splash out={ready} />}
       <div className="a-tab" ref={(e) => { panes.current.order = e; }} hidden={tab !== 'order' && leaving !== 'order'}><OrderTab {...data} dive={dive} onTrack={(id) => { setTrack({ id, n: Date.now() }); setTab('history'); }} /></div>
       <div className="a-tab" ref={(e) => { panes.current.history = e; }} hidden={tab !== 'history' && leaving !== 'history'}><HistoryTab {...data} track={track} onClose={() => { const t = backTo.current; backTo.current = null; if (t) setTab(t); }} onGoOrder={() => setTab('order')} /></div>
       <div className="a-tab" ref={(e) => { panes.current.wallet = e; }} hidden={tab !== 'wallet' && leaving !== 'wallet'}><WalletTab {...data} focus={payFocus} onOpenOrder={(id) => { backTo.current = 'wallet'; setTrack({ id, n: Date.now() }); setTab('history'); }} /></div>
