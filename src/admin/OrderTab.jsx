@@ -32,7 +32,7 @@ const SHORT = { den: 'Đen', nau: 'Nâu', bac: 'Bạc' };
 const shortOf = (name) => SHORT[kindOf(name)] || name;
 const THUMB = { den: '/den.webp', nau: '/nau.webp', bac: '/bac.webp' };
 
-export default function OrderTab({ menu, users, orders, onTrack, onPay, shop = {} }) {
+export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, shop = {} }) {
   // quán bật Hết hàng hoặc đang ngoài giờ mở cửa: 3 món hiện Hết hàng, không mở được món
   const [, tick] = useState(0);
   useEffect(() => { const t = setInterval(() => tick((n) => n + 1), 30000); return () => clearInterval(t); }, []);
@@ -52,6 +52,12 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, shop = {
       const ia = ORDER.indexOf(kindOf(a.name)), ib = ORDER.indexOf(kindOf(b.name));
       return (ia < 0 ? 9 : ia) - (ib < 0 ? 9 : ib);
     });
+  // link /admin/menu/bac: mở thẳng món đó
+  useEffect(() => {
+    if (!dive || !items.length) return;
+    const i = items.findIndex((m) => kindOf(m.name) === dive.kind);
+    if (i >= 0 && !closed) setPage({ detail: i });
+  }, [dive, menu]); // eslint-disable-line react-hooks/exhaustive-deps
   const qtyOf = (id) => lines.filter((l) => l.menuId === id).reduce((n, l) => n + l.qty, 0);
   const count = lines.reduce((n, l) => n + l.qty, 0);
   const total = lines.reduce((n, l) => n + unitOf(l) * l.qty, 0);

@@ -86,18 +86,18 @@ window.CoongAPI = {
   async placeOrder(order) {
     const ref = await createOrder(order);
     const its = itemsText(order.items);
-    tgToAdmin(`📣 ${order.customerName} đã đặt ${its}.`, `${APP_URL}/admin?order=${ref.id}`, 'Xác nhận ngay');
-    tgToCustomer(order.customerPhone, `📣 Bạn đã đặt thành công ${its}. Coong sẽ xác nhận đơn của bạn trong giây lát.`, `${APP_URL}/?order=${ref.id}`);
+    tgToAdmin(`📣 ${order.customerName} đã đặt ${its}.`, `${APP_URL}/admin/order/#${String(ref.no).padStart(4, '0')}`, 'Xác nhận ngay');
+    tgToCustomer(order.customerPhone, `📣 Bạn đã đặt thành công ${its}. Coong sẽ xác nhận đơn của bạn trong giây lát.`, `${APP_URL}/order/#${String(ref.no).padStart(4, '0')}`);
     return { id: ref.id, no: ref.no };
   },
   cancelOrder: async (id, info) => {
     await updateOrder(id, { status: 'cancelled' });
-    if (info && info.phone) tgToCustomer(info.phone, `❌ Coong đã huỷ đơn hàng ${info.items || ''} của bạn. Tiếc ghê, hẹn gặp lại bạn lần sau nhé!`, `${APP_URL}/?order=${id}`);
-    if (info) tgToAdmin(`❌ ${info.name} đã hủy đơn ${info.items || info.code}.`, `${APP_URL}/admin?order=${id}`);
+    if (info && info.phone) tgToCustomer(info.phone, `❌ Coong đã huỷ đơn hàng ${info.items || ''} của bạn. Tiếc ghê, hẹn gặp lại bạn lần sau nhé!`, `${APP_URL}/order/${info.code}`);
+    if (info) tgToAdmin(`❌ ${info.name} đã hủy đơn ${info.items || info.code}.`, `${APP_URL}/admin/order/${info.code}`);
   },
   claimPaid: async (ids, info) => {
     await Promise.all(ids.map((id) => updateOrder(id, { paymentStatus: 'awaiting' })));
-    if (info) tgToAdmin(`📣 ${info.name} báo đã thanh toán ${info.total.toLocaleString('vi-VN')}đ.`, `${APP_URL}/admin${info.phone ? `?pay=${info.phone}` : ''}`, 'Xác nhận ngay');
+    if (info) tgToAdmin(`📣 ${info.name} báo đã thanh toán ${info.total.toLocaleString('vi-VN')}đ.`, `${APP_URL}/admin/wallet${info.phone ? `?pay=${info.phone}` : ''}`, 'Xác nhận ngay');
   },
 
   /** Telegram: quán đã cài bot chưa, và khách này đã gắn Telegram chưa */

@@ -846,7 +846,7 @@ const cards = DRINKS.map((d,i) => {
   el.setAttribute('role','button'); el.setAttribute('aria-label', 'Xem ' + d.name);
   const icons = `<div class="ico"><span class="circ"><svg><use href="#i-snow"/></svg></span><span class="circ"><svg><use href="#i-steam"/></svg></span></div>`;
   el.innerHTML = `<svg class="surf" viewBox="0 0 270 360" aria-hidden="true"><defs><linearGradient id="g-${d.id}" x1="0" y1="0" x2="0" y2="1">${d.stops.map(([o,c]) => `<stop offset="${o}" stop-color="${c}"/>`).join('')}</linearGradient><linearGradient id="e-${d.id}" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#fff"/><stop offset=".5" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><rect width="270" height="360" rx="32" fill="url(#g-${d.id})"/><rect x=".75" y=".75" width="268.5" height="358.5" rx="31.25" fill="none" stroke="url(#e-${d.id})" stroke-opacity="${d.edge}" stroke-width="1.5"/></svg>
-    <div class="cup"${d.id === 'bac' ? '' : ` style="left:${(135 - 245*d.aspect/2).toFixed(1)}px"`}><img src="${d.id}.webp" alt="" draggable="false"></div>
+    <div class="cup"${d.id === 'bac' ? '' : ` style="left:${(135 - 245*d.aspect/2).toFixed(1)}px"`}><img src="/${d.id}.webp" alt="" draggable="false"></div>
     <div class="top">${d.rec
       ? `<div class="row"><h3>${d.name}</h3><span class="rec"><svg><use href="#i-star"/></svg>RECOMMEND</span></div>${icons}`
       : `<h3>${d.name}</h3>${icons}`}</div>
@@ -980,7 +980,7 @@ function fillDetail(i){
   cur = i; const d = DRINKS[i];
   detail.dataset.id = d.id;
   $('#dTitle').textContent = d.name;
-  spin.style.backgroundImage = `url(${d.id}.webp)`; spin.setAttribute('aria-label', d.name);
+  spin.style.backgroundImage = `url(/${d.id}.webp)`; spin.setAttribute('aria-label', d.name);
   sizeSpin();
   setFrame(0);
   qty = 1; Object.keys(opts).forEach(k => opts[k] = 0);
@@ -1326,7 +1326,7 @@ function renderCart(){
   cartItems.forEach((it, i) => {
     const d = DRINKS.find(x => x.id === it.id);
     const row = document.createElement('div'); row.className = 'citem';
-    row.innerHTML = `<div class="cthumb"><img src="${d.id}.webp" alt="" draggable="false"></div>
+    row.innerHTML = `<div class="cthumb"><img src="/${d.id}.webp" alt="" draggable="false"></div>
       <div class="cinfo"><span class="cname"></span><button class="copt" aria-label="Chỉnh món"><span></span><svg><use href="#i-caret"/></svg></button><div class="crow">
         <div class="cqty"><button class="cpm" data-d="-1" aria-label="Giảm"><svg><use href="#i-minus"/></svg></button><span>${it.qty}</span><button class="cpm" data-d="1" aria-label="Tăng"><svg><use href="#i-plus"/></svg></button></div>
         <span class="cprice">${fmt(it.qty*it.unit)}</span></div></div>`;
@@ -1589,7 +1589,7 @@ const orderEl = $('#order');
 const SC = {wait:['#fc0','rgba(255,204,0,.45)'], brew:['#00c0e8','rgba(0,192,232,.45)'], done:['#34c759','rgba(52,199,89,.45)'], cancel:['#ff383c','rgba(255,56,60,.45)']};
 function itemRow(x, cls = 'oitem'){
   const d = drink(x.id), r = document.createElement('div'); r.className = cls;
-  r.innerHTML = `<div class="oth"><img src="${d.id}.webp" alt="" draggable="false"></div><div class="nm"><div class="nl"><b></b><span class="pr">${fmt(x.qty*x.unit)}</span></div><small></small></div>`;
+  r.innerHTML = `<div class="oth"><img src="/${d.id}.webp" alt="" draggable="false"></div><div class="nm"><div class="nl"><b></b><span class="pr">${fmt(x.qty*x.unit)}</span></div><small></small></div>`;
   $('b', r).textContent = `${pad(x.qty)} x ${x.name || d.name}`; $('.nm small', r).textContent = optText(x.o, x.id);
   return r;
 }
@@ -2008,8 +2008,20 @@ formOf('pin').addEventListener('submit', async e => {
   toast('Đã đổi mã PIN'); hidePage(authEl);
 });
 /* signed in: load the customer's orders and the shop menu, live */
-let deepOrder = new URLSearchParams(location.search).get('order');
+/* link vào thẳng từ Telegram: /order/#1234, /history, /account, /menu/bac, /cart */
+let route = (() => { const p = location.pathname.split('/').filter(Boolean); return p.length ? {a:p[0], b:p[1] || '', h:decodeURIComponent(location.hash.slice(1))} : null; })();
+let deepOrder = route && route.a === 'order' && /^\w+$/.test(route.h) ? route.h : null;
+function runRoute(tries = 0){
+  const r = route; if (!r || deepOrder) return;
+  if (busy && tries < 10) return setTimeout(() => runRoute(tries + 1), 400);
+  route = null; history.replaceState(null, '', '/');
+  if (r.a === 'history' || r.a === 'order') showTab(1);
+  else if (r.a === 'account') showTab(2);
+  else if (r.a === 'cart') openCart();
+  else if (r.a === 'menu' && r.b) { const i = DRINKS.findIndex(d => d.id === r.b); if (i >= 0) openDetail(i); }
+}
 function startSession(s){
+  if (route) setTimeout(runRoute, 1400);
   session = s; setName(s.name); $('#aPhone').textContent = prettyPhone(s.phone); setTimeout(() => typeof tgRefresh === 'function' && tgRefresh(), 800);
   if (stopOrders) stopOrders(); if (stopMenu) stopMenu();
   api().then(a => {
@@ -2017,7 +2029,7 @@ function startSession(s){
     stopOrders = a.watchOrders(s.phone, list => {
       orders = list.map(fromDb);
       renderHistory(); syncNotifs(prev);
-      if (deepOrder) { const d = orders.find(x => x.id === deepOrder); if (d) { deepOrder = null; history.replaceState(null, '', location.pathname); setTimeout(() => openOrder(d), 1000); } } prev = new Map(orders.map(o => [o.id, o.status]));
+      if (deepOrder) { const d = orders.find(x => x.code === deepOrder); if (d) { deepOrder = null; route = null; history.replaceState(null, '', '/'); setTimeout(() => openOrder(d), 1400); } } prev = new Map(orders.map(o => [o.id, o.status]));
       if (curOrder && isOpen(orderEl)) { const o = orders.find(x => x.id === curOrder.id); if (o) { curOrder = o; renderOrder(o); } }
     }, () => toast('Mất kết nối tới quán', 'wifioff'));
     stopMenu = a.watchMenu(applyMenu, () => {});

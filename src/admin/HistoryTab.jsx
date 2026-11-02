@@ -31,7 +31,7 @@ const whenText = (d) => (!d ? '' : d.toDateString() === new Date().toDateString(
 // Báo khách qua Telegram khi quán nhận đơn (đang chế), huỷ đơn hoặc xác nhận thanh toán
 const tellCustomer = async (o, patch) => {
   const its = summary(o, ', ');
-  const link = `${APP_URL}/?order=${o.id}`;
+  const link = `${APP_URL}/order/${orderCode(o)}`;
   if (patch.status === 'brewing' && o.status !== 'brewing') tgToCustomer(o.customerPhone, `📣 Coong đã xác nhận đơn hàng ${its}.${await tgDebtText(o.customerPhone)}`, link);
   else if (patch.status === 'cancelled' && o.status !== 'cancelled') tgToCustomer(o.customerPhone, `❌ Coong đã huỷ đơn hàng ${its} của bạn. Tiếc ghê, hẹn gặp lại bạn lần sau nhé!`, link);
   else if (patch.paid === true && !o.paid) tgToCustomer(o.customerPhone, `📣 Coong đã nhận ${fmt(o.totalAmount)}đ đơn hàng ${orderCode(o)}.${await tgDebtText(o.customerPhone)}`, link);
