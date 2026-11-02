@@ -103,3 +103,13 @@ export const tgDebt = async (phone) => {
   } catch (e) { return { n: 0, total: 0, text: '' }; }
 };
 export const tgDebtText = async (phone) => (await tgDebt(phone)).text;
+
+// Nhắn riêng cho một khách: 'ok' | 'nochat' (khách chưa bật Telegram) | 'notoken' | 'fail'
+export const tgMessageCustomer = async (phone, text) => {
+  try {
+    const c = await getTgCfg(true); if (!c.token) return 'notoken';
+    const chat = await getTgChat(phone); if (!chat) return 'nochat';
+    const r = await send(c.token, chat, text, APP_URL, 'Đặt hàng');
+    return r && r.ok ? 'ok' : 'fail';
+  } catch (e) { return 'fail'; }
+};

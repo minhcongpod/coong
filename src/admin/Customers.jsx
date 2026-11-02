@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
+import { tgMessageCustomer } from '../telegram';
 import { createCustomer, updateUserName, deleteCustomer } from '../db';
 import { Icon, Sym, Page, Btn, Field, Empty, byName, phoneText, useUI, errText } from './ui.jsx';
 
@@ -7,19 +8,21 @@ export const customersOf = (users) => Object.values(users).filter((u) => u.role 
 const norm = (s) => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd');
 
 // Chọn khách theo tên hoặc số điện thoại; thêm khách mới và sửa khách ngay tại đây
-export function CustomerPicker({ users, selected, onPick, onBack, onAdd, onEdit }) {
+export function CustomerPicker({ users, selected, onPick, onBack, onAdd, onEdit, onChat }) {
   const [q, setQ] = useState('');
+  const [chat, setChat] = useState(null);
   const list = useMemo(() => {
     const k = norm(q).replace(/\s/g, '');
     return customersOf(users).filter((u) => !k || norm(u.name).replace(/\s/g, '').includes(k) || u.phone.includes(k));
   }, [users, q]);
-  return (
+  return (<>
     <Page className="s-pg" onBack={onBack} footer={onAdd && <button className="a-btn s-add" onClick={onAdd}><Sym id="i-s-plus" size={20} />Thêm khách</button>}>
       <label className="s-search"><Sym id="i-s-search" size={20} /><input placeholder="Tìm tên hoặc SĐT" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Tìm khách" /></label>
       {list.map((u) => (
         <div key={u.phone} className="s-cust" role="button" tabIndex={0} onClick={() => onPick(u)} aria-label={`Chọn ${u.name}`}>
           <span className="s-name"><b className="a-ell">{u.name}</b><small>{phoneText(u.phone)}</small></span>
           {selected && selected.phone === u.phone && <span className="g"><Icon n="check" /></span>}
+          {onChat && <button className="s-chat" onClick={(e) => { e.stopPropagation(); setChat(u); }} aria-label={`Nhắn ${u.name}`}><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 4.5A1.5 1.5 0 0 1 4.5 3h11A1.5 1.5 0 0 1 17 4.5v8a1.5 1.5 0 0 1-1.5 1.5H8l-4 3v-3h0A1.5 1.5 0 0 1 3 12.5z" /></svg></button>}
           {onEdit
             ? <button className="s-chev" onClick={(e) => { e.stopPropagation(); onEdit(u); }} aria-label={`Sửa ${u.name}`}><Sym id="i-s-right" size={20} /></button>
             : <span className="s-chev"><Sym id="i-s-right" size={20} /></span>}
@@ -27,6 +30,40 @@ export function CustomerPicker({ users, selected, onPick, onBack, onAdd, onEdit 
       ))}
       {list.length === 0 && <Empty icon="user" title="Không thấy khách" text="Thử tên hoặc số khác, hoặc bấm Thêm khách." />}
     </Page>
+    {chat && <ChatSheet customer={chat} onClose={() => setChat(null)} />}
+  </>);
+}
+
+// Nhắn riêng cho một khách (qua Telegram): bottom sheet, gạt xuống để đóng
+function ChatSheet({ customer, onClose }) {
+  const { toast } = useUI();
+  const [text, setText] = useState('');
+  const [busy, setBusy] = useState(false);
+  const box = useRef(null), drag = useRef(null);
+  const down = (e) => { drag.current = { y: e.clientY, dy: 0 }; box.current.style.transition = 'none'; e.currentTarget.setPointerCapture(e.pointerId); };
+  const move = (e) => { const d = drag.current; if (!d) return; d.dy = Math.max(0, e.clientY - d.y); box.current.style.transform = `translateY(${d.dy}px)`; };
+  const up = () => {
+    const d = drag.current; drag.current = null; if (!d) return;
+    box.current.style.transition = 'transform .25s var(--ease-out)';
+    if (d.dy > 90) { box.current.style.transform = 'translateY(100%)'; setTimeout(onClose, 200); } else box.current.style.transform = '';
+  };
+  const send = async () => {
+    const t = text.trim(); if (!t || busy) return;
+    setBusy(true);
+    const r = await tgMessageCustomer(customer.phone, t);
+    setBusy(false);
+    if (r === 'ok') { toast(`Đã nhắn ${customer.name}`, true); onClose(); }
+    else toast(r === 'nochat' ? `${customer.name} chưa bật Telegram nên chưa nhắn được` : r === 'notoken' ? 'Chưa kết nối bot Telegram trong Cài đặt' : 'Chưa gửi được, thử lại nhé');
+  };
+  return (
+    <div className="o-sheetbg" onClick={onClose}>
+      <div className="o-sheet c-sheet" ref={box} role="dialog" aria-label={`Nhắn ${customer.name}`} onClick={(e) => e.stopPropagation()}>
+        <div className="c-grab" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}><div className="o-handle" /></div>
+        <div className="c-head"><b className="a-ell">{customer.name}</b><small>{phoneText(customer.phone)}</small></div>
+        <textarea className="c-box" rows={4} placeholder="Nội dung tin nhắn, ví dụ khuyến mãi..." value={text} onChange={(e) => setText(e.target.value)} aria-label="Nội dung tin nhắn" />
+        <Btn onClick={send} disabled={busy || !text.trim()}>{busy ? 'Đang gửi...' : 'Gửi'}</Btn>
+      </div>
+    </div>
   );
 }
 
