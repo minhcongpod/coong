@@ -8,7 +8,7 @@ import { vietQR, qrMatrix } from './qr';
 import { fireworks } from './fireworks';
 import {
   getUser, watchDevice, unlockDevice, lockDevice, watchMenu, watchOrders, watchShop,
-  createOrder, updateOrder, updateUserName, setPin, resetPinByName,
+  createOrder, updateOrder, updateUserName, setPin, resetPinByName, clearFresh,
 } from '../db';
 
 const nowIso = () => new Date().toISOString();
@@ -74,7 +74,11 @@ window.CoongAPI = {
   async resetPin(phone, name, pin) {
     const uid = await uidReady;
     if (await currentDevice()) await lockDevice(uid);
-    try { await resetPinByName(uid, phone, name, pin); return true; }
+    try {
+      await resetPinByName(uid, phone, name, pin);
+      try { const u = await getUser(phone); if (u && u.fresh) await clearFresh(phone); } catch (e) {}
+      return true;
+    }
     catch (e) { if (isWrongPin(e)) return false; throw e; }
   },
 

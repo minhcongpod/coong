@@ -1986,6 +1986,10 @@ formOf('phone').addEventListener('submit', async e => {
   try { acc = await (await api()).lookup(p); } catch (err) { b.textContent = t; b.disabled = false; return bad(f, [f.elements.phone], 'Chưa kết nối được, thử lại nhé.'); }
   b.textContent = t; b.disabled = false;
   A.phone = p;
+  /* an account the shop created has no PIN of its own yet: set one with the order name, no "forgot" detour */
+  const fa = $('.asub', formOf('forgot'));
+  if (fa) fa.textContent = acc && acc.fresh ? 'Quán đã tạo tài khoản cho bạn. Nhập tên đặt hàng để tự đặt mã PIN riêng nhé!' : 'Nhập số điện thoại và tên đặt hàng sau đó đăng nhập lại là có mã PIN mới liền!';
+  if (acc && acc.fresh) { go('forgot'); return; }
   if (acc) { A.name = acc.name; A.mode = p === pendingReset() ? 'reset' : 'enter'; go('pin'); } else go('reg');
 });
 /* forgot PIN: there is no SMS, so the customer proves the number with the order name they registered */
