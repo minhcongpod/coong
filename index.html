@@ -1520,7 +1520,7 @@ const shortCode = d => typeof d.no === 'number' ? String(d.no).padStart(4, '0') 
 /* a Firestore order as the screens use it */
 function fromDb(d){
   return {id:d.id, code:shortCode(d), status:STATUS[d.status] || 'wait', pay:d.payMethod || 'cash', paid:!!d.paid,
-    claimed:d.paymentStatus === 'awaiting', at:new Date(d.createdAt || Date.now()),
+    claimed:d.paymentStatus === 'awaiting', selfCancel:d.cancelledBy === 'customer', at:new Date(d.createdAt || Date.now()),
     items:(d.items || []).map(x => { const id = x.drink || drinkIdOf(x.name) || 'den';
       return {id, qty:x.quantity || 1, unit:x.price || 0, o:{...O0, ...(x.opts || {})}, name:x.drink || drinkIdOf(x.name) ? drink(id).name : x.name}; })};
 }
@@ -1720,12 +1720,12 @@ const seenSet = () => { try { return new Set(JSON.parse(store.get(seenKey()) || 
 /* one notification per order, for its latest status; a status that changes while the app is open pops a toast */
 function syncNotifs(prev){
   const seen = seenSet();
-  notifs = orders.slice(0, 30).map(o => { const [title, body] = NT[o.status](o), key = o.id + ':' + o.status;
+  notifs = orders.filter(o => !o.selfCancel).slice(0, 30).map(o => { const [title, body] = NT[o.status](o), key = o.id + ':' + o.status;
     return {title, body, at:o.at, read:seen.has(key), order:o.code, kind:o.status, key}; });
   if (!orders.length) notifs = [{title:'Chào bạn mới!', body:'Vuốt thẻ để chọn ly, giữ nút + để thêm nhanh nhiều ly.', at:new Date(), read:true, kind:'info'}];
   renderNotifs();
   if (!prev) return;
-  orders.forEach(o => { const p = prev.get(o.id); if (p && p !== o.status && o.status !== 'cancel') notifyPop(NT[o.status](o)[0]); });
+  orders.forEach(o => { const p = prev.get(o.id); if (p && p !== o.status && o.status !== 'cancel' && !o.selfCancel) notifyPop(NT[o.status](o)[0]); });
 }
 function notifyPop(title){
   toast(title, 'bell');
