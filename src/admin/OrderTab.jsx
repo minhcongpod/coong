@@ -14,6 +14,7 @@ const extraOf = (m) => (typeof m.upsize === 'number' ? m.upsize : XL_EXTRA);
 const qtyText = (n) => String(n).padStart(2, '0');
 
 // Chọn món như app khách: Trang chủ → Chi tiết → Giỏ hàng → Thanh toán (gán khách) → Đặt hàng thành công
+let cartSw = null; // vuốt xuống để đóng giỏ hàng
 const O0 = { upsize: 0, hot: 0, sweet: 0, cafe: 0 }; // sweet/cafe: 0 = 100%, 50 = 50%
 const pctOf = (v) => (v === 1 ? 0 : v || 100); // sweet: 1 = 0% (chỉ Bạc)
 const flagsOf = (kind) => ({ sweet: kind === 'nau' || kind === 'bac', cafe: kind === 'bac' });
@@ -162,7 +163,14 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
   if (page === 'cart') {
     const cur = sheet >= 0 ? lines[sheet] : null;
     return (
-      <div className="a-page o-cartpg">
+      <div
+        className="a-page o-cartpg"
+        style={{ touchAction: 'pan-y' }}
+        onPointerDown={(e) => { cartSw = e.target.closest('button,input,textarea,.o-line') ? null : { x: e.clientX, y: e.clientY }; }}
+        onPointerMove={(e) => { if (cartSw && e.clientY - cartSw.y > 70 && e.clientY - cartSw.y > Math.abs(e.clientX - cartSw.x) * 1.4) { cartSw = null; setSheet(-1); setPage(null); } }}
+        onPointerUp={() => { cartSw = null; }}
+        onPointerCancel={() => { cartSw = null; }}
+      >
         <button className="a-back" onClick={() => { setSheet(-1); setPage(null); }} aria-label="Đóng giỏ hàng"><Sym id="i-close" size={28} /></button>
         {lines.length === 0 ? (
           <div className="o-cempty">

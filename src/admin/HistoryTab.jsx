@@ -61,10 +61,10 @@ export default function HistoryTab({ orders, users, loading, onGoOrder, track, u
   const listRef = useRef(null);
   useEffect(() => {
     const el = listRef.current;
-    if (!el) return;
+    if (!el || loading) return;
     const an = [...el.querySelectorAll('.h-card, .h-head')].slice(0, 12).map((r, j) => r.animate(
       [{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }],
-      { duration: 420, delay: 120 + j * 60, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' },
+      { duration: 520, delay: 160 + j * 70, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' },
     ));
     return () => an.forEach((x) => x.cancel());
   }, [filter, loading]);

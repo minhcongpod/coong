@@ -151,8 +151,25 @@ export const Page = ({ title, sub, head, onBack, children, footer, className = '
       ? [el.animate([{ opacity: 0, transform: 'translateX(-24px)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.22,1,.36,1)' })]
       : [el.animate([{ transform: 'translateX(100%)' }, { transform: 'none' }], { duration: 500, easing: 'cubic-bezier(.22,1,.36,1)' }),
         ...stagger(el, ':scope > [data-s], :scope > .a-title, :scope > .a-sub, .a-body > *, :scope > .a-foot')];
-    return () => an.forEach((a) => a.cancel());
+    // vuốt sang trái hoặc phải để quay lại (không tính khi chạm vào nút, ô nhập, thanh chọn)
+    let sw = null;
+    const dn = (e) => { sw = e.target.closest('button,input,textarea,.a-seg,.a-nav') ? null : { x: e.clientX, y: e.clientY }; };
+    const mv = (e) => {
+      if (!sw) return;
+      const dx = e.clientX - sw.x, dy = e.clientY - sw.y;
+      if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.4) { sw = null; backRef.current(); }
+    };
+    const up = () => { sw = null; };
+    el.style.touchAction = 'pan-y';
+    el.addEventListener('pointerdown', dn); el.addEventListener('pointermove', mv);
+    el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
+    return () => {
+      an.forEach((a) => a.cancel());
+      el.removeEventListener('pointerdown', dn); el.removeEventListener('pointermove', mv);
+      el.removeEventListener('pointerup', up); el.removeEventListener('pointercancel', up);
+    };
   }, []);
+  const backRef = useRef(() => {});
   const back = () => {
     const el = ref.current;
     if (leaving.current) return;
@@ -161,6 +178,7 @@ export const Page = ({ title, sub, head, onBack, children, footer, className = '
     const a = el.animate([{ transform: 'none' }, { transform: 'translateX(100%)' }], { duration: 340, easing: 'cubic-bezier(.4,0,.6,1)', fill: 'forwards' });
     a.finished.catch(() => {}).then(() => { backAt = Date.now(); onBack(); });
   };
+  backRef.current = back;
   return (
     <div className={`a-page a-fx ${className}`} ref={ref}>
       <button className="a-back" onClick={back} aria-label="Quay lại"><Sym id="i-back" size={28} /></button>

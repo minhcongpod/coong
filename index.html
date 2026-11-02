@@ -1481,13 +1481,16 @@ function hidePage(el, how = el.dataset.how || 'right', instant){
   return a.finished.then(() => { if (!el.classList.contains('open')) el.style.visibility = ''; a.cancel(); }).catch(() => {});
 }
 const isOpen = el => el.classList.contains('open');
-/* back buttons, and a swipe from the left edge on pages that slide in from the right */
+/* back buttons, and a swipe left or right anywhere on a page that has a back arrow */
 $$('.page').forEach(p => {
   p.goBack = () => hidePage(p);
-  $$('[data-back]', p).forEach(b => b.addEventListener('click', () => p.goBack()));
+  const backs = $$('[data-back]', p);
+  backs.forEach(b => b.addEventListener('click', () => p.goBack()));
+  if (!backs.length) return;
+  p.style.touchAction = 'pan-y';
   let sw = null;
-  p.addEventListener('pointerdown', e => { const r = scr(); sw = p.dataset.how === 'right' && (e.clientX - r.left)/S < 40 ? {x:e.clientX, y:e.clientY} : null; });
-  p.addEventListener('pointermove', e => { if (!sw) return; const dx = (e.clientX - sw.x)/S, dy = (e.clientY - sw.y)/S; if (dx > 70 && dx > Math.abs(dy)*1.4) { sw = null; p.goBack(); } });
+  p.addEventListener('pointerdown', e => { sw = e.target.closest('button,input,textarea,.otp,.seg') ? null : {x:e.clientX, y:e.clientY}; });
+  p.addEventListener('pointermove', e => { if (!sw) return; const dx = (e.clientX - sw.x)/S, dy = (e.clientY - sw.y)/S; if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy)*1.4) { sw = null; p.goBack(); } });
   ['pointerup','pointercancel'].forEach(ev => p.addEventListener(ev, () => { sw = null; }));
 });
 
