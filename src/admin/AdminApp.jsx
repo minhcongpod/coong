@@ -210,6 +210,18 @@ function Shell({ adminPhone, onLogout }) {
 
   // vào app (từ màn nhập PIN hoặc splash): tiêu đề trượt vào, thanh chuyển tab trồi lên, các thẻ đơn nảy lần lượt như trang chủ app khách
   const reduce = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const backTo = useRef(null); // mở đơn từ trang Trạng thái thanh toán: back lại về đó
+  const [menu, setMenu] = useState([]);
+  const [orders, setOrders] = useState(null);
+  const [users, setUsersRaw] = useState(null); // null: chưa tải
+  const setUsers = setUsersRaw;
+  const [txs, setTxs] = useState([]);
+
+  const [shop, setShop] = useState({});
+  const [track, setTrack] = useState(null); // { id, n }: mở chi tiết đơn vừa đặt
+  const [payFocus, setPayFocus] = useState(null); // { phone, n }: mở trang Chưa thanh toán của một khách
+  const [notif, setNotif] = useState(false); // trang Thông báo mở từ chuông ở các tab
+
   // chờ dữ liệu về xong (màn splash che bên trên) rồi mới chạy hiệu ứng, để không bị giật khi React vẽ lại nhiều lần
   const [late, setLate] = useState(false); // quá 4 giây vẫn chưa có dữ liệu: bỏ splash, không kẹt mãi
   useEffect(() => { const t = setTimeout(() => setLate(true), 4000); return () => clearTimeout(t); }, []);
@@ -234,17 +246,6 @@ function Shell({ adminPhone, onLogout }) {
     go(nav, [{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], { duration: 500, delay: 200 });
     nav && nav.querySelectorAll('button').forEach((b, k) => go(b, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 400, delay: 260 + k * 50 }));
   }, [ready]);
-  const backTo = useRef(null); // mở đơn từ trang Trạng thái thanh toán: back lại về đó
-  const [menu, setMenu] = useState([]);
-  const [orders, setOrders] = useState(null);
-  const [users, setUsersRaw] = useState(null); // null: chưa tải
-  const setUsers = setUsersRaw;
-  const [txs, setTxs] = useState([]);
-
-  const [shop, setShop] = useState({});
-  const [track, setTrack] = useState(null); // { id, n }: mở chi tiết đơn vừa đặt
-  const [payFocus, setPayFocus] = useState(null); // { phone, n }: mở trang Chưa thanh toán của một khách
-  const [notif, setNotif] = useState(false); // trang Thông báo mở từ chuông ở các tab
 
   useEffect(() => {
     const fail = (e) => toast(errText(e));
