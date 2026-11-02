@@ -56,6 +56,7 @@ svg{display:block}
 .hrow .hp{flex:1;display:flex;align-items:center;gap:4px;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
 .hrow .hp svg{width:16px;height:16px}
 .hrow .hp .paid{color:var(--ok)}.hrow .hp .due{color:var(--yellow)}
+.hsec{flex:none;font-size:14px;line-height:18px;font-weight:500;color:var(--gray);padding:0 0 0 0}
 .hrow small{font-size:14px;color:var(--gray);font-weight:400}
 .st.wait{color:var(--yellow)}.st.done{color:var(--ok)}.st.brew{color:var(--info)}
 .acc{left:24px;top:92px;width:342px;bottom:88px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain;line-height:normal;font-weight:700;display:flex;flex-direction:column;gap:24px}
@@ -1541,6 +1542,9 @@ const sameDay = (a, b) => a.toDateString() === b.toDateString();
 const hm = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 const dmy = d => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
 const listDate = d => { const y = new Date(); if (sameDay(d, y)) return 'Hôm nay'; y.setDate(y.getDate() - 1); return sameDay(d, y) ? 'Hôm qua' : dmy(d); };
+const listWhen = d => `${hm(d)} · ${sameDay(d, new Date()) ? 'Hôm nay' : dmy(d)}`;
+const weekStart = d => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; };
+function weekLabel(d){ const w = weekStart(new Date()), p = new Date(w); p.setDate(p.getDate() - 7); return d >= w ? 'Tuần này' : d >= p ? 'Tuần trước' : 'Cũ hơn'; }
 function ago(d){
   const m = Math.round((Date.now() - d)/60000);
   if (m < 1) return 'Vừa xong'; if (m < 60) return `${m} phút trước`;
@@ -1556,9 +1560,12 @@ function renderHistory(){
   renderLast();
   hlist.innerHTML = '';
   const shown = orders.filter(hMatch);
+  let lastWk = '';
   shown.forEach(o => {
+    const wk = weekLabel(o.at);
+    if (wk !== lastWk) { lastWk = wk; const h = document.createElement('div'); h.className = 'hsec'; h.textContent = wk; hlist.appendChild(h); }
     const r = document.createElement('button'); r.className = 'hrow';
-    r.innerHTML = `<div class="t"><span class="n"><b></b></span><span class="st ${o.status}">${ST[o.status]}</span></div><div class="t"><span class="hp"><svg class="${o.paid ? 'paid' : 'due'}"><use href="#${o.paid ? 'i-paid' : 'i-due'}"/></svg>${fmt(oTotal(o))}</span><small>${listDate(o.at)}</small></div>`;
+    r.innerHTML = `<div class="t"><span class="n"><b></b></span><span class="st ${o.status}">${ST[o.status]}</span></div><div class="t"><span class="hp"><svg class="${o.paid ? 'paid' : 'due'}"><use href="#${o.paid ? 'i-paid' : 'i-due'}"/></svg>${fmt(oTotal(o))}</span><small>${listWhen(o.at)}</small></div>`;
     r.querySelector('.n b').textContent = oSummary(o);
     r.addEventListener('click', () => openOrder(o));
     hlist.appendChild(r);
