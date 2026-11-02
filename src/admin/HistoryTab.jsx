@@ -110,11 +110,11 @@ export default function HistoryTab({ orders, users, loading, onGoOrder, track, u
           );
         })}
         {list.length === 0 && (orders.length === 0 && !loading ? (
-          <div className="o-none">
-            <div className="o-cups" aria-hidden="true"><img src="/bac.webp" alt="" /><img src="/den.webp" alt="" /><img src="/nau.webp" alt="" /></div>
+          <div className="a-empty">
+            <div className="eico"><Sym id="i-list" size={44} /></div>
             <h3>Chưa có đơn nào</h3>
-            <p>Đơn bạn đặt sẽ hiện ở đây.</p>
-            <Btn className="sm" style={{ width: 'auto' }} onClick={onGoOrder}>Làm tí thôi!</Btn>
+            <p>Đơn bạn đặt sẽ hiện ở đây để theo dõi và đặt lại.</p>
+            <Btn className="sm" style={{ width: 'auto', marginTop: 10 }} onClick={onGoOrder}>Làm tí đê</Btn>
           </div>
         ) : <p className="a-s" style={{ textAlign: 'center', padding: 24 }}>{loading ? 'Đang tải...' : 'Không có đơn phù hợp'}</p>)}
       </div>

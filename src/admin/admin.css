@@ -199,18 +199,6 @@ button.a-card:active{transform:scale(.97)}
 .o-item .grow{flex:1;min-width:0}
 .o-thumb{flex:none;width:48px;height:48px;border-radius:100px;background:var(--s10);overflow:hidden;display:flex;align-items:flex-start;justify-content:center;padding-top:7px;color:var(--mute)}
 .o-thumb img{height:62px;width:auto;display:block}
-.o-none{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding-top:24px}
-.o-none h3{font-size:24px;font-weight:700;margin-top:8px}
-.o-none p{font-size:16px;color:var(--mute);font-weight:500;margin-bottom:12px}
-.o-cups{position:relative;width:340px;height:150px}
-.o-cups img{position:absolute;filter:drop-shadow(0 0 20px rgba(255,255,255,.4))}
-.o-cups img:nth-child(1){left:0;top:36px;height:117px;rotate:-14deg}
-.o-cups img:nth-child(2){left:101px;top:0;height:150px}
-.o-cups img:nth-child(3){left:240px;top:18px;height:117px;rotate:14deg}
-.o-cups.login{position:absolute;left:25px;bottom:0;width:340px;height:208px;pointer-events:none}
-.o-cups.login img:nth-child(1){top:50px;height:163px}
-.o-cups.login img:nth-child(2){height:208px}
-.o-cups.login img:nth-child(3){top:25px;height:163px}
 .a-st.cur{color:var(--c)}
 .a-st.cur i{animation:a-opulse 1.6s ease-out infinite}
 @keyframes a-opulse{0%{box-shadow:0 0 0 0 var(--cg)}100%{box-shadow:0 0 0 12px rgba(0,0,0,0)}}
