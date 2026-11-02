@@ -1,8 +1,6 @@
 name: Nhắc đơn chờ xác nhận
 
 on:
-  schedule:
-    - cron: '*/5 * * * *'
   workflow_dispatch:
     inputs:
       dry_run:

@@ -195,7 +195,7 @@ function Telegram({ onBack }) {
     try { const r = await tgBroadcast(`📣 ${text}`); setPromo(''); toast(`Đã gửi ${r.sent}/${r.total} khách`, true); }
     catch (e) { toast(errText(e)); } finally { setBusy(false); }
   };
-  const test = async () => { await tgToAdmin('✅ Coong: thông báo Telegram hoạt động'); toast('Đã gửi tin thử'); };
+  const test = async () => { await tgToAdmin('📣 Coong: thông báo Telegram hoạt động'); toast('Đã gửi tin thử'); };
   return (
     <Page className="s-pg" title="Thông báo Telegram" sub={c.bot ? `Bot @${c.bot}${c.adminChat ? ' · đã kết nối' : ' · chưa kết nối'}` : 'Chưa cài bot'} onBack={onBack}>
       <Field value={token} onChange={(e) => setToken(e.target.value)} placeholder={c.token ? 'Dán token mới để đổi bot' : 'Dán token của bot (từ @BotFather)'} aria-label="Token bot Telegram" autoComplete="off" />

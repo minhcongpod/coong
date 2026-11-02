@@ -1,7 +1,7 @@
 // Thông báo qua Telegram, gửi thẳng từ app (không cần máy chủ):
 //   meta/telegram { token, bot, adminChat }  chỉ chủ quán ghi, các máy đã đăng nhập đọc
 //   tg/{phone}     { chatId }                khách tự gắn Telegram của mình
-import { doc, getDoc, setDoc, deleteDoc, collection, getDocs } from 'firebase/firestore';
+import { doc, getDoc, setDoc, deleteDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from './firebase';
 
 const api = (token, method) => `https://api.telegram.org/bot${token}/${method}`;
@@ -51,21 +51,21 @@ export const tgWaitChat = async (token, code, ms = 120000) => {
 // Mỗi tin có dòng "Xem ngay" gắn link vào app (chủ quán: /admin, khách: trang chủ)
 export const APP_URL = 'https://coongcafe.web.app';
 const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-const send = async (token, chat, text, link) => {
-  const body = esc(text) + (link ? `\n<a href="${link}">Xem ngay</a>` : '');
+const send = async (token, chat, text, link, label = 'Xem chi tiết') => {
+  const body = esc(text) + (link ? `\n<a href="${link}">${esc(label)}</a>` : '');
   const r = await call(token, 'sendMessage', { chat_id: chat, text: body, parse_mode: 'HTML', disable_web_page_preview: true });
   if (!r || !r.ok) console.warn('telegram: gửi lỗi', r && r.description);
   return r;
 };
 
 // Gửi cho chủ quán / cho khách; lỗi thì bỏ qua để không làm hỏng việc đang làm
-export const tgToAdmin = async (text, link = `${APP_URL}/admin`) => {
-  try { const c = await getTgCfg(); if (!c.token || !c.adminChat) return console.warn('telegram: chủ quán chưa kết nối'); await send(c.token, c.adminChat, text, link); } catch (e) {}
+export const tgToAdmin = async (text, link = `${APP_URL}/admin`, label) => {
+  try { const c = await getTgCfg(); if (!c.token || !c.adminChat) return console.warn('telegram: chủ quán chưa kết nối'); await send(c.token, c.adminChat, text, link, label); } catch (e) {}
 };
-export const tgToCustomer = async (phone, text, link = APP_URL) => {
+export const tgToCustomer = async (phone, text, link = APP_URL, label) => {
   try {
     const c = await getTgCfg(); if (!c.token || !phone) return;
-    const chat = await getTgChat(phone); if (!chat) return console.warn('telegram: khách chưa bật Telegram'); await send(c.token, chat, text, link);
+    const chat = await getTgChat(phone); if (!chat) return console.warn('telegram: khách chưa bật Telegram'); await send(c.token, chat, text, link, label);
   } catch (e) {}
 };
 
@@ -77,9 +77,27 @@ export const tgBroadcast = async (text) => {
   const chats = (await getDocs(collection(db, 'tg'))).docs.map((d) => d.data().chatId).filter(Boolean);
   let sent = 0;
   for (const chat of chats) {
-    const r = await send(c.token, chat, text, APP_URL);
+    const r = await send(c.token, chat, text, APP_URL, 'Đặt hàng');
     if (r && r.ok) sent++;
     await new Promise((res) => setTimeout(res, 60));
   }
   return { sent, total: chats.length };
+};
+
+// "1 Đen, 2 Nâu": gộp theo món, thứ tự Đen, Nâu, Bạc (items của đơn: name + quantity)
+export const itemsText = (items = []) => {
+  const order = ['đen', 'nâu', 'bạc'];
+  const by = new Map();
+  items.forEach((x) => { const n = x.name || ''; by.set(n, (by.get(n) || 0) + (x.quantity || x.qty || 1)); });
+  const rank = (n) => { const i = order.findIndex((k) => n.toLowerCase().includes(k)); return i < 0 ? 99 : i; };
+  return [...by].sort((a, b) => rank(a[0]) - rank(b[0])).map(([n, q]) => `${q} ${n}`).join(', ');
+};
+// Các đơn khách còn nợ (chưa trả, chưa huỷ): " Bạn còn n đơn (tổng đ) chưa thanh toán." hoặc '' nếu hết nợ
+export const tgDebtText = async (phone) => {
+  try {
+    const snap = await getDocs(query(collection(db, 'orders'), where('customerPhone', '==', phone)));
+    const due = snap.docs.map((d) => d.data()).filter((o) => !o.paid && o.status !== 'cancelled');
+    if (!due.length) return '';
+    return ` Bạn còn ${due.length} đơn (${due.reduce((n, o) => n + (o.totalAmount || 0), 0).toLocaleString('vi-VN')}đ) chưa thanh toán.`;
+  } catch (e) { return ''; }
 };

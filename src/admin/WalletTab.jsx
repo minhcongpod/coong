@@ -123,7 +123,7 @@ function Unpaid({ orders, onBack, only }) {
       await addDoc(collection(db, 'transactions'), {
         type: 'income', amount: g.total, description: `[Thu nợ] ${g.name}`, customerPhone: g.phone, createdAt: new Date().toISOString(),
       });
-      tgToCustomer(g.phone, `💚 Quán đã xác nhận thanh toán ${fmt(g.total)} (${g.orders.length} đơn). Cảm ơn bạn!`);
+      tgToCustomer(g.phone, `📣 Coong đã nhận ${fmt(g.total)}đ · ${g.orders.length} đơn. Cảm ơn bạn rất nhiều! Tiếp tục ủng hộ Coong nhé.`, undefined, 'Đặt hàng');
       toast(`Đã thu của ${g.name}`, true);
     } catch (e) { toast(errText(e)); }
   };
