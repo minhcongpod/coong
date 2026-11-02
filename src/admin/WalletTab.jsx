@@ -215,9 +215,9 @@ function AddTx({ onBack, initial = 'expense', edit }) {
     <Page
       className="w-addpg" onBack={onBack}
       footer={(
-        <div className="w-foot">
+        <div className="w-foot" style={edit ? { flexDirection: 'row', gap: 12 } : undefined}>
+          {edit && <Btn kind="danger" onClick={remove} disabled={busy}>Xoá</Btn>}
           <Btn onClick={save} disabled={busy}>{busy ? 'Đang lưu...' : 'Lưu lại'}</Btn>
-          {edit && <Btn kind="danger" onClick={remove} disabled={busy}>Xoá khoản</Btn>}
         </div>
       )}
     >
