@@ -35,9 +35,11 @@ const tellCustomer = async (o, patch) => {
   if (patch.status === 'brewing' && o.status !== 'brewing') tgToCustomer(o.customerPhone, `📣 Coong đã xác nhận đơn hàng ${its}.${await tgDebtText(o.customerPhone)}`, link);
   else if (patch.status === 'cancelled' && o.status !== 'cancelled') tgToCustomer(o.customerPhone, `❌ Coong đã huỷ đơn hàng ${its} của bạn. Tiếc ghê, hẹn gặp lại bạn lần sau nhé!`, link);
   else if (patch.paid === true && !o.paid) {
-    // còn nợ: dẫn vào trang trạng thái thanh toán; hết nợ: dẫn vào đơn
+    // còn nợ: dẫn vào trang trạng thái thanh toán; hết nợ: cảm ơn và dẫn vào menu
     const debt = await tgDebt(o.customerPhone);
-    tgToCustomer(o.customerPhone, `📣 Coong đã nhận ${fmt(o.totalAmount)}đ đơn hàng ${orderCode(o)}.${debt.text}`, debt.n ? `${APP_URL}/payment` : link);
+    const got = `📣 Coong đã nhận ${fmt(o.totalAmount)}đ đơn hàng ${orderCode(o)}.`;
+    if (debt.n) tgToCustomer(o.customerPhone, got + debt.text, `${APP_URL}/payment`);
+    else tgToCustomer(o.customerPhone, `${got} Cảm ơn bạn rất nhiều! Tiếp tục ủng hộ Coong nhé.`, `${APP_URL}/menu`, 'Đặt hàng');
   }
 };
 
