@@ -17,13 +17,22 @@ const range = (kind, a) => {
 const within = (rec, [s, e]) => { const d = timeOf(rec); return d && d >= s && d < e; };
 const txCat = (t) => (t.description || '').match(/^\[([^\]]*)\]/)?.[1] || (t.type === 'income' ? 'Khoản thu' : 'Khoản chi');
 const txNote = (t) => (t.description || '').replace(/^\[[^\]]*\]\s*/, '');
-const txName = (t) => (txNote(t) ? `${txCat(t)} · ${txNote(t)}` : txCat(t));
+// Khoản thu tự tạo từ đơn: "Tên TT #1234" / "Tên TT 3 đơn" (khoản cũ dạng [Thu đơn]/[Thu nợ] đổi sang cùng dạng khi hiển thị)
+const legacyTT = (t) => {
+  const d = t.description || '';
+  const m = d.match(/^\[Thu đơn\]\s*(.*?)\s*(#?(?:\d{4}|CG\w{4}))?$/);
+  if (m) return `${m[1]} TT ${m[2] ? (m[2][0] === '#' ? m[2] : '#' + m[2]) : ''}`.trim();
+  const n = d.match(/^\[Thu nợ\]\s*(.*?)(?:\s*\((\d+) đơn\))?$/);
+  if (n) return n[2] ? `${n[1]} TT ${n[2]} đơn` : `${n[1]} TT`;
+  return d;
+};
+const txName = (t) => (t.customerPhone ? legacyTT(t) : txNote(t) ? `${txCat(t)} · ${txNote(t)}` : txCat(t));
 // Khoản thu nợ khách đã nằm trong đơn đã thanh toán, không cộng lần nữa vào doanh thu
 const extraIncome = (t) => t.type === 'income' && !t.customerPhone;
 const qtyText = (n) => String(n).padStart(2, '0');
 
 // Tab Thống kê: số đơn, doanh thu, chi tiêu, đơn chưa thanh toán, thu chi
-export default function WalletTab({ orders, txs, users, unread, onBell, focus }) {
+export default function WalletTab({ orders, txs, users, unread, onBell, focus, onOpenOrder }) {
   const [kind, setKind] = useState('day');
   const [filter, setFilter] = useState('all');
   const [page, setPage] = useState(null); // unpaid | { add }
@@ -44,10 +53,11 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus })
   const unpaid = orders.filter((o) => isLive(o) && !o.paid);
   const list = txs.filter((t) => filter === 'all' || t.type === filter);
 
-  if (page === 'unpaid') return <Unpaid orders={unpaid} onBack={() => setPage(null)} />;
-  if (page && page.unpaid) return <Unpaid orders={unpaid.filter((o) => o.customerPhone === page.unpaid)} only onBack={() => setPage(null)} />;
+  if (page === 'unpaid') return <Unpaid orders={unpaid} onOpen={onOpenOrder} onBack={() => setPage(null)} />;
+  if (page && page.unpaid) return <Unpaid orders={unpaid.filter((o) => o.customerPhone === page.unpaid)} only focus onOpen={onOpenOrder} onBack={() => setPage(null)} />;
   if (page && (page.add || page.edit)) return <AddTx onBack={() => setPage(null)} initial={page.add} edit={page.edit} />;
 
+  const waitN = unpaid.filter((o) => o.paymentStatus === 'awaiting').length;
   const debt = unpaid.reduce((n, o) => n + (o.totalAmount || 0), 0);
   return (
     <>
@@ -75,15 +85,16 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus })
             <span><span className="a-s" style={{ display: 'block' }}>Lợi nhuận</span><b className={`w-val ${stats.profit < 0 ? 'r' : 'g'}`}>{stats.profit < 0 ? '−' : ''}{fmt(Math.abs(stats.profit))}</b></span>
           </div>
         </div>
-        {unpaid.length > 0 && <div className="a-card w-unpaid">
-          <span>
-            <span className="a-ic" style={{ gap: 8 }}><Sym id="i-hourglass" size={16} /><b className="w-rev y">{fmt(debt)}</b></span>
-            <span className="a-s" style={{ display: 'block' }}>{unpaid.length} đơn chưa thanh toán</span>
+        {unpaid.length > 0 && <button className="a-card w-unpaid" onClick={() => setPage('unpaid')} aria-label="Xem trạng thái thanh toán">
+          <span style={{ textAlign: 'left' }}>
+            <span className="a-ic" style={{ gap: 8 }}><Sym id="i-hourglass" size={20} /><b className="w-rev y">{fmt(debt)}</b></span>
+            <span className="a-s" style={{ display: 'block' }}>Chưa thanh toán: {unpaid.length - waitN}・Chờ xác nhận: {waitN}</span>
           </span>
-          <button className="w-view" onClick={() => setPage('unpaid')} aria-label="Xem đơn chưa thanh toán">Xem</button>
-        </div>}
+          <Icon n="right" size={20} />
+        </button>}
         </div>
         <Seg items={[['all', 'Tất cả'], ['income', 'Thu'], ['expense', 'Chi']]} value={filter} onChange={setFilter} />
+        <div className="w-list">
         {list.map((t) => {
           const inc = t.type === 'income';
           const d = timeOf(t);
@@ -98,23 +109,27 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus })
             </button>
           );
         })}
+        </div>
         {list.length === 0 && <Empty icon="wallet" title="Chưa có khoản nào" text="Bấm Thu hoặc Chi để ghi." />}
       </div>
     </>
   );
 }
 
-function Unpaid({ orders, onBack, only }) {
+function Unpaid({ orders, onBack, only, focus, onOpen }) {
   const { toast, confirm } = useUI();
+  const nWait = orders.filter((o) => o.paymentStatus === 'awaiting').length;
+  const [tab, setTab] = useState(nWait ? 'wait' : 'due');
+  const shown = useMemo(() => orders.filter((o) => (o.paymentStatus === 'awaiting') === (tab === 'wait')), [orders, tab]);
   const groups = useMemo(() => {
     const m = {};
-    orders.forEach((o) => {
+    shown.forEach((o) => {
       const g = (m[o.customerPhone] = m[o.customerPhone] || { phone: o.customerPhone, name: o.customerName, orders: [], total: 0 });
       g.orders.push(o);
       g.total += o.totalAmount || 0;
     });
     return Object.values(m).sort((a, b) => b.total - a.total);
-  }, [orders]);
+  }, [shown]);
   const total = groups.reduce((n, g) => n + g.total, 0);
 
   const collect = async (g) => {
@@ -122,7 +137,7 @@ function Unpaid({ orders, onBack, only }) {
     try {
       await Promise.all(g.orders.map((o) => updateOrder(o.id, { paid: true, paymentStatus: 'confirmed', paidAt: new Date().toISOString() })));
       await addDoc(collection(db, 'transactions'), {
-        type: 'income', amount: g.total, description: `[Thu nợ] ${g.name}`, customerPhone: g.phone, createdAt: new Date().toISOString(),
+        type: 'income', amount: g.total, description: `${g.name} TT ${g.orders.length} đơn`, customerPhone: g.phone, createdAt: new Date().toISOString(),
       });
       tgToCustomer(g.phone, `📣 Coong đã nhận ${fmt(g.total)}đ · ${g.orders.length} đơn. Cảm ơn bạn rất nhiều! Tiếp tục ủng hộ Coong nhé.`, undefined, 'Đặt hàng');
       toast(`Đã thu của ${g.name}`, true);
@@ -130,31 +145,30 @@ function Unpaid({ orders, onBack, only }) {
   };
 
   return (
-    <Page title="Chưa thanh toán" sub={groups.length ? `${orders.length} đơn · ${fmt(total)} · ${only ? groups[0].name : `${groups.length} khách`}` : undefined} onBack={onBack}>
+    <Page onBack={onBack}>
+      <Seg items={[['wait', 'Chờ xác nhận'], ['due', 'Chưa thanh toán']]} value={tab} onChange={setTab} />
       {groups.map((g) => (
         <div key={g.phone} className="a-card w-debt">
-          <div className="a-between">
-            <span>
-              <span className="a-t" style={{ display: 'block', fontSize: 14 }}>{g.name}</span>
-              <b className="y a-num" style={{ display: 'block', fontSize: 18, lineHeight: '23px' }}>{fmt(g.total)}</b>
-            </span>
-            <button className="o-pill" onClick={() => collect(g)} aria-label={`Đã thu tiền của ${g.name}`}><Sym id="i-verified" size={16} />Đã thu tiền</button>
+          <b className="a-t" style={{ fontSize: 18, lineHeight: '23px' }}>{g.name}</b>
+          <div className="w-rule" />
+          <div className="w-drows">
+            {g.orders.map((o) => {
+              const d = timeOf(o);
+              return (
+                <button key={o.id} className="w-drow" onClick={() => onOpen && onOpen(o.id)} aria-label="Xem chi tiết đơn">
+                  <span className="a-ell">{d ? `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')} · ` : ''}{summary(o)}</span>
+                  <b className="a-num">{fmt(o.totalAmount)}</b>
+                  <Icon n="right" size={16} />
+                </button>
+              );
+            })}
           </div>
           <div className="w-rule" />
-          {g.orders.map((o) => {
-            const d = timeOf(o);
-            return (
-              <div key={o.id} className="a-between" style={{ fontSize: 14, fontWeight: 500 }}>
-                <span className="a-ell" style={{ color: 'var(--mute)' }}>
-                  {d ? `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')} · ` : ''}{summary(o)}
-                </span>
-                <b className="a-num" style={{ flex: 'none' }}>{fmt(o.totalAmount)}</b>
-              </div>
-            );
-          })}
+          <div className="a-between"><span className="a-s">{g.orders.length} đơn tổng</span><b className="y a-num" style={{ fontSize: 18, lineHeight: '23px' }}>{fmt(g.total)}</b></div>
+          <button className={`o-pill w-collect${tab === 'wait' ? ' ok' : ''}`} onClick={() => collect(g)} aria-label={`${tab === 'wait' ? 'Xác nhận thanh toán' : 'Đã thu tiền'} của ${g.name}`}><Sym id="i-verified" size={16} />{tab === 'wait' ? 'Xác nhận thanh toán' : 'Đã thu tiền'}</button>
         </div>
       ))}
-      {groups.length === 0 && <Empty icon="check" title="Không còn đơn nợ" text="Mọi đơn đều đã thanh toán." />}
+      {groups.length === 0 && <Empty icon="check" title={tab === 'wait' ? 'Không có đơn chờ xác nhận' : 'Không còn đơn nợ'} text="Mọi đơn đều đã thanh toán." />}
     </Page>
   );
 }
@@ -171,6 +185,7 @@ function AddTx({ onBack, initial = 'expense', edit }) {
   const save = async () => {
     const n = Number(amount);
     if (!(n > 0)) return toast('Nhập số tiền');
+    if ((type === 'income' || cat === 'Khác') && !note.trim()) return toast('Nhập ghi chú');
     setBusy(true);
     const label = type === 'income' ? 'Khoản thu' : cat;
     const text = type === 'income' || cat === 'Khác' ? note.trim() : '';

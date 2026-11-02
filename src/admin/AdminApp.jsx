@@ -3,16 +3,16 @@ import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { auth } from '../firebase';
 import { getSetup, watchDevice, unlockDevice, lockDevice, watchOrders, watchMenu, watchUsers, watchTransactions, watchShop } from '../db';
 import './admin.css';
-import { Sym, UIProvider, useUI, errText, stagger, orderCode } from './ui.jsx';
+import { Sym, UIProvider, useUI, errText, stagger, orderCode, phoneText } from './ui.jsx';
 import OrderTab, { Notifs, claimGroups } from './OrderTab.jsx';
 import HistoryTab from './HistoryTab.jsx';
 import WalletTab from './WalletTab.jsx';
 import SettingsTab from './SettingsTab.jsx';
 import { LOGO_PATH } from './logo.js';
 
-const FW = 390, FH = 660;
+const FW = 390, FH = 700;
 
-// Khung 390×660 co giãn vừa cửa sổ, giống app khách
+// Khung 390×700 co giãn vừa cửa sổ, giống app khách
 function Device({ children }) {
   const [size, setSize] = useState({ w: window.innerWidth, h: window.innerHeight });
   useEffect(() => {
@@ -31,11 +31,13 @@ function Device({ children }) {
     document.body.className = '';
     return () => { link.remove(); document.title = prev.title; document.body.style.background = prev.bg; document.body.className = prev.theme; };
   }, []);
+  // điện thoại: lấp đầy màn hình, co theo chiều ngang và cao thêm nếu máy dài; cửa sổ lớn: khung 390×700 ở giữa
   const st = Math.min(size.w / FW, size.h / FH);
-  const dev = Math.abs(size.w - FW * st) > 1 || Math.abs(size.h - FH * st) > 1;
+  const fh = size.w <= 500 ? Math.min(Math.round(size.h / st), 900) : FH;
+  const dev = Math.abs(size.w - FW * st) > 1 || Math.abs(size.h - fh * st) > 1;
   return (
-    <div className={`a-root${dev ? ' a-dev' : ''}`}>
-      <div className="a-device" style={{ width: FW * st, height: FH * st }}>
+    <div className={`a-root${dev ? ' a-dev' : ''}`} style={{ '--fh': fh + 'px' }}>
+      <div className="a-device" style={{ width: FW * st, height: fh * st }}>
         <div className="a-stage" style={{ transform: `scale(${st})` }}>{children}</div>
       </div>
     </div>
@@ -206,10 +208,32 @@ function Shell({ adminPhone, onLogout }) {
     });
   }, [leaving, tab]);
 
+  // vào app (từ màn nhập PIN hoặc splash): tiêu đề trượt vào, thanh chuyển tab trồi lên, các thẻ đơn nảy lần lượt như trang chủ app khách
+  const introCards = useRef(true);
+  const reduce = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  useLayoutEffect(() => {
+    const pane = panes.current.history;
+    if (!pane || reduce()) return;
+    const E = 'cubic-bezier(.22,1,.36,1)', B = 'cubic-bezier(.34,1.56,.64,1)';
+    const go = (el, kf, o) => el && el.animate(kf, { fill: 'backwards', easing: E, ...o });
+    go(pane.querySelector('.h-head, .a-title'), [{ opacity: 0, transform: 'translateX(-28px)', filter: 'blur(8px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }], { duration: 700, delay: 120 });
+    go(pane.querySelector('.h-seg'), [{ opacity: 0, transform: 'translateY(16px) scale(.94)' }, { opacity: 1, transform: 'none' }], { duration: 640, delay: 260, easing: B });
+    const nav = document.querySelector('.a-nav');
+    go(nav, [{ opacity: 0, transform: 'translateY(60px)' }, { opacity: 1, transform: 'none' }], { duration: 780, delay: 420 });
+    nav && nav.querySelectorAll('button').forEach((b, k) => go(b, [{ opacity: 0, transform: 'scale(.3) rotate(-12deg)' }, { opacity: 1, transform: 'none' }], { duration: 720, delay: 520 + k * 90, easing: B }));
+  }, []);
   const [menu, setMenu] = useState([]);
   const [orders, setOrders] = useState(null);
-  const [users, setUsers] = useState({});
+  const [users, setUsersRaw] = useState(null); // null: chưa tải
+  const setUsers = setUsersRaw;
   const [txs, setTxs] = useState([]);
+  useEffect(() => {
+    if (orders === null || !introCards.current) return;
+    introCards.current = false;
+    const pane = panes.current.history;
+    if (!pane || reduce()) return;
+    pane.querySelectorAll('.h-card').forEach((c, k) => { if (k < 8) c.animate([{ opacity: 0, transform: 'translateY(90px) scale(.82)', filter: 'blur(14px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }], { duration: 900, delay: 160 + k * 120, easing: 'cubic-bezier(.34,1.56,.64,1)', fill: 'backwards' }); });
+  }, [orders]);
   const [shop, setShop] = useState({});
   const [track, setTrack] = useState(null); // { id, n }: mở chi tiết đơn vừa đặt
   const [payFocus, setPayFocus] = useState(null); // { phone, n }: mở trang Chưa thanh toán của một khách
@@ -252,14 +276,20 @@ function Shell({ adminPhone, onLogout }) {
   }, [orders]);
   const openClaim = (phone) => { setNotif(false); setPayFocus({ phone, n: Date.now() }); setTab('wallet'); };
   // tên khách luôn theo hồ sơ hiện tại, không theo tên lúc đặt đơn
-  const named = useMemo(() => (orders || []).map((o) => (users[o.customerPhone] && users[o.customerPhone].name && users[o.customerPhone].name !== o.customerName ? { ...o, customerName: users[o.customerPhone].name } : o)), [orders, users]);
-  const data = { shop, menu, orders: named, users, txs, loading: orders === null, unread: pending + claims, onBell: () => setNotif(true), onPay: openClaim };
+  // tên khách lấy theo tài khoản hiện tại; khách đã bị xoá thì hiện số điện thoại đặt hàng
+  const named = useMemo(() => (orders || []).map((o) => {
+    if (!users) return o;
+    const u = users[o.customerPhone];
+    if (!u) return { ...o, customerName: phoneText(o.customerPhone) || o.customerName };
+    return u.name && u.name !== o.customerName ? { ...o, customerName: u.name } : o;
+  }), [orders, users]);
+  const data = { shop, menu, orders: named, users: users || {}, txs, loading: orders === null, unread: pending + claims, onBell: () => setNotif(true), onPay: openClaim };
 
   return (
     <>
       <div className="a-tab" ref={(e) => { panes.current.order = e; }} hidden={tab !== 'order' && leaving !== 'order'}><OrderTab {...data} dive={dive} onTrack={(id) => { setTrack({ id, n: Date.now() }); setTab('history'); }} /></div>
       <div className="a-tab" ref={(e) => { panes.current.history = e; }} hidden={tab !== 'history' && leaving !== 'history'}><HistoryTab {...data} track={track} onGoOrder={() => setTab('order')} /></div>
-      <div className="a-tab" ref={(e) => { panes.current.wallet = e; }} hidden={tab !== 'wallet' && leaving !== 'wallet'}><WalletTab {...data} focus={payFocus} /></div>
+      <div className="a-tab" ref={(e) => { panes.current.wallet = e; }} hidden={tab !== 'wallet' && leaving !== 'wallet'}><WalletTab {...data} focus={payFocus} onOpenOrder={(id) => { setTrack({ id, n: Date.now() }); setTab('history'); }} /></div>
       <div className="a-tab" ref={(e) => { panes.current.settings = e; }} hidden={tab !== 'settings' && leaving !== 'settings'}><SettingsTab {...data} adminPhone={adminPhone} onLogout={onLogout} /></div>
       {notif && (
         <div className="a-tab a-over">

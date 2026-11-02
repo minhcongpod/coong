@@ -1011,7 +1011,7 @@ function AdminWalletTab({ transactions, orders, users }) {
       await collectDebt(orderIds, {
         type: 'income',
         amount: selectedDebtor.total,
-        description: `[Thu nợ] ${selectedDebtor.name} (${selectedDebtor.count} đơn)`,
+        description: `${selectedDebtor.name} TT ${selectedDebtor.count} đơn`,
         customerPhone: selectedDebtor.phone,
       });
       resetForm();

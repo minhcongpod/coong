@@ -123,7 +123,7 @@ export const deleteTransaction = (id) => deleteDoc(doc(db, 'transactions', id));
 
 // Đơn đã thanh toán: ghi ngày thu (paidAt) và một khoản thu "Thu đơn" (id cố định để bỏ đánh dấu thì xoá lại được)
 const payTxRef = (orderId) => doc(db, 'transactions', 'pay_' + orderId);
-const payTxOf = (o, code, at) => ({ type: 'income', amount: o.totalAmount || 0, description: `[Thu đơn] ${o.customerName || ''} ${code || ''}`.trim(), customerPhone: o.customerPhone, orderId: o.id, createdAt: at });
+const payTxOf = (o, code, at) => ({ type: 'income', amount: o.totalAmount || 0, description: `${o.customerName || ''} TT ${code || ''}`.replace(/\s+/g, ' ').trim(), customerPhone: o.customerPhone, orderId: o.id, createdAt: at });
 export const markPaid = async (o, code) => {
   const at = nowIso(), b = writeBatch(db);
   b.update(doc(db, 'orders', o.id), { paid: true, paymentStatus: 'confirmed', paidAt: at });
