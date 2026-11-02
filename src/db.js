@@ -121,10 +121,28 @@ export const addTransaction = (tx) => addDoc(collection(db, 'transactions'), { .
 
 export const deleteTransaction = (id) => deleteDoc(doc(db, 'transactions', id));
 
+// Đơn đã thanh toán: ghi ngày thu (paidAt) và một khoản thu "Thu đơn" (id cố định để bỏ đánh dấu thì xoá lại được)
+const payTxRef = (orderId) => doc(db, 'transactions', 'pay_' + orderId);
+const payTxOf = (o, code, at) => ({ type: 'income', amount: o.totalAmount || 0, description: `[Thu đơn] ${o.customerName || ''} ${code || ''}`.trim(), customerPhone: o.customerPhone, orderId: o.id, createdAt: at });
+export const markPaid = async (o, code) => {
+  const at = nowIso(), b = writeBatch(db);
+  b.update(doc(db, 'orders', o.id), { paid: true, paymentStatus: 'confirmed', paidAt: at });
+  b.set(payTxRef(o.id), payTxOf(o, code, at));
+  await b.commit();
+};
+export const markUnpaid = async (o) => {
+  const b = writeBatch(db);
+  b.update(doc(db, 'orders', o.id), { paid: false, paymentStatus: null, paidAt: null });
+  b.delete(payTxRef(o.id));
+  await b.commit();
+};
+// Đơn tạo ra đã thanh toán luôn (chủ quán đặt hộ): ghi khoản thu tương ứng
+export const recordPaidOrder = (o, code) => setDoc(payTxRef(o.id), payTxOf(o, code, o.paidAt || nowIso()));
+
 // Thu đủ nợ: gạch nợ các đơn và ghi khoản thu trong cùng một lần ghi
 export const collectDebt = async (orderIds, tx) => {
   const batch = writeBatch(db);
-  orderIds.forEach(id => batch.update(doc(db, 'orders', id), { paid: true }));
+  orderIds.forEach(id => batch.update(doc(db, 'orders', id), { paid: true, paidAt: nowIso() }));
   batch.set(doc(collection(db, 'transactions')), { ...tx, createdAt: nowIso() });
   await batch.commit();
 };

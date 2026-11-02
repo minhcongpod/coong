@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { createOrder } from '../db';
+import { createOrder, recordPaidOrder } from '../db';
 import { fireworks } from '../coong/fireworks';
 import { Icon, Sym, Page, Btn, Empty, fmt, dmy, hm, timeOf, phoneText, kindOf, XL_EXTRA, orderCode, useUI, errText, shopClosed } from './ui.jsx';
 import { CustomerPicker, NewCustomer, EditCustomerForm } from './Customers.jsx';
@@ -88,9 +88,10 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
       paid: pay !== 'debt',
       payMethod: pay,
     };
-    if (pay !== 'debt') order.paymentStatus = 'confirmed';
+    if (pay !== 'debt') { order.paymentStatus = 'confirmed'; order.paidAt = new Date().toISOString(); }
     try {
       const made = await createOrder(order);
+      if (pay !== 'debt') await recordPaidOrder({ ...order, id: made.id }, `#${String(made.no).padStart(4, '0')}`).catch(() => {});
       // cả 3 cách thanh toán đều sang màn Đặt hàng thành công
       setPage({ done: { id: made.id, no: made.no, drinks: drinkText, customer: customer.name, method: PAY_NAME[pay], total } });
       setLines([]); setPay('debt'); setCustomer(null); setSheet(-1);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
-import { updateOrder } from '../db';
+import { updateOrder, markPaid, markUnpaid } from '../db';
 import { APP_URL, tgToCustomer, tgDebtText } from '../telegram';
 import { Icon, Sym, Page, Btn, Seg, fmt, hm, dmy, timeOf, phoneText, payLabel, payState, orderCode, kindOf, STATUS, isLive, useUI, errText, BellBtn } from './ui.jsx';
 
@@ -155,8 +155,8 @@ function OrderDetail({ o, onBack, users }) {
     }
   };
   const togglePaid = async () => {
-    if (!paid) return run({ paid: true, paymentStatus: 'confirmed' });
-    if (await confirm({ title: 'Bỏ đánh dấu đã thanh toán?', msg: `${orderCode(o)} · ${fmt(o.totalAmount)}`, ok: 'Bỏ đánh dấu', danger: true })) run({ paid: false, paymentStatus: null });
+    if (!paid) return markPaid(o, orderCode(o)).then(() => tellCustomer(o, { paid: true })).catch((e) => toast(errText(e)));
+    if (await confirm({ title: 'Bỏ đánh dấu đã thanh toán?', msg: `${orderCode(o)} · ${fmt(o.totalAmount)}`, ok: 'Bỏ đánh dấu', danger: true })) markUnpaid(o).catch((e) => toast(errText(e)));
   };
 
   const cancelled = o.status === 'cancelled';
