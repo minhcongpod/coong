@@ -62,7 +62,7 @@ window.CoongAPI = {
     batch.set(doc(db, 'pins', phone), { pin });
     batch.set(doc(db, 'devices', uid), { phone, pin, createdAt: nowIso() });
     await batch.commit();
-    tgToAdmin(`📣 Khách mới: ${name} · ${phone}`);
+    tgToAdmin(`📣 Khách mới: ${name} · ${phone}`, null); // không kèm link
   },
 
   async signOut() { await lockDevice(await uidReady); },
@@ -113,7 +113,11 @@ window.CoongAPI = {
     if (!c || !c.token || !c.bot) return Promise.resolve(false);
     const code = tgNewCode();
     window.open(tgDeepLink(c.bot, code), '_blank');
-    return tgWaitChat(c.token, code).then(async (chat) => { if (!chat) return false; await setTgChat(phone, chat); return true; });
+    return tgWaitChat(c.token, code).then(async (chat) => { if (!chat) return false; await setTgChat(phone, chat);
+      // chào mừng ngay sau khi khách bấm Start
+      tgToCustomer(phone, '✨ Telegram đã kết nối thành công! Chào mừng bạn đến với Coong ☕️\nMột dự án nhỏ với 100% tâm huyết, rất mong nhận được những góp ý từ bạn để tối ưu trải nghiệm mỗi ngày.\n🚀', `${APP_URL}/menu`, 'Đặt hàng ngay nhé!');
+      return true;
+    });
   },
 };
 

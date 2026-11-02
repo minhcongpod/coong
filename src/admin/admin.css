@@ -33,6 +33,7 @@
 .a-nav button{position:relative;flex:1;display:flex;align-items:center;justify-content:center;opacity:.2;color:#fff;transition:opacity .25s}
 .a-nav button.on{opacity:1}
 .a-nav svg{width:32px;height:32px}
+.a-nav button:first-child svg{width:28px;height:28px}
 .a-bars{display:flex;align-items:flex-end;justify-content:center;gap:3px;height:32px}
 .a-bars i{width:9px;background:#d9d9d9;display:block}
 .a-badge{position:absolute;top:0;left:calc(50% + 6px);min-width:20px;height:20px;padding:0 6px;border-radius:20px;background:var(--yellow);color:#000;font-size:12px;font-weight:700;line-height:20px;text-align:center}
@@ -497,17 +498,17 @@ button.a-card:active{transform:scale(.97)}
 .w-notecard .w-note{display:block;resize:none;overflow:hidden;font-size:16px;line-height:19px;font-weight:500;min-height:38px;box-sizing:border-box}
 
 .w-unpaid{width:100%;text-align:left;color:inherit}
-.w-drows{display:flex;flex-direction:column}
+.w-drows{display:flex;flex-direction:column;border-top:1px solid var(--s10)}
+.w-dtot{align-items:flex-start;border-top:1px solid var(--s10);padding-top:12px;margin-top:-12px}
 .w-drow{display:flex;align-items:center;gap:8px;padding:12px 0;font-size:14px;font-weight:500;color:var(--mute);text-align:left;width:100%}
 .w-drow .a-ell{flex:1;min-width:0}
 .w-drow b{flex:none;color:#fff;font-weight:700}
 .w-drow svg{flex:none}
-.w-collect{width:100%;height:44px;justify-content:center;background:var(--s10);color:#fff;font-size:14px;font-weight:700;border-radius:32px}
-.w-collect.ok{background:rgba(52,199,89,.16);color:var(--ok)}
+.w-collect{margin-top:-4px;width:100%;height:44px;justify-content:center;background:var(--yellow);color:#000;font-size:16px;font-weight:700;border-radius:32px}
 
 .a-tab .w-body{gap:8px}
 .w-top{margin-bottom:8px}
-.w-list{display:flex;flex-direction:column;gap:16px;padding:8px 0}
+.w-list{display:flex;flex-direction:column;gap:16px;padding:8px 16px}
 .w-tx{align-items:flex-start;gap:16px}
 .w-tx .a-ibg{width:24px;height:24px}
 .w-tx .a-ibg svg{width:20px;height:20px}

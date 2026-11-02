@@ -114,8 +114,8 @@
 .dr-home{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;margin:-24px -24px 0;padding-top:24px}
 .dr-home .o-head{margin:0 24px;position:relative;z-index:3}
 .dr-home .o-bag{position:relative}
-.dr-mid{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:0;padding-bottom:0}
-.dr-mid .dr-car{margin-top:-34px}
+.dr-mid{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding-bottom:0}
+.dr-mid .dr-car{margin-top:-72px}
 .dr-mid .dots{margin-top:38px}
 .dr-fx{position:fixed;inset:0;pointer-events:none;z-index:60;font-family:'Space Grotesk',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;color:#fff;-webkit-font-smoothing:antialiased}
 .dr-fx .veil{position:absolute;inset:0}
