@@ -2187,7 +2187,7 @@ async function tgToggle(from){
   tgRefresh();
 }
 tgBtn.addEventListener('click', () => tgToggle(tgBtn));
-tgCard.addEventListener('click', () => { if (!session) return; tgCard.style.display = 'none'; $('#home').classList.toggle('noorder', !lastPlacedOrder()); tgToggle(tgCard); });
+tgCard.addEventListener('click', () => { if (!session) return; tgCard.style.display = 'none'; $('#home').classList.add('noorder'); tgToggle(tgCard); });
 $('#resetPw').addEventListener('click', async () => {
   if (!session) return;
   if (!await ask({title:'Đặt lại mã PIN?', text:'Đăng nhập lại để đổi mã PIN mới.\nGiỏ hàng chưa đặt vẫn được giữ.', ok:'Đặt lại'})) return;
