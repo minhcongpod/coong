@@ -158,7 +158,7 @@ service cloud.firestore {
           && request.resource.data.status == 'pending'
           && request.resource.data.paid == false
           && request.resource.data.totalAmount is number
-          && (!('paymentStatus' in request.resource.data) || request.resource.data.paymentStatus == 'awaiting')));
+          && (!('paymentStatus' in request.resource.data) || request.resource.data.paymentStatus == 'awaiting'));
       // Chủ quán sửa mọi thứ; khách chỉ được tự hủy đơn đang chờ của mình,
       // hoặc báo "đã chuyển khoản" (paymentStatus 'awaiting') cho đơn chưa trả để quán xác nhận
       allow update: if isAdmin()
