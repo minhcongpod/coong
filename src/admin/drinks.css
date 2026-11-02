@@ -17,6 +17,8 @@
   0%,100%{filter:drop-shadow(0 0 22px var(--glow0))}
   50%{filter:drop-shadow(0 0 30px var(--glow))}
 }
+@keyframes drift{0%,100%{translate:0 0;rotate:0deg;scale:1}35%{translate:2px -9px;rotate:1.8deg;scale:1.015}70%{translate:-2px -4px;rotate:-1.2deg;scale:1.008}}
+.dr .spin{animation:beat 4.8s ease-in-out infinite,drift 6.5s ease-in-out infinite;transform-origin:50% 80%}
 @media (prefers-reduced-motion:reduce){.dr .card .cup img,.dr .spin{animation:none;filter:drop-shadow(0 0 26px var(--glow))}}
 .dr .card .top{position:absolute;left:24px;right:20px;top:21px;display:flex;gap:8px;align-items:flex-start}
 .dr .card .top h3{flex:1;margin:0;font-size:32px;line-height:40px;font-weight:700}
