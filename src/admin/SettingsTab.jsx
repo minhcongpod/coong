@@ -12,7 +12,7 @@ const Row = ({ label, children }) => (
 );
 
 // Tab Cài đặt: quản lý khách hàng, quản lý menu, đăng xuất
-export default function SettingsTab({ menu, users, shop = {}, onLogout, unread, onBell }) {
+export default function SettingsTab({ menu, users, shop = {}, adminPhone, onLogout, unread, onBell }) {
   const [page, setPage] = useState(null); // customers | newCustomer | { customer } | menu | { dish }
   const { confirm, toast } = useUI();
   const customers = customersOf(users);
@@ -23,7 +23,7 @@ export default function SettingsTab({ menu, users, shop = {}, onLogout, unread, 
   if (page && page.customer) return <EditCustomerForm customer={page.customer} onBack={() => setPage('customers')} onSaved={() => setPage('customers')} onDeleted={() => setPage('customers')} />;
   if (page === 'hours') return <Hours shop={shop} onBack={back} />;
   if (page === 'telegram') return <Telegram onBack={back} />;
-  if (page === 'backup') return <Backup onBack={back} />;
+  if (page === 'backup') return <Backup adminPhone={adminPhone} onBack={back} />;
   if (page === 'menu') return <MenuList menu={menu} onBack={back} onOpen={(m) => setPage({ dish: m })} />;
   if (page && page.dish) return <EditDish dish={page.dish} onBack={() => setPage('menu')} />;
 
@@ -225,37 +225,44 @@ function Telegram({ onBack }) {
 // Sao lưu / khôi phục: lưu toàn bộ dữ liệu quán lên Firebase (collection backups), và nạp lại từ bản đã lưu.
 // Không gồm mã PIN và token Telegram (bí mật). Khôi phục chỉ ghi đè/bổ sung, không xóa dữ liệu mới hơn.
 const BK_COLS = ['orders', 'transactions', 'menu'];
-function Backup({ onBack }) {
+const BK_CHUNK = 250000; // ký tự mỗi phần (mỗi tài liệu Firestore tối đa 1MB)
+// Sao lưu lên chính Firebase: backups/{id} (thông tin) + backups/{id}/parts/{n} (nội dung JSON chia phần)
+async function makeBackup() {
+  const data = {};
+  for (const c of BK_COLS) data[c] = (await getDocs(collection(fdb, c))).docs.map((d) => ({ id: d.id, ...d.data() }));
+  data.users = (await getDocs(collection(fdb, 'users'))).docs.filter((d) => d.data().role === 'customer').map((d) => ({ id: d.id, ...d.data() }));
+  const shop = await getDoc(doc(fdb, 'meta', 'shop'));
+  data.shop = shop.exists() ? shop.data() : null;
+  const cnt = await getDoc(doc(fdb, 'counters', 'orders'));
+  data.counter = cnt.exists() ? cnt.data() : null;
+  const createdAt = new Date().toISOString();
+  const text = JSON.stringify({ app: 'coong', version: 1, createdAt, data });
+  const parts = [];
+  for (let i = 0; i < text.length; i += BK_CHUNK) parts.push(text.slice(i, i + BK_CHUNK));
+  const id = createdAt.replace(/[:.]/g, '-');
+  for (let i = 0; i < parts.length; i += 3) {
+    const b = writeBatch(fdb);
+    parts.slice(i, i + 3).forEach((t, k) => b.set(doc(fdb, 'backups', id, 'parts', String(i + k).padStart(4, '0')), { i: i + k, text: t }));
+    await b.commit();
+  }
+  // thông tin ghi sau cùng: bản sao lưu dở dang sẽ không hiện trong danh sách
+  await writeBatch(fdb).set(doc(fdb, 'backups', id), {
+    createdAt, parts: parts.length, orders: data.orders.length, transactions: data.transactions.length, customers: data.users.length, menu: data.menu.length,
+  }).commit();
+  return data;
+}
+
+function Backup({ adminPhone, onBack }) {
   const { toast, confirm } = useUI();
   const [busy, setBusy] = useState(false);
   const [list, setList] = useState(null); // null: đang ẩn danh sách; mảng: các bản sao lưu trên Firebase
-  const CHUNK = 250000; // ký tự mỗi phần (mỗi tài liệu Firestore tối đa 1MB)
+  const [wipe, setWipe] = useState(false);
 
   // Sao lưu lên chính Firebase: backups/{id} (thông tin) + backups/{id}/parts/{n} (nội dung JSON chia phần)
   const backup = async () => {
     setBusy(true);
     try {
-      const data = {};
-      for (const c of BK_COLS) data[c] = (await getDocs(collection(fdb, c))).docs.map((d) => ({ id: d.id, ...d.data() }));
-      data.users = (await getDocs(collection(fdb, 'users'))).docs.filter((d) => d.data().role === 'customer').map((d) => ({ id: d.id, ...d.data() }));
-      const shop = await getDoc(doc(fdb, 'meta', 'shop'));
-      data.shop = shop.exists() ? shop.data() : null;
-      const cnt = await getDoc(doc(fdb, 'counters', 'orders'));
-      data.counter = cnt.exists() ? cnt.data() : null;
-      const createdAt = new Date().toISOString();
-      const text = JSON.stringify({ app: 'coong', version: 1, createdAt, data });
-      const parts = [];
-      for (let i = 0; i < text.length; i += CHUNK) parts.push(text.slice(i, i + CHUNK));
-      const id = createdAt.replace(/[:.]/g, '-');
-      for (let i = 0; i < parts.length; i += 3) {
-        const b = writeBatch(fdb);
-        parts.slice(i, i + 3).forEach((t, k) => b.set(doc(fdb, 'backups', id, 'parts', String(i + k).padStart(4, '0')), { i: i + k, text: t }));
-        await b.commit();
-      }
-      // thông tin ghi sau cùng: bản sao lưu dở dang sẽ không hiện trong danh sách
-      await writeBatch(fdb).set(doc(fdb, 'backups', id), {
-        createdAt, parts: parts.length, orders: data.orders.length, transactions: data.transactions.length, customers: data.users.length, menu: data.menu.length,
-      }).commit();
+      const data = await makeBackup();
       toast(`Đã sao lưu ${data.orders.length} đơn, ${data.transactions.length} khoản thu chi`, true);
     } catch (e) { toast(errText(e)); } finally { setBusy(false); }
   };
@@ -304,6 +311,7 @@ function Backup({ onBack }) {
     } catch (e) { toast(errText(e)); } finally { setBusy(false); }
   };
 
+  if (wipe) return <Wipe adminPhone={adminPhone} onBack={() => setWipe(false)} />;
   if (list) {
     return (
       <Page className="s-pg" title="Khôi phục" sub="Chọn bản sao lưu trên Firebase" onBack={() => setList(null)}>
@@ -328,8 +336,58 @@ function Backup({ onBack }) {
         </p>
         <Btn onClick={backup} disabled={busy}>{busy ? 'Đang xử lý...' : 'Sao lưu ngay'}</Btn>
         <Btn onClick={openList} disabled={busy}>Khôi phục từ bản đã lưu</Btn>
+        <Btn kind="danger" onClick={() => setWipe(true)} disabled={busy}>Xoá sạch dữ liệu</Btn>
       </div>
     </Page>
   );
 }
 const fmtBk = (iso) => { const d = new Date(iso); const p = (n) => String(n).padStart(2, '0'); return `${p(d.getHours())}:${p(d.getMinutes())} · ${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()}`; };
+
+// Xoá sạch để chạy thật: đơn hàng, thu chi, khách hàng (kèm PIN và liên kết Telegram), bộ đếm mã đơn.
+// Giữ lại: tài khoản chủ quán, menu, giờ mở cửa, cấu hình Telegram, các bản sao lưu.
+const CONFIRM_WORD = 'XOA SACH';
+function Wipe({ adminPhone, onBack }) {
+  const { toast, confirm } = useUI();
+  const [word, setWord] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [step, setStep] = useState('');
+
+  const del = async (refs) => {
+    for (let i = 0; i < refs.length; i += 400) {
+      const b = writeBatch(fdb);
+      refs.slice(i, i + 400).forEach((r) => b.delete(r));
+      await b.commit();
+    }
+  };
+  const wipe = async () => {
+    if (word.trim().toUpperCase() !== CONFIRM_WORD) return toast(`Gõ ${CONFIRM_WORD} để xác nhận`);
+    if (!(await confirm({ title: 'Xoá sạch dữ liệu?', msg: 'Không hoàn tác được. App sẽ tự sao lưu trước khi xoá.', ok: 'Xoá sạch', danger: true }))) return;
+    setBusy(true);
+    try {
+      setStep('Đang sao lưu...');
+      await makeBackup();
+      setStep('Đang xoá đơn hàng...');
+      await del((await getDocs(collection(fdb, 'orders'))).docs.map((d) => d.ref));
+      setStep('Đang xoá thu chi...');
+      await del((await getDocs(collection(fdb, 'transactions'))).docs.map((d) => d.ref));
+      setStep('Đang xoá khách hàng...');
+      const cust = (await getDocs(collection(fdb, 'users'))).docs.filter((d) => d.data().role === 'customer' && d.id !== adminPhone);
+      await del([...cust.map((d) => d.ref), ...cust.map((d) => doc(fdb, 'pins', d.id)), ...cust.map((d) => doc(fdb, 'tg', d.id))]);
+      await del([doc(fdb, 'counters', 'orders')]);
+      toast(`Đã xoá sạch (${cust.length} khách). Bản sao lưu vẫn còn trong mục Sao lưu.`, true);
+      setWord('');
+    } catch (e) { toast(errText(e)); } finally { setBusy(false); setStep(''); }
+  };
+
+  return (
+    <Page className="s-pg" title="Xoá sạch dữ liệu" onBack={onBack}>
+      <div className="a-body s-list" style={{ gap: 12 }}>
+        <p style={{ color: 'var(--mute)', fontSize: 15, lineHeight: 1.5, margin: 0 }}>
+          Xoá toàn bộ đơn hàng, thu chi, khách hàng (kèm mã PIN và liên kết Telegram) và đặt lại mã đơn về #1234. Các số điện thoại sẽ như chưa từng đăng ký. Giữ lại tài khoản chủ quán, menu, giờ mở cửa, cấu hình Telegram và các bản sao lưu. Giỏ hàng lưu trên máy khách sẽ tự hết khi khách đăng ký lại.
+        </p>
+        <Field placeholder={`Gõ ${CONFIRM_WORD} để xác nhận`} value={word} onChange={(e) => setWord(e.target.value)} aria-label="Xác nhận xoá sạch" />
+        <Btn kind="danger" onClick={wipe} disabled={busy}>{busy ? step || 'Đang xử lý...' : 'Xoá sạch dữ liệu'}</Btn>
+      </div>
+    </Page>
+  );
+}
