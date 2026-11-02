@@ -76,7 +76,7 @@ svg{display:block}
 .card2.adebt{background:rgba(255,204,0,.12)}
 .adebt>div{flex:1;display:flex;flex-direction:column;gap:0}
 .adebt>div>b{display:flex;align-items:center;gap:8px;font-size:24px;line-height:31px;color:var(--yellow);font-variant-numeric:tabular-nums}
-.adebt>div>b svg{width:16px;height:16px}
+.adebt>div>b svg{width:20px;height:20px}
 .adebt small{white-space:nowrap;font-size:14px;color:rgba(255,255,255,.5);font-weight:500}
 .adebt .btn,.adebt .btn.sm{width:auto;min-width:0;height:44px;padding:0 16px;font-size:16px;margin:0;flex:none;background:var(--yellow);color:#000}
 .adebt.clear{display:none}
@@ -265,6 +265,17 @@ input{user-select:text;-webkit-user-select:text}
 .pscroll{left:0;top:138px;width:390px;height:430px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain;padding:0 24px 8px;box-sizing:border-box;display:flex;flex-direction:column;gap:16px}
 .pscroll::-webkit-scrollbar{display:none}
 .psum{flex:none;width:342px;padding:16px 24px}
+#dues .pt{top:84px}#dues .pscroll{top:132px;height:510px;gap:8px}
+.dcard{flex:none;width:342px;display:flex;flex-direction:column;gap:12px}
+.dcard .dh b{display:block;font-size:18px;font-weight:700;color:#fff}.dcard .dh small{display:block;font-size:14px;font-weight:500;color:rgba(255,255,255,.5)}
+.dcard .drows{border-top:1px solid rgba(255,255,255,.1)}
+.drow{display:flex;align-items:center;gap:8px;width:100%;padding:12px 0;text-align:left;color:rgba(255,255,255,.5);font-size:14px;font-weight:500}
+.drow span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.drow b{flex:none;color:#fff;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.drow svg{flex:none;width:16px;height:16px}
+.dtot{display:flex;justify-content:space-between;align-items:flex-start;border-top:1px solid rgba(255,255,255,.1);padding-top:12px;margin-top:-12px;font-size:14px;font-weight:500;color:rgba(255,255,255,.5)}
+.dtot b{font-size:18px;font-weight:700;color:var(--yellow);font-variant-numeric:tabular-nums}
+.dcard .dpay{height:44px;border-radius:32px;background:var(--yellow);color:#000;font-size:16px;font-weight:700;margin-top:-4px}
 .pfoot{left:24px;bottom:24px;width:342px;height:60px;display:flex;align-items:center;gap:16px}
 .ptot{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-end;line-height:normal;font-weight:700}
 .ptot span{font-size:16px}
@@ -520,6 +531,7 @@ input{user-select:text;-webkit-user-select:text}
     <symbol id="i-warn" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 7.5v5.5M12 16.5v.01"/><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
     <symbol id="i-cardadd" viewBox="0 0 28 28"><path fill="currentColor" fill-rule="evenodd" d="M8.03979 9.04809H19.9597C20.135 9.04809 20.9238 8.87279 20.9238 8.08398C20.9238 4.57812 18.1191 1.77344 14.6133 1.77344H13.2986C11.6333 1.77344 10.0557 2.47461 8.82861 3.61401C7.68921 4.75341 6.98804 6.4187 6.98804 8.08398C6.98804 9.74926 7.95215 9.04809 7.95215 9.04809H8.03979ZM18.9079 7.03222H9.1792C9.35449 6.2434 9.79272 5.54223 10.3186 5.01635C11.1074 4.22754 12.2468 3.7893 13.3862 3.7893H14.7009C16.7168 3.7893 18.4697 5.19165 18.9079 7.11987V7.03222Z"/><path fill="currentColor" fill-rule="evenodd" d="M23.9039 9.22339C23.9039 7.99634 22.8521 7.03223 21.7127 7.03223H6.37463C5.23523 7.03223 4.27112 7.99634 4.18347 9.22339C3.92053 12.9045 3.30701 19.9162 3.04407 23.7727C3.04407 24.3862 3.21936 24.9997 3.65759 25.5256C4.09582 25.9638 4.6217 26.2268 5.23523 26.2268H22.7645C23.378 26.2268 23.9916 25.9638 24.3421 25.5256C24.7804 25.0874 24.9557 24.4739 24.9557 23.7727L23.9039 9.22339ZM18.4698 17.5498H14.964V21.0556C14.964 21.5815 14.5257 21.9321 14.0875 21.9321C13.6493 21.9321 13.211 21.5815 13.211 21.0556V17.5498H9.70519C9.17931 17.5498 8.82873 17.1116 8.82873 16.6733C8.82873 16.2351 9.17931 15.7969 9.70519 15.7969H13.211V12.291C13.211 11.7651 13.6493 11.4145 14.0875 11.4145C14.5257 11.4145 14.964 11.7651 14.964 12.291V15.7969H18.4698C18.9957 15.7969 19.3463 16.2351 19.3463 16.6733C19.3463 17.1116 18.9957 17.5498 18.4698 17.5498Z"/></symbol>
     <symbol id="i-paid" viewBox="0 0 16 16"><path fill="currentColor" d="M15.6114 7.05714L14.5201 5.9661C14.2611 5.70711 14.0489 5.19531 14.0489 4.82827V3.28527C14.0489 2.55127 13.4493 1.95165 12.7155 1.95126H11.1719C10.8052 1.95126 10.2929 1.73864 10.0338 1.47984L8.94279 0.388806C8.42438 -0.129602 7.57557 -0.129602 7.05716 0.388806L5.96613 1.48062C5.7069 1.73961 5.19392 1.95165 4.8281 1.95165H3.2851C2.55208 1.95165 1.95167 2.55127 1.95167 3.28527V4.82831C1.95167 5.1939 1.73948 5.70731 1.48045 5.96614L0.389221 7.05718C-0.129578 7.57559 -0.129578 8.42439 0.389221 8.94362L1.48045 10.0347C1.73964 10.2936 1.95167 10.8069 1.95167 11.1725V12.7155C1.95167 13.4487 2.55208 14.0492 3.2851 14.0492H4.82814C5.19475 14.0492 5.70714 14.2613 5.96617 14.5202L7.0572 15.6116C7.57561 16.1296 8.42442 16.1296 8.94283 15.6116L10.0339 14.5202C10.2931 14.2612 10.8053 14.0492 11.1719 14.0492H12.7155C13.4493 14.0492 14.0489 13.4487 14.0489 12.7155V11.1725C14.0489 10.8053 14.2613 10.2935 14.5202 10.0347L15.6114 8.94362C16.1294 8.42439 16.1294 7.57555 15.6114 7.05714ZM6.94158 11.0002L3.99972 8.05798L4.94255 7.11534L6.94181 9.1146L11.0573 5.00011L11.9999 5.94274L6.94158 11.0002Z"/></symbol>
+    <symbol id="i-rchev" viewBox="0 0 16 16"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-due" viewBox="0 0 16 16"><path fill="currentColor" d="M12.95 3.865C13.305 3.42 13.5 2.865 13.5 2.3V1.5C13.5 0.95 13.05 0.5 12.5 0.5H3.5C2.95 0.5 2.5 0.95 2.5 1.5V2.3C2.5 2.865 2.695 3.42 3.05 3.86L6.11 7.685C6.255 7.87 6.255 8.13 6.11 8.31L3.05 12.135C2.695 12.58 2.5 13.135 2.5 13.7V14.5C2.5 15.05 2.95 15.5 3.5 15.5H12.5C13.05 15.5 13.5 15.05 13.5 14.5V13.7C13.5 13.135 13.305 12.58 12.95 12.14L9.89 8.315C9.745 8.13 9.745 7.87 9.89 7.69L12.95 3.865ZM10.83 12.69C10.95 12.84 10.975 13.045 10.89 13.215C10.805 13.39 10.63 13.5 10.44 13.5H5.56C5.37 13.5 5.195 13.39 5.11 13.215C5.025 13.045 5.05 12.84 5.17 12.69L7.61 9.64C7.8 9.4 8.2 9.4 8.39 9.64L10.83 12.69Z"/></symbol>
     <symbol id="i-cash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="3"/><circle cx="12" cy="12" r="2.6"/></g></symbol>
     <symbol id="i-bank" viewBox="0 0 24 24"><path d="M3 9.5 12 4l9 5.5M5.5 10.5v6.5M9.8 10.5v6.5M14.2 10.5v6.5M18.5 10.5v6.5M3 20h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -561,7 +573,7 @@ input{user-select:text;-webkit-user-select:text}
           </div>
           <div class="card2 adebt" id="aDebt" data-s>
             <div><b><svg><use href="#i-due"/></svg><span id="aDue">0</span></b><small id="aDueN"></small></div>
-            <button class="btn sm" id="aPayNow">Thanh toán</button>
+            <button class="btn sm" id="aPayNow">Xem</button>
           </div>
         </div>
         <div class="arows">
@@ -637,6 +649,15 @@ input{user-select:text;-webkit-user-select:text}
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<div id="dues" class="screen page" data-how="right" aria-label="Chờ thanh toán">
+  <div class="stage">
+    <button class="abs circ pback" data-back aria-label="Quay lại"><svg><use href="#i-back"/></svg></button>
+    <h2 class="abs pt" data-s>Chờ thanh toán</h2>
+    <div class="abs pscroll" id="dBody"></div>
+    <div class="psheet" id="dSheet"><div class="sb"></div><div class="sp"></div></div>
   </div>
 </div>
 
@@ -1564,15 +1585,19 @@ function periodStart(p){
   else d.setMonth(0, 1);
   return d;
 }
+const duesEl = $('#dues');
 const dueOrders = () => orders.filter(o => !o.paid && !o.claimed && o.status !== 'cancel');
+const waitOrders = () => orders.filter(o => !o.paid && o.claimed && o.status !== 'cancel');
+const sumOf = l => l.reduce((n, o) => n + oTotal(o), 0);
 function renderAccount(){
   const from = periodStart(period), list = orders.filter(o => o.status !== 'cancel' && o.at >= from);
   $('#aCount').textContent = `${list.length} đơn đã đặt`;
   $('#aSpent').textContent = fmt(list.reduce((n, o) => n + oTotal(o), 0));
-  const due = dueOrders();
-  $('#aDue').textContent = fmt(due.reduce((n, o) => n + oTotal(o), 0));
-  $('#aDueN').textContent = `${due.length} đơn chưa thanh toán`;
-  $('#aDebt').classList.toggle('clear', !due.length);
+  const due = dueOrders(), wait = waitOrders();
+  $('#aDue').textContent = fmt(sumOf(due) + sumOf(wait));
+  $('#aDueN').textContent = `Chờ xác nhận: ${wait.length}・Ghi nợ: ${due.length}`;
+  $('#aDebt').classList.toggle('clear', !due.length && !wait.length);
+  if (isOpen(duesEl)) renderDues();
 }
 $$('#aSeg button').forEach((b, k) => b.addEventListener('click', () => {
   period = b.dataset.p; $$('#aSeg button').forEach(x => x.classList.toggle('on', x === b));
@@ -1580,13 +1605,35 @@ $$('#aSeg button').forEach((b, k) => b.addEventListener('click', () => {
   renderAccount();
   $('#aSpent').animate([{opacity:0, transform:'translateY(8px)'},{opacity:1, transform:'none'}], {duration:T(320), easing:'cubic-bezier(.22,1,.36,1)'});
 }));
-/* pay off everything owed by bank transfer; the shop then confirms it */
-const aSheet = $('#aSheet'); sheetDismiss(aSheet);
-$('#aPayNow').addEventListener('click', () => {
+/* "Chờ thanh toán" page: orders still owed, and orders the customer reported paid that the shop has yet to confirm */
+const dSheet = $('#dSheet'); sheetDismiss(dSheet);
+const dateShort = d => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}`;
+function dueCard(list, title, sub, pay){
+  const c = document.createElement('div'); c.className = 'card2 dcard';
+  c.innerHTML = `<div class="dh"><b>${pad(list.length)} ${title}</b>${sub ? `<small>${sub}</small>` : ''}</div><div class="drows"></div><div class="dtot"><span>Tổng</span><b>${fmt(sumOf(list))}</b></div>${pay ? '<button class="dpay">Thanh toán ngay</button>' : ''}`;
+  const rows = $('.drows', c);
+  list.forEach(o => {
+    const r = document.createElement('button'); r.className = 'drow'; r.innerHTML = '<span></span><b></b><svg><use href="#i-rchev"/></svg>';
+    $('span', r).textContent = `${dateShort(o.at)} · ${oItems(o, ' / ', false)}`; $('b', r).textContent = fmt(oTotal(o));
+    r.addEventListener('click', () => openOrder(o)); rows.appendChild(r);
+  });
+  if (pay) $('.dpay', c).addEventListener('click', pay);
+  return c;
+}
+function renderDues(){
+  const due = dueOrders(), wait = waitOrders(), body = $('#dBody');
+  body.innerHTML = '';
+  if (due.length) body.appendChild(dueCard(due, 'Đơn chờ thanh toán', '', payDues));
+  if (wait.length) body.appendChild(dueCard(wait, 'Đơn chờ quán xác nhận', 'Coong đã nhận yêu cầu, bạn đợi chút nha!'));
+  if (!due.length && !wait.length && isOpen(duesEl)) duesEl.goBack();
+}
+/* pay everything owed by bank transfer; the shop then confirms it */
+function payDues(){
   const due = dueOrders(); if (!due.length) return;
-  qrSheet(aSheet, {amt:due.reduce((n, o) => n + oTotal(o), 0), code:('NO' + due.map(o => o.code).join('')).slice(0, 25), alt:'Để sau', onAlt:() => {},
-    onPaid:async () => { try { await (await api()).claimPaid(due.map(o => o.id), {name:session.name, phone:session.phone, n:due.length, total:due.reduce((n, o) => n + oTotal(o), 0)}); toast('Đã gửi, chờ quán xác nhận', 'bank'); } catch (e) { toast('Chưa gửi được, thử lại nhé'); } }});
-});
+  qrSheet(dSheet, {amt:sumOf(due), code:('NO' + due.map(o => o.code).join('')).slice(0, 25), alt:'Để sau', onAlt:() => {},
+    onPaid:async () => { try { await (await api()).claimPaid(due.map(o => o.id), {name:session.name, phone:session.phone, n:due.length, total:sumOf(due)}); toast('Đã gửi, chờ quán xác nhận', 'bank'); } catch (e) { toast('Chưa gửi được, thử lại nhé'); } }});
+}
+$('#aPayNow').addEventListener('click', () => { renderDues(); showPage(duesEl); });
 
 function setStatus(o, s){ o.status = s; renderHistory(); if (curOrder === o && isOpen(orderEl)) renderOrder(o); }
 
@@ -1727,7 +1774,7 @@ function slider(el, onDone){
 /* "Đặt hàng": bank transfer opens the QR sheet first, cash and tab place the order straight away */
 const pGo = $('#pGo');
 const pSlide = {reset: () => { pGo.disabled = false; }};
-pGo.addEventListener('click', () => { if (pGo.disabled || !cartItems.length) return; pGo.disabled = true; payM === 'bank' ? openSheet() : placeOrder(false); });
+pGo.addEventListener('click', () => { if (pGo.disabled || !cartItems.length) return; pGo.disabled = true; payM === 'bank' ? openSheet() : placeOrder(false, payM === 'cash'); });
 /* a stand-in QR: finder squares plus a pattern seeded from the order code */
 /* the shop's real VietQR, with the amount and the order code filled in; finder squares drawn rounded to match the card */
 function qrSvg(amt, code){

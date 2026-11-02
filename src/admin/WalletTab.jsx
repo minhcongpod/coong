@@ -34,7 +34,8 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus })
   const stats = useMemo(() => {
     const r = range(kind, new Date());
     const live = orders.filter((o) => isLive(o) && within(o, r));
-    const paid = live.filter((o) => o.paid).reduce((n, o) => n + (o.totalAmount || 0), 0);
+    // doanh thu tính theo ngày thu tiền (đơn cũ chưa có paidAt thì theo ngày đặt)
+    const paid = orders.filter((o) => isLive(o) && o.paid && within({ createdAt: o.paidAt || o.createdAt }, r)).reduce((n, o) => n + (o.totalAmount || 0), 0);
     const inc = txs.filter((t) => extraIncome(t) && within(t, r)).reduce((n, t) => n + (t.amount || 0), 0);
     const exp = txs.filter((t) => t.type === 'expense' && within(t, r)).reduce((n, t) => n + (t.amount || 0), 0);
     return { orders: live.length, revenue: paid + inc, expense: exp, profit: paid + inc - exp };
@@ -87,7 +88,7 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus })
           const inc = t.type === 'income';
           const d = timeOf(t);
           return (
-            <button key={t.id} className="w-tx" onClick={() => (t.customerPhone ? toast('Thu nợ không sửa được') : setPage({ edit: t }))} aria-label={`${txName(t)}, bấm để sửa`}>
+            <button key={t.id} className="w-tx" onClick={() => (t.customerPhone ? toast('Khoản thu từ đơn không sửa được') : setPage({ edit: t }))} aria-label={`${txName(t)}, bấm để sửa`}>
               <span className={`a-ibg ${inc ? 'g' : 'r'}`} style={{ color: inc ? 'var(--ok)' : 'var(--err)' }}><Icon n={inc ? 'inn' : 'out'} /></span>
               <span className="grow w-txt">
                 <b className="a-t a-ell" style={{ display: 'block' }}>{txName(t)}</b>
@@ -119,7 +120,7 @@ function Unpaid({ orders, onBack, only }) {
   const collect = async (g) => {
     if (!(await confirm({ title: `Thu đủ ${fmt(g.total)}?`, ok: 'Đã thu' }))) return;
     try {
-      await Promise.all(g.orders.map((o) => updateOrder(o.id, { paid: true, paymentStatus: 'confirmed' })));
+      await Promise.all(g.orders.map((o) => updateOrder(o.id, { paid: true, paymentStatus: 'confirmed', paidAt: new Date().toISOString() })));
       await addDoc(collection(db, 'transactions'), {
         type: 'income', amount: g.total, description: `[Thu nợ] ${g.name}`, customerPhone: g.phone, createdAt: new Date().toISOString(),
       });
