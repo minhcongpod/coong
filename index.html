@@ -90,7 +90,7 @@ button.tgcard{text-align:left;color:#fff;padding:20px 24px}.tgcard svg{width:20p
 .tgl.on{background:var(--ok)}.tgl.on b{transform:translateX(20px)}
 .arow>span:first-child{flex:1;font-size:16px}.arow .y{flex:none}
 .aname{flex:1;min-width:0;background:none;border:0;outline:0;padding:0;margin:0;font:inherit;color:inherit;text-align:right;caret-color:var(--yellow);text-overflow:ellipsis;overflow:hidden;white-space:nowrap}label.arow>span:first-child{flex:none}.aname:focus{text-overflow:clip}
-.aname:focus{color:var(--yellow)}.arow .r{text-align:right}.arow .y{color:var(--yellow)}.arow .m{color:rgba(255,255,255,.5)}
+.aname:focus{color:var(--yellow)}.aname:not(:focus){direction:rtl}.arow .r{text-align:right}.arow .y{color:var(--yellow)}.arow .m{color:rgba(255,255,255,.5)}
 .logout{width:100%;height:44px;padding:0;text-align:center;color:var(--err);font-size:18px;font-weight:700}
 button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 .arow,.logout,.hrow{transition:transform .25s var(--ease-out)}
@@ -371,6 +371,9 @@ input{user-select:text;-webkit-user-select:text}
   0%,100%{filter:drop-shadow(0 0 22px var(--glow0))}
   50%{filter:drop-shadow(0 0 30px var(--glow))}
 }
+/* the cup on the detail screen floats gently */
+.spin{animation:beat 4.8s ease-in-out infinite,drift 7s ease-in-out infinite}
+@keyframes drift{0%,100%{translate:0 0;rotate:0deg}50%{translate:0 -8px;rotate:1.4deg}}
 @media (prefers-reduced-motion:reduce){.card .cup img,.spin{animation:none;filter:drop-shadow(0 0 26px var(--glow))}}
 .card .top{position:absolute;left:24px;right:20px;top:21px;display:flex;gap:8px;align-items:flex-start}
 .card .top h3{flex:1;margin:0;font-size:32px;line-height:40px;font-weight:700}
@@ -434,6 +437,7 @@ input{user-select:text;-webkit-user-select:text}
 .opt div{display:flex;gap:8px}
 .chip{width:40px;height:40px;border-radius:100px;background:var(--chip);color:var(--chipT);font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background .3s,color .3s,opacity .3s,transform .3s var(--ease-out)}
 .chip svg{width:40px;height:40px}
+.chip[hidden],.echips button[hidden]{display:none}
 .chip.on{background:#fff;color:var(--xOn)}
 .chip.on.val{color:var(--valOn)}
 .chip:active{transform:scale(.92)}
@@ -561,7 +565,7 @@ input{user-select:text;-webkit-user-select:text}
           </div>
         </div>
         <div class="arows">
-          <label class="arow" data-s><span>Tên đặt hàng</span><input class="r aname" id="aName" value="LieuNT" maxlength="16" enterkeyhint="done" autocomplete="nickname" aria-label="Tên đặt hàng"></label>
+          <label class="arow" data-s><span>Tên đặt hàng</span><input class="r aname" id="aName" value="LieuNT" enterkeyhint="done" autocomplete="nickname" aria-label="Tên đặt hàng"></label>
           <div class="arow" data-s><span>Số điện thoại</span><span class="r m" id="aPhone"></span></div>
           <button class="arow" id="tgBtn" data-s hidden role="switch" aria-checked="false" aria-label="Thông báo Telegram"><span>Telegram</span><i class="tgl"><b></b></i></button>
           <button class="arow" id="resetPw" data-s><span>Mã PIN</span><span class="y">Đặt lại</span></button>
@@ -588,7 +592,7 @@ input{user-select:text;-webkit-user-select:text}
     <div class="abs opts" id="opts">
       <div class="opt" data-a="left" data-k="upsize"><div><button class="chip on" data-v="0" aria-label="Size L"><svg><use href="#i-sizeL"/></svg></button><button class="chip val" data-v="1" aria-label="Size XL"><svg><use href="#i-sizeXL"/></svg></button></div></div>
       <div class="opt" data-a="left" data-k="hot"><div><button class="chip on" data-v="0" aria-label="Lạnh"><svg><use href="#i-snow"/></svg></button><button class="chip val" data-v="1" aria-label="Nóng"><svg><use href="#i-steam"/></svg></button></div></div>
-      <div class="opt" data-a="left" data-k="sweet"><label>Ngọt</label><div><button class="chip on" data-v="0" aria-label="Ngọt 100%">100</button><button class="chip val" data-v="50" aria-label="Ngọt 50%">50</button></div></div>
+      <div class="opt" data-a="left" data-k="sweet"><label>Ngọt</label><div><button class="chip on" data-v="0" aria-label="Ngọt 100%">100</button><button class="chip val" data-v="50" aria-label="Ngọt 50%">50</button><button class="chip val" data-v="1" aria-label="Ngọt 0%" id="sw0">0</button></div></div>
       <div class="opt" data-a="left" data-k="cafe"><label>Cafe</label><div><button class="chip on" data-v="0" aria-label="Cafe 100%">100</button><button class="chip val" data-v="50" aria-label="Cafe 50%">50</button></div></div>
     </div>
     <div class="abs spin" id="spin" role="img"></div>
@@ -624,8 +628,8 @@ input{user-select:text;-webkit-user-select:text}
           <div class="ehead"><div class="cthumb"><img alt="" draggable="false"></div><b class="ename"></b></div>
           <div class="egroup" data-k="upsize"><div class="echips"><button class="esz" data-v="0" aria-label="Size L"><svg><use href="#i-sizeL"/></svg></button><button class="esz" data-v="1" aria-label="Size XL"><svg><use href="#i-sizeXL"/></svg></button></div></div>
           <div class="egroup" data-k="hot"><div class="echips"><button data-v="0" aria-label="Lạnh"><svg><use href="#i-snow"/></svg></button><button data-v="1" aria-label="Nóng"><svg><use href="#i-steam"/></svg></button></div></div>
-          <div class="egroup" data-k="sweet"><label>Ngọt</label><div class="echips"><button class="val" data-v="50">50</button><button data-v="100">100</button></div></div>
-          <div class="egroup" data-k="cafe"><label>Cafe</label><div class="echips"><button class="val" data-v="50">50</button><button data-v="100">100</button></div></div>
+          <div class="egroup" data-k="sweet"><label>Ngọt</label><div class="echips"><button data-v="100">100</button><button class="val" data-v="50">50</button><button class="val" data-v="1" id="esw0" aria-label="Ngọt 0%">0</button></div></div>
+          <div class="egroup" data-k="cafe"><label>Cafe</label><div class="echips"><button data-v="100">100</button><button class="val" data-v="50">50</button></div></div>
         </div>
         <div class="eacts">
           <button class="btn edel" id="eDel">Xoá khỏi giỏ</button>
@@ -719,7 +723,7 @@ input{user-select:text;-webkit-user-select:text}
     <form class="abs aform off" data-m="reg" novalidate>
       <div class="ahead"><h2 class="atitle" data-s>Chào bạn mới</h2><p class="asub" data-s>Đăng ký nha. 15s thôi!</p></div>
       <div class="fields">
-        <label class="field" data-s><input name="name" placeholder="Tên đặt hàng" autocomplete="nickname" maxlength="16" enterkeyhint="next"></label>
+        <label class="field" data-s><input name="name" placeholder="Tên đặt hàng" autocomplete="nickname" enterkeyhint="next"></label>
         <label class="field" data-s><input name="pin" type="password" inputmode="numeric" placeholder="Mã PIN 4 số" maxlength="4" autocomplete="new-password"><button type="button" class="peek" id="rPeek">Hiện</button></label>
         <p class="aerr" aria-live="polite"></p>
       </div>
@@ -729,7 +733,7 @@ input{user-select:text;-webkit-user-select:text}
       <div class="ahead"><h2 class="atitle" data-s>Quên mã PIN?</h2><p class="asub" data-s>Nhập số điện thoại và tên đặt hàng sau đó đăng nhập lại là có mã PIN mới liền!</p></div>
       <div class="fields">
         <label class="field" data-s><input name="phone" type="tel" inputmode="numeric" placeholder="Số điện thoại" autocomplete="tel" maxlength="13" aria-label="Số điện thoại"></label>
-        <label class="field" data-s><input name="name" placeholder="Tên đặt hàng" autocomplete="nickname" maxlength="16" aria-label="Tên đặt hàng"></label>
+        <label class="field" data-s><input name="name" placeholder="Tên đặt hàng" autocomplete="nickname" aria-label="Tên đặt hàng"></label>
         <p class="aerr" aria-live="polite"></p>
       </div>
       <div class="afoot"><button type="submit" class="btn" data-s>Đặt lại</button><p class="aswitch" data-s>Nhớ ra rồi? <button type="button" class="alink" data-to="phone">Đăng nhập</button></p></div>
@@ -790,7 +794,7 @@ function applyMenu(items){
     /* sold out: the owner switched every menu entry for this drink off */
     const all = items.filter(x => drinkIdOf(x.name) === d.id); d.sold = closed || (all.length > 0 && !m);
     if (m) Object.assign(d, {price:m.price, menuId:m.id, menuName:m.name, cost:m.cost || 0, ...(typeof m.upsize === 'number' ? {xl:m.upsize} : {})}); });
-  cards.forEach((c, i) => { const d = DRINKS[i]; c.classList.toggle('sold', !!d.sold); $('.pricebar b', c).textContent = d.sold ? 'Hết hàng' : fmt(d.price); });
+  cards.forEach((c, i) => { const d = DRINKS[i]; c.classList.toggle('sold', !!d.sold); $('.pricebar b', c).textContent = closed ? 'Sắp mở hàng' : d.sold ? 'Hết hàng' : fmt(d.price); });
   if (detail.style.visibility === 'visible') $('#dPrice').textContent = fmt(unit()*qty);
 }
 const GLOW = {den:'rgba(255,255,255,.5)', nau:'rgba(255,255,255,.5)', bac:'rgba(255,255,255,.5)'};
@@ -985,6 +989,7 @@ function fillDetail(i){
   setFrame(0);
   qty = 1; Object.keys(opts).forEach(k => opts[k] = 0);
   $$('.opt').forEach(g => { $$('.chip', g).forEach(c => c.classList.toggle('on', c.dataset.v === '0')); if (g.dataset.k in d) g.hidden = !d[g.dataset.k]; });
+  $('#sw0').hidden = d.id !== 'bac';
   $('#qty').innerHTML = `<span>${pad(qty)}</span>`;
   $('#dPrice').textContent = fmt(unit()*qty);
   resetKnob(true);
@@ -1271,7 +1276,7 @@ aName.addEventListener('blur', () => { aName.value = aName.value.trim() || 'Bạ
 const cartItems = [];   /* {id, qty, unit} */
 const cartEl = $('#cart'), clist = $('#clist');
 /* Đen is always unsweetened; only Bạc lets you pick the coffee amount */
-const sweetText = (o, d) => d.sweet ? `${o.sweet || 100}% ngọt` : 'Không đường';
+const sweetText = (o, d) => d.sweet ? `${o.sweet === 1 ? 0 : o.sweet || 100}% ngọt` : 'Không đường';
 const optText = (o, id) => { const d = drink(id); return [o.upsize ? 'XL' : 'L', o.hot ? 'Nóng' : 'Lạnh', sweetText(o, d), ...(d.cafe ? [`${o.cafe || 100}% cafe`] : [])].join(' / '); };
 function addToCart(id, q, u, o = O0){
   const it = cartItems.find(x => x.id === id && x.unit === u && optText(x.o, id) === optText(o, id));
@@ -1294,6 +1299,7 @@ function openEdit(i){
   Object.assign(E, {i, o:{...it.o}, qty:it.qty});
   $('.ehead img', eSheet).src = d.id + '.webp'; $('.ename', eSheet).textContent = d.name;
   $$('.egroup', eSheet).forEach(g => { if (g.dataset.k in d) g.hidden = !d[g.dataset.k]; });
+  $('#esw0').hidden = d.id !== 'bac';
   eSync();
   eSheet.onDismiss = null;
   eSheet.getAnimations().forEach(a => a.cancel());
@@ -1655,7 +1661,7 @@ function syncNotifs(prev){
   const seen = seenSet();
   notifs = orders.slice(0, 30).map(o => { const [title, body] = NT[o.status](o), key = o.id + ':' + o.status;
     return {title, body, at:o.at, read:seen.has(key), order:o.code, kind:o.status, key}; });
-  if (!orders.length) notifs = [{title:'Chào mừng đến Coong', body:'Vuốt thẻ để chọn ly, giữ nút + để thêm nhanh nhiều ly.', at:new Date(), read:true, kind:'info'}];
+  if (!orders.length) notifs = [{title:'Chào bạn mới!', body:'Vuốt thẻ để chọn ly, giữ nút + để thêm nhanh nhiều ly.', at:new Date(), read:true, kind:'info'}];
   renderNotifs();
   if (!prev) return;
   orders.forEach(o => { const p = prev.get(o.id); if (p && p !== o.status && o.status !== 'cancel') notifyPop(NT[o.status](o)[0]); });
@@ -2063,7 +2069,7 @@ function finish(isNew){
   if (tab !== 0) showTab(0);
   homeIntro();
   /* the greeting is already on the home screen, so only a new account gets a snackbar */
-  if (isNew) toast('Đã tạo tài khoản', 'check');
+  if (isNew) toast('Chào bạn mới!', 'check');
 }
 
 /* account actions: resetting the PIN signs out, then the customer verifies the phone and picks a new PIN */
