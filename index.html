@@ -1727,7 +1727,7 @@ function slider(el, onDone){
 /* "Đặt hàng": bank transfer opens the QR sheet first, cash and tab place the order straight away */
 const pGo = $('#pGo');
 const pSlide = {reset: () => { pGo.disabled = false; }};
-pGo.addEventListener('click', () => { if (pGo.disabled || !cartItems.length) return; pGo.disabled = true; payM === 'bank' ? openSheet() : placeOrder(false); });
+pGo.addEventListener('click', () => { if (pGo.disabled || !cartItems.length) return; pGo.disabled = true; payM === 'bank' ? openSheet() : placeOrder(false, payM === 'cash'); });
 /* a stand-in QR: finder squares plus a pattern seeded from the order code */
 /* the shop's real VietQR, with the amount and the order code filled in; finder squares drawn rounded to match the card */
 function qrSvg(amt, code){
