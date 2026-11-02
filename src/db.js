@@ -114,6 +114,13 @@ export const createOrder = async (order) => {
   }
 };
 
+// Xoá đơn kèm khoản thu tự tạo của đơn (nếu có)
+export const deleteOrder = async (id) => {
+  const b = writeBatch(db);
+  b.delete(doc(db, 'orders', id));
+  b.delete(doc(db, 'transactions', 'pay_' + id));
+  await b.commit();
+};
 export const updateOrder = (id, patch) => updateDoc(doc(db, 'orders', id), patch);
 
 // --- Sổ thu chi ---

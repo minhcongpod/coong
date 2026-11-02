@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
-import { updateOrder, markPaid, markUnpaid } from '../db';
+import { updateOrder, markPaid, markUnpaid, deleteOrder } from '../db';
 import { APP_URL, tgToCustomer, tgDebtText, tgDebt } from '../telegram';
 import { Icon, Sym, Page, Btn, Seg, fmt, hm, dmy, timeOf, phoneText, payLabel, payState, orderCode, kindOf, STATUS, isLive, useUI, errText, BellBtn } from './ui.jsx';
 
@@ -57,6 +57,18 @@ export default function HistoryTab({ orders, users, loading, onGoOrder, track, u
     if (await confirm({ title: 'Huỷ đơn này?', ok: 'Huỷ đơn', danger: true })) run(o, { status: 'cancelled' });
   };
 
+  // nhấn giữ một đơn để xoá
+  const press = useRef({ t: 0, fired: false });
+  const startPress = (e, o) => {
+    if (e.target.closest('button')) return;
+    const p = press.current; p.fired = false; clearTimeout(p.t);
+    p.t = setTimeout(async () => {
+      p.fired = true;
+      if (await confirm({ title: 'Xoá đơn hàng', ok: 'Xoá đơn', danger: true })) deleteOrder(o.id).catch((err) => toast(errText(err)));
+    }, 600);
+  };
+  const endPress = () => clearTimeout(press.current.t);
+
   // các card hiện lần lượt, như app khách (lúc mở tab và mỗi lần đổi bộ lọc)
   const listRef = useRef(null);
   useEffect(() => {
@@ -82,7 +94,7 @@ export default function HistoryTab({ orders, users, loading, onGoOrder, track, u
           return (
             <React.Fragment key={o.id}>
               {head && <h2 className="h-head">{g}</h2>}
-            <div className="a-card h-card" role="button" tabIndex={0} onClick={() => setOpenId(o.id)} onKeyDown={(e) => { if (e.key === 'Enter' && e.target === e.currentTarget) setOpenId(o.id); }}>
+            <div className="a-card h-card" role="button" tabIndex={0} onPointerDown={(e) => startPress(e, o)} onPointerUp={endPress} onPointerLeave={endPress} onPointerCancel={endPress} onPointerMove={(e) => { if (Math.abs(e.movementX) + Math.abs(e.movementY) > 3) endPress(); }} onContextMenu={(e) => e.preventDefault()} onClick={() => { if (press.current.fired) { press.current.fired = false; return; } setOpenId(o.id); }} onKeyDown={(e) => { if (e.key === 'Enter' && e.target === e.currentTarget) setOpenId(o.id); }}>
               <span className="h-info">
                 <span className="a-between">
                   <b className="a-t a-ell">{summary(o)}</b>
