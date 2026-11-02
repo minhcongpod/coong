@@ -149,30 +149,6 @@ button.a-card:active{transform:scale(.97)}
 .o-bag{position:relative;flex:none;width:52px;height:52px;border-radius:100px;background:var(--s10);display:flex;align-items:center;justify-content:center}
 .o-bag .a-badge{top:-4px;left:auto;right:-4px}
 .o-again{flex:none;margin-top:8px;padding-top:12px;padding-bottom:12px}
-.o-track{position:relative;flex:1;min-height:0;margin:0 -24px;padding:20px calc(50% - 102px);display:flex;gap:16px;align-items:center;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
-.o-track::-webkit-scrollbar{display:none}
-.o-card{position:relative;flex:none;width:204px;height:272px;scroll-snap-align:center;will-change:transform;color:#fff}
-.o-card .surf{position:absolute;inset:0;border-radius:30px;border:1.1px solid rgba(255,255,255,.35)}
-.o-card.bac .surf{background:linear-gradient(180deg,#e2e2e2,#d9d0b7 57%,#d9d0b7)}
-.o-card.nau .surf{background:linear-gradient(180deg,#fed9ae,#ffc077 57%,#ffc077)}
-.o-card.den .surf{background:linear-gradient(180deg,#484848,#1e1e1e 57%,#1e1e1e);border-color:rgba(255,255,255,.12)}
-.o-name{position:absolute;left:17px;top:15px;font-size:24px;line-height:30px;font-weight:700}
-.o-card.bac .o-name{color:#000}.o-card.nau .o-name{color:#895200}
-.o-chips{position:absolute;right:15px;top:19px;display:flex;gap:6px}
-.o-chips span{width:27px;height:27px;border-radius:100px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;color:#8e8e93}
-.o-card.bac .o-chips{right:auto;left:16px;top:49px}
-.o-card.bac .o-chips span,.o-card.nau .o-chips span{background:rgba(255,255,255,.3)}
-.o-card.nau .o-chips span{color:#cc803c}
-.o-rec{position:absolute;right:16px;top:22px;height:21px;padding:0 8px 0 7px;border-radius:100px;background:#fff;color:#f90;font-size:12px;font-weight:700;display:flex;align-items:center;gap:3px}
-.o-cup{position:absolute;pointer-events:none;transform:translate(-50%,-50%)}
-.o-cup img{height:185px;display:block;filter:drop-shadow(0 0 16px rgba(255,255,255,.35))}
-.o-card.bac .o-cup{left:133px;top:153px;rotate:5.7deg}
-.o-card.nau .o-cup{left:100px;top:156px;rotate:17.7deg}
-.o-card.den .o-cup{left:102px;top:148px;rotate:11.7deg}
-.o-cup.ph{left:102px!important;top:140px!important;rotate:0deg!important;color:rgba(255,255,255,.25)}
-.o-price{position:absolute;left:18px;top:207px;width:168px;height:47px;border-radius:75px;background:rgba(255,255,255,.3);-webkit-backdrop-filter:blur(4.5px);backdrop-filter:blur(4.5px);border:.75px solid rgba(255,255,255,.8);display:flex;align-items:center;padding-left:15px}
-.o-price b{font-size:14px;font-weight:700}
-.o-card.bac .o-price b,.o-card.nau .o-price b{color:#000}
 .o-add{position:absolute;left:129px;top:211px;width:54px;height:39px;border-radius:75px;background:#000;color:#fff;display:flex;align-items:center;justify-content:center}
 .o-add svg{width:18px;height:18px}
 .o-q{position:absolute;top:-8px;right:-4px;min-width:20px;height:20px;padding:0 6px;border-radius:20px;background:var(--yellow);color:#000;font-size:12px;font-weight:700;line-height:20px;text-align:center}
@@ -257,7 +233,6 @@ button.a-card:active{transform:scale(.97)}
 /* ---------- Đặt hàng: chi tiết món, giỏ hàng, thông báo (giống app khách) ---------- */
 .o-head .grow{flex:1}
 .o-head{gap:8px}
-.o-card{cursor:pointer}
 .o-line{width:100%;display:flex;align-items:center;gap:12px;padding:8px 0;text-align:left;color:#fff}
 
 .d-detail{padding:0;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--fg);overflow:hidden}
@@ -508,3 +483,4 @@ button.a-card:active{transform:scale(.97)}
 .w-chk i{flex:none;width:24px;height:24px;border-radius:7px;border:2px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;transition:background .2s,border-color .2s}
 .w-chk i.on{background:var(--yellow);border-color:var(--yellow);color:#000}
 .h-card{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.w-list .h-head{padding:8px 0 0}.w-list .h-head:first-child{padding-top:0}

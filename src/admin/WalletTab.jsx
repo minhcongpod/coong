@@ -3,7 +3,7 @@ import { addDoc, collection, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { updateOrder, deleteTransaction } from '../db';
 import { tgToCustomer, tgDebt, APP_URL } from '../telegram';
-import { Icon, Sym, Page, Btn, Seg, Chip, Empty, fmt, dayLabel, timeOf, isLive, useUI, errText, BellBtn } from './ui.jsx';
+import { Icon, Sym, Page, Btn, Seg, Chip, Empty, fmt, hm, timeOf, isLive, useUI, errText, BellBtn } from './ui.jsx';
 import { summary } from './HistoryTab.jsx';
 
 const PERIODS = [['day', 'Ngày'], ['month', 'Tháng'], ['year', 'Năm']];
@@ -25,6 +25,25 @@ const legacyTT = (t) => {
   const n = d.match(/^\[Thu nợ\]\s*(.*?)(?:\s*\((\d+) đơn\))?$/);
   if (n) return n[2] ? `${n[1]} TT ${n[2]} đơn` : `${n[1]} TT`;
   return d;
+};
+// Hai dòng của một khoản trong lịch sử: [tiêu đề, phần thêm sau giờ]
+const txLines = (t) => {
+  if (t.customerPhone) {
+    const m = legacyTT(t).match(/^(.*?)\s*TT\s*(.*)$/);
+    const name = (m ? m[1] : legacyTT(t)) || 'Khách';
+    const rest = m ? m[2].trim() : '';
+    return [name, rest.startsWith('#') ? `Thanh toán đơn ${rest}` : /^\d+ đơn$/.test(rest) ? `Thanh toán ${rest}` : 'Thanh toán'];
+  }
+  const cat = txCat(t), note = txNote(t);
+  if (t.type === 'income') return [note || 'Khoản thu', ''];
+  return [cat, note];
+};
+// Nhóm theo ngày: Hôm nay, Hôm qua, còn lại dd/m/yyyy
+const groupLabel = (d) => {
+  if (!d) return '';
+  const day = (x) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  const diff = Math.round((day(new Date()) - day(d)) / 86400000);
+  return diff === 0 ? 'Hôm nay' : diff === 1 ? 'Hôm qua' : `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
 };
 const txName = (t) => (t.customerPhone ? legacyTT(t) : txNote(t) ? `${txCat(t)} · ${txNote(t)}` : txCat(t));
 // Khoản thu nợ khách đã nằm trong đơn đã thanh toán, không cộng lần nữa vào doanh thu
@@ -98,18 +117,25 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
         </div>
         <Seg items={[['all', 'Tất cả'], ['income', 'Thu'], ['expense', 'Chi']]} value={filter} onChange={setFilter} />
         <div className="w-list">
-        {list.map((t) => {
+        {list.map((t, i) => {
           const inc = t.type === 'income';
           const d = timeOf(t);
+          const g = groupLabel(d);
+          const head = i === 0 || g !== groupLabel(timeOf(list[i - 1]));
+          const [title, extra] = txLines(t);
+          const sub = [d ? hm(d) : '', extra].filter(Boolean).join(' · ');
           return (
-            <button key={t.id} className="w-tx" onClick={() => (t.customerPhone ? toast('Khoản thu từ đơn không sửa được') : setPage({ edit: t }))} aria-label={`${txName(t)}, bấm để sửa`}>
-              <span className={`a-ibg ${inc ? 'g' : 'r'}`} style={{ color: inc ? 'var(--ok)' : 'var(--err)' }}><Icon n={inc ? 'inn' : 'out'} /></span>
-              <span className="grow w-txt">
-                <b className="a-t a-ell" style={{ display: 'block' }}>{txName(t)}</b>
-                <span className="a-s">{d ? dayLabel(d) : ''}</span>
-              </span>
-              <b className={`a-t a-num ${inc ? 'g' : 'r'}`}>{inc ? '+' : '−'}{fmt(t.amount)}</b>
-            </button>
+            <React.Fragment key={t.id}>
+              {head && <h2 className="h-head">{g}</h2>}
+              <button className="w-tx" onClick={() => (t.customerPhone ? toast('Khoản thu từ đơn không sửa được') : setPage({ edit: t }))} aria-label={`${title}, bấm để sửa`}>
+                <span className={`a-ibg ${inc ? 'g' : 'r'}`} style={{ color: inc ? 'var(--ok)' : 'var(--err)' }}><Icon n={inc ? 'inn' : 'out'} /></span>
+                <span className="grow w-txt">
+                  <b className="a-t a-ell" style={{ display: 'block' }}>{title}</b>
+                  <span className="a-s a-ell" style={{ display: 'block' }}>{sub}</span>
+                </span>
+                <b className={`a-t a-num ${inc ? 'g' : 'r'}`}>{inc ? '+' : '−'}{fmt(t.amount)}</b>
+              </button>
+            </React.Fragment>
           );
         })}
         </div>
