@@ -62,7 +62,7 @@ window.CoongAPI = {
     batch.set(doc(db, 'pins', phone), { pin });
     batch.set(doc(db, 'devices', uid), { phone, pin, createdAt: nowIso() });
     await batch.commit();
-    tgToAdmin(`📣 Khách mới: ${name} · ${phone}`);
+    tgToAdmin(`📣 Khách mới: ${name} · ${phone}`, null); // không kèm link
   },
 
   async signOut() { await lockDevice(await uidReady); },
