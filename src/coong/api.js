@@ -92,7 +92,7 @@ window.CoongAPI = {
   },
   cancelOrder: async (id, info) => {
     await updateOrder(id, { status: 'cancelled' });
-    if (info && info.phone) tgToCustomer(info.phone, `❌ Coong đã huỷ đơn hàng ${info.items || ''} của bạn. Tiếc ghê, hẹn gặp lại bạn lần sau nhé!`, `${APP_URL}/order/${info.code}`);
+    // khách tự huỷ: Telegram không nhắn lại cho khách, chỉ báo quán
     if (info) tgToAdmin(`❌ ${info.name} đã hủy đơn ${info.items || info.code}.`, `${APP_URL}/admin/order/${info.code}`);
   },
   claimPaid: async (ids, info) => {
