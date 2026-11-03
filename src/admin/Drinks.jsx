@@ -184,7 +184,7 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
                   {d.rec
                     ? <div className="row"><h3>{it.known ? d.name : it.m.name}</h3><span className="rec"><Sym id="i-star" size={13} />RECOMMEND</span></div>
                     : <h3>{it.known ? d.name : it.m.name}</h3>}
-                  <div className="ico"><span className="circ"><Sym id="i-snow" size={16} /></span><span className="circ"><Sym id="i-steam" size={16} /></span></div>
+                  <div className="ico"><span className="circ"><Sym id="i-snow" size={16} /></span><span className="circ"><Sym id="i-flame" size={16} /></span></div>
                 </div>
                 <div className="pricebar"><i className="glint" /><b>{sold ? 'Hết hàng' : fmt(it.m.price)}</b><span><Sym id="i-cardadd" size={28} /></span></div>
               </div>
@@ -409,7 +409,7 @@ export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, o
         <h1 className="abs dtitle" data-k="title" data-a="left">{item.known ? d.name : m.name}</h1>
         <div className="abs opts" data-k="opts">
           <div className="opt" data-a="left" data-k="upsize"><div>{chip('upsize', 0, 'Size L', <Sym id="i-sizeL" size={40} />)}{chip('upsize', 1, 'Size XL', <Sym id="i-sizeXL" size={40} />, true)}</div></div>
-          <div className="opt" data-a="left" data-k="hot"><div>{chip('hot', 0, 'Lạnh', <Sym id="i-snow" size={22} />)}{chip('hot', 1, 'Nóng', <Sym id="i-steam" size={22} />, true)}</div></div>
+          <div className="opt" data-a="left" data-k="hot"><div>{chip('hot', 0, 'Lạnh', <Sym id="i-snow" size={22} />)}{chip('hot', 1, 'Nóng', <Sym id="i-flame" size={24} />, true)}</div></div>
           {f.sweet && <div className="opt" data-a="left" data-k="sweet"><label>Ngọt</label><div>{chip('sweet', 0, 'Ngọt 100%', '100')}{chip('sweet', 50, 'Ngọt 50%', '50', true)}{k === 'bac' && chip('sweet', 1, 'Ngọt 0%', '0', true)}</div></div>}
           {f.cafe && <div className="opt" data-a="left" data-k="cafe"><label>Cafe</label><div>{chip('cafe', 0, 'Cafe 100%', '100')}{chip('cafe', 50, 'Cafe 50%', '50', true)}</div></div>}
         </div>

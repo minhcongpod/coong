@@ -67,15 +67,15 @@
 .dr .dtitle{left:27px;top:94px;font-size:44px;line-height:46px;font-weight:700;color:var(--title);margin:0}
 .dr .opts{left:27px;top:159px;display:flex;flex-direction:column}
 .dr .opt[data-k=hot]{margin-top:16px}
-.dr .opt[data-k=hot] .chip svg{width:22px;height:22px}
+.dr .opt[data-k=hot] .chip svg{width:24px;height:24px}
 .dr .opt[data-k=sweet]{margin-top:15px}
 .dr .opt[data-k=cafe]{margin-top:17px}
 .dr .opt label{display:block;font-size:16px;line-height:20px;margin-bottom:4px}
 .dr-detail[data-id=den] .opt label{color:#fff}
 .dr-detail[data-id=nau] .opt label,.dr-detail[data-id=bac] .opt label{color:#000}
 .dr .opt div{display:flex;gap:8px}
-.dr .chip{width:40px;height:40px;border-radius:100px;background:var(--chip);color:var(--chipT);font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background .3s,color .3s,opacity .3s,transform .3s var(--ease-out)}
-.dr .chip svg{width:40px;height:40px}
+.dr .chip{width:44px;height:44px;border-radius:100px;background:var(--chip);color:var(--chipT);font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background .3s,color .3s,opacity .3s,transform .3s var(--ease-out)}
+.dr .chip svg{width:44px;height:44px}
 .dr .chip.on{background:#fff;color:var(--xOn)}
 .dr .chip.on.val{color:var(--valOn)}
 .dr .chip:active{transform:scale(.92)}
