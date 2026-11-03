@@ -199,8 +199,8 @@ function OrderDetail({ o, onBack, users }) {
   let footer = null;
   if (o.status === 'pending') {
     footer = (
-      <div style={{ display: 'flex', gap: 8 }}>
-        <Btn kind="danger" onClick={cancel}>Huỷ đơn</Btn>
+      <div style={{ display: 'flex', gap: 10 }}>
+        <Btn kind="danger" onClick={cancel} aria-label="Huỷ đơn" style={{ flex: 'none', width: 60, padding: 0 }}><Icon n="x" size={28} /></Btn>
         {!viaWallet && payBtn(true)}
         <Btn onClick={() => run({ status: 'brewing' })}>Xác nhận</Btn>
       </div>
