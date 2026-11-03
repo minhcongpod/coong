@@ -828,9 +828,9 @@ function applyMenu(items){
   const closed = typeof shopClosed === 'function' && !!shopClosed();
   DRINKS.forEach(d => { const m = items.find(x => x.active !== false && drinkIdOf(x.name) === d.id);
     /* sold out: the owner switched every menu entry for this drink off */
-    const all = items.filter(x => drinkIdOf(x.name) === d.id); d.sold = closed || (all.length > 0 && !m);
+    const all = items.filter(x => drinkIdOf(x.name) === d.id); d.out = !!(shop && shop.soldOut) || (all.length > 0 && !m); d.sold = closed || d.out;
     if (m) Object.assign(d, {price:m.price, menuId:m.id, menuName:m.name, cost:m.cost || 0, ...(typeof m.upsize === 'number' ? {xl:m.upsize} : {})}); });
-  cards.forEach((c, i) => { const d = DRINKS[i]; c.classList.toggle('sold', !!d.sold); $('.pricebar b', c).textContent = closed ? 'Sắp mở hàng' : d.sold ? 'Hết hàng' : fmt(d.price); });
+  cards.forEach((c, i) => { const d = DRINKS[i]; c.classList.toggle('sold', !!d.sold); $('.pricebar b', c).textContent = d.out ? 'Hết hàng' : closed ? 'Sắp mở hàng' : fmt(d.price); });
   if (detail.style.visibility === 'visible') $('#dPrice').textContent = fmt(unit()*qty);
   syncBuy();
   const sig = DRINKS.map(d => d.sold ? 1 : 0).join('');
@@ -1389,7 +1389,7 @@ function renderCart(){
     row.innerHTML = `<div class="cthumb"><img src="/${d.id}.webp" alt="" draggable="false"></div>
       <div class="cinfo"><span class="cname"></span><button class="copt" aria-label="Chỉnh món"><span></span><svg><use href="#i-caret"/></svg></button><div class="crow">
         <div class="cqty"><button class="cpm" data-d="-1" aria-label="Giảm"><svg><use href="#i-minus"/></svg></button><span>${it.qty}</span><button class="cpm" data-d="1" aria-label="Tăng"><svg><use href="#i-plus"/></svg></button></div>
-        <span class="cprice${d.sold ? ' csold' : ''}">${d.sold ? 'Hết hàng' : fmt(it.qty*it.unit)}</span></div></div>`;
+        <span class="cprice${d.sold ? ' csold' : ''}">${d.out ? 'Hết hàng' : d.sold ? 'Sắp mở hàng' : fmt(it.qty*it.unit)}</span></div></div>`;
     $('.cname', row).textContent = d.name; $('.copt span', row).textContent = optText(it.o, it.id);
     $('.copt', row).addEventListener('click', () => openEdit(i));
     $$('.cpm', row).forEach(b => b.addEventListener('click', () => changeItem(i, +b.dataset.d, row)));
