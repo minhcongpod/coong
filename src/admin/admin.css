@@ -503,3 +503,5 @@ button.a-card:active{transform:scale(.97)}
 .w-cx{flex:none;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.1);color:#fff}
 .w-chk:disabled{opacity:.6}
 .o-csold{margin-left:auto;font-size:14px;font-weight:500;color:var(--err)}
+.a-btn.yellow.dim{background:rgba(255,204,0,.15);color:var(--yellow,#fc0)}
+.a-btn.yellow:disabled{opacity:1}
