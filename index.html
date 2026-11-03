@@ -1034,6 +1034,11 @@ function centerDetail(){
 const spin2 = document.createElement('i'); spin2.className = 'spin2'; spin.appendChild(spin2);
 /* the cup is a still photo now: no turning */
 function setFrame(){ frame = 0; }
+/* which option chips a drink offers: Den = Ngot 0 only, Nau = Cafe 100 only, Bac = everything */
+const chipShown = (id, k, v) => { const p = +v === 0 ? 100 : +v;
+  if (k === 'sweet') return id === 'den' ? p === 1 : id === 'nau' ? p !== 1 : true;
+  if (k === 'cafe') return id === 'bac' ? true : id === 'nau' ? p === 100 : false;
+  return true; };
 function fillDetail(i){
   cur = i; const d = DRINKS[i];
   detail.dataset.id = d.id;
@@ -1042,8 +1047,10 @@ function fillDetail(i){
   sizeSpin();
   setFrame(0);
   qty = 1; Object.keys(opts).forEach(k => opts[k] = 0);
-  $$('.opt').forEach(g => { $$('.chip', g).forEach(c => c.classList.toggle('on', c.dataset.v === '0')); if (g.dataset.k in d) g.hidden = !d[g.dataset.k]; });
-  $('#sw0').hidden = d.id !== 'bac';
+  $$('.opt').forEach(g => { const k = g.dataset.k; $$('.chip', g).forEach(c => { c.hidden = !chipShown(d.id, k, c.dataset.v); c.classList.remove('on'); });
+    const vis = $$('.chip', g).filter(c => !c.hidden); if (vis.length) (vis.find(x => x.dataset.v === '0') || vis[0]).classList.add('on');
+    if (k === 'sweet' || k === 'cafe') g.hidden = !vis.length; });
+  spin.style.transition = 'none'; spin.style.scale = '1'; spin.style.transformOrigin = '50% 100%';
   centerDetail(); syncBuy();
   $('#qty').innerHTML = `<span>${pad(qty)}</span>`;
   $('#dPrice').textContent = fmt(unit()*qty);
@@ -1055,10 +1062,12 @@ $$('.opt').forEach(g => {
   const k = g.dataset.k;
   g.addEventListener('click', e => {
     const c = e.target.closest('.chip'); if (!c) return;
+    if ((k === 'sweet' || k === 'cafe') && $$('.chip', g).filter(x => !x.hidden).length < 2) return;
     const wasOn = c.classList.contains('on');
     c.animate([{transform:'scale(.8)'},{transform:'scale(1)'}], {duration:T(380), easing:'cubic-bezier(.34,1.56,.64,1)'});
     $$('.chip', g).forEach(x => x.classList.toggle('on', x === c));
     opts[k] = +c.dataset.v;
+    if (k === 'upsize') { spin.style.transformOrigin = '50% 100%'; spin.style.transition = 'scale .6s cubic-bezier(.34,1.8,.5,1)'; spin.style.scale = opts.upsize ? '1.12' : '1'; }
     updatePrice();
   });
 });
@@ -1346,14 +1355,15 @@ function eSync(){
   const it = cartItems[E.i]; if (!it) return;
   $$('.egroup', eSheet).forEach(g => { const k = g.dataset.k, v = k === 'upsize' || k === 'hot' ? (E.o[k] || 0) : (E.o[k] || 100);
     /* like the drink page: the first chip carries any value under 100 */
-    $$('.echips button', g).forEach(b => b.classList.toggle('on', +b.dataset.v === v)); });
+    const bs = $$('.echips button', g).filter(b => !b.hidden);
+    $$('.echips button', g).forEach(b => b.classList.toggle('on', bs.length === 1 ? !b.hidden : +b.dataset.v === v)); });
 }
 function openEdit(i){
   const it = cartItems[i]; if (!it) return; const d = drink(it.id);
   Object.assign(E, {i, o:{...it.o}, qty:it.qty});
   $('.ehead img', eSheet).src = d.id + '.webp'; $('.ename', eSheet).textContent = d.name;
-  $$('.egroup', eSheet).forEach(g => { if (g.dataset.k in d) g.hidden = !d[g.dataset.k]; });
-  $('#esw0').hidden = d.id !== 'bac';
+  $$('.egroup', eSheet).forEach(g => { const k = g.dataset.k; if (k !== 'sweet' && k !== 'cafe') return;
+    $$('.echips button', g).forEach(b => { b.hidden = !chipShown(d.id, k, b.dataset.v); }); g.hidden = !$$('.echips button', g).some(b => !b.hidden); });
   eSync();
   eSheet.onDismiss = null;
   eSheet.getAnimations().forEach(a => a.cancel());
@@ -1365,6 +1375,7 @@ function openEdit(i){
 }
 $$('.egroup', eSheet).forEach(g => g.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
+  if ((g.dataset.k === 'sweet' || g.dataset.k === 'cafe') && $$('.echips button', g).filter(x => !x.hidden).length < 2) return;
   b.animate([{transform:'scale(.9)'},{transform:'scale(1)'}], {duration:T(320), easing:'cubic-bezier(.34,1.56,.64,1)'});
   E.o[g.dataset.k] = +b.dataset.v === 100 ? 0 : +b.dataset.v; eSync();
 }));
