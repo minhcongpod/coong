@@ -61,12 +61,14 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
 
   const stats = useMemo(() => {
     const r = range(kind, new Date());
-    const live = orders.filter((o) => isLive(o) && within(o, r));
-    // doanh thu tính theo ngày đặt, gồm cả đơn khách chưa thanh toán
+    // doanh thu chỉ tính đơn đã thanh toán, theo ngày thanh toán (đơn chưa thanh toán chưa vào doanh thu)
+    const paidOrders = orders.filter((o) => isLive(o) && o.paid);
+    const payAt = (o) => (o.paidAt ? new Date(o.paidAt) : timeOf(o));
+    const live = paidOrders.filter((o) => { const d = payAt(o); return d && d >= r[0] && d < r[1]; });
     const paid = live.reduce((n, o) => n + (o.totalAmount || 0), 0);
     const inc = txs.filter((t) => extraIncome(t) && within(t, r)).reduce((n, t) => n + (t.amount || 0), 0);
     // Chi phí, lợi nhuận và Ví tính tất cả thời gian, không theo bộ lọc ngày/tháng/năm (chỉ số đơn và doanh thu theo bộ lọc)
-    const allRev = orders.filter(isLive).reduce((n, o) => n + (o.totalAmount || 0), 0) + txs.filter(extraIncome).reduce((n, t) => n + (t.amount || 0), 0);
+    const allRev = paidOrders.reduce((n, o) => n + (o.totalAmount || 0), 0) + txs.filter(extraIncome).reduce((n, t) => n + (t.amount || 0), 0);
     const exp = txs.filter((t) => t.type === 'expense' && !t.excludeRevenue).reduce((n, t) => n + (t.amount || 0), 0);
     // Không tính khoản thu của đơn đang chưa thanh toán (chủ quán đã hoàn tác thanh toán)
     const unpaidIds = new Set(orders.filter((o) => !o.paid).map((o) => o.id));
