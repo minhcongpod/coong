@@ -1050,7 +1050,7 @@ function fillDetail(i){
   $$('.opt').forEach(g => { const k = g.dataset.k; $$('.chip', g).forEach(c => { c.hidden = !chipShown(d.id, k, c.dataset.v); c.classList.remove('on'); });
     const vis = $$('.chip', g).filter(c => !c.hidden); if (vis.length) (vis.find(x => x.dataset.v === '0') || vis[0]).classList.add('on');
     if (k === 'sweet' || k === 'cafe') g.hidden = !vis.length; });
-  spin.style.transition = 'none'; spin.style.scale = '1'; spin.style.transformOrigin = '50% 100%';
+  spin.style.transition = 'none'; spin.style.transform = 'scale(1)'; spin.style.transformOrigin = '50% 100%';
   centerDetail(); syncBuy();
   $('#qty').innerHTML = `<span>${pad(qty)}</span>`;
   $('#dPrice').textContent = fmt(unit()*qty);
@@ -1067,7 +1067,7 @@ $$('.opt').forEach(g => {
     c.animate([{transform:'scale(.8)'},{transform:'scale(1)'}], {duration:T(380), easing:'cubic-bezier(.34,1.56,.64,1)'});
     $$('.chip', g).forEach(x => x.classList.toggle('on', x === c));
     opts[k] = +c.dataset.v;
-    if (k === 'upsize') { spin.style.transformOrigin = '50% 100%'; spin.style.transition = 'scale .6s cubic-bezier(.34,1.8,.5,1)'; spin.style.scale = opts.upsize ? '1.12' : '1'; }
+    if (k === 'upsize') { spin.style.transformOrigin = '50% 100%'; spin.style.transition = 'transform .6s cubic-bezier(.34,1.8,.5,1)'; spin.style.transform = opts.upsize ? 'scale(1.12)' : 'scale(1)'; }
     updatePrice();
   });
 });
