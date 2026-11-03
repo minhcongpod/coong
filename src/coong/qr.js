@@ -1,8 +1,8 @@
 // Mã VietQR (chuẩn EMVCo/NAPAS) cho tài khoản của quán, kèm số tiền và nội dung chuyển khoản.
 import qrcode from 'qrcode-generator';
 
-// Techcombank (BIN 970407), số tài khoản 8456777999: lấy từ mã QR tĩnh của quán trong Figma
-const MERCHANT = '0010A0000007270124000697040701108456777999' + '0208QRIBFTTA';
+// Techcombank (BIN 970407), số tài khoản 3353338898: lấy từ mã QR tĩnh mới của quán
+const MERCHANT = '0010A0000007270124000697040701103353338898' + '0208QRIBFTTA';
 
 const tlv = (id, v) => id + String(v.length).padStart(2, '0') + v;
 

@@ -1857,7 +1857,7 @@ function qrSvg(amt, code){
   return `<svg viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges">${finder(0,0)}${finder(n-7,0)}${finder(0,n-7)}<path d="${d}"/>${logo}</svg>`;
 }
 /* bank transfer: QR card with account details, shared by checkout and paying an account's debt */
-const BANK = {name:'Trinh Minh Cong', acc:'8456777999'};
+const BANK = {name:'Trinh Minh Cong', acc:'3353338898'};
 /* the QR svg drawn onto a white 720px PNG */
 function qrPng(qr){
   const svg = qr.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" ');
