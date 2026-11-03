@@ -34,7 +34,6 @@ const tellCustomer = async (o, patch) => {
   const link = `${APP_URL}/order/${orderCode(o)}`;
   if (patch.status === 'brewing' && o.status !== 'brewing') tgToCustomer(o.customerPhone, `📣 Coong đã xác nhận đơn hàng ${its}.${await tgDebtText(o.customerPhone)}`, link);
   else if (patch.status === 'cancelled' && o.status !== 'cancelled') tgToCustomer(o.customerPhone, `❌ Coong đã huỷ đơn hàng ${its} của bạn. Tiếc ghê, hẹn gặp lại bạn lần sau nhé!`, link);
-  else if (patch.paid === false && o.paid) tgToCustomer(o.customerPhone, `📣 Coong vừa hoàn tác xác nhận thanh toán ${fmt(o.totalAmount)}đ của đơn hàng ${orderCode(o)}. Đơn này đang tính là chưa thanh toán, có nhầm lẫn gì bạn nhắn Coong nhé.`, `${APP_URL}/payment`, 'Xem thanh toán');
   else if (patch.paid === true && !o.paid) {
     // còn nợ: dẫn vào trang trạng thái thanh toán; hết nợ: cảm ơn và dẫn vào menu
     const debt = await tgDebt(o.customerPhone);
@@ -175,7 +174,7 @@ function OrderDetail({ o, onBack, users }) {
   };
   // bấm là đổi luôn: xác nhận thanh toán (nút vàng đậm) hoặc hoàn tác (nút vàng mờ)
   const collect = () => markPaid(o, orderCode(o)).then(() => tellCustomer(o, { paid: true })).catch((e) => toast(errText(e)));
-  const undoPaid = () => markUnpaid(o).then(() => { toast('Đã bỏ xác nhận thanh toán', true); tellCustomer(o, { paid: false }); }).catch((e) => toast(errText(e)));
+  const undoPaid = () => markUnpaid(o).then(() => toast('Đã bỏ xác nhận thanh toán', true)).catch((e) => toast(errText(e)));
   const viaWallet = o.payMethod === 'wallet'; // trả bằng ví: tiền đã trừ từ ví nên không có nút xác nhận thanh toán
 
   const cancelled = o.status === 'cancelled';
