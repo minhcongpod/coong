@@ -285,7 +285,7 @@ function OrderDetail({ o, onBack, users }) {
         <div className="a-kv"><span>Phương thức</span><b>{payLabel(o)}</b></div>
         <div className="a-kv">
           <span>Thanh toán</span>
-          <b className={paid ? 'g' : pay === 'awaiting' ? 'y' : 'r'}>{paid ? 'Đã thanh toán' : pay === 'awaiting' ? 'Khách báo đã trả' : 'Chưa thanh toán'}</b>
+          <b className={paid ? 'g' : 'y'}>{paid ? 'Đã thanh toán' : pay === 'awaiting' ? 'Khách báo đã trả' : 'Chưa thanh toán'}</b>
         </div>
         <div className="a-kv tot"><span>Tổng</span><b>{fmt(o.totalAmount)}</b></div>
       </div>
