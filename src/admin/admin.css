@@ -517,3 +517,4 @@ button.a-card:active{transform:scale(.97)}
 .w-unpaid .a-ic svg{width:20px;height:20px}
 .s-chat{width:30px;height:30px;margin-right:8px}
 .s-chat img{display:block}
+.s-count{font-size:16px;font-weight:500;color:var(--mute);margin:0;padding:0 2px}
