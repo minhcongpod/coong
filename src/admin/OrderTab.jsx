@@ -249,14 +249,16 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
 function Opts({ kind, o, set, cls }) {
   const f = flagsOf(kind);
   const pick = (k, v) => set({ ...o, [k]: v });
-  const chip = (k, v, label, content) => (
-    <button key={v} className={`${cls} ${(o[k] || 0) === v ? 'on' : ''}`} onClick={() => pick(k, v)} aria-label={label} aria-pressed={(o[k] || 0) === v}>{content}</button>
+  const chip = (k, v, label, content, solo) => (
+    <button key={v} className={`${cls} ${solo || (o[k] || 0) === v ? 'on' : ''}`} onClick={() => (solo ? null : pick(k, v))} aria-label={label} aria-pressed={solo || (o[k] || 0) === v}>{content}</button>
   );
   return (
     <>
       <div className="op" data-k="upsize"><div>{chip('upsize', 0, 'Size L', <Sym id="i-sizeL" size={44} />)}{chip('upsize', 1, 'Size XL', <Sym id="i-sizeXL" size={44} />)}</div></div>
       <div className="op" data-k="hot"><div>{chip('hot', 0, 'Lạnh', <Sym id="i-snow" size={22} />)}{chip('hot', 1, 'Nóng', <Sym id="i-flame" size={24} />)}</div></div>
+      {kind === 'den' && <div className="op" data-k="sweet"><label>Ngọt</label><div>{chip('sweet', 1, 'Ngọt 0%', '0', true)}</div></div>}
       {f.sweet && <div className="op" data-k="sweet"><label>Ngọt</label><div>{chip('sweet', 0, 'Ngọt 100%', '100')}{chip('sweet', 50, 'Ngọt 50%', '50')}{kind === 'bac' && chip('sweet', 1, 'Ngọt 0%', '0')}</div></div>}
+      {kind === 'nau' && <div className="op" data-k="cafe"><label>Cafe</label><div>{chip('cafe', 0, 'Cafe 100%', '100', true)}</div></div>}
       {f.cafe && <div className="op" data-k="cafe"><label>Cafe</label><div>{chip('cafe', 0, 'Cafe 100%', '100')}{chip('cafe', 50, 'Cafe 50%', '50')}</div></div>}
     </>
   );
