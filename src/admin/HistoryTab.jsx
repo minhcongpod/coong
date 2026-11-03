@@ -199,8 +199,8 @@ function OrderDetail({ o, onBack, users }) {
     footer = <Btn onClick={() => run({ status: 'completed' })}>Hoàn thành</Btn>;
   } else if (o.status === 'completed' && !viaWallet) {
     footer = (
-      <Btn kind={paid ? 'yellow' : 'yellow dim'} onClick={paid ? undoPaid : collect} aria-pressed={paid}>
-        <Sym id="i-verified" size={20} />Xác nhận thanh toán
+      <Btn kind={paid ? 'yellow dim' : 'yellow'} onClick={paid ? undoPaid : collect}>
+        {paid ? <><Sym id="i-undo" size={24} />Hoàn tác thanh toán</> : <><Sym id="i-verified" size={20} />Xác nhận thanh toán</>}
       </Btn>
     );
   }

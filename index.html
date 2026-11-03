@@ -1470,8 +1470,15 @@ function toast(msg, icon){
   /* centred across the screen; no sliding, it only fades in, stays about 2s and fades out */
   const r = scr(); t.style.transform = `scale(${S})`;
   fx.appendChild(t);
-  /* sits 8px above the bottom bar (bar: 24px from the bottom, 48px high) */
-  t.style.top = (r.top + r.height - 80*S - t.offsetHeight*S) + 'px';
+  /* always 8px above whatever bar is at the bottom of the screen (tab bar, or the page's own button bar), so it never covers a button */
+  let bar = r.top + r.height - 72*S;
+  $$('.nav,.pfoot,.dacts,.obar').forEach(b => {
+    const q = b.getBoundingClientRect(), cs = getComputedStyle(b), cx = q.left + q.width/2;
+    if (!q.width || !q.height || cs.visibility === 'hidden' || cs.display === 'none' || +cs.opacity === 0) return;
+    if (cx < r.left || cx > r.right || q.top < r.top + r.height*.5 || q.top >= bar) return;
+    bar = q.top;
+  });
+  t.style.top = (bar - 8*S - t.offsetHeight*S) + 'px';
   t.style.left = (r.left + (r.width - t.offsetWidth*S)/2) + 'px';
   const D = T(2400) < 600 ? 1600 : 2400;
   t.animate([{opacity:0},{opacity:1, offset:.1},{opacity:1, offset:.83},{opacity:0}], {duration:D, easing:'ease-in-out'}).onfinish = () => t.remove();
