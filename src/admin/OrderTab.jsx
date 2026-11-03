@@ -180,7 +180,7 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
         <button className="a-back" onClick={() => { setSheet(-1); setPage(null); }} aria-label="Đóng giỏ hàng"><Sym id="i-close" size={28} /></button>
         {lines.length === 0 ? (
           <div className="o-cempty">
-            <div className="eico"><Sym id="i-bag" size={44} /></div>
+            <div className="eico"><Sym id="i-bag" size={40} /></div>
             <h3>Giỏ hàng trống</h3>
           </div>
         ) : (
@@ -254,8 +254,8 @@ function Opts({ kind, o, set, cls }) {
   );
   return (
     <>
-      <div className="op" data-k="upsize"><div>{chip('upsize', 0, 'Size L', <Sym id="i-sizeL" size={40} />)}{chip('upsize', 1, 'Size XL', <Sym id="i-sizeXL" size={40} />)}</div></div>
-      <div className="op" data-k="hot"><div>{chip('hot', 0, 'Lạnh', <Sym id="i-snow" size={22} />)}{chip('hot', 1, 'Nóng', <Sym id="i-steam" size={22} />)}</div></div>
+      <div className="op" data-k="upsize"><div>{chip('upsize', 0, 'Size L', <Sym id="i-sizeL" size={44} />)}{chip('upsize', 1, 'Size XL', <Sym id="i-sizeXL" size={44} />)}</div></div>
+      <div className="op" data-k="hot"><div>{chip('hot', 0, 'Lạnh', <Sym id="i-snow" size={22} />)}{chip('hot', 1, 'Nóng', <Sym id="i-flame" size={24} />)}</div></div>
       {f.sweet && <div className="op" data-k="sweet"><label>Ngọt</label><div>{chip('sweet', 0, 'Ngọt 100%', '100')}{chip('sweet', 50, 'Ngọt 50%', '50')}{kind === 'bac' && chip('sweet', 1, 'Ngọt 0%', '0')}</div></div>}
       {f.cafe && <div className="op" data-k="cafe"><label>Cafe</label><div>{chip('cafe', 0, 'Cafe 100%', '100')}{chip('cafe', 50, 'Cafe 50%', '50')}</div></div>}
     </>

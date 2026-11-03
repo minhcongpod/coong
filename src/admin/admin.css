@@ -252,7 +252,7 @@ button.a-card:active{transform:scale(.97)}
 .d-opts .op[data-k=hot]{margin-top:16px}.d-opts .op[data-k=sweet]{margin-top:15px}.d-opts .op[data-k=cafe]{margin-top:17px}
 .d-opts label{display:block;font-size:16px;line-height:20px;margin-bottom:4px;color:var(--fg)}
 .op>div{display:flex;gap:8px}
-.d-chip{width:40px;height:40px;border-radius:100px;background:var(--chip);color:var(--chipT);font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background .3s,color .3s,transform .3s var(--ease-out)}
+.d-chip{width:44px;height:44px;border-radius:100px;background:var(--chip);color:var(--chipT);font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background .3s,color .3s,transform .3s var(--ease-out)}
 .d-chip:active{transform:scale(.92)}
 .d-chip.on{background:#fff;color:#000}
 .d-cup{left:145px;top:100px;height:310px;width:230px;display:flex;align-items:flex-end;justify-content:center;pointer-events:none}
