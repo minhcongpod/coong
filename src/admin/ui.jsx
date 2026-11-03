@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useRef, useEffect, useLayoutEffect } from 'react';
 import { SYMS } from './symbols.js';
 
 const PATHS = {
@@ -82,7 +82,22 @@ export const useUI = () => useContext(UICtx);
 export function UIProvider({ children }) {
   const [toast, setToast] = useState(null);
   const [dlg, setDlg] = useState(null);
-  const timer = useRef(0);
+  const timer = useRef(0), toastRef = useRef(null);
+  // luôn cách thanh nút ở dưới (thanh tab hoặc thanh nút của trang) 8px để không che nút
+  useLayoutEffect(() => {
+    const el = toastRef.current, host = el && el.offsetParent;
+    if (!host) return;
+    const hr = host.getBoundingClientRect();
+    let top = hr.bottom - 79;
+    document.querySelectorAll('.a-foot,.a-nav').forEach((b) => {
+      const e = b.classList.contains('a-foot') && b.firstElementChild ? b.firstElementChild : b;
+      const q = e.getBoundingClientRect(), cs = getComputedStyle(e);
+      if (!q.width || !q.height || cs.visibility === 'hidden' || +cs.opacity === 0) return;
+      if (q.left + q.width / 2 < hr.left || q.left + q.width / 2 > hr.right || q.top < hr.top + hr.height * 0.5 || q.top >= top) return;
+      top = q.top;
+    });
+    el.style.bottom = `${Math.round(hr.bottom - top + 8)}px`;
+  }, [toast]);
   const show = useCallback((msg, ok) => {
     setToast({ msg, ok, n: Date.now() });
     clearTimeout(timer.current);
@@ -93,7 +108,7 @@ export function UIProvider({ children }) {
   return (
     <UICtx.Provider value={{ toast: show, confirm }}>
       {children}
-      {toast && <div className="a-toast" role="alert" key={toast.n}><Sym id={toast.ok ? 'i-check' : 'i-warn'} size={22} /><span>{toast.msg}</span></div>}
+      {toast && <div className="a-toast" role="alert" key={toast.n} ref={toastRef}><Sym id={toast.ok ? 'i-check' : 'i-warn'} size={22} /><span>{toast.msg}</span></div>}
       {dlg && (
         <div className="a-dim" onClick={() => close(false)}>
           <div className="a-dlg" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
