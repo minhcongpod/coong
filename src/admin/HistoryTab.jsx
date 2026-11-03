@@ -192,7 +192,7 @@ function OrderDetail({ o, onBack, users }) {
     <Btn kind={paid ? 'yellow dim' : 'yellow'} onClick={paid ? undoPaid : collect}
       aria-label={paid ? 'Hoàn tác thanh toán' : 'Xác nhận thanh toán'}
       style={compact ? { flex: 'none', width: 60, padding: 0 } : undefined}>
-      {paid ? <Sym id="i-undo" size={24} /> : <Sym id="i-verified" size={20} />}
+      {paid ? <Sym id="i-hourglass" size={20} /> : <Sym id="i-verified" size={20} />}
       {!compact && (paid ? 'Hoàn tác thanh toán' : 'Xác nhận thanh toán')}
     </Btn>
   );
