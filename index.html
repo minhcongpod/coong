@@ -1742,10 +1742,12 @@ function renderOrder(o){
     b.addEventListener('click', () => reorder(o));
     ob.appendChild(b);
   }
-  /* a debt order that is still owed can be paid right from its page */
-  if (o.pay === 'debt' && !o.paid && !o.claimed && o.status !== 'cancel') {
+  /* an order that is still owed (debt, or the owner declined the payment claim) can be paid right from its page:
+     right of "Huỷ đơn" while waiting, alone while brewing, left of "Đặt lại" once finished */
+  if (!o.paid && !o.claimed && o.status !== 'cancel' && o.pay !== 'wallet') {
     const b = document.createElement('button'); b.className = 'btn yel'; b.textContent = 'Thanh toán';
-    b.addEventListener('click', () => payOne(o)); ob.appendChild(b);
+    b.addEventListener('click', () => payOne(o));
+    if (o.status === 'done') ob.insertBefore(b, ob.firstChild); else ob.appendChild(b);
   }
   /* the list ends 8px above the bottom bar (or above the 24px margin when there is no bar) */
   body.style.height = (FH - 24 - (ob.children.length ? ob.offsetHeight + 8 : 0) - 174) + 'px';
