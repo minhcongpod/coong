@@ -1037,7 +1037,7 @@ function setFrame(){ frame = 0; }
 /* which option chips a drink offers: Den = Ngot 0 only, Nau = Cafe 100 only, Bac = everything */
 const chipShown = (id, k, v) => { const p = +v === 0 ? 100 : +v;
   if (k === 'sweet') return id === 'den' ? p === 1 : id === 'nau' ? p !== 1 : true;
-  if (k === 'cafe') return id === 'bac' ? true : id === 'nau' ? p === 100 : false;
+  if (k === 'cafe') return id === 'bac';
   return true; };
 function fillDetail(i){
   cur = i; const d = DRINKS[i];
