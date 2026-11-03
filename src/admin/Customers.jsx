@@ -21,6 +21,7 @@ export function CustomerPicker({ users, selected, onPick, onBack, onAdd, onEdit,
   return (<>
     <Page className="s-pg" onBack={onBack} footer={onAdd && <button className="a-btn s-add" onClick={onAdd}><Sym id="i-s-plus" size={20} />Thêm khách</button>}>
       <label className="s-search"><Sym id="i-s-search" size={20} /><input placeholder="Tìm tên hoặc SĐT" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Tìm khách" /></label>
+      {list.length > 0 && <p className="s-count">{list.length} khách hàng</p>}
       {list.map((u) => (
         <div key={u.phone} className="s-cust" role="button" tabIndex={0} onClick={() => onPick(u)} aria-label={`Chọn ${u.name}`}>
           <span className="s-name"><b className="a-ell">{u.name}</b><small>{phoneText(u.phone)}</small></span>
