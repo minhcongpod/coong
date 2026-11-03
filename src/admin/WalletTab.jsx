@@ -67,7 +67,9 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
     const inc = txs.filter((t) => extraIncome(t) && within(t, r)).reduce((n, t) => n + (t.amount || 0), 0);
     const exp = txs.filter((t) => t.type === 'expense' && !t.excludeRevenue && within(t, r)).reduce((n, t) => n + (t.amount || 0), 0);
     // Ví: tổng tất cả các khoản thu trừ chi (mọi thời gian, kể cả khoản không tính vào doanh thu)
-    const wallet = txs.reduce((n, t) => n + (t.type === 'income' ? 1 : -1) * (t.amount || 0), 0);
+    // Không tính khoản thu của đơn đang chưa thanh toán (chủ quán đã hoàn tác thanh toán)
+    const unpaidIds = new Set(orders.filter((o) => !o.paid).map((o) => o.id));
+    const wallet = txs.reduce((n, t) => (t.orderId && unpaidIds.has(t.orderId) ? n : n + (t.type === 'income' ? 1 : -1) * (t.amount || 0)), 0);
     return { orders: live.length, revenue: paid + inc, expense: exp, profit: paid + inc - exp, wallet };
   }, [orders, txs, kind]);
 
