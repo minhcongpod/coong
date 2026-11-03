@@ -298,7 +298,7 @@ function AddTx({ users, onBack, initial = 'expense', edit }) {
         />
       </label>
       <button type="button" className="w-chk" role="checkbox" aria-checked={skip || wallet} disabled={wallet} onClick={() => setSkip(!skip)}>
-        <i className={skip || wallet ? 'on' : ''}>{(skip || wallet) && <Icon n="check" size={16} />}</i>Không tính vào doanh thu
+        <i className={skip || wallet ? 'on' : ''}>{(skip || wallet) && <Icon n="check" size={16} />}</i>{type === 'expense' ? 'Không tính vào chi phí' : 'Không tính vào doanh thu'}
       </button>
       {type === 'expense' && !wallet && (
         <div className="a-chips wrap w-chips">{EXPENSE_CATS.map((c) => <Chip key={c} on={cat === c} onClick={() => setCat(c)}>{c}</Chip>)}</div>
