@@ -509,7 +509,7 @@ button.a-card:active{transform:scale(.97)}
 /* Thêm khoản thu/chi theo thiết kế Figma */
 .w-addpg .w-money{display:flex;background:none;border-radius:0;border-bottom:3px solid rgba(255,255,255,.1);padding:16px 0;min-height:0;box-shadow:none}
 .w-addpg .w-money .a-s{font-weight:700}
-.w-addpg .w-chk{padding:0;gap:8px;font-size:14px}
+.w-addpg .w-chk{padding:0;margin-bottom:8px;gap:8px;font-size:14px}
 .w-addpg .w-chk i{width:20px;height:20px;border-radius:4px;border-color:rgba(255,255,255,.5)}
 .w-addpg .w-notecard{padding:16px 24px}
 .w-addpg .w-notecard .w-note{font-size:14px;line-height:17px;min-height:30px}
@@ -518,3 +518,7 @@ button.a-card:active{transform:scale(.97)}
 .s-chat{width:30px;height:30px;margin-right:8px}
 .s-chat img{display:block}
 .s-count{font-size:16px;font-weight:500;color:var(--mute);margin:0;padding:0 2px}
+.a-ibg.y{background:rgba(255,204,0,.16);color:var(--yellow)}
+.w-pend{cursor:default}
+.w-pend .a-num.y{color:var(--yellow)}
+.w-pend .a-ibg svg{width:14px;height:14px}
