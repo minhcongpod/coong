@@ -1,6 +1,7 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import tgIcon from './telegram.svg';
 import { tgMessageCustomer } from '../telegram';
-import { createCustomer, updateUserName, deleteCustomer } from '../db';
+import { createCustomer, updateUserName, deleteCustomer, watchTgLinked } from '../db';
 import { Icon, Sym, Page, Btn, Field, Empty, byName, phoneText, useUI, errText } from './ui.jsx';
 
 export const customersOf = (users) => Object.values(users).filter((u) => u.role === 'customer').sort(byName);
@@ -11,6 +12,8 @@ const norm = (s) => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,
 export function CustomerPicker({ users, selected, onPick, onBack, onAdd, onEdit, onChat }) {
   const [q, setQ] = useState('');
   const [chat, setChat] = useState(null);
+  const [linked, setLinked] = useState(() => new Set()); // khách đang bật Telegram
+  useEffect(() => (onChat ? watchTgLinked(setLinked, () => {}) : undefined), [onChat]);
   const list = useMemo(() => {
     const k = norm(q).replace(/\s/g, '');
     return customersOf(users).filter((u) => !k || norm(u.name).replace(/\s/g, '').includes(k) || u.phone.includes(k));
@@ -22,7 +25,7 @@ export function CustomerPicker({ users, selected, onPick, onBack, onAdd, onEdit,
         <div key={u.phone} className="s-cust" role="button" tabIndex={0} onClick={() => onPick(u)} aria-label={`Chọn ${u.name}`}>
           <span className="s-name"><b className="a-ell">{u.name}</b><small>{phoneText(u.phone)}</small></span>
           {selected && selected.phone === u.phone && <span className="g"><Icon n="check" /></span>}
-          {onChat && <button className="s-chat" onClick={(e) => { e.stopPropagation(); setChat(u); }} aria-label={`Nhắn ${u.name}`}><svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M4.5 2.5h11A2.5 2.5 0 0 1 18 5v7a2.5 2.5 0 0 1-2.5 2.5H9L5.2 17.6a.6.6 0 0 1-1-.5v-2.6H4.5A2.5 2.5 0 0 1 2 12V5a2.5 2.5 0 0 1 2.5-2.5z" /></svg></button>}
+          {onChat && linked.has(u.phone) && <button className="s-chat" onClick={(e) => { e.stopPropagation(); setChat(u); }} aria-label={`Nhắn Telegram cho ${u.name}`}><img src={tgIcon} width="30" height="30" alt="" /></button>}
           {onEdit
             ? <button className="s-chev" onClick={(e) => { e.stopPropagation(); onEdit(u); }} aria-label={`Sửa ${u.name}`}><Sym id="i-s-right" size={20} /></button>
             : <span className="s-chev"><Sym id="i-s-right" size={20} /></span>}

@@ -143,6 +143,10 @@ export const cancelOrderRefund = async (o) => {
 // --- Ví tiền của khách ---
 export const watchWallet = (phone, cb, onError) =>
   onSnapshot(doc(db, 'wallets', phone), (snap) => cb(snap.exists() ? snap.data().balance || 0 : null), onError);
+// Khách nào đang bật thông báo Telegram (có bản ghi tg/số điện thoại)
+export const watchTgLinked = (cb, onError) =>
+  onSnapshot(collection(db, 'tg'), (snap) => cb(new Set(snap.docs.map((d) => d.id))), onError);
+
 export const watchWallets = (cb, onError) =>
   onSnapshot(collection(db, 'wallets'), (snap) => { const m = {}; snap.docs.forEach((d) => { m[d.id] = d.data().balance || 0; }); cb(m); }, onError);
 
