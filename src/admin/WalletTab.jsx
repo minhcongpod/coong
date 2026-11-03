@@ -27,7 +27,7 @@ const legacyTT = (t) => {
 };
 // Hai dòng của một khoản trong lịch sử: [tiêu đề, phần thêm sau giờ]
 const txLines = (t) => {
-  if (t.walletOrder) return [t.name, `Thanh toán đơn ${t.code} · Ví`];
+  if (t.walletOrder) return [t.name, `Thanh toán đơn ${t.code}`];
   if (t.customerPhone) {
     const m = legacyTT(t).match(/^(.*?)\s*TT\s*(.*)$/);
     const name = (m ? m[1] : legacyTT(t)) || 'Khách';
