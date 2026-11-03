@@ -34,8 +34,7 @@ const txLines = (t) => {
     return [name, rest.startsWith('#') ? `Thanh toán đơn ${rest}` : /^\d+ đơn$/.test(rest) ? `Thanh toán ${rest}` : 'Thanh toán'];
   }
   const cat = txCat(t), note = txNote(t);
-  if (t.walletPhone) return [t.walletName || 'Khách', note ? `Chuyển ví · ${note}` : 'Chuyển ví'];
-  if (t.type === 'income' && t.fromPhone) return [t.fromName || 'Khách', note ? `Nạp tiền · ${note}` : 'Nạp tiền'];
+  if (t.walletPhone) { const w = t.type === 'income' ? 'Nạp ví' : 'Chuyển ví'; return [t.walletName || 'Khách', note ? `${w} · ${note}` : w]; }
   if (t.type === 'income') return [note || 'Khoản thu', ''];
   return [cat, note];
 };
@@ -212,28 +211,28 @@ function AddTx({ users, onBack, initial = 'expense', edit }) {
   const [note, setNote] = useState(edit ? txNote(edit) || (edit.type === 'expense' && !edit.walletPhone && !EXPENSE_CATS.includes(c0) ? c0 : '') : '');
   const [skip, setSkip] = useState(edit ? !!edit.excludeRevenue : false); // không tính vào doanh thu
   const [busy, setBusy] = useState(false);
-  const [cust, setCust] = useState(edit ? edit.walletPhone || edit.fromPhone || '' : ''); // khách được nạp ví (không bắt buộc)
+  const [cust, setCust] = useState(edit && edit.walletPhone ? edit.walletPhone : ''); // khách được nạp ví (không bắt buộc)
   const [picking, setPicking] = useState(false);
   const custName = cust ? ((users && users[cust] && users[cust].name) || (edit && edit.walletName) || cust) : '';
-  const wallet = !!cust; // có chọn khách: không tính doanh thu. Chi = chuyển vào ví khách; Thu = ghi nhận khách nạp vào ví quán
+  const wallet = !!cust; // có chọn khách: tiền vào ví khách, không tính doanh thu
 
   const save = async () => {
     const n = Number(amount);
     if (!(n > 0)) return toast('Nhập số tiền');
     if (!wallet && (type === 'income' || cat === 'Khác') && !note.trim()) return toast('Nhập ghi chú');
     setBusy(true);
-    const label = wallet ? (type === 'income' ? 'Nạp tiền' : 'Chuyển ví') : type === 'income' ? 'Khoản thu' : cat;
+    const label = wallet ? (type === 'income' ? 'Nạp ví' : 'Chuyển ví') : type === 'income' ? 'Khoản thu' : cat;
     const text = type === 'income' || cat === 'Khác' || wallet ? note.trim() : '';
     const data = { type, amount: n, description: `[${label}] ${text}`.trim(), excludeRevenue: skip || wallet };
-    if (wallet) { if (type === 'expense') { data.walletPhone = cust; data.walletName = custName; } else { data.fromPhone = cust; data.fromName = custName; } }
+    if (wallet) { data.walletPhone = cust; data.walletName = custName; }
     try {
       if (edit) {
         await saveTx(edit.id, data);
         toast('Đã lưu thay đổi', true);
       } else {
         await saveTx(null, data);
-        if (wallet && type === 'expense') tgToCustomer(cust, `💰 Coong vừa chuyển ${fmt(n)}đ vào ví tiền của bạn. Bạn có thể dùng để thanh toán đơn hàng nhé!`, APP_URL, 'Đặt hàng');
-        toast(wallet && type === 'expense' ? `Đã chuyển ${fmt(n)}đ vào ví ${custName}` : type === 'income' ? 'Đã ghi khoản thu' : 'Đã ghi khoản chi', true);
+        if (wallet) tgToCustomer(cust, `💰 Coong vừa ${type === 'income' ? 'nạp' : 'chuyển'} ${fmt(n)}đ vào ví tiền của bạn. Bạn có thể dùng để thanh toán đơn hàng nhé!`, APP_URL, 'Đặt hàng');
+        toast(wallet ? `Đã ${type === 'income' ? 'nạp' : 'chuyển'} ${fmt(n)}đ vào ví ${custName}` : type === 'income' ? 'Đã ghi khoản thu' : 'Đã ghi khoản chi', true);
         // thêm mới: ở lại trang để nhập tiếp khoản khác
         setAmount(''); setNote(''); setSkip(false); setCust(''); setBusy(false);
         return;
