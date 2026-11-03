@@ -93,15 +93,8 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
   const unpaid = orders.filter((o) => isLive(o) && !o.paid);
   // Khoản thu bị ẩn nếu đơn của nó đang chưa thanh toán (đã hoàn tác); đơn chưa thanh toán hiện thành thẻ vàng theo khách
   const unpaidIds = new Set(orders.filter((o) => !o.paid).map((o) => o.id));
-  const pending = useMemo(() => {
-    const m = {};
-    unpaid.forEach((o) => {
-      const g = (m[o.customerPhone || o.id] = m[o.customerPhone || o.id] || { id: 'unpaid_' + (o.customerPhone || o.id), pending: true, name: o.customerName || 'Khách', n: 0, amount: 0, createdAt: o.createdAt });
-      g.n += 1; g.amount += o.totalAmount || 0;
-      if (o.createdAt > g.createdAt) g.createdAt = o.createdAt;
-    });
-    return Object.values(m);
-  }, [orders]);
+  // mỗi đơn chưa thanh toán là một thẻ vàng riêng
+  const pending = useMemo(() => orders.filter((o) => isLive(o) && !o.paid).map((o) => ({ id: 'unpaid_' + o.id, pending: true, name: o.customerName || 'Khách', code: orderCode(o), amount: o.totalAmount || 0, createdAt: o.createdAt })), [orders]);
   const list = [
     ...txs.filter((t) => (filter === 'all' || t.type === filter) && !(t.orderId && unpaidIds.has(t.orderId))),
     ...(filter === 'expense' ? [] : pending),
@@ -163,7 +156,7 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
                   <span className="a-ibg y"><Sym id="i-hourglass" size={14} /></span>
                   <span className="grow w-txt">
                     <b className="a-t a-ell" style={{ display: 'block' }}>{t.name}</b>
-                    <span className="a-s a-ell" style={{ display: 'block' }}>{[d ? hm(d) : '', `Thanh toán ${t.n} đơn`].filter(Boolean).join(' · ')}</span>
+                    <span className="a-s a-ell" style={{ display: 'block' }}>{[d ? hm(d) : '', `Đặt đơn ${t.code}`].filter(Boolean).join(' · ')}</span>
                   </span>
                   <b className="a-t a-num y">{fmt(t.amount)}</b>
                 </div>
