@@ -94,8 +94,9 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
   const unpaid = orders.filter((o) => isLive(o) && !o.paid);
   // Khoản thu bị ẩn nếu đơn của nó đang chưa thanh toán (đã hoàn tác); đơn chưa thanh toán hiện thành thẻ vàng theo khách
   const unpaidIds = new Set(orders.filter((o) => !o.paid).map((o) => o.id));
+  const orderById = useMemo(() => new Map(orders.map((o) => [o.id, o])), [orders]);
   // mỗi đơn chưa thanh toán là một thẻ vàng riêng
-  const pending = useMemo(() => orders.filter((o) => isLive(o) && !o.paid).map((o) => ({ id: 'unpaid_' + o.id, pending: true, name: o.customerName || 'Khách', code: orderCode(o), orderId: o.id, amount: o.totalAmount || 0, createdAt: o.createdAt })), [orders]);
+  const pending = useMemo(() => orders.filter((o) => isLive(o) && !o.paid).map((o) => ({ id: 'unpaid_' + o.id, pending: true, name: o.customerName || 'Khách', code: orderCode(o), orderId: o.id, sum: summary(o), amount: o.totalAmount || 0, createdAt: o.createdAt })), [orders]);
   // đơn khách trả bằng ví tiền không có khoản thu riêng: chỉ hiện trong lịch sử, không cộng thêm vào Ví
   const walletPaid = useMemo(() => orders.filter((o) => isLive(o) && o.paid && o.payMethod === 'wallet').map((o) => ({ id: 'wal_' + o.id, type: 'income', walletOrder: true, name: o.customerName || 'Khách', code: orderCode(o), orderId: o.id, amount: o.totalAmount || 0, createdAt: o.paidAt || o.createdAt })), [orders]);
   const list = [
@@ -159,26 +160,25 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
                 <button className="w-tx w-pend" onClick={() => onOpenOrder && onOpenOrder(t.orderId)} aria-label={`Xem đơn ${t.code}`}>
                   <span className="a-ibg y"><Sym id="i-hourglass" size={14} /></span>
                   <span className="grow w-txt">
-                    <b className="a-t a-ell" style={{ display: 'block' }}>{t.name}</b>
-                    <span className="a-s" style={{ display: 'block' }}>{[d ? hm(d) : '', `Đặt đơn ${t.code}`].filter(Boolean).join(' · ')}</span>
+                    <span className="w-l1"><b className="a-t grow a-ell">{t.name}</b><b className="a-t a-num y">{fmt(t.amount)}</b></span>
+                    <span className="w-l2 a-s"><span className="grow a-ell">{[d ? hm(d) : '', [`Đặt đơn ${t.code}`, t.sum].filter(Boolean).join(' ')].filter(Boolean).join(' · ')}</span><span className="w-bang" title="Không tính vào doanh thu">!</span></span>
                   </span>
-                  <b className="a-t a-num y">{fmt(t.amount)}</b>
                 </button>
               </React.Fragment>
             );
           }
           const [title, extra] = txLines(t);
-          const sub = [d ? hm(d) : '', extra].filter(Boolean).join(' · ');
+          const od = t.orderId ? orderById.get(t.orderId) : null;
+          const sub = [d ? hm(d) : '', [extra, od ? summary(od) : ''].filter(Boolean).join(' ')].filter(Boolean).join(' · ');
           return (
             <React.Fragment key={t.id}>
               {head && <h2 className="h-head">{g}</h2>}
               <button className="w-tx" onClick={() => (t.orderId && onOpenOrder ? onOpenOrder(t.orderId) : t.customerPhone ? toast('Khoản thu từ đơn không sửa được') : setPage({ edit: t }))} aria-label={`${title}, bấm để sửa`}>
                 <span className={`a-ibg ${inc ? 'g' : 'r'}`} style={{ color: inc ? 'var(--ok)' : 'var(--err)' }}><Icon n={inc ? 'inn' : 'out'} /></span>
                 <span className="grow w-txt">
-                  <b className="a-t a-ell" style={{ display: 'block' }}>{title}</b>
-                  <span className="a-s" style={{ display: 'block' }}>{sub}</span>
+                  <span className="w-l1"><b className="a-t grow a-ell">{title}</b><b className={`a-t a-num ${inc ? 'g' : 'r'}`}>{inc ? '+' : '−'}{fmt(t.amount)}</b></span>
+                  <span className="w-l2 a-s"><span className="grow a-ell">{sub}</span>{t.excludeRevenue && <span className="w-bang" title={inc ? 'Không tính vào doanh thu' : 'Không tính vào chi phí'}>!</span>}</span>
                 </span>
-                <b className={`a-t a-num ${inc ? 'g' : 'r'}`}>{inc ? '+' : '−'}{fmt(t.amount)}</b>
               </button>
             </React.Fragment>
           );

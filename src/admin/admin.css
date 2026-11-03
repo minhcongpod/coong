@@ -526,4 +526,10 @@ button.a-card:active{transform:scale(.97)}
 .w-acts{display:flex;gap:8px;margin-top:-4px}
 .w-acts .w-collect{margin-top:0;flex:1;min-width:0;width:auto}
 .w-nox{flex:none;width:44px;height:44px;border-radius:50%;background:rgba(255,56,60,.16);color:var(--err);display:flex;align-items:center;justify-content:center}
-.w-tx .w-txt .a-s{white-space:normal;overflow:visible;text-overflow:clip;word-break:break-word}
+
+.w-tx{gap:8px}
+.w-tx .w-txt{flex:1;min-width:0;gap:4px}
+.w-tx .w-l1{display:flex;align-items:center;gap:8px;font-size:16px}
+.w-tx .w-l2{display:flex;align-items:flex-start;gap:8px;font-size:14px;font-weight:500}
+.w-tx .w-l2 .a-ell,.w-tx .w-l1 .a-ell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.w-tx .w-l2 .w-bang{flex:none}
