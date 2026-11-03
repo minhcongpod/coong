@@ -50,8 +50,6 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
   const [wallets, setWallets] = useState({}); // số dư ví tiền của từng khách
   useEffect(() => watchWallets(setWallets, () => {}), []);
   const bal = customer ? wallets[customer.phone] || 0 : 0;
-  // khách không có tiền trong ví thì không dùng phương thức Ví tiền
-  useEffect(() => { if (pay === 'wallet' && bal <= 0) setPay('debt'); }, [pay, bal]);
 
   const items = menu
     .filter((m) => m.active !== false)
@@ -63,7 +61,7 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
   useEffect(() => {
     if (!dive || !items.length) return;
     const i = items.findIndex((m) => kindOf(m.name) === dive.kind);
-    if (i >= 0 && !closed) setPage({ detail: i });
+    if (i >= 0) setPage({ detail: i });
   }, [dive, menu]); // eslint-disable-line react-hooks/exhaustive-deps
   const qtyOf = (id) => lines.filter((l) => l.menuId === id).reduce((n, l) => n + l.qty, 0);
   const count = lines.reduce((n, l) => n + l.qty, 0);
@@ -154,7 +152,7 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
           <span className="m"><Icon n="right" size={24} /></span>
         </button>
         <div className="o-methods" role="radiogroup">
-          {[...METHODS, ...(bal > 0 ? [['wallet', `Ví tiền: ${fmt(bal)}`, 'i-wallet']] : [])].map(([k, label, sym]) => (
+          {[...METHODS, ['wallet', `Ví tiền: ${fmt(bal)}`, 'i-wallet']].map(([k, label, sym]) => (
             <button key={k} className={`o-method ${pay === k ? 'on' : ''}`} role="radio" aria-checked={pay === k} onClick={() => setPay(k)}>
               <Sym id={sym} size={24} />
               <span className="grow">{label}</span>
@@ -231,11 +229,11 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
   const det = page && page.detail != null ? drinks[page.detail] : null;
   return (
     <>
-      <DrinkHome ref={homeRef} items={drinks} count={count} unread={unread} onCart={openCart} onBell={() => setPage('notif')} sold={!!closed} onOpen={(i) => (closed ? toast(closed) : setPage({ detail: i }))} />
+      <DrinkHome ref={homeRef} items={drinks} count={count} unread={unread} onCart={openCart} onBell={() => setPage('notif')} sold={!!closed} onOpen={(i) => setPage({ detail: i })} />
       {det && (
         <DrinkDetail
           key={det.m.id} item={det} index={page.detail} home={homeRef.current} count={count}
-          onClose={() => setPage(null)} onCart={openCart}
+          onClose={() => setPage(null)} onCart={openCart} soldOut={!!closed}
           onAdd={({ o, qty }) => { addLine(lineOf(det.m, o, qty)); toast(`Đã thêm ${qtyText(qty)} ${shortOf(det.m.name)}`, true); }}
           onBuy={({ o, qty }) => { addLine(lineOf(det.m, o, qty)); setPage('pay'); }}
         />

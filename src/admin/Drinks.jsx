@@ -207,7 +207,7 @@ const preT = (el) => {
 };
 const restT = (el) => (el.classList.contains('bulge') && el.dataset.a === 'r' ? 'scaleX(-1)' : el.dataset.k === 'price' ? 'translateX(-50%)' : 'none');
 
-export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, onCart }) {
+export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, onCart, soldOut }) {
   const d = item.meta, k = item.id, m = item.m;
   const extra = typeof m.upsize === 'number' ? m.upsize : XL_EXTRA;
   const root = useRef(null), stage = useRef(null), spin = useRef(null), fxRef = useRef(null), qtyBox = useRef(null), priceRef = useRef(null), cartBtn = useRef(null);
@@ -420,7 +420,7 @@ export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, o
         <div className="abs dprice" data-k="price" data-a="up" ref={priceRef}>{fmt(unit * qty)}</div>
         <div className="abs dacts" data-k="rise" data-a="rise">
           <button className="dadd" onClick={add} aria-label="Thêm vào giỏ hàng"><Sym id="i-bagadd" size={28} /></button>
-          <button className="dbuy" onClick={() => { if (busy.current || adding.current) return; onBuy({ o, qty: qtyN.current }); }}>Thanh toán ngay</button>
+          <button className="dbuy" disabled={!!soldOut} onClick={() => { if (busy.current || adding.current || soldOut) return; onBuy({ o, qty: qtyN.current }); }}>Thanh toán ngay</button>
         </div>
       </div>
     </div>
