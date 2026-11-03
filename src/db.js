@@ -151,8 +151,9 @@ export const addTransaction = (tx) => addDoc(collection(db, 'transactions'), { .
 
 export const deleteTransaction = (id) => deleteDoc(doc(db, 'transactions', id));
 
-// Khoản thu gắn tên khách = nạp ví. Thêm/sửa/xoá khoản thu thì ví của khách cộng/trừ tương ứng trong cùng một lần ghi.
-const walletOf = (t) => (t && t.type === 'income' && t.walletPhone ? { phone: t.walletPhone, n: t.amount || 0 } : null);
+// Khoản thu hoặc chi gắn tên khách = tiền vào ví khách (thu: khách nạp vào ví quán; chi: quán chuyển từ ví quán sang ví khách).
+// Thêm/sửa/xoá thì ví của khách cộng/trừ tương ứng trong cùng một lần ghi.
+const walletOf = (t) => (t && t.walletPhone ? { phone: t.walletPhone, n: t.amount || 0 } : null);
 const walletDelta = (b, before, after) => {
   const d = {};
   const a = walletOf(before), z = walletOf(after);

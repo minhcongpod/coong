@@ -34,7 +34,7 @@ const txLines = (t) => {
     return [name, rest.startsWith('#') ? `Thanh toán đơn ${rest}` : /^\d+ đơn$/.test(rest) ? `Thanh toán ${rest}` : 'Thanh toán'];
   }
   const cat = txCat(t), note = txNote(t);
-  if (t.type === 'income' && t.walletPhone) return [t.walletName || 'Khách', note ? `Nạp ví · ${note}` : 'Nạp ví'];
+  if (t.walletPhone) { const w = t.type === 'income' ? 'Nạp ví' : 'Chuyển ví'; return [t.walletName || 'Khách', note ? `${w} · ${note}` : w]; }
   if (t.type === 'income') return [note || 'Khoản thu', ''];
   return [cat, note];
 };
@@ -207,22 +207,22 @@ function AddTx({ users, onBack, initial = 'expense', edit }) {
   const c0 = edit ? txCat(edit) : '';
   const [type, setType] = useState(edit ? edit.type : initial);
   const [amount, setAmount] = useState(edit ? String(edit.amount || '') : '');
-  const [cat, setCat] = useState(edit && edit.type === 'expense' ? (EXPENSE_CATS.includes(c0) ? c0 : 'Khác') : EXPENSE_CATS[0]);
-  const [note, setNote] = useState(edit ? txNote(edit) || (edit.type === 'expense' && !EXPENSE_CATS.includes(c0) ? c0 : '') : '');
+  const [cat, setCat] = useState(edit && edit.type === 'expense' && !edit.walletPhone ? (EXPENSE_CATS.includes(c0) ? c0 : 'Khác') : EXPENSE_CATS[0]);
+  const [note, setNote] = useState(edit ? txNote(edit) || (edit.type === 'expense' && !edit.walletPhone && !EXPENSE_CATS.includes(c0) ? c0 : '') : '');
   const [skip, setSkip] = useState(edit ? !!edit.excludeRevenue : false); // không tính vào doanh thu
   const [busy, setBusy] = useState(false);
   const [cust, setCust] = useState(edit && edit.walletPhone ? edit.walletPhone : ''); // khách được nạp ví (không bắt buộc)
   const [picking, setPicking] = useState(false);
   const custName = cust ? ((users && users[cust] && users[cust].name) || (edit && edit.walletName) || cust) : '';
-  const wallet = type === 'income' && !!cust;
+  const wallet = !!cust; // có chọn khách: tiền vào ví khách, không tính doanh thu
 
   const save = async () => {
     const n = Number(amount);
     if (!(n > 0)) return toast('Nhập số tiền');
-    if (((type === 'income' && !wallet) || (type === 'expense' && cat === 'Khác')) && !note.trim()) return toast('Nhập ghi chú');
+    if (!wallet && (type === 'income' || cat === 'Khác') && !note.trim()) return toast('Nhập ghi chú');
     setBusy(true);
-    const label = wallet ? 'Nạp ví' : type === 'income' ? 'Khoản thu' : cat;
-    const text = type === 'income' || cat === 'Khác' ? note.trim() : '';
+    const label = wallet ? (type === 'income' ? 'Nạp ví' : 'Chuyển ví') : type === 'income' ? 'Khoản thu' : cat;
+    const text = type === 'income' || cat === 'Khác' || wallet ? note.trim() : '';
     const data = { type, amount: n, description: `[${label}] ${text}`.trim(), excludeRevenue: skip || wallet };
     if (wallet) { data.walletPhone = cust; data.walletName = custName; }
     try {
@@ -231,8 +231,8 @@ function AddTx({ users, onBack, initial = 'expense', edit }) {
         toast('Đã lưu thay đổi', true);
       } else {
         await saveTx(null, data);
-        if (wallet) tgToCustomer(cust, `💰 Coong vừa nạp ${fmt(n)}đ vào ví tiền của bạn. Bạn có thể dùng để thanh toán đơn hàng nhé!`, APP_URL, 'Đặt hàng');
-        toast(wallet ? `Đã nạp ${fmt(n)}đ vào ví ${custName}` : type === 'income' ? 'Đã ghi khoản thu' : 'Đã ghi khoản chi', true);
+        if (wallet) tgToCustomer(cust, `💰 Coong vừa ${type === 'income' ? 'nạp' : 'chuyển'} ${fmt(n)}đ vào ví tiền của bạn. Bạn có thể dùng để thanh toán đơn hàng nhé!`, APP_URL, 'Đặt hàng');
+        toast(wallet ? `Đã ${type === 'income' ? 'nạp' : 'chuyển'} ${fmt(n)}đ vào ví ${custName}` : type === 'income' ? 'Đã ghi khoản thu' : 'Đã ghi khoản chi', true);
         // thêm mới: ở lại trang để nhập tiếp khoản khác
         setAmount(''); setNote(''); setSkip(false); setCust(''); setBusy(false);
         return;
@@ -265,18 +265,18 @@ function AddTx({ users, onBack, initial = 'expense', edit }) {
           onChange={(e) => setAmount(e.target.value.replace(/\D/g, '').slice(0, 10))}
         />
       </label>
-      {type === 'expense' && (
+      {type === 'expense' && !wallet && (
         <div className="a-chips wrap w-chips">{EXPENSE_CATS.map((c) => <Chip key={c} on={cat === c} onClick={() => setCat(c)}>{c}</Chip>)}</div>
       )}
       {/* Chi: ô ghi chú chỉ hiện khi chọn Khác. Thu: ô Lý do */}
-      {type === 'income' && (
+      {(
         <button className="a-card h o-cust" onClick={() => setPicking(true)} aria-label="Chọn khách">
           <span className="grow o-clabel">Khách hàng</span>
           <b className={`a-t ${cust ? '' : 'y'}`}>{custName || 'Chọn khách'}</b>
           <span className="m"><Icon n="right" size={24} /></span>
         </button>
       )}
-      {(type === 'income' || cat === 'Khác') && (
+      {(type === 'income' || cat === 'Khác' || wallet) && (
         <label className="a-card w-notecard">
           <textarea
             className="w-note" rows={2} value={note} placeholder="Nhập nội dung" aria-label="Nội dung"
