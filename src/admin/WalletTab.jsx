@@ -27,6 +27,7 @@ const legacyTT = (t) => {
 };
 // Hai dòng của một khoản trong lịch sử: [tiêu đề, phần thêm sau giờ]
 const txLines = (t) => {
+  if (t.walletOrder) return [t.name, `Thanh toán đơn ${t.code} · Ví`];
   if (t.customerPhone) {
     const m = legacyTT(t).match(/^(.*?)\s*TT\s*(.*)$/);
     const name = (m ? m[1] : legacyTT(t)) || 'Khách';
@@ -95,7 +96,10 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
   const unpaidIds = new Set(orders.filter((o) => !o.paid).map((o) => o.id));
   // mỗi đơn chưa thanh toán là một thẻ vàng riêng
   const pending = useMemo(() => orders.filter((o) => isLive(o) && !o.paid).map((o) => ({ id: 'unpaid_' + o.id, pending: true, name: o.customerName || 'Khách', code: orderCode(o), orderId: o.id, amount: o.totalAmount || 0, createdAt: o.createdAt })), [orders]);
+  // đơn khách trả bằng ví tiền không có khoản thu riêng: chỉ hiện trong lịch sử, không cộng thêm vào Ví
+  const walletPaid = useMemo(() => orders.filter((o) => isLive(o) && o.paid && o.payMethod === 'wallet').map((o) => ({ id: 'wal_' + o.id, type: 'income', walletOrder: true, name: o.customerName || 'Khách', code: orderCode(o), orderId: o.id, amount: o.totalAmount || 0, createdAt: o.paidAt || o.createdAt })), [orders]);
   const list = [
+    ...(filter === 'expense' ? [] : walletPaid),
     ...txs.filter((t) => (filter === 'all' || t.type === filter) && !(t.orderId && unpaidIds.has(t.orderId))),
     ...(filter === 'expense' ? [] : pending),
   ].sort((x, y) => String(y.createdAt || '').localeCompare(String(x.createdAt || '')));
