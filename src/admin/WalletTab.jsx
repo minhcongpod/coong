@@ -160,7 +160,7 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
                   <span className="a-ibg y"><Sym id="i-hourglass" size={14} /></span>
                   <span className="grow w-txt">
                     <b className="a-t a-ell" style={{ display: 'block' }}>{t.name}</b>
-                    <span className="a-s a-ell" style={{ display: 'block' }}>{[d ? hm(d) : '', `Đặt đơn ${t.code}`].filter(Boolean).join(' · ')}</span>
+                    <span className="a-s" style={{ display: 'block' }}>{[d ? hm(d) : '', `Đặt đơn ${t.code}`].filter(Boolean).join(' · ')}</span>
                   </span>
                   <b className="a-t a-num y">{fmt(t.amount)}</b>
                 </button>
@@ -176,7 +176,7 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
                 <span className={`a-ibg ${inc ? 'g' : 'r'}`} style={{ color: inc ? 'var(--ok)' : 'var(--err)' }}><Icon n={inc ? 'inn' : 'out'} /></span>
                 <span className="grow w-txt">
                   <b className="a-t a-ell" style={{ display: 'block' }}>{title}</b>
-                  <span className="a-s a-ell" style={{ display: 'block' }}>{sub}</span>
+                  <span className="a-s" style={{ display: 'block' }}>{sub}</span>
                 </span>
                 <b className={`a-t a-num ${inc ? 'g' : 'r'}`}>{inc ? '+' : '−'}{fmt(t.amount)}</b>
               </button>
