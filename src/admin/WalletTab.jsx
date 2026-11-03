@@ -87,7 +87,7 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
     const unpaidIds = new Set(orders.filter((o) => !o.paid).map((o) => o.id));
     const owed = orders.filter((o) => isLive(o) && !o.paid).reduce((n, o) => n + (o.totalAmount || 0), 0);
     const wallet = txs.reduce((n, t) => (t.orderId && unpaidIds.has(t.orderId) ? n : n + (t.type === 'income' ? 1 : -1) * (t.amount || 0)), 0) - owed;
-    return { orders: live.length, revenue: paid + inc, expense: exp, profit: allRev - exp, wallet };
+    return { orders: live.reduce((n, o) => n + (o.items || []).reduce((m, x) => m + (x.quantity || 1), 0), 0), revenue: paid + inc, expense: exp, profit: allRev - exp, wallet };
   }, [orders, txs, kind]);
 
   const unpaid = orders.filter((o) => isLive(o) && !o.paid);
@@ -120,7 +120,7 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
         <div className="a-card w-stats">
           <div className="a-between" style={{ alignItems: 'flex-start' }}>
             <span>
-              <span className="a-s" style={{ display: 'block' }}>{stats.orders} đơn</span>
+              <span className="a-s" style={{ display: 'block' }}>{stats.orders} Cốc</span>
               <b className="w-rev">{fmt(stats.revenue)}</b>
             </span>
             <div className="w-per" role="tablist" aria-label="Khoảng thời gian">
