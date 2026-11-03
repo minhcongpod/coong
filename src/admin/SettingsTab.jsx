@@ -31,8 +31,8 @@ export default function SettingsTab({ menu, users, shop = {}, adminPhone, onLogo
     ['i-s-user', 'Quản lý khách hàng', 'customers'],
     ['i-s-cup', 'Quản lý menu', 'menu'],
     ['i-s-clock', 'Giờ đóng mở cửa', 'hours'],
-    ['i-bell', 'Thông báo Telegram', 'telegram'],
-    ['i-s-down', 'Sao lưu dữ liệu', 'backup'],
+    ['i-s-bell', 'Thông báo Telegram', 'telegram'],
+    ['i-s-save', 'Sao lưu dữ liệu', 'backup'],
   ];
   const flipSold = async (v) => { try { await saveShop({ soldOut: v }); } catch (e) { toast(errText(e)); } };
   return (

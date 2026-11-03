@@ -63,6 +63,8 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
     const i = items.findIndex((m) => kindOf(m.name) === dive.kind);
     if (i >= 0) setPage({ detail: i });
   }, [dive, menu]); // eslint-disable-line react-hooks/exhaustive-deps
+  // món hết hàng: quán đang tạm hết/ngoài giờ mở cửa, hoặc món đã tắt trong menu
+  const isSold = (l) => !!closed || !menu.some((m) => m.id === l.menuId && m.active !== false);
   const qtyOf = (id) => lines.filter((l) => l.menuId === id).reduce((n, l) => n + l.qty, 0);
   const count = lines.reduce((n, l) => n + l.qty, 0);
   const total = lines.reduce((n, l) => n + unitOf(l) * l.qty, 0);
@@ -199,6 +201,7 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
                         <span>{l.qty}</span>
                         <button className="o-cpm" onClick={() => setQty(i, 1)} aria-label={`Thêm ${l.name}`}><Sym id="i-plus" size={20} /></button>
                       </span>
+                      {isSold(l) && <span className="o-csold">Hết hàng</span>}
                     </div>
                   </div>
                 </div>
@@ -207,7 +210,7 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
             <div className="a-foot">
               <div className="o-total">
                 <div className="o-sum"><span>Giá chỉ</span><b className="y">{fmt(total)}</b></div>
-                <Btn onClick={() => setPage('pay')}>Đặt hàng</Btn>
+                <Btn onClick={() => { const out = lines.find(isSold); if (out) return toast(closed || `${shortOf(out.name)} đã hết hàng, bỏ món này khỏi giỏ nhé`); setPage('pay'); }}>Đặt hàng</Btn>
               </div>
             </div>
           </>

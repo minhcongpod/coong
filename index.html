@@ -141,6 +141,7 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 .cpm:active{transform:scale(.88)}
 .cpm svg{width:19.7px;height:19.7px}
 .cprice{font-size:18px;line-height:23px;font-variant-numeric:tabular-nums}
+.cprice.csold{font-size:14px;font-weight:500;color:var(--err)}
 .copt{font-size:14px;font-weight:500;color:rgba(255,255,255,.5);white-space:nowrap}
 .cempty{left:0;width:390px;top:149px;opacity:0;pointer-events:none;transition:opacity .3s}
 #cart.empty .cempty{opacity:1;pointer-events:auto}
@@ -831,7 +832,10 @@ function applyMenu(items){
   cards.forEach((c, i) => { const d = DRINKS[i]; c.classList.toggle('sold', !!d.sold); $('.pricebar b', c).textContent = closed ? 'Sắp mở hàng' : d.sold ? 'Hết hàng' : fmt(d.price); });
   if (detail.style.visibility === 'visible') $('#dPrice').textContent = fmt(unit()*qty);
   syncBuy();
+  const sig = DRINKS.map(d => d.sold ? 1 : 0).join('');
+  if (sig !== soldSig) { soldSig = sig; if (typeof renderCart === 'function') renderCart(); }
 }
+let soldSig = '';
 /* hết hàng hoặc chưa mở cửa: vẫn xem và thêm vào giỏ được, chỉ không cho "Thanh toán ngay" */
 function syncBuy(){ const b = $('#buy'); if (b && typeof cur === 'number' && DRINKS[cur]) b.disabled = !!DRINKS[cur].sold; }
 const GLOW = {den:'rgba(255,255,255,.5)', nau:'rgba(255,255,255,.5)', bac:'rgba(255,255,255,.5)'};
@@ -1384,7 +1388,7 @@ function renderCart(){
     row.innerHTML = `<div class="cthumb"><img src="/${d.id}.webp" alt="" draggable="false"></div>
       <div class="cinfo"><span class="cname"></span><button class="copt" aria-label="Chỉnh món"><span></span><svg><use href="#i-caret"/></svg></button><div class="crow">
         <div class="cqty"><button class="cpm" data-d="-1" aria-label="Giảm"><svg><use href="#i-minus"/></svg></button><span>${it.qty}</span><button class="cpm" data-d="1" aria-label="Tăng"><svg><use href="#i-plus"/></svg></button></div>
-        <span class="cprice">${fmt(it.qty*it.unit)}</span></div></div>`;
+        <span class="cprice${d.sold ? ' csold' : ''}">${d.sold ? 'Hết hàng' : fmt(it.qty*it.unit)}</span></div></div>`;
     $('.cname', row).textContent = d.name; $('.copt span', row).textContent = optText(it.o, it.id);
     $('.copt', row).addEventListener('click', () => openEdit(i));
     $$('.cpm', row).forEach(b => b.addEventListener('click', () => changeItem(i, +b.dataset.d, row)));
