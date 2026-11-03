@@ -47,7 +47,8 @@ const tellCustomer = async (o, patch) => {
 export default function HistoryTab({ orders, users, loading, onGoOrder, track, unread, onBell, onClose }) {
   const [filter, setFilter] = useState('all');
   const [openId, setOpenId] = useState(null);
-  useEffect(() => { if (track) setOpenId(track.id); }, [track]);
+  const closeTimer = useRef(null);
+  useEffect(() => { if (track) { clearTimeout(closeTimer.current); setOpenId(track.id); } }, [track]);
 
   const list = orders.filter((o) => filter === 'all' || o.status === filter);
   const open = openId ? orders.find((o) => o.id === openId) : null;
@@ -130,7 +131,12 @@ export default function HistoryTab({ orders, users, loading, onGoOrder, track, u
           </div>
         ) : <p className="a-s" style={{ textAlign: 'center', padding: 24 }}>{loading ? 'Đang tải...' : 'Không có đơn phù hợp'}</p>)}
       </div>
-      {open && <OrderDetail o={open} onBack={() => { setOpenId(null); if (onClose) onClose(); }} users={users} />}
+      {open && <OrderDetail o={open} onBack={() => {
+        // quay về tab khác (vd Ví tiền): đóng chi tiết sau khi đã chuyển tab, để không nháy qua danh sách đơn hàng
+        const away = onClose ? onClose() : false;
+        if (away) closeTimer.current = setTimeout(() => setOpenId(null), 500);
+        else setOpenId(null);
+      }} users={users} />}
     </>
   );
 }
