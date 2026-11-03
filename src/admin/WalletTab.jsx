@@ -70,14 +70,26 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
     const exp = txs.filter((t) => t.type === 'expense' && !t.excludeRevenue).reduce((n, t) => n + (t.amount || 0), 0);
     // Không tính khoản thu của đơn đang chưa thanh toán (chủ quán đã hoàn tác thanh toán)
     const unpaidIds = new Set(orders.filter((o) => !o.paid).map((o) => o.id));
-    const cash = txs.reduce((n, t) => (t.orderId && unpaidIds.has(t.orderId) ? n : n + (t.type === 'income' ? 1 : -1) * (t.amount || 0)), 0);
-    // Ví = tổng thu trừ chi, rồi trừ tiếp các đơn chưa thanh toán
-    const wallet = cash - orders.filter((o) => isLive(o) && !o.paid).reduce((n, o) => n + (o.totalAmount || 0), 0);
+    const wallet = txs.reduce((n, t) => (t.orderId && unpaidIds.has(t.orderId) ? n : n + (t.type === 'income' ? 1 : -1) * (t.amount || 0)), 0);
     return { orders: live.length, revenue: paid + inc, expense: exp, profit: allRev - exp, wallet };
   }, [orders, txs, kind]);
 
   const unpaid = orders.filter((o) => isLive(o) && !o.paid);
-  const list = txs.filter((t) => filter === 'all' || t.type === filter);
+  // Khoản thu bị ẩn nếu đơn của nó đang chưa thanh toán (đã hoàn tác); đơn chưa thanh toán hiện thành thẻ vàng theo khách
+  const unpaidIds = new Set(orders.filter((o) => !o.paid).map((o) => o.id));
+  const pending = useMemo(() => {
+    const m = {};
+    unpaid.forEach((o) => {
+      const g = (m[o.customerPhone || o.id] = m[o.customerPhone || o.id] || { id: 'unpaid_' + (o.customerPhone || o.id), pending: true, name: o.customerName || 'Khách', n: 0, amount: 0, createdAt: o.createdAt });
+      g.n += 1; g.amount += o.totalAmount || 0;
+      if (o.createdAt > g.createdAt) g.createdAt = o.createdAt;
+    });
+    return Object.values(m);
+  }, [orders]);
+  const list = [
+    ...txs.filter((t) => (filter === 'all' || t.type === filter) && !(t.orderId && unpaidIds.has(t.orderId))),
+    ...(filter === 'expense' ? [] : pending),
+  ].sort((x, y) => String(y.createdAt || '').localeCompare(String(x.createdAt || '')));
 
   if (page === 'unpaid') return <Unpaid orders={unpaid} onOpen={onOpenOrder} onBack={() => setPage(null)} />;
   if (page && page.unpaid) return <Unpaid orders={unpaid.filter((o) => o.customerPhone === page.unpaid)} only focus onOpen={onOpenOrder} onBack={() => setPage(null)} />;
@@ -127,6 +139,21 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
           const d = timeOf(t);
           const g = groupLabel(d);
           const head = i === 0 || g !== groupLabel(timeOf(list[i - 1]));
+          if (t.pending) {
+            return (
+              <React.Fragment key={t.id}>
+                {head && <h2 className="h-head">{g}</h2>}
+                <div className="w-tx w-pend">
+                  <span className="a-ibg y"><Sym id="i-hourglass" size={14} /></span>
+                  <span className="grow w-txt">
+                    <b className="a-t a-ell" style={{ display: 'block' }}>{t.name}</b>
+                    <span className="a-s a-ell" style={{ display: 'block' }}>{[d ? hm(d) : '', `Thanh toán ${t.n} đơn`].filter(Boolean).join(' · ')}</span>
+                  </span>
+                  <b className="a-t a-num y">{fmt(t.amount)}</b>
+                </div>
+              </React.Fragment>
+            );
+          }
           const [title, extra] = txLines(t);
           const sub = [d ? hm(d) : '', extra].filter(Boolean).join(' · ');
           return (

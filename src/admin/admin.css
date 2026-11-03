@@ -518,3 +518,7 @@ button.a-card:active{transform:scale(.97)}
 .s-chat{width:30px;height:30px;margin-right:8px}
 .s-chat img{display:block}
 .s-count{font-size:16px;font-weight:500;color:var(--mute);margin:0;padding:0 2px}
+.a-ibg.y{background:rgba(255,204,0,.16);color:var(--yellow)}
+.w-pend{cursor:default}
+.w-pend .a-num.y{color:var(--yellow)}
+.w-pend .a-ibg svg{width:14px;height:14px}
