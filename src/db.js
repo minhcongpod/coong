@@ -151,9 +151,9 @@ export const addTransaction = (tx) => addDoc(collection(db, 'transactions'), { .
 
 export const deleteTransaction = (id) => deleteDoc(doc(db, 'transactions', id));
 
-// Khoản thu hoặc chi gắn tên khách = tiền vào ví khách (thu: khách nạp vào ví quán; chi: quán chuyển từ ví quán sang ví khách).
-// Thêm/sửa/xoá thì ví của khách cộng/trừ tương ứng trong cùng một lần ghi.
-const walletOf = (t) => (t && t.walletPhone ? { phone: t.walletPhone, n: t.amount || 0 } : null);
+// Khoản chi gắn tên khách = quán chuyển từ ví quán sang ví khách. Thêm/sửa/xoá thì ví của khách cộng/trừ tương ứng trong cùng một lần ghi.
+// Khoản thu gắn tên khách (fromPhone) chỉ để ghi nhận khách nào nạp vào ví quán, không đụng tới ví khách.
+const walletOf = (t) => (t && t.type === 'expense' && t.walletPhone ? { phone: t.walletPhone, n: t.amount || 0 } : null);
 const walletDelta = (b, before, after) => {
   const d = {};
   const a = walletOf(before), z = walletOf(after);
@@ -167,7 +167,7 @@ export const saveTx = async (id, data) => {
   if (id) {
     const old = await getDoc(ref);
     walletDelta(b, old.exists() ? old.data() : null, data);
-    b.update(ref, { ...data, walletPhone: data.walletPhone || null, walletName: data.walletName || null });
+    b.update(ref, { ...data, walletPhone: data.walletPhone || null, walletName: data.walletName || null, fromPhone: data.fromPhone || null, fromName: data.fromName || null });
   } else {
     walletDelta(b, null, data);
     b.set(ref, { ...data, createdAt: nowIso() });
