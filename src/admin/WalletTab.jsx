@@ -258,13 +258,16 @@ function AddTx({ users, onBack, initial = 'expense', edit }) {
       )}
     >
       <Seg items={[['expense', 'Chi'], ['income', 'Thu']]} value={type} onChange={setType} />
-      <label className="a-card w-money">
+      <label className="w-money">
         <span className="a-s" style={{ fontSize: 16 }}>Số tiền</span>
         <input
           className="a-big w-amount" inputMode="numeric" placeholder="0" aria-label="Số tiền" value={amount ? fmt(Number(amount)) : ''}
           onChange={(e) => setAmount(e.target.value.replace(/\D/g, '').slice(0, 10))}
         />
       </label>
+      <button type="button" className="w-chk" role="checkbox" aria-checked={skip || wallet} disabled={wallet} onClick={() => setSkip(!skip)}>
+        <i className={skip || wallet ? 'on' : ''}>{(skip || wallet) && <Icon n="check" size={16} />}</i>Không tính vào doanh thu
+      </button>
       {type === 'expense' && !wallet && (
         <div className="a-chips wrap w-chips">{EXPENSE_CATS.map((c) => <Chip key={c} on={cat === c} onClick={() => setCat(c)}>{c}</Chip>)}</div>
       )}
@@ -285,9 +288,6 @@ function AddTx({ users, onBack, initial = 'expense', edit }) {
           />
         </label>
       )}
-      <button type="button" className="w-chk" role="checkbox" aria-checked={skip || wallet} disabled={wallet} onClick={() => setSkip(!skip)}>
-        <i className={skip || wallet ? 'on' : ''}>{(skip || wallet) && <Icon n="check" size={16} />}</i>Không tính vào doanh thu
-      </button>
     </Page>
   );
 }
