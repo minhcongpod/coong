@@ -187,22 +187,35 @@ function OrderDetail({ o, onBack, users }) {
   const [sc, cg] = cancelled ? ['#ff383c', 'rgba(255,56,60,.45)'] : o.status === 'pending' ? ['#fc0', 'rgba(255,204,0,.45)'] : o.status === 'brewing' ? ['#00c0e8', 'rgba(0,192,232,.45)'] : ['#34c759', 'rgba(52,199,89,.45)'];
   const d = timeOf(o);
 
+  // nút xác nhận / hoàn tác thanh toán: dùng cho đơn chờ xác nhận, đang chế, hoàn thành (đơn trả bằng ví thì không có)
+  const payBtn = (compact) => (
+    <Btn kind={paid ? 'yellow dim' : 'yellow'} onClick={paid ? undoPaid : collect}
+      aria-label={paid ? 'Hoàn tác thanh toán' : 'Xác nhận thanh toán'}
+      style={compact ? { flex: 'none', width: 60, padding: 0 } : undefined}>
+      {paid ? <Sym id="i-undo" size={24} /> : <Sym id="i-verified" size={20} />}
+      {!compact && (paid ? 'Hoàn tác thanh toán' : 'Xác nhận thanh toán')}
+    </Btn>
+  );
   let footer = null;
   if (o.status === 'pending') {
     footer = (
       <div style={{ display: 'flex', gap: 8 }}>
         <Btn kind="danger" onClick={cancel}>Huỷ đơn</Btn>
+        {!viaWallet && payBtn(true)}
         <Btn onClick={() => run({ status: 'brewing' })}>Xác nhận</Btn>
       </div>
     );
   } else if (o.status === 'brewing') {
-    footer = <Btn onClick={() => run({ status: 'completed' })}>Hoàn thành</Btn>;
+    footer = viaWallet
+      ? <Btn onClick={() => run({ status: 'completed' })}>Hoàn thành</Btn>
+      : (
+        <div style={{ display: 'flex', gap: 8 }}>
+          {payBtn(true)}
+          <Btn onClick={() => run({ status: 'completed' })}>Hoàn thành</Btn>
+        </div>
+      );
   } else if (o.status === 'completed' && !viaWallet) {
-    footer = (
-      <Btn kind={paid ? 'yellow dim' : 'yellow'} onClick={paid ? undoPaid : collect}>
-        {paid ? <><Sym id="i-undo" size={24} />Hoàn tác thanh toán</> : <><Sym id="i-verified" size={20} />Xác nhận thanh toán</>}
-      </Btn>
-    );
+    footer = payBtn(false);
   }
 
   // thanh tiến trình chạy từ bước đầu tới bước hiện tại, như app khách
