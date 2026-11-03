@@ -62,8 +62,8 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
   const stats = useMemo(() => {
     const r = range(kind, new Date());
     const live = orders.filter((o) => isLive(o) && within(o, r));
-    // doanh thu tính theo ngày đặt, trừ đơn chưa thanh toán và chờ xác nhận
-    const paid = live.filter((o) => o.paid).reduce((n, o) => n + (o.totalAmount || 0), 0);
+    // doanh thu tính theo ngày đặt, gồm cả đơn khách chưa thanh toán
+    const paid = live.reduce((n, o) => n + (o.totalAmount || 0), 0);
     const inc = txs.filter((t) => extraIncome(t) && within(t, r)).reduce((n, t) => n + (t.amount || 0), 0);
     // Chi phí, lợi nhuận và Ví tính tất cả thời gian, không theo bộ lọc ngày/tháng/năm (chỉ số đơn và doanh thu theo bộ lọc)
     const allRev = orders.filter(isLive).reduce((n, o) => n + (o.totalAmount || 0), 0) + txs.filter(extraIncome).reduce((n, t) => n + (t.amount || 0), 0);
