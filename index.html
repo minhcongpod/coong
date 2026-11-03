@@ -1726,7 +1726,7 @@ function renderOrder(o){
   o.items.forEach(x => items.appendChild(itemRow(x)));
   body.appendChild(items);
   const sum = document.createElement('div'); sum.className = 'card2';
-  const payState = o.paid ? ['Đã thanh toán', 'g'] : o.claimed ? ['Chờ quán xác nhận', 'yl'] : o.pay === 'debt' ? ['Ghi nợ', 'yl'] : ['Chưa thanh toán', 'yl'];
+  const payState = o.paid ? ['Đã thanh toán', 'g'] : o.claimed ? ['Chờ quán xác nhận', 'yl'] : ['Chưa thanh toán', 'yl'];
   sum.innerHTML = `<div class="kv"><span>Phương thức</span><b>${PAY[o.pay]}</b></div><div class="kv"><span>Thanh toán</span><b class="${payState[1]}">${payState[0]}</b></div><div class="kv tot"><span>Tổng</span><b>${fmt(oTotal(o))}</b></div>`;
   body.appendChild(sum);
   const bar = $('.bar', tl);
