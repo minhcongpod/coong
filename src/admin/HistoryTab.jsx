@@ -175,7 +175,7 @@ function OrderDetail({ o, onBack, users }) {
   // bấm là đổi luôn: xác nhận thanh toán (nút vàng đậm) hoặc hoàn tác (nút vàng mờ)
   const collect = () => markPaid(o, orderCode(o)).then(() => tellCustomer(o, { paid: true })).catch((e) => toast(errText(e)));
   const undoPaid = () => markUnpaid(o).then(() => toast('Đã bỏ xác nhận thanh toán', true)).catch((e) => toast(errText(e)));
-  const viaWallet = o.payMethod === 'wallet'; // trả bằng ví: tiền đã trừ từ ví, không hoàn tác ở đây
+  const viaWallet = o.payMethod === 'wallet'; // trả bằng ví: tiền đã trừ từ ví nên không có nút xác nhận thanh toán
 
   const cancelled = o.status === 'cancelled';
   const steps = cancelled
@@ -197,9 +197,9 @@ function OrderDetail({ o, onBack, users }) {
     );
   } else if (o.status === 'brewing') {
     footer = <Btn onClick={() => run({ status: 'completed' })}>Hoàn thành</Btn>;
-  } else if (o.status === 'completed') {
+  } else if (o.status === 'completed' && !viaWallet) {
     footer = (
-      <Btn kind={paid ? 'yellow' : 'yellow dim'} onClick={paid ? undoPaid : collect} disabled={paid && viaWallet} aria-pressed={paid}>
+      <Btn kind={paid ? 'yellow' : 'yellow dim'} onClick={paid ? undoPaid : collect} aria-pressed={paid}>
         <Sym id="i-verified" size={20} />Xác nhận thanh toán
       </Btn>
     );
