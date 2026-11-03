@@ -70,7 +70,8 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
     const exp = txs.filter((t) => t.type === 'expense' && !t.excludeRevenue).reduce((n, t) => n + (t.amount || 0), 0);
     // Không tính khoản thu của đơn đang chưa thanh toán (chủ quán đã hoàn tác thanh toán)
     const unpaidIds = new Set(orders.filter((o) => !o.paid).map((o) => o.id));
-    const wallet = txs.reduce((n, t) => (t.orderId && unpaidIds.has(t.orderId) ? n : n + (t.type === 'income' ? 1 : -1) * (t.amount || 0)), 0);
+    const owed = orders.filter((o) => isLive(o) && !o.paid).reduce((n, o) => n + (o.totalAmount || 0), 0);
+    const wallet = txs.reduce((n, t) => (t.orderId && unpaidIds.has(t.orderId) ? n : n + (t.type === 'income' ? 1 : -1) * (t.amount || 0)), 0) - owed;
     return { orders: live.length, revenue: paid + inc, expense: exp, profit: allRev - exp, wallet };
   }, [orders, txs, kind]);
 
@@ -207,6 +208,14 @@ function Unpaid({ orders, onBack, only, focus, onOpen }) {
     } catch (e) { toast(errText(e)); }
   };
 
+  const notReceived = async (g) => {
+    if (!(await confirm({ title: `Chưa nhận được ${fmt(g.total)} của ${g.name}?`, ok: 'Chưa nhận' }))) return;
+    try {
+      await Promise.all(g.orders.map((o) => updateOrder(o.id, { paymentStatus: null })));
+      toast(`Đã chuyển ${g.orders.length} đơn về chưa thanh toán`, true);
+    } catch (e) { toast(errText(e)); }
+  };
+
   return (
     <Page onBack={onBack}>
       <Seg items={[['wait', 'Chờ xác nhận'], ['due', 'Chưa thanh toán']]} value={tab} onChange={setTab} />
@@ -226,7 +235,10 @@ function Unpaid({ orders, onBack, only, focus, onOpen }) {
             })}
           </div>
           <div className="a-between w-dtot"><span className="a-s">{g.orders.length} đơn tổng</span><b className="y a-num" style={{ fontSize: 18, lineHeight: '23px' }}>{fmt(g.total)}</b></div>
-          <button className="o-pill w-collect" onClick={() => collect(g)} aria-label={`Xác nhận thanh toán của ${g.name}`}><Sym id="i-verified" size={16} />Xác nhận thanh toán</button>
+          <div className="w-acts">
+            {tab === 'wait' && <button className="w-nox" onClick={() => notReceived(g)} aria-label={`Chưa nhận được tiền của ${g.name}`}><Icon n="x" size={24} /></button>}
+            <button className="o-pill w-collect" onClick={() => collect(g)} aria-label={`Xác nhận thanh toán của ${g.name}`}><Sym id="i-verified" size={16} />Xác nhận thanh toán</button>
+          </div>
         </div>
       ))}
       {groups.length === 0 && <Empty icon="check" title={tab === 'wait' ? 'Không có đơn chờ xác nhận' : 'Không còn đơn nợ'} text="Mọi đơn đều đã thanh toán." />}

@@ -522,3 +522,7 @@ button.a-card:active{transform:scale(.97)}
 .w-pend{cursor:default}
 .w-pend .a-num.y{color:var(--yellow)}
 .w-pend .a-ibg svg{width:14px;height:14px}
+
+.w-acts{display:flex;gap:8px;margin-top:-4px}
+.w-acts .w-collect{margin-top:0;flex:1;min-width:0;width:auto}
+.w-nox{flex:none;width:44px;height:44px;border-radius:50%;background:rgba(255,56,60,.16);color:var(--err);display:flex;align-items:center;justify-content:center}
