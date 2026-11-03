@@ -502,7 +502,7 @@ input{user-select:text;-webkit-user-select:text}
 #fx{position:fixed;inset:0;pointer-events:none;z-index:50}
 #fx .veil{position:absolute;inset:0}
 #fx .fly{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
-.toast{position:absolute;transform-origin:0 0;box-sizing:border-box;min-height:52px;max-width:238px;background:#1c1c1c;color:#fff;border-radius:26px;padding:8px 20px 8px 14px;border:1px solid rgba(255,255,255,.08);font-size:16px;line-height:1.25;font-weight:700;display:flex;gap:8px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.4);pointer-events:none}
+.toast{position:absolute;transform-origin:0 0;box-sizing:border-box;min-height:52px;max-width:358px;width:max-content;background:#1c1c1c;color:#fff;border-radius:26px;padding:8px 20px 8px 14px;border:1px solid rgba(255,255,255,.08);font-size:16px;line-height:1.25;font-weight:700;display:flex;gap:8px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.4);pointer-events:none}
 .toast svg{width:22px;height:22px;flex:none;color:#fff}
 @media (prefers-reduced-motion:reduce){.add .shine{animation:none;-webkit-mask-image:none;mask-image:none}}
 </style>
@@ -580,7 +580,7 @@ input{user-select:text;-webkit-user-select:text}
           <div class="card2 astat" data-s>
             <div class="anum"><div><b id="aSpent">0</b><small id="aCount">0 đơn đã đặt</small></div>
               <div class="seg" id="aSeg" role="tablist"><i></i><button class="on" data-p="week">Tuần</button><button data-p="month">Tháng</button><button data-p="year">Năm</button></div></div>
-            <div class="awal" id="aWal" hidden><span>Ví tiền</span><b id="aWalN">0</b></div>
+            <div class="awal" id="aWal"><span>Ví tiền</span><b id="aWalN">0</b></div>
           </div>
           <div class="card2 adebt" id="aDebt" data-s role="button" tabindex="0" aria-label="Xem trạng thái thanh toán">
             <div><b><svg><use href="#i-due"/></svg><span id="aDue">0</span></b><small id="aDueN"></small></div>
@@ -706,7 +706,7 @@ input{user-select:text;-webkit-user-select:text}
         <button class="mrow on" data-m="bank" data-s><svg><use href="#i-qr"/></svg><span>Chuyển khoản</span><i></i></button>
         <button class="mrow" data-m="cash" data-s><svg><use href="#i-cash"/></svg><span>Tiền mặt</span><i></i></button>
         <button class="mrow" data-m="debt" data-s><svg><use href="#i-debt"/></svg><span>Ghi nợ nhé!</span><i></i></button>
-        <button class="mrow" data-m="wallet" id="mWallet" data-s hidden><svg><use href="#i-wallet"/></svg><span>Ví tiền: 0</span><i></i></button>
+        <button class="mrow" data-m="wallet" id="mWallet" data-s><svg><use href="#i-wallet"/></svg><span>Ví tiền: 0</span><i></i></button>
       </div>
     </div>
     <div class="abs pfoot" data-s>
@@ -1463,9 +1463,11 @@ function toast(msg, icon){
   icon = icon || (warn ? 'warn' : 'check');
   const t = document.createElement('div'); t.className = 'toast';
   t.innerHTML = `<svg><use href="#i-${icon}"/></svg><span></span>`; t.lastChild.textContent = msg;
-  /* sits on the same row as the back button (y 24, 52 high), centred across the screen; no sliding, it only fades in, stays about 2s and fades out */
-  const r = scr(); t.style.top = (r.top + 24*S) + 'px'; t.style.transform = `scale(${S})`;
+  /* centred across the screen; no sliding, it only fades in, stays about 2s and fades out */
+  const r = scr(); t.style.transform = `scale(${S})`;
   fx.appendChild(t);
+  /* sits 8px above the bottom bar (bar: 24px from the bottom, 48px high) */
+  t.style.top = (r.top + r.height - 80*S - t.offsetHeight*S) + 'px';
   t.style.left = (r.left + (r.width - t.offsetWidth*S)/2) + 'px';
   const D = T(2400) < 600 ? 1600 : 2400;
   t.animate([{opacity:0},{opacity:1, offset:.1},{opacity:1, offset:.83},{opacity:0}], {duration:D, easing:'ease-in-out'}).onfinish = () => t.remove();
@@ -1619,9 +1621,8 @@ let period = 'week';
 /* ví tiền: quán nạp cho khách; null = chưa từng nạp (ẩn), số dư > 0 mới có phương thức Ví tiền */
 let walletBal = null;
 function renderWallet(){
-  $('#aWal').hidden = walletBal === null; $('#aWalN').textContent = fmt(walletBal || 0);
-  const m = $('#mWallet'), ok = walletBal > 0; m.hidden = !ok; $('span', m).textContent = `Ví tiền: ${fmt(walletBal || 0)}`;
-  if (!ok && payM === 'wallet') setPay('bank');
+  $('#aWalN').textContent = fmt(walletBal || 0);
+  $('span', $('#mWallet')).textContent = `Ví tiền: ${fmt(walletBal || 0)}`;
 }
 function periodStart(p){
   const d = new Date(); d.setHours(0, 0, 0, 0);

@@ -138,7 +138,7 @@ button.a-card:active{transform:scale(.97)}
 .a-dlg p{margin-top:8px;font-size:16px;color:var(--mute);font-weight:500;line-height:1.45}
 .a-dlg .acts{display:flex;gap:8px;margin-top:16px}
 .a-dlg .a-btn{height:52px;font-size:16px}
-.a-toast{position:absolute;left:50%;top:24px;transform:translateX(-50%);z-index:40;box-sizing:border-box;min-height:52px;max-width:238px;width:max-content;background:#1c1c1c;color:#fff;border-radius:26px;padding:8px 20px 8px 14px;border:1px solid rgba(255,255,255,.08);font-size:16px;line-height:1.25;font-weight:700;display:flex;gap:8px;align-items:center;animation:a-toast 2.4s ease-in-out forwards;pointer-events:none}
+.a-toast{position:absolute;left:50%;top:auto;bottom:87px;transform:translateX(-50%);z-index:40;box-sizing:border-box;min-height:52px;max-width:358px;width:max-content;background:#1c1c1c;color:#fff;border-radius:26px;padding:8px 20px 8px 14px;border:1px solid rgba(255,255,255,.08);font-size:16px;line-height:1.25;font-weight:700;display:flex;gap:8px;align-items:center;animation:a-toast 2.4s ease-in-out forwards;pointer-events:none}
 @keyframes a-toast{0%{opacity:0}10%,83%{opacity:1}100%{opacity:0}}
 
 /* ---------- Đặt hàng (giống Trang chủ app khách) ---------- */
@@ -486,7 +486,7 @@ button.a-card:active{transform:scale(.97)}
 .w-list .h-head{padding:8px 0 0}.w-list .h-head:first-child{padding-top:0}
 
 /* nhắn riêng cho khách */
-.s-chat{flex:none;display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);color:#fff;margin-right:16px}
+.s-chat{flex:none;display:flex;align-items:center;justify-content:center;width:28px;height:28px;background:none;color:#fff;margin-right:4px}
 .c-sheet{gap:16px;padding-top:36px}
 .c-grab{position:absolute;left:0;right:0;top:0;height:32px;touch-action:none;cursor:grab}
 .c-head{display:flex;flex-direction:column;gap:2px;font-size:18px}

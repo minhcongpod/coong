@@ -104,6 +104,7 @@
 .dr .dadd svg{width:28px;height:28px}
 .dr .dbuy{flex:1;height:60px;border-radius:32px;background:var(--buy,#fff);color:var(--buyT,#000);font-size:18px;font-weight:700;transition:transform .25s var(--ease-out)}
 .dr .dadd:active,.dr .dbuy:active{transform:scale(.95)}
+.dr .dbuy:disabled{background:#8e8e93;color:rgba(255,255,255,.75);transform:none}
 .dr-detail[data-id=nau],.dr-detail[data-id=bac]{--buy:#000;--buyT:#fff}
 /* Trang chủ và chi tiết món: bê nguyên từ app khách (hiệu ứng, thẻ, chấm) */
 .dr{--yellow:#fc0;--ease-out:cubic-bezier(.22,1,.36,1)}
