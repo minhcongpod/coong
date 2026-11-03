@@ -94,7 +94,7 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
   // Khoản thu bị ẩn nếu đơn của nó đang chưa thanh toán (đã hoàn tác); đơn chưa thanh toán hiện thành thẻ vàng theo khách
   const unpaidIds = new Set(orders.filter((o) => !o.paid).map((o) => o.id));
   // mỗi đơn chưa thanh toán là một thẻ vàng riêng
-  const pending = useMemo(() => orders.filter((o) => isLive(o) && !o.paid).map((o) => ({ id: 'unpaid_' + o.id, pending: true, name: o.customerName || 'Khách', code: orderCode(o), amount: o.totalAmount || 0, createdAt: o.createdAt })), [orders]);
+  const pending = useMemo(() => orders.filter((o) => isLive(o) && !o.paid).map((o) => ({ id: 'unpaid_' + o.id, pending: true, name: o.customerName || 'Khách', code: orderCode(o), orderId: o.id, amount: o.totalAmount || 0, createdAt: o.createdAt })), [orders]);
   const list = [
     ...txs.filter((t) => (filter === 'all' || t.type === filter) && !(t.orderId && unpaidIds.has(t.orderId))),
     ...(filter === 'expense' ? [] : pending),
@@ -152,14 +152,14 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
             return (
               <React.Fragment key={t.id}>
                 {head && <h2 className="h-head">{g}</h2>}
-                <div className="w-tx w-pend">
+                <button className="w-tx w-pend" onClick={() => onOpenOrder && onOpenOrder(t.orderId)} aria-label={`Xem đơn ${t.code}`}>
                   <span className="a-ibg y"><Sym id="i-hourglass" size={14} /></span>
                   <span className="grow w-txt">
                     <b className="a-t a-ell" style={{ display: 'block' }}>{t.name}</b>
                     <span className="a-s a-ell" style={{ display: 'block' }}>{[d ? hm(d) : '', `Đặt đơn ${t.code}`].filter(Boolean).join(' · ')}</span>
                   </span>
                   <b className="a-t a-num y">{fmt(t.amount)}</b>
-                </div>
+                </button>
               </React.Fragment>
             );
           }
@@ -168,7 +168,7 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
           return (
             <React.Fragment key={t.id}>
               {head && <h2 className="h-head">{g}</h2>}
-              <button className="w-tx" onClick={() => (t.customerPhone ? toast('Khoản thu từ đơn không sửa được') : setPage({ edit: t }))} aria-label={`${title}, bấm để sửa`}>
+              <button className="w-tx" onClick={() => (t.orderId && onOpenOrder ? onOpenOrder(t.orderId) : t.customerPhone ? toast('Khoản thu từ đơn không sửa được') : setPage({ edit: t }))} aria-label={`${title}, bấm để sửa`}>
                 <span className={`a-ibg ${inc ? 'g' : 'r'}`} style={{ color: inc ? 'var(--ok)' : 'var(--err)' }}><Icon n={inc ? 'inn' : 'out'} /></span>
                 <span className="grow w-txt">
                   <b className="a-t a-ell" style={{ display: 'block' }}>{title}</b>
