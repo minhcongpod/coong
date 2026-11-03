@@ -1,8 +1,8 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { updateOrder, saveTx, removeTx } from '../db';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { updateOrder, saveTx, removeTx, recordPaidOrder, markPaid } from '../db';
 import { CustomerPicker } from './Customers.jsx';
 import { tgToCustomer, tgDebt, APP_URL } from '../telegram';
-import { Icon, Sym, Page, Btn, Seg, Chip, Empty, fmt, hm, timeOf, isLive, useUI, errText, BellBtn } from './ui.jsx';
+import { Icon, Sym, Page, Btn, Seg, Chip, Empty, fmt, hm, timeOf, isLive, orderCode, useUI, errText, BellBtn } from './ui.jsx';
 import { summary } from './HistoryTab.jsx';
 
 const PERIODS = [['day', 'Ngày'], ['month', 'Tháng'], ['year', 'Năm']];
@@ -56,6 +56,21 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
   const [filter, setFilter] = useState('all');
   const [page, setPage] = useState(null); // unpaid | { add }
   const { toast } = useUI();
+  // Đơn đã thanh toán mà chưa có khoản thu trong lịch sử (do lỗi ghi trước đó): ghi bù khoản thu, mỗi đơn một lần
+  const healed = useRef(new Set());
+  useEffect(() => {
+    if (!orders.length || !txs.length) return;
+    const withTx = new Set(txs.filter((t) => t.orderId).map((t) => t.orderId));
+    orders.forEach((o) => {
+      if (!o.paid || !isLive(o) || o.payMethod === 'wallet' || !o.paidAt || !o.customerPhone || !(o.totalAmount > 0)) return;
+      if (withTx.has(o.id) || healed.current.has(o.id)) return;
+      const at = new Date(o.paidAt).getTime();
+      // khoản thu gộp kiểu cũ (không gắn đơn) ghi cùng lúc với lúc thu tiền thì đã tính rồi
+      if (txs.some((t) => t.type === 'income' && !t.orderId && t.customerPhone === o.customerPhone && Math.abs(new Date(t.createdAt).getTime() - at) < 120000)) return;
+      healed.current.add(o.id);
+      recordPaidOrder(o, orderCode(o)).catch(() => healed.current.delete(o.id));
+    });
+  }, [orders, txs]);
   // Chủ quán bấm thông báo "Khách hàng báo đã thanh toán": mở thẳng đơn chưa thanh toán của khách đó
   useEffect(() => { if (focus && focus.phone) setPage({ unpaid: focus.phone }); }, [focus]);
 
@@ -197,10 +212,7 @@ function Unpaid({ orders, onBack, only, focus, onOpen }) {
   const collect = async (g) => {
     if (!(await confirm({ title: `Thu đủ ${fmt(g.total)}?`, ok: 'Đã thu' }))) return;
     try {
-      await Promise.all(g.orders.map((o) => updateOrder(o.id, { paid: true, paymentStatus: 'confirmed', paidAt: new Date().toISOString() })));
-      await addDoc(collection(db, 'transactions'), {
-        type: 'income', amount: g.total, description: `${g.name} TT ${g.orders.length} đơn`, customerPhone: g.phone, createdAt: new Date().toISOString(),
-      });
+      await Promise.all(g.orders.map((o) => markPaid(o, orderCode(o))));
       const debt = await tgDebt(g.phone);
       if (debt.n) tgToCustomer(g.phone, `📣 Coong đã nhận ${fmt(g.total)}đ · ${g.orders.length} đơn.${debt.text}`, `${APP_URL}/payment`);
       else tgToCustomer(g.phone, `📣 Coong đã nhận ${fmt(g.total)}đ · ${g.orders.length} đơn. Cảm ơn bạn rất nhiều! Tiếp tục ủng hộ Coong nhé.`, `${APP_URL}/menu`, 'Đặt hàng');
