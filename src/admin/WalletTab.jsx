@@ -87,7 +87,9 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
     // Không tính khoản thu của đơn đang chưa thanh toán (chủ quán đã hoàn tác thanh toán)
     const unpaidIds = new Set(orders.filter((o) => !o.paid).map((o) => o.id));
     const owed = orders.filter((o) => isLive(o) && !o.paid).reduce((n, o) => n + (o.totalAmount || 0), 0);
-    const wallet = txs.reduce((n, t) => (t.orderId && unpaidIds.has(t.orderId) ? n : n + (t.type === 'income' ? 1 : -1) * (t.amount || 0)), 0) - owed;
+    // đơn khách trả bằng ví tiền: tiền đã chuyển cho khách (khoản chi "Chuyển ví") quay lại quán, nên cộng vào Ví
+    const byWallet = orders.filter((o) => isLive(o) && o.paid && o.payMethod === 'wallet').reduce((n, o) => n + (o.totalAmount || 0), 0);
+    const wallet = txs.reduce((n, t) => (t.orderId && unpaidIds.has(t.orderId) ? n : n + (t.type === 'income' ? 1 : -1) * (t.amount || 0)), 0) + byWallet - owed;
     return { orders: live.reduce((n, o) => n + (o.items || []).reduce((m, x) => m + (x.quantity || 1), 0), 0), revenue: paid + inc, expense: exp, profit: allRev - exp, wallet };
   }, [orders, txs, kind]);
 
@@ -97,7 +99,7 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
   const orderById = useMemo(() => new Map(orders.map((o) => [o.id, o])), [orders]);
   // mỗi đơn chưa thanh toán là một thẻ vàng riêng
   const pending = useMemo(() => orders.filter((o) => isLive(o) && !o.paid).map((o) => ({ id: 'unpaid_' + o.id, pending: true, name: o.customerName || 'Khách', code: orderCode(o), orderId: o.id, sum: summary(o), amount: o.totalAmount || 0, createdAt: o.createdAt })), [orders]);
-  // đơn khách trả bằng ví tiền không có khoản thu riêng: chỉ hiện trong lịch sử, không cộng thêm vào Ví
+  // đơn khách trả bằng ví tiền không có khoản thu riêng: hiện trong lịch sử, tiền của đơn được cộng vào Ví ở phần thống kê
   const walletPaid = useMemo(() => orders.filter((o) => isLive(o) && o.paid && o.payMethod === 'wallet').map((o) => ({ id: 'wal_' + o.id, type: 'income', walletOrder: true, name: o.customerName || 'Khách', code: orderCode(o), orderId: o.id, amount: o.totalAmount || 0, createdAt: o.paidAt || o.createdAt })), [orders]);
   const list = [
     ...(filter === 'expense' ? [] : walletPaid),
