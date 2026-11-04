@@ -246,7 +246,7 @@ function Unpaid({ orders, onBack, only, focus, onOpen }) {
           </div>
           <div className="a-between w-dtot"><span className="a-s">{g.orders.length} đơn tổng</span><b className="y a-num" style={{ fontSize: 18, lineHeight: '23px' }}>{fmt(g.total)}</b></div>
           <div className="w-acts">
-            {tab === 'wait' && <button className="w-nox" onClick={() => notReceived(g)} aria-label={`Chưa nhận được tiền của ${g.name}`}><Icon n="x" size={24} /></button>}
+            {tab === 'wait' && <button className="w-nox" onClick={() => notReceived(g)} aria-label={`Chưa nhận được tiền của ${g.name}`}><Icon n="x" size={28} /></button>}
             <button className="o-pill w-collect" onClick={() => collect(g)} aria-label={`Xác nhận thanh toán của ${g.name}`}><Sym id="i-verified" size={16} />Xác nhận thanh toán</button>
           </div>
         </div>
