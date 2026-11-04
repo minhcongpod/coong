@@ -453,7 +453,7 @@ input{user-select:text;-webkit-user-select:text}
 #detail[data-id=nau] .back,#detail[data-id=nau] .cartbtn,#detail[data-id=bac] .back,#detail[data-id=bac] .cartbtn{top:24px}
 .dtitle{left:27px;top:94px;font-size:44px;line-height:46px;font-weight:700;color:var(--title);margin:0}
 .opts{left:27px;top:159px;display:flex;flex-direction:column}
-.opt[data-k=hot]{margin-top:16px}.opt[data-k=hot] .chip svg{width:24px;height:24px}.opt[data-k=sweet]{margin-top:15px}.opt[data-k=cafe]{margin-top:17px}
+.opt[data-k=hot]{margin-top:16px}.opt[data-k=hot] .chip svg{width:24px;height:24px}.opt[data-k=sweet]{margin-top:17px}.opt[data-k=cafe]{margin-top:15px}
 .opt label{display:block;font-size:16px;line-height:20px;margin-bottom:4px}
 #detail[data-id=den] .opt label{color:#fff}
 #detail[data-id=nau] .opt label,#detail[data-id=bac] .opt label{color:#000}
@@ -619,8 +619,8 @@ input{user-select:text;-webkit-user-select:text}
     <div class="abs opts" id="opts">
       <div class="opt" data-a="left" data-k="upsize"><div><button class="chip on" data-v="0" aria-label="Size L"><svg><use href="#i-sizeL"/></svg></button><button class="chip val" data-v="1" aria-label="Size XL"><svg><use href="#i-sizeXL"/></svg></button></div></div>
       <div class="opt" data-a="left" data-k="hot"><div><button class="chip on" data-v="0" aria-label="Lạnh"><svg><use href="#i-snow"/></svg></button><button class="chip val" data-v="1" aria-label="Nóng"><svg><use href="#i-flame"/></svg></button></div></div>
-      <div class="opt" data-a="left" data-k="sweet"><label>Ngọt</label><div><button class="chip on" data-v="0" aria-label="Ngọt 100%">100</button><button class="chip val" data-v="50" aria-label="Ngọt 50%">50</button><button class="chip val" data-v="1" aria-label="Ngọt 0%" id="sw0">0</button></div></div>
       <div class="opt" data-a="left" data-k="cafe"><label>Cafe</label><div><button class="chip on" data-v="0" aria-label="Cafe 100%">100</button><button class="chip val" data-v="50" aria-label="Cafe 50%">50</button></div></div>
+      <div class="opt" data-a="left" data-k="sweet"><label>Ngọt</label><div><button class="chip on" data-v="0" aria-label="Ngọt 100%">100</button><button class="chip val" data-v="50" aria-label="Ngọt 50%">50</button><button class="chip val" data-v="1" aria-label="Ngọt 0%" id="sw0">0</button></div></div>
     </div>
     <div class="abs spin" id="spin" role="img"></div>
     <button class="abs circ pm minus" id="minus" aria-label="Giảm" data-a="l"><svg><use href="#i-minus"/></svg></button>
@@ -655,8 +655,8 @@ input{user-select:text;-webkit-user-select:text}
           <div class="ehead"><div class="cthumb"><img alt="" draggable="false"></div><b class="ename"></b></div>
           <div class="egroup" data-k="upsize"><div class="echips"><button class="esz" data-v="0" aria-label="Size L"><svg><use href="#i-sizeL"/></svg></button><button class="esz" data-v="1" aria-label="Size XL"><svg><use href="#i-sizeXL"/></svg></button></div></div>
           <div class="egroup" data-k="hot"><div class="echips"><button data-v="0" aria-label="Lạnh"><svg><use href="#i-snow"/></svg></button><button data-v="1" aria-label="Nóng"><svg><use href="#i-flame"/></svg></button></div></div>
-          <div class="egroup" data-k="sweet"><label>Ngọt</label><div class="echips"><button data-v="100">100</button><button class="val" data-v="50">50</button><button class="val" data-v="1" id="esw0" aria-label="Ngọt 0%">0</button></div></div>
           <div class="egroup" data-k="cafe"><label>Cafe</label><div class="echips"><button data-v="100">100</button><button class="val" data-v="50">50</button></div></div>
+          <div class="egroup" data-k="sweet"><label>Ngọt</label><div class="echips"><button data-v="100">100</button><button class="val" data-v="50">50</button><button class="val" data-v="1" id="esw0" aria-label="Ngọt 0%">0</button></div></div>
         </div>
         <div class="eacts">
           <button class="btn edel" id="eDel">Xoá khỏi giỏ</button>
