@@ -68,8 +68,8 @@
 .dr .opts{left:27px;top:159px;display:flex;flex-direction:column}
 .dr .opt[data-k=hot]{margin-top:16px}
 .dr .opt[data-k=hot] .chip svg{width:24px;height:24px}
-.dr .opt[data-k=sweet]{margin-top:15px}
-.dr .opt[data-k=cafe]{margin-top:17px}
+.dr .opt[data-k=sweet]{margin-top:17px}
+.dr .opt[data-k=cafe]{margin-top:15px}
 .dr .opt label{display:block;font-size:16px;line-height:20px;margin-bottom:4px}
 .dr-detail[data-id=den] .opt label{color:#fff}
 .dr-detail[data-id=nau] .opt label,.dr-detail[data-id=bac] .opt label{color:#000}

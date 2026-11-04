@@ -249,7 +249,7 @@ button.a-card:active{transform:scale(.97)}
 .d-title{left:27px;top:94px;font-size:44px;line-height:46px;font-weight:700;color:var(--title);margin:0}
 .d-opts{left:27px;top:159px;display:flex;flex-direction:column;z-index:2}
 .d-opts .op{display:flex;flex-direction:column}
-.d-opts .op[data-k=hot]{margin-top:16px}.d-opts .op[data-k=sweet]{margin-top:15px}.d-opts .op[data-k=cafe]{margin-top:17px}
+.d-opts .op[data-k=hot]{margin-top:16px}.d-opts .op[data-k=sweet]{margin-top:17px}.d-opts .op[data-k=cafe]{margin-top:15px}
 .d-opts label{display:block;font-size:16px;line-height:20px;margin-bottom:4px;color:var(--fg)}
 .op>div{display:flex;gap:8px}
 .d-chip{width:44px;height:44px;border-radius:100px;background:var(--chip);color:var(--chipT);font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background .3s,color .3s,transform .3s var(--ease-out)}
