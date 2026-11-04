@@ -247,6 +247,24 @@ function Shell({ adminPhone, onLogout }) {
     nav && nav.querySelectorAll('button').forEach((b, k) => go(b, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 400, delay: 260 + k * 50 }));
   }, [ready]);
 
+  // App thêm vào màn hình chính cứ chạy bản cũ: mỗi lần mở lại app (hoặc quay lại từ nền) thì tìm bản mới và tải lại
+  useEffect(() => {
+    const meta = document.querySelector('meta[name=build]');
+    const BUILD = meta ? meta.content : '';
+    if (!BUILD || BUILD.startsWith('__')) return;
+    const check = async () => {
+      if (document.visibilityState !== 'visible' || !navigator.onLine) return;
+      try {
+        const t = await (await fetch('/admin.html?v=' + Date.now(), { cache: 'no-store' })).text();
+        const m = t.match(/name="build" content="(\d+)"/);
+        if (m && m[1] !== BUILD) window.location.reload();
+      } catch (e) { /* mất mạng: thử lại lần sau */ }
+    };
+    check();
+    document.addEventListener('visibilitychange', check);
+    return () => document.removeEventListener('visibilitychange', check);
+  }, []);
+
   useEffect(() => {
     const fail = (e) => toast(errText(e));
     const subs = [
