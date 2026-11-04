@@ -147,7 +147,7 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
           <Icon n="right" size={20} />
         </button>}
         </div>
-        <Seg items={[['all', 'Tất cả'], ['income', 'Thu'], ['expense', 'Chi']]} value={filter} onChange={setFilter} />
+        <div className="w-sticky"><Seg items={[['all', 'Tất cả'], ['income', 'Thu'], ['expense', 'Chi']]} value={filter} onChange={setFilter} /></div>
         <div className="w-list">
         {list.map((t, i) => {
           const inc = t.type === 'income';
@@ -228,7 +228,7 @@ function Unpaid({ orders, onBack, only, focus, onOpen }) {
 
   return (
     <Page onBack={onBack}>
-      <Seg items={[['wait', 'Chờ xác nhận'], ['due', 'Chưa thanh toán']]} value={tab} onChange={setTab} />
+      <div className="w-sticky"><Seg items={[['wait', 'Chờ xác nhận'], ['due', 'Chưa thanh toán']]} value={tab} onChange={setTab} /></div>
       {groups.map((g) => (
         <div key={g.phone} className="a-card w-debt">
           <b className="a-t" style={{ fontSize: 18, lineHeight: '23px' }}>{g.name}</b>
