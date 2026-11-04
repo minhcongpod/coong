@@ -57,6 +57,9 @@ export default function HistoryTab({ orders, users, loading, onGoOrder, track, u
   const cancel = async (o) => {
     if (await confirm({ title: 'Huỷ đơn này?', ok: 'Huỷ đơn', danger: true })) run(o, { status: 'cancelled' });
   };
+  // nút thanh toán ngay trên card: xác nhận hoặc hoàn tác, giống nút ở chi tiết đơn
+  const collectPay = (o) => markPaid(o, orderCode(o)).then(() => tellCustomer(o, { paid: true })).catch((e) => toast(errText(e)));
+  const undoPaid = (o) => markUnpaid(o).then(() => toast('Đã bỏ xác nhận thanh toán', true)).catch((e) => toast(errText(e)));
 
   // nhấn giữ một đơn để xoá
   const press = useRef({ t: 0, fired: false });
@@ -107,15 +110,17 @@ export default function HistoryTab({ orders, users, loading, onGoOrder, track, u
                   <small>{whenText(timeOf(o))}</small>
                 </span>
               </span>
-              {o.status === 'pending' && (
+              {(o.status === 'pending' || o.status === 'brewing' || (o.status === 'completed' && !paid && o.payMethod !== 'wallet')) && (
                 <span className="h-act" onClick={(e) => e.stopPropagation()}>
-                  <button className="h-b w" onClick={() => run(o, { status: 'brewing' })}>Xác nhận</button>
-                  <button className="h-b r" onClick={() => cancel(o)}>Hủy</button>
-                </span>
-              )}
-              {o.status === 'brewing' && (
-                <span className="h-act" onClick={(e) => e.stopPropagation()}>
-                  <button className="h-b w" onClick={() => run(o, { status: 'completed' })}>Hoàn thành</button>
+                  {o.status === 'pending' && <button className="h-b r sq" onClick={() => cancel(o)} aria-label="Huỷ đơn"><Icon n="x" size={28} /></button>}
+                  {o.status !== 'completed' && o.payMethod !== 'wallet' && (
+                    <button className={`h-b sq ${paid ? 'yd' : 'y'}`} onClick={() => (paid ? undoPaid(o) : collectPay(o))} aria-label={paid ? 'Hoàn tác thanh toán' : 'Xác nhận thanh toán'}>
+                      <Sym id={paid ? 'i-hourglass' : 'i-verified'} size={16} />
+                    </button>
+                  )}
+                  {o.status === 'pending' && <button className="h-b w" onClick={() => run(o, { status: 'brewing' })}>Xác nhận</button>}
+                  {o.status === 'brewing' && <button className="h-b w" onClick={() => run(o, { status: 'completed' })}>Hoàn thành</button>}
+                  {o.status === 'completed' && <button className="h-b y wide" onClick={() => collectPay(o)}><Sym id="i-verified" size={16} />Xác nhận thanh toán</button>}
                 </span>
               )}
             </div>

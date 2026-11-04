@@ -338,6 +338,11 @@ button.a-card:active{transform:scale(.97)}
 .h-b{flex:1;height:32px;border-radius:32px;font-size:14px;font-weight:700}
 .h-b.w{background:#fff;color:#000}
 .h-b.r{background:rgba(255,56,60,.16);color:var(--err)}
+.h-b{display:flex;align-items:center;justify-content:center;gap:8px}
+.h-b.sq{flex:none;width:64px;padding:0}
+.h-b.y{background:#fc0;color:#000}
+.h-b.yd{background:rgba(255,204,0,.16);color:#fc0}
+.h-b.wide{flex:1;width:auto}
 
 /* Chi tiết đơn */
 .a-fx{animation:none}

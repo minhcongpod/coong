@@ -35,7 +35,7 @@ const txLines = (t) => {
     return [name, rest.startsWith('#') ? `Thanh toán đơn ${rest}` : /^\d+ đơn$/.test(rest) ? `Thanh toán ${rest}` : 'Thanh toán'];
   }
   const cat = txCat(t), note = txNote(t);
-  if (t.walletPhone) { const w = t.type === 'income' ? 'Nạp ví' : 'Chuyển ví'; return [t.walletName || 'Khách', note ? `${w} · ${note}` : w]; }
+  if (t.walletPhone) { const nm = t.walletName || 'Khách', w = t.type === 'income' ? 'Nạp ví' : `Chuyển tiền cho ${nm}`; return [nm, note ? `${w} · ${note}` : w]; }
   if (t.type === 'income') return [note || 'Khoản thu', ''];
   return [cat, note];
 };
@@ -84,10 +84,11 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
     // Chi phí, lợi nhuận và Ví tính tất cả thời gian, không theo bộ lọc ngày/tháng/năm (chỉ số đơn và doanh thu theo bộ lọc)
     const allRev = orders.filter(isLive).reduce((n, o) => n + (o.totalAmount || 0), 0) + txs.filter(extraIncome).reduce((n, t) => n + (t.amount || 0), 0);
     const exp = txs.filter((t) => t.type === 'expense' && !t.excludeRevenue).reduce((n, t) => n + (t.amount || 0), 0);
-    // Không tính khoản thu của đơn đang chưa thanh toán (chủ quán đã hoàn tác thanh toán)
+    // Ví = tổng khoản thu trừ tổng khoản chi cộng đơn trả bằng ví của khách, không tính khoản gắn dấu "!" (không tính vào doanh thu / chi phí, ví dụ nạp ví và chuyển ví của khách)
     const unpaidIds = new Set(orders.filter((o) => !o.paid).map((o) => o.id));
-    const owed = orders.filter((o) => isLive(o) && !o.paid).reduce((n, o) => n + (o.totalAmount || 0), 0);
-    const wallet = txs.reduce((n, t) => (t.orderId && unpaidIds.has(t.orderId) ? n : n + (t.type === 'income' ? 1 : -1) * (t.amount || 0)), 0) - owed;
+    // đơn khách trả bằng ví tiền: tiền của đơn tính vào Ví của quán (đơn này không có khoản thu riêng)
+    const byWallet = orders.filter((o) => isLive(o) && o.paid && o.payMethod === 'wallet').reduce((n, o) => n + (o.totalAmount || 0), 0);
+    const wallet = txs.reduce((n, t) => (t.excludeRevenue || (t.orderId && unpaidIds.has(t.orderId)) ? n : n + (t.type === 'income' ? 1 : -1) * (t.amount || 0)), 0) + byWallet;
     return { orders: live.reduce((n, o) => n + (o.items || []).reduce((m, x) => m + (x.quantity || 1), 0), 0), revenue: paid + inc, expense: exp, profit: allRev - exp, wallet };
   }, [orders, txs, kind]);
 
@@ -97,7 +98,7 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
   const orderById = useMemo(() => new Map(orders.map((o) => [o.id, o])), [orders]);
   // mỗi đơn chưa thanh toán là một thẻ vàng riêng
   const pending = useMemo(() => orders.filter((o) => isLive(o) && !o.paid).map((o) => ({ id: 'unpaid_' + o.id, pending: true, name: o.customerName || 'Khách', code: orderCode(o), orderId: o.id, sum: summary(o), amount: o.totalAmount || 0, createdAt: o.createdAt })), [orders]);
-  // đơn khách trả bằng ví tiền không có khoản thu riêng: chỉ hiện trong lịch sử, không cộng thêm vào Ví
+  // đơn khách trả bằng ví tiền không có khoản thu riêng: hiện trong lịch sử, tiền của đơn được cộng vào Ví ở phần thống kê
   const walletPaid = useMemo(() => orders.filter((o) => isLive(o) && o.paid && o.payMethod === 'wallet').map((o) => ({ id: 'wal_' + o.id, type: 'income', walletOrder: true, name: o.customerName || 'Khách', code: orderCode(o), orderId: o.id, amount: o.totalAmount || 0, createdAt: o.paidAt || o.createdAt })), [orders]);
   const list = [
     ...(filter === 'expense' ? [] : walletPaid),
