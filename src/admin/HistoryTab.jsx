@@ -211,7 +211,9 @@ function OrderDetail({ o, onBack, users }) {
   if (o.status === 'pending') {
     footer = (
       <div style={{ display: 'flex', gap: 10 }}>
-        <Btn kind="danger" onClick={cancel} aria-label="Huỷ đơn" style={{ flex: 'none', width: 60, padding: 0 }}><Icon n="x" size={32} /></Btn>
+        {viaWallet
+          ? <Btn kind="danger" onClick={cancel} aria-label="Huỷ đơn" style={{ flex: 'none', padding: '0 28px' }}>Hủy đơn</Btn>
+          : <Btn kind="danger" onClick={cancel} aria-label="Huỷ đơn" style={{ flex: 'none', width: 60, padding: 0 }}><Icon n="x" size={32} /></Btn>}
         {!viaWallet && payBtn(true)}
         <Btn onClick={() => run({ status: 'brewing' })}>Xác nhận</Btn>
       </div>
