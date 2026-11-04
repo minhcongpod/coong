@@ -43,7 +43,8 @@ window.CoongAPI = {
     return user ? { phone: d.phone, name: user.name } : null;
   },
 
-  lookup: (phone) => getUser(phone),
+  // phải đăng nhập ẩn danh xong mới đọc được hồ sơ (luật: get cần signedIn)
+  lookup: async (phone) => { await uidReady; return getUser(phone); },
 
   /** Mở khóa bằng PIN. Trả về false nếu PIN sai. */
   async signIn(phone, pin) {
