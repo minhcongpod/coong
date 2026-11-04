@@ -538,3 +538,5 @@ button.a-card:active{transform:scale(.97)}
 .w-tx .w-l2{display:flex;align-items:flex-start;gap:8px;font-size:14px;font-weight:500}
 .w-tx .w-l2 .a-ell,.w-tx .w-l1 .a-ell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .w-tx .w-l2 .w-bang{flex:none}
+
+.w-sticky{position:sticky;top:0;z-index:5;background:#000;padding:4px 0}
