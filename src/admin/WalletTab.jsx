@@ -35,7 +35,7 @@ const txLines = (t) => {
     return [name, rest.startsWith('#') ? `Thanh toán đơn ${rest}` : /^\d+ đơn$/.test(rest) ? `Thanh toán ${rest}` : 'Thanh toán'];
   }
   const cat = txCat(t), note = txNote(t);
-  if (t.walletPhone) { const w = t.type === 'income' ? 'Nạp ví' : 'Chuyển ví'; return [t.walletName || 'Khách', note ? `${w} · ${note}` : w]; }
+  if (t.walletPhone) { const nm = t.walletName || 'Khách', w = t.type === 'income' ? 'Nạp ví' : `Chuyển tiền cho ${nm}`; return [nm, note ? `${w} · ${note}` : w]; }
   if (t.type === 'income') return [note || 'Khoản thu', ''];
   return [cat, note];
 };
