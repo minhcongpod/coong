@@ -375,7 +375,7 @@ function Done({ d, onTrack, onMore }) {
       </div>
       <div className="o-done-act" data-s>
         <Btn onClick={onTrack}>Theo dõi</Btn>
-        <Btn kind="ghost" onClick={onMore}>Tiếp tục đặt hàng</Btn>
+        <Btn kind="ghost" onClick={onMore}>Về trang chủ</Btn>
       </div>
     </div>
   );
