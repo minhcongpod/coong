@@ -94,6 +94,7 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
       status: 'completed',
       paid: pay !== 'debt',
       payMethod: pay,
+      byShop: true, // chủ quán đặt hộ khách: đơn chưa thanh toán không trừ Ví của quán
     };
     if (pay !== 'debt') { order.paymentStatus = 'confirmed'; order.paidAt = new Date().toISOString(); }
     try {
