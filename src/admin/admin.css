@@ -108,6 +108,7 @@ button.a-card:active{transform:scale(.97)}
 
 .a-kv{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:16px;font-weight:700;padding:5px 0}
 .a-kv>span:first-child{color:var(--mute);font-weight:500}
+.a-kv>b{text-align:right}
 /* row/Tổng (Figma 91:4028): chữ Tổng 16 medium xám, số tiền 24 bold trắng, căn giữa theo chiều dọc */
 .a-kv.tot{align-items:center;font-size:16px;padding:12px 0 5px;margin-top:6px;border-top:1px solid var(--s10)}
 .a-kv.tot>span:first-child{font-size:16px;font-weight:500;color:var(--mute)}
