@@ -337,12 +337,12 @@ export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, o
     const pill = home.pill(index);
     fx.appendChild(veil); if (item.known) fx.appendChild(fly); fx.appendChild(pill);
     // thanh giá trượt từ dưới lên chậm và mượt, giống các nút ở màn chi tiết
-    const pk = pill.k, d0 = (pill.inner.offsetHeight + 16 + 24) * pk; // cắt ở mép dưới thẻ khi thanh giá chui lên
-    const slideO = { duration: T(800), delay: T(720) * 0.3, easing: 'cubic-bezier(.33,1,.68,1)', fill: 'backwards' };
-    const slideKF = [{ translate: `0 ${d0}px`, clipPath: `inset(-20px -20px ${d0 / pk - 16}px -20px)` }, { translate: '0 0', clipPath: 'inset(-20px -20px -16px -20px)' }];
+    // thanh giá hiện dần ngay tại vị trí của nó, lớp blur vẽ tay hiện dần cùng
+    const slideO = { duration: T(520), delay: T(720) * 0.3, easing: 'ease-out', fill: 'backwards' };
+    const slideKF = [{ opacity: 0 }, { opacity: 1 }];
     const glass = item.known ? pillGlass(pill, fly, GLOW, sx) : null;
     const pillA = pill.inner.animate(slideKF, slideO);
-    if (glass) { glass.bk.animate(slideKF, slideO); glass.ib.animate([{ translate: `0 ${-d0 / pk}px` }, { translate: '0 0' }], slideO); }
+    if (glass) glass.bk.animate(slideKF, slideO);
     sp.style.opacity = 0; rootEl.style.visibility = 'hidden';
     await nextFrame();
     const D = T(720);
