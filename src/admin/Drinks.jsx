@@ -316,7 +316,8 @@ export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, o
     await new Promise((r) => setTimeout(r, T(160)));
     const pill = home.pill(index);
     fx.appendChild(veil); if (item.known) fx.appendChild(fly); fx.appendChild(pill);
-    pill.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: T(400), delay: T(720) * 0.7, easing: 'ease-out', fill: 'backwards' });
+    // thanh giá trượt từ dưới lên chậm và mượt, giống các nút ở màn chi tiết
+    const pillA = pill.animate([{ opacity: 0, translate: '0 90px' }, { opacity: 1, translate: '0 0' }], { duration: T(760), delay: T(720) * 0.3, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' });
     sp.style.opacity = 0; rootEl.style.visibility = 'hidden';
     await nextFrame();
     const D = T(720);
@@ -327,6 +328,7 @@ export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, o
     const midT = `translate(${(from.left + to.left) / 2}px,${Math.min(from.top, to.top) - 24 * Sc}px) scale(${((sx + 1) / 2) * 1.04})`;
     if (item.known) fly.animate([{ transform: fromT }, { transform: midT, offset: 0.5 }, { transform: toT }], { duration: D, easing: 'cubic-bezier(.65,0,.25,1)', fill: 'forwards' });
     await veilA.finished;
+    await pillA.finished.catch(() => {});
     home.hideCup(index, false); veil.remove(); fly.remove(); pill.remove();
     home.unfreeze(); onClose();
   };
