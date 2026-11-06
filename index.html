@@ -878,8 +878,9 @@ const clipOf = (r, rad) => `inset(${r.top}px ${innerWidth-r.right}px ${innerHeig
 const fullClip = () => clipOf(scr(), scrRad());
 /* a copy of the card's price pill that sits above the flying cup, so the pill never jumps from under the cup to over it */
 function pillClone(card, r){
-  const w = document.createElement('div'); w.className = 'card'; w.dataset.id = card.dataset.id;
-  Object.assign(w.style, {left:r.left+'px', top:r.top+'px', width:r.width+'px', height:r.height+'px', transform:'none', pointerEvents:'none', cursor:'default'});
+  const w = document.createElement('div'); w.className = 'card' + (card.classList.contains('sold') ? ' sold' : ''); w.dataset.id = card.dataset.id;
+  const cw = card.offsetWidth || r.width, ch = card.offsetHeight || r.height;
+  Object.assign(w.style, {left:r.left+'px', top:r.top+'px', width:cw+'px', height:ch+'px', transform:`scale(${r.width/cw})`, transformOrigin:'0 0', pointerEvents:'none', cursor:'default'});
   w.appendChild($('.pricebar', card).cloneNode(true));
   return w;
 }
@@ -1183,7 +1184,7 @@ async function openDetail(i){
 
   /* home recedes */
   homeParts().forEach((el,k) => el.animate([{opacity:1,transform:'none'},{opacity:0,transform:k>=4?'translateY(30px)':'translateY(-24px)'}], {duration:T(320), delay:k*25, easing:'ease-in', fill:'forwards'}));
-  cards.forEach((c,k) => { if (k===i) { $$('.top,.pricebar', c).forEach(el => el.animate([{opacity:1},{opacity:0}], {duration:T(160), fill:'forwards'})); return; }
+  cards.forEach((c,k) => { if (k===i) { $$('.top', c).forEach(el => el.animate([{opacity:1},{opacity:0}], {duration:T(160), fill:'forwards'})); $('.pricebar', c).style.visibility = 'hidden'; return; }
     const o = Math.sign(wrap(k - pos)) || 1;
     c.animate([{opacity:c.style.opacity, translate:'0 0'},{opacity:0, translate:`${o*160}px 0`}], {duration:T(420), easing:'cubic-bezier(.4,0,.2,1)', fill:'forwards'}); });
 
@@ -1258,6 +1259,7 @@ async function closeDetail(){
   await nextFrame();
   const D = T(720);
   homeParts().forEach((el,k) => el.animate([{opacity:0,transform:k>=4?'translateY(30px)':'translateY(-24px)'},{opacity:1,transform:'none'}], {duration:T(520), delay:D*0.45 + k*40, easing:'cubic-bezier(.22,1,.36,1)', fill:'backwards'}));
+  $('.pricebar', cards[i]).style.visibility = '';   /* fades in below via its own animation */
   cards.forEach((c,k) => { if (k===i) { $$('.top,.pricebar', c).forEach(el => el.animate([{opacity:0, transform:'translateY(10px)'},{opacity:1, transform:'none'}], {duration:T(400), delay:D*0.7, easing:'ease-out', fill:'backwards'})); return; }
     const o = Math.sign(wrap(k - pos)) || 1;
     c.animate([{opacity:0, translate:`${o*160}px 0`},{opacity:c.style.opacity, translate:'0 0'}], {duration:T(620), delay:D*0.35, easing:'cubic-bezier(.22,1,.36,1)', fill:'backwards'}); });
@@ -1993,7 +1995,7 @@ function dropFlow(){
     cancelAnimationFrame(spinAnim);
     detail.style.visibility = 'hidden';
     homeParts().forEach(el => el.getAnimations().forEach(a => a.cancel()));
-    cards.forEach(c => { c.getAnimations().forEach(a => a.cancel()); $$('.top,.pricebar', c).forEach(el => el.getAnimations().forEach(a => a.cancel())); $('.cup', c).style.visibility = ''; });
+    cards.forEach(c => { c.getAnimations().forEach(a => a.cancel()); $$('.top,.pricebar', c).forEach(el => el.getAnimations().forEach(a => a.cancel())); $('.cup', c).style.visibility = ''; $('.pricebar', c).style.visibility = ''; });
     busy = false; idle();
   }
 }
