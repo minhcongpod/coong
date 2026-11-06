@@ -140,12 +140,13 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
         <div className="o-paywrap">
         <div className="a-card o-sum-card">
           {lines.map((l, i) => (
-            <div key={i} className="o-line">
-              <div className="o-lhead">
-                <b className="a-t grow">{qtyText(l.qty)} x {shortOf(l.name)}</b>
-                <b className="a-t a-num">{fmt(unitOf(l) * l.qty)}</b>
+            <div key={i} className="o-pl">
+              <span className="o-pth">{THUMB[l.kind] ? <img src={THUMB[l.kind]} alt="" draggable="false" /> : <Sym id="i-cup" size={28} />}</span>
+              <div className="o-pnm">
+                <b className="a-t">{qtyText(l.qty)} x {shortOf(l.name)}</b>
+                <span className="a-s">{optText(l)}</span>
               </div>
-              <span className="a-s o-lopt">{optText(l)}</span>
+              <b className="a-t a-num">{fmt(unitOf(l) * l.qty)}</b>
             </div>
           ))}
         </div>
