@@ -1270,12 +1270,12 @@ async function closeDetail(){
   const pill = pillClone(card, cardR);
   fx.appendChild(veil); fx.appendChild(fly); fx.appendChild(pill);
   /* the price pill rises from the bottom, the same slow glide the detail screen's buttons use */
-  const pk = pill.k, d0 = (pill.inner.offsetHeight + 16 + 24)*pk;   /* the pill is clipped at the card's bottom edge while it rises */
-  const slideO = {duration:T(800), delay:T(720)*0.3, easing:'cubic-bezier(.33,1,.68,1)', fill:'backwards'};
-  const slideKF = [{translate:`0 ${d0}px`, clipPath:`inset(-20px -20px ${d0/pk-16}px -20px)`},{translate:'0 0', clipPath:'inset(-20px -20px -16px -20px)'}];
+  /* the price pill fades in right where it belongs; the hand-drawn blur behind it fades with it */
+  const slideO = {duration:T(520), delay:T(720)*0.3, easing:'ease-out', fill:'backwards'};
+  const slideKF = [{opacity:0},{opacity:1}];
   const glass = pillGlass(pill, fly, GLOW[d.id], sx);
   const pillA = pill.inner.animate(slideKF, slideO);
-  glass.bk.animate(slideKF, slideO); glass.ib.animate([{translate:`0 ${-d0/pk}px`},{translate:'0 0'}], slideO);
+  glass.bk.animate(slideKF, slideO);
   spin.style.opacity = 0;
   detail.style.visibility = 'hidden';
 
