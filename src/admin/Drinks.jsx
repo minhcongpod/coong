@@ -322,7 +322,7 @@ export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, o
     fx.appendChild(veil); if (item.known) fx.appendChild(fly); fx.appendChild(pill);
     // thanh giá trượt từ dưới lên chậm và mượt, giống các nút ở màn chi tiết
     const pk = pill.k, d0 = (pill.inner.offsetHeight + 16 + 24) * pk; // cắt ở mép dưới thẻ khi thanh giá chui lên
-    const pillA = pill.inner.animate([{ translate: `0 ${d0}px`, clipPath: `inset(-20px -20px ${d0 / pk - 16}px -20px)` }, { translate: '0 0', clipPath: 'inset(-20px -20px -16px -20px)' }], { duration: T(800), delay: T(720) * 0.3, easing: 'cubic-bezier(.33,1,.68,1)', fill: 'backwards' });
+    const pillA = pill.inner.animate([{ translate: `0 ${d0}px`, clipPath: `inset(-20px -20px ${d0 / pk - 16}px -20px)`, backdropFilter: 'blur(0px)', webkitBackdropFilter: 'blur(0px)' }, { translate: '0 0', clipPath: 'inset(-20px -20px -16px -20px)', backdropFilter: 'blur(12px)', webkitBackdropFilter: 'blur(12px)' }], { duration: T(800), delay: T(720) * 0.3, easing: 'cubic-bezier(.33,1,.68,1)', fill: 'backwards' });
     sp.style.opacity = 0; rootEl.style.visibility = 'hidden';
     await nextFrame();
     const D = T(720);
