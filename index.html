@@ -1145,7 +1145,8 @@ async function openDetail(i){
   /* keep the detail screen painted (but transparent) under the veil, so its first paint and sprite decode happen before the morph, not after */
   detail.style.visibility = 'visible'; detail.style.opacity = '0';
   const parts = detailParts();
-  [...parts, spin].forEach(el => el.getAnimations().forEach(x => x.cancel()));
+  parts.forEach(el => el.getAnimations().forEach(x => x.cancel()));
+  spin.getAnimations().forEach(x => { if (!(window.CSSAnimation && x instanceof CSSAnimation)) x.cancel(); });   /* cancelling the CSS float/glow would stop it for good */
   parts.forEach(el => { el.style.opacity = 0; el.style.transform = pre(el); });
   $('#dTitle').style.opacity = 0;
   spin.style.opacity = 0;
