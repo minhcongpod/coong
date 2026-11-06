@@ -124,17 +124,14 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
       const card = cards.current[i], r = card.getBoundingClientRect();
       // cùng cỡ, cùng tỉ lệ và cùng trạng thái (Hết hàng ẩn icon giỏ) với thanh giá thật, để hai lớp khớp nhau
       const w = document.createElement('div'); w.className = 'card' + (card.classList.contains('sold') ? ' sold' : ''); w.dataset.id = card.dataset.id;
-      const cw = card.offsetWidth || r.width, ch = card.offsetHeight || r.height;
-      const k = r.width / cw;
-      Object.assign(w.style, { left: '0px', top: '0px', width: cw + 'px', height: ch + 'px', transform: `scale(${k})`, transformOrigin: '0 0', willChange: 'auto', pointerEvents: 'none', cursor: 'default' });
-      const pb = card.querySelector('.pricebar').cloneNode(true);
+      // lớp bọc rỗng (chỉ để có style .card): không cắt, không transform trên cha, để blur nền của thanh giá hoạt động
+      Object.assign(w.style, { left: '0px', top: '0px', width: '0px', height: '0px', willChange: 'auto', pointerEvents: 'none', cursor: 'default' });
+      const src = card.querySelector('.pricebar'), k = r.width / (card.offsetWidth || r.width);
+      const pb = src.cloneNode(true);
       pb.style.visibility = ''; /* the real bar is hidden while the detail is open; the copy must show */
-      w.appendChild(pb);
-      // khung cắt theo thẻ, để thanh giá chui lên từ mép dưới thẻ
-      const box = document.createElement('div');
-      Object.assign(box.style, { position: 'absolute', left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px', overflow: 'hidden', borderRadius: 32 * k + 'px', pointerEvents: 'none' });
-      box.appendChild(w); box.inner = w;
-      return box;
+      Object.assign(pb.style, { left: r.left + src.offsetLeft * k + 'px', top: r.top + src.offsetTop * k + 'px', right: 'auto', bottom: 'auto', width: src.offsetWidth + 'px', height: src.offsetHeight + 'px', transform: `scale(${k})`, transformOrigin: '0 0' });
+      w.appendChild(pb); w.inner = pb; w.k = k;
+      return w;
     },
     // thanh giá thật chỉ hiện khi không còn bản sao đang bay phía trên (chỉ một lớp tại mọi thời điểm)
     hideCup(i, hide) { const c = cards.current[i]; if (c) { c.querySelector('.cup').style.visibility = hide ? 'hidden' : ''; c.querySelector('.pricebar').style.visibility = hide ? 'hidden' : ''; } },
@@ -269,7 +266,7 @@ export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, o
       const fromT = `translate(${from.left}px,${from.top}px) translate(${from.width / 2}px,${from.height / 2}px) rotate(11.7deg) translate(${-from.width / 2}px,${-from.height / 2}px) scale(${sx})`;
       const midT = `translate(${(from.left + to.left) / 2}px,${Math.min(from.top, to.top) - 30 * Sc}px) scale(${((sx + 1) / 2) * 1.04})`;
       const toT = `translate(${to.left}px,${to.top}px)`;
-      fx.appendChild(pill); pill.animate([{ opacity: 1 }, { opacity: 0 }], { duration: T(160), fill: 'forwards' });
+      fx.appendChild(pill); pill.inner.animate([{ opacity: 1 }, { opacity: 0 }], { duration: T(160), fill: 'forwards' });
       home.hideCup(index, true);
       await nextFrame(); if (dead) return;
       const D = T(760);
@@ -324,7 +321,8 @@ export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, o
     const pill = home.pill(index);
     fx.appendChild(veil); if (item.known) fx.appendChild(fly); fx.appendChild(pill);
     // thanh giá trượt từ dưới lên chậm và mượt, giống các nút ở màn chi tiết
-    const pillA = pill.inner.animate([{ translate: `0 ${pill.offsetHeight * 0.4}px` }, { translate: '0 0' }], { duration: T(800), delay: T(720) * 0.3, easing: 'cubic-bezier(.33,1,.68,1)', fill: 'backwards' });
+    const pk = pill.k, d0 = (pill.inner.offsetHeight + 16 + 24) * pk; // cắt ở mép dưới thẻ khi thanh giá chui lên
+    const pillA = pill.inner.animate([{ translate: `0 ${d0}px`, clipPath: `inset(-20px -20px ${d0 / pk - 16}px -20px)` }, { translate: '0 0', clipPath: 'inset(-20px -20px -16px -20px)' }], { duration: T(800), delay: T(720) * 0.3, easing: 'cubic-bezier(.33,1,.68,1)', fill: 'backwards' });
     sp.style.opacity = 0; rootEl.style.visibility = 'hidden';
     await nextFrame();
     const D = T(720);
