@@ -1249,7 +1249,8 @@ async function closeDetail(){
   await new Promise(r => setTimeout(r, T(160)));
   const pill = pillClone(card, cardR);
   fx.appendChild(veil); fx.appendChild(fly); fx.appendChild(pill);
-  pill.animate([{opacity:0, transform:'translateY(10px)'},{opacity:1, transform:'none'}], {duration:T(400), delay:T(720)*0.7, easing:'ease-out', fill:'backwards'});
+  /* the price pill rises from the bottom, the same slow glide the detail screen's buttons use */
+  const pillA = pill.animate([{opacity:0, translate:'0 90px'},{opacity:1, translate:'0 0'}], {duration:T(760), delay:T(720)*0.3, easing:'cubic-bezier(.22,1,.36,1)', fill:'backwards'});
   spin.style.opacity = 0;
   detail.style.visibility = 'hidden';
 
@@ -1259,8 +1260,7 @@ async function closeDetail(){
   await nextFrame();
   const D = T(720);
   homeParts().forEach((el,k) => el.animate([{opacity:0,transform:k>=4?'translateY(30px)':'translateY(-24px)'},{opacity:1,transform:'none'}], {duration:T(520), delay:D*0.45 + k*40, easing:'cubic-bezier(.22,1,.36,1)', fill:'backwards'}));
-  $('.pricebar', cards[i]).style.visibility = '';   /* fades in below via its own animation */
-  cards.forEach((c,k) => { if (k===i) { $$('.top,.pricebar', c).forEach(el => el.animate([{opacity:0, transform:'translateY(10px)'},{opacity:1, transform:'none'}], {duration:T(400), delay:D*0.7, easing:'ease-out', fill:'backwards'})); return; }
+  cards.forEach((c,k) => { if (k===i) { $$('.top', c).forEach(el => el.animate([{opacity:0, transform:'translateY(10px)'},{opacity:1, transform:'none'}], {duration:T(400), delay:D*0.7, easing:'ease-out', fill:'backwards'})); return; }
     const o = Math.sign(wrap(k - pos)) || 1;
     c.animate([{opacity:0, translate:`${o*160}px 0`},{opacity:c.style.opacity, translate:'0 0'}], {duration:T(620), delay:D*0.35, easing:'cubic-bezier(.22,1,.36,1)', fill:'backwards'}); });
 
@@ -1271,7 +1271,8 @@ async function closeDetail(){
   const midT = `translate(${(from.left+to.left)/2}px,${Math.min(from.top,to.top)-24*S}px) scale(${(sx+1)/2*1.04})`;
   fly.animate([{transform:fromT},{transform:midT, offset:.5},{transform:toT}], {duration:D, easing:'cubic-bezier(.65,0,.25,1)', fill:'forwards'});
   await veilA.finished;
-  cupEl.style.visibility = '';
+  await pillA.finished.catch(() => {});
+  cupEl.style.visibility = ''; $('.pricebar', card).style.visibility = '';   /* the clone on top is the only price pill until now */
   veil.remove(); fly.remove(); pill.remove();
   document.body.classList.remove('moving');
   spin.style.opacity = '';

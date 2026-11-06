@@ -122,19 +122,22 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
     cardRect(i) { const card = cards.current[i], cup = card.querySelector('.cup'); cup.style.transform = 'none'; const c = cup.getBoundingClientRect(); cup.style.transform = 'rotate(11.7deg)'; return { cardR: card.getBoundingClientRect(), cupR: c }; },
     pill(i) {
       const card = cards.current[i], r = card.getBoundingClientRect();
-      const w = document.createElement('div'); w.className = 'card'; w.dataset.id = card.dataset.id;
-      Object.assign(w.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px', transform: 'none', pointerEvents: 'none', cursor: 'default' });
+      // cùng cỡ, cùng tỉ lệ và cùng trạng thái (Hết hàng ẩn icon giỏ) với thanh giá thật, để hai lớp khớp nhau
+      const w = document.createElement('div'); w.className = 'card' + (card.classList.contains('sold') ? ' sold' : ''); w.dataset.id = card.dataset.id;
+      const cw = card.offsetWidth || r.width, ch = card.offsetHeight || r.height;
+      Object.assign(w.style, { left: r.left + 'px', top: r.top + 'px', width: cw + 'px', height: ch + 'px', transform: `scale(${r.width / cw})`, transformOrigin: '0 0', pointerEvents: 'none', cursor: 'default' });
       w.appendChild(card.querySelector('.pricebar').cloneNode(true));
       return w;
     },
-    hideCup(i, hide) { const c = cards.current[i]; if (c) c.querySelector('.cup').style.visibility = hide ? 'hidden' : ''; },
+    // thanh giá thật chỉ hiện khi không còn bản sao đang bay phía trên (chỉ một lớp tại mọi thời điểm)
+    hideCup(i, hide) { const c = cards.current[i]; if (c) { c.querySelector('.cup').style.visibility = hide ? 'hidden' : ''; c.querySelector('.pricebar').style.visibility = hide ? 'hidden' : ''; } },
     recede(i) {
       const s = st.current;
       const parts = [partsRef.current.logo, partsRef.current.bell, partsRef.current.cart, partsRef.current.dots];
       parts.forEach((el, k) => el && el.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: k >= 3 ? 'translateY(30px)' : 'translateY(-24px)' }], { duration: T(320), delay: k * 25, easing: 'ease-in', fill: 'forwards' }));
       cards.current.forEach((c, k) => {
         if (!c) return;
-        if (k === i) { c.querySelectorAll('.top,.pricebar').forEach((el) => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: T(160), fill: 'forwards' })); return; }
+        if (k === i) { c.querySelectorAll('.top').forEach((el) => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: T(160), fill: 'forwards' })); return; }
         const o = Math.sign(wrap(k - s.pos)) || 1;
         c.animate([{ opacity: c.style.opacity, translate: '0 0' }, { opacity: 0, translate: `${o * 160}px 0` }], { duration: T(420), easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' });
       });
@@ -147,7 +150,7 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
       parts.forEach((el, k) => el && el.animate([{ opacity: 0, transform: k >= 3 ? 'translateY(30px)' : 'translateY(-24px)' }, { opacity: 1, transform: 'none' }], { duration: T(520), delay: D * 0.45 + k * 40, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' }));
       cards.current.forEach((c, k) => {
         if (!c) return;
-        if (k === i) { c.querySelectorAll('.top,.pricebar').forEach((el) => el.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: T(400), delay: D * 0.7, easing: 'ease-out', fill: 'backwards' })); return; }
+        if (k === i) { c.querySelectorAll('.top').forEach((el) => el.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: T(400), delay: D * 0.7, easing: 'ease-out', fill: 'backwards' })); return; }
         const o = Math.sign(wrap(k - s.pos)) || 1;
         c.animate([{ opacity: 0, translate: `${o * 160}px 0` }, { opacity: c.style.opacity, translate: '0 0' }], { duration: T(620), delay: D * 0.35, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' });
       });
@@ -313,7 +316,8 @@ export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, o
     await new Promise((r) => setTimeout(r, T(160)));
     const pill = home.pill(index);
     fx.appendChild(veil); if (item.known) fx.appendChild(fly); fx.appendChild(pill);
-    pill.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: T(400), delay: T(720) * 0.7, easing: 'ease-out', fill: 'backwards' });
+    // thanh giá trượt từ dưới lên chậm và mượt, giống các nút ở màn chi tiết
+    const pillA = pill.animate([{ opacity: 0, translate: '0 90px' }, { opacity: 1, translate: '0 0' }], { duration: T(760), delay: T(720) * 0.3, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' });
     sp.style.opacity = 0; rootEl.style.visibility = 'hidden';
     await nextFrame();
     const D = T(720);
@@ -324,6 +328,7 @@ export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, o
     const midT = `translate(${(from.left + to.left) / 2}px,${Math.min(from.top, to.top) - 24 * Sc}px) scale(${((sx + 1) / 2) * 1.04})`;
     if (item.known) fly.animate([{ transform: fromT }, { transform: midT, offset: 0.5 }, { transform: toT }], { duration: D, easing: 'cubic-bezier(.65,0,.25,1)', fill: 'forwards' });
     await veilA.finished;
+    await pillA.finished.catch(() => {});
     home.hideCup(index, false); veil.remove(); fly.remove(); pill.remove();
     home.unfreeze(); onClose();
   };
