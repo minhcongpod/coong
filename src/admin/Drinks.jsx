@@ -126,7 +126,7 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
       const w = document.createElement('div'); w.className = 'card' + (card.classList.contains('sold') ? ' sold' : ''); w.dataset.id = card.dataset.id;
       const cw = card.offsetWidth || r.width, ch = card.offsetHeight || r.height;
       const k = r.width / cw;
-      Object.assign(w.style, { left: '0px', top: '0px', width: cw + 'px', height: ch + 'px', transform: `scale(${k})`, transformOrigin: '0 0', pointerEvents: 'none', cursor: 'default' });
+      Object.assign(w.style, { left: '0px', top: '0px', width: cw + 'px', height: ch + 'px', transform: `scale(${k})`, transformOrigin: '0 0', willChange: 'auto', pointerEvents: 'none', cursor: 'default' });
       const pb = card.querySelector('.pricebar').cloneNode(true);
       pb.style.visibility = ''; /* the real bar is hidden while the detail is open; the copy must show */
       w.appendChild(pb);
@@ -324,7 +324,7 @@ export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, o
     const pill = home.pill(index);
     fx.appendChild(veil); if (item.known) fx.appendChild(fly); fx.appendChild(pill);
     // thanh giá trượt từ dưới lên chậm và mượt, giống các nút ở màn chi tiết
-    const pillA = pill.inner.animate([{ translate: `0 ${pill.offsetHeight * 0.4}px` }, { translate: '0 0' }], { duration: T(1100), delay: T(720) * 0.3, easing: 'cubic-bezier(.33,1,.68,1)', fill: 'backwards' });
+    const pillA = pill.inner.animate([{ translate: `0 ${pill.offsetHeight * 0.4}px` }, { translate: '0 0' }], { duration: T(800), delay: T(720) * 0.3, easing: 'cubic-bezier(.33,1,.68,1)', fill: 'backwards' });
     sp.style.opacity = 0; rootEl.style.visibility = 'hidden';
     await nextFrame();
     const D = T(720);
