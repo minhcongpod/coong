@@ -127,7 +127,9 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
       const cw = card.offsetWidth || r.width, ch = card.offsetHeight || r.height;
       const k = r.width / cw;
       Object.assign(w.style, { left: '0px', top: '0px', width: cw + 'px', height: ch + 'px', transform: `scale(${k})`, transformOrigin: '0 0', pointerEvents: 'none', cursor: 'default' });
-      w.appendChild(card.querySelector('.pricebar').cloneNode(true));
+      const pb = card.querySelector('.pricebar').cloneNode(true);
+      pb.style.visibility = ''; /* the real bar is hidden while the detail is open; the copy must show */
+      w.appendChild(pb);
       // khung cắt theo thẻ, để thanh giá chui lên từ mép dưới thẻ
       const box = document.createElement('div');
       Object.assign(box.style, { position: 'absolute', left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px', overflow: 'hidden', borderRadius: 32 * k + 'px', pointerEvents: 'none' });
