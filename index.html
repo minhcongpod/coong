@@ -292,7 +292,9 @@ input{user-select:text;-webkit-user-select:text}
 .pgo{flex:1;height:60px;border-radius:32px;background:#fff;color:#000;font-size:18px;font-weight:700;transition:transform .25s var(--ease-out),opacity .2s}
 .pgo:active{transform:scale(.95)}
 .pgo:disabled{opacity:.5}
-.prow{display:flex;align-items:center;height:52px;line-height:normal}
+.prow{display:flex;align-items:center;line-height:normal}
+.pnote{flex:none;width:342px;box-sizing:border-box;border:0;outline:0;resize:none;border-radius:32px;background:rgba(255,255,255,.1);color:#fff;font-family:inherit;font-size:14px;font-weight:500;line-height:22px;padding:20px 24px;min-height:62px;display:block}
+.pnote::placeholder{color:rgba(255,255,255,.5)}
 .prow .nm{flex:1;min-width:0}
 #pTotal{color:var(--yellow)}
 .pmeth{flex:none;width:342px;display:flex;flex-direction:column;gap:8px}
@@ -707,11 +709,12 @@ input{user-select:text;-webkit-user-select:text}
     <div class="abs pscroll">
       <div class="card2 psum" id="pSum" data-s></div>
       <div class="pmeth" id="pMeth">
-        <button class="mrow on" data-m="bank" data-s><svg><use href="#i-qr"/></svg><span>Chuyển khoản</span><i></i></button>
+        <button class="mrow" data-m="wallet" id="mWallet" data-s hidden><svg><use href="#i-wallet"/></svg><span>Ví tiền: 0</span><i></i></button>
+        <button class="mrow" data-m="bank" data-s><svg><use href="#i-qr"/></svg><span>Chuyển khoản</span><i></i></button>
         <button class="mrow" data-m="cash" data-s><svg><use href="#i-cash"/></svg><span>Tiền mặt</span><i></i></button>
         <button class="mrow" data-m="debt" data-s><svg><use href="#i-debt"/></svg><span>Ghi nợ nhé!</span><i></i></button>
-        <button class="mrow" data-m="wallet" id="mWallet" data-s><svg><use href="#i-wallet"/></svg><span>Ví tiền: 0</span><i></i></button>
       </div>
+      <textarea class="pnote" id="pNote" rows="1" maxlength="300" placeholder="Ghi chú (Vị trí, giờ nhận hàng ...)" data-s></textarea>
     </div>
     <div class="abs pfoot" data-s>
       <div class="ptot"><span>Giá chỉ</span><b id="pTotal">0</b></div>
@@ -1648,6 +1651,9 @@ let walletBal = null;
 function renderWallet(){
   $('#aWalN').textContent = fmt(walletBal || 0);
   $('span', $('#mWallet')).textContent = `Ví tiền: ${fmt(walletBal || 0)}`;
+  $('#mWallet').hidden = !(walletBal > 0);
+  if (walletBal > 0 || payM !== 'wallet') return;
+  if (typeof setPay === 'function') setPay('bank');
 }
 function periodStart(p){
   const d = new Date(); d.setHours(0, 0, 0, 0);
@@ -1831,9 +1837,10 @@ $$('.mrow', payEl).forEach(r => r.addEventListener('click', () => {
 }));
 function openPay(){
   const sum = $('#pSum'); sum.innerHTML = '';
-  cartItems.forEach(x => { const r = itemRow(x, 'prow'); r.querySelector('.oth').remove(); sum.appendChild(r); });
+  cartItems.forEach(x => { const r = itemRow(x, 'prow'); sum.appendChild(r); });
   $('#pTotal').textContent = fmt(cartTotal());
-  pSlide.reset(true); setPay(payM); $('.pscroll', payEl).scrollTop = 0;
+  pSlide.reset(true); $('#pNote').value = '';
+  renderWallet(); setPay(walletBal > 0 && cartTotal() <= walletBal ? 'wallet' : payM === 'wallet' ? 'bank' : payM); $('.pscroll', payEl).scrollTop = 0;
   showPage(payEl);
 }
 /* slide-to-confirm, the same control as add-to-cart */
@@ -1946,7 +1953,7 @@ async function placeOrder(paid, claimed = false){
   const items = cartItems.map(x => { const d = drink(x.id);
     return {menuId:d.menuId || null, drink:x.id, name:d.menuName || d.name, price:x.unit, cost:d.cost || 0, quantity:x.qty,
       sweetness:sweetText(x.o, d), ice:`${x.o.cafe || 100} cafe`, caffeine:x.o.upsize ? 'Size XL' : 'Size L', temp:x.o.hot ? 'Nóng' : 'Lạnh', opts:{...x.o}}; });
-  const doc = {customerPhone:session.phone, customerName:session.name, items, note:'', totalAmount:cartTotal(), status:'pending', paid:false, payMethod:payM};
+  const doc = {customerPhone:session.phone, customerName:session.name, items, note:$('#pNote').value.trim(), totalAmount:cartTotal(), status:'pending', paid:false, payMethod:payM};
   if (claimed) doc.paymentStatus = 'awaiting';
   if (paid && payM === 'wallet') { doc.paid = true; doc.paymentStatus = 'confirmed'; doc.paidAt = new Date().toISOString(); }
   try {
