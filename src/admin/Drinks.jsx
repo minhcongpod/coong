@@ -126,7 +126,7 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
       const w = document.createElement('div'); w.className = 'card' + (card.classList.contains('sold') ? ' sold' : ''); w.dataset.id = card.dataset.id;
       const cw = card.offsetWidth || r.width, ch = card.offsetHeight || r.height;
       const k = r.width / cw;
-      Object.assign(w.style, { left: '0px', top: '0px', width: cw + 'px', height: ch + 'px', transform: `scale(${k})`, transformOrigin: '0 0', pointerEvents: 'none', cursor: 'default' });
+      Object.assign(w.style, { left: '0px', top: '0px', width: cw + 'px', height: ch + 'px', transform: `scale(${k})`, transformOrigin: '0 0', willChange: 'auto', pointerEvents: 'none', cursor: 'default' });
       const pb = card.querySelector('.pricebar').cloneNode(true);
       pb.style.visibility = ''; /* the real bar is hidden while the detail is open; the copy must show */
       w.appendChild(pb);
