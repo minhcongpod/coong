@@ -26,6 +26,22 @@ function veilKF(r, s, rad0, rad1) {
   return [{ transform: `translate(${r.left - s.left}px,${r.top - s.top}px) scale(${sx},${sy})`, borderRadius: `${rad0 / sx}px / ${rad0 / sy}px` },
     { transform: 'translate(0px,0px) scale(1,1)', borderRadius: `${rad1}px / ${rad1}px` }];
 }
+// WebKit không làm mờ nền phía sau thanh giá khi nó nằm ở lớp hiệu ứng, nên vẽ blur bằng tay:
+// bản sao mờ của chiếc ly đang bay, cắt theo hình thanh giá và chạy khớp với ly thật
+function pillGlass(pill, fly, glow, endScale) {
+  const pb = pill.inner, k = pill.k, ox = parseFloat(pb.style.left), oy = parseFloat(pb.style.top);
+  const bk = document.createElement('div');
+  Object.assign(bk.style, { position: 'absolute', left: pb.style.left, top: pb.style.top, width: pb.style.width, height: pb.style.height, transform: `scale(${k})`, transformOrigin: '0 0', borderRadius: '32px', overflow: 'hidden', pointerEvents: 'none' });
+  const ib = document.createElement('div'); Object.assign(ib.style, { position: 'absolute', left: '0px', top: '0px', width: '100%', height: '100%' });
+  const fk = document.createElement('img'); fk.src = fly.src;
+  Object.assign(fk.style, { position: 'absolute', left: '0px', top: '0px', width: fly.style.width, height: fly.style.height, transformOrigin: '0 0', willChange: 'transform', filter: `drop-shadow(0 0 22px ${glow}) blur(${(12 * k) / endScale}px)` });
+  // lớp nền thẻ đặc dưới chiếc ly mờ, để ly nét bên dưới thanh giá bị che như khi blur nền thật
+  const surf = pill.card.querySelector('.surf').cloneNode(true);
+  Object.assign(surf.style, { position: 'absolute', inset: 'auto', left: (pill.r.left - ox) / k + 'px', top: (pill.r.top - oy) / k + 'px', width: pill.card.offsetWidth + 'px', height: pill.card.offsetHeight + 'px' });
+  ib.appendChild(surf); ib.appendChild(fk); bk.appendChild(ib); pill.insertBefore(bk, pb);
+  pb.style.backdropFilter = 'none'; pb.style.webkitBackdropFilter = 'none';
+  return { bk, ib, fk, at: (t) => `scale(${1 / k}) translate(${-ox}px,${-oy}px) ${t}` };
+}
 function placeVeil(v, s) { Object.assign(v.style, { inset: 'auto', left: s.left + 'px', top: s.top + 'px', width: s.width + 'px', height: s.height + 'px', transformOrigin: '0 0', overflow: 'hidden', willChange: 'transform,opacity' }); }
 
 const MID_W = 300, SIDE_W = 250; // thẻ giữa 300px, thẻ bên 250px (hình gốc 270px)
@@ -130,7 +146,7 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
       const pb = src.cloneNode(true);
       pb.style.visibility = ''; /* the real bar is hidden while the detail is open; the copy must show */
       Object.assign(pb.style, { left: r.left + src.offsetLeft * k + 'px', top: r.top + src.offsetTop * k + 'px', right: 'auto', bottom: 'auto', width: src.offsetWidth + 'px', height: src.offsetHeight + 'px', transform: `scale(${k})`, transformOrigin: '0 0' });
-      w.appendChild(pb); w.inner = pb; w.k = k;
+      w.appendChild(pb); w.inner = pb; w.k = k; w.r = r; w.card = card;
       return w;
     },
     // thanh giá thật chỉ hiện khi không còn bản sao đang bay phía trên (chỉ một lớp tại mọi thời điểm)
@@ -322,7 +338,11 @@ export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, o
     fx.appendChild(veil); if (item.known) fx.appendChild(fly); fx.appendChild(pill);
     // thanh giá trượt từ dưới lên chậm và mượt, giống các nút ở màn chi tiết
     const pk = pill.k, d0 = (pill.inner.offsetHeight + 16 + 24) * pk; // cắt ở mép dưới thẻ khi thanh giá chui lên
-    const pillA = pill.inner.animate([{ translate: `0 ${d0}px`, clipPath: `inset(-20px -20px ${d0 / pk - 16}px -20px)`, backdropFilter: 'blur(0px)', webkitBackdropFilter: 'blur(0px)' }, { translate: '0 0', clipPath: 'inset(-20px -20px -16px -20px)', backdropFilter: 'blur(12px)', webkitBackdropFilter: 'blur(12px)' }], { duration: T(800), delay: T(720) * 0.3, easing: 'cubic-bezier(.33,1,.68,1)', fill: 'backwards' });
+    const slideO = { duration: T(800), delay: T(720) * 0.3, easing: 'cubic-bezier(.33,1,.68,1)', fill: 'backwards' };
+    const slideKF = [{ translate: `0 ${d0}px`, clipPath: `inset(-20px -20px ${d0 / pk - 16}px -20px)` }, { translate: '0 0', clipPath: 'inset(-20px -20px -16px -20px)' }];
+    const glass = item.known ? pillGlass(pill, fly, GLOW, sx) : null;
+    const pillA = pill.inner.animate(slideKF, slideO);
+    if (glass) { glass.bk.animate(slideKF, slideO); glass.ib.animate([{ translate: `0 ${-d0 / pk}px` }, { translate: '0 0' }], slideO); }
     sp.style.opacity = 0; rootEl.style.visibility = 'hidden';
     await nextFrame();
     const D = T(720);
@@ -332,6 +352,7 @@ export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, o
     veil.animate([{ opacity: 1 }, { opacity: 1, offset: 0.55 }, { opacity: 0 }], { duration: D, easing: 'ease-in', fill: 'forwards' });
     const midT = `translate(${(from.left + to.left) / 2}px,${Math.min(from.top, to.top) - 24 * Sc}px) scale(${((sx + 1) / 2) * 1.04})`;
     if (item.known) fly.animate([{ transform: fromT }, { transform: midT, offset: 0.5 }, { transform: toT }], { duration: D, easing: 'cubic-bezier(.65,0,.25,1)', fill: 'forwards' });
+    if (glass) glass.fk.animate([{ transform: glass.at(fromT) }, { transform: glass.at(midT), offset: 0.5 }, { transform: glass.at(toT) }], { duration: D, easing: 'cubic-bezier(.65,0,.25,1)', fill: 'forwards' });
     await veilA.finished;
     await pillA.finished.catch(() => {});
     home.hideCup(index, false); veil.remove(); fly.remove(); pill.remove();
