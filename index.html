@@ -1306,12 +1306,46 @@ async function closeDetail(){
   busy = false; idle();
 }
 $('#back').addEventListener('click', closeDetail);
+
+/* swipe left / right on the detail: the whole page slides to the next / previous drink (Bạc ← Đen → Nâu) */
+async function switchDrink(dir){
+  if (busy || detail.style.visibility !== 'visible') return;
+  busy = true;
+  const from = cur, to = ((from + dir) % N + N) % N;
+  /* a still copy of the page that slides away while the new one slides in */
+  const ghost = detail.cloneNode(true);
+  ghost.removeAttribute('id'); $$('[id]', ghost).forEach(el => el.removeAttribute('id'));
+  ghost.style.pointerEvents = 'none';
+  detail.parentNode.insertBefore(ghost, detail.nextSibling);
+  detail.getAnimations().forEach(a => { if (!(window.CSSAnimation && a instanceof CSSAnimation)) a.cancel(); });
+
+  /* the home carousel follows, so closing the page returns to the drink on show */
+  cancelAnimationFrame(raf); vel = 0;
+  const base = Math.round(pos); pos = target = base + Math.round(wrap(to - base)); layout();
+  const oc = cards[from], nc = cards[to];
+  $('.cup', oc).style.visibility = ''; $('.pricebar', oc).style.visibility = '';
+  $('.cup', nc).style.visibility = 'hidden'; $('.pricebar', nc).style.visibility = 'hidden';
+
+  fillDetail(to);
+  syncBadges();
+  const D = T(520), ease = 'cubic-bezier(.32,.72,0,1)';
+  ghost.animate([{transform:'translateX(0)'},{transform:`translateX(${-dir*100}%)`}], {duration:D, easing:ease, fill:'forwards'});
+  const a = detail.animate([{transform:`translateX(${dir*100}%)`},{transform:'translateX(0)'}], {duration:D, easing:ease});
+  /* the cup and title arrive a little late, so the page feels layered */
+  spin.animate([{transform:`translateX(${dir*90}px)`, opacity:0},{transform:'translateX(0)', opacity:1}], {duration:D, delay:T(60), easing:ease, fill:'backwards'});
+  $('#dTitle').animate([{transform:`translateX(${dir*50}px)`, opacity:0},{transform:'translateX(0)', opacity:1}], {duration:D, delay:T(40), easing:ease, fill:'backwards'});
+  await a.finished.catch(() => {});
+  ghost.remove();
+  busy = false;
+}
 /* swipe down anywhere on the detail (not on the slider or buttons) to go back */
 (() => {
   const det = $('#detail'); let sw = null;
   det.style.touchAction = 'none';
   det.addEventListener('pointerdown', e => { sw = e.target.closest('.add,.pm,.chip,button') ? null : {x:e.clientX, y:e.clientY}; });
-  det.addEventListener('pointermove', e => { if (!sw) return; const dy = (e.clientY - sw.y)/S, dx = (e.clientX - sw.x)/S; if (dy > 70 && dy > Math.abs(dx)*1.4) { sw = null; closeDetail(); } });
+  det.addEventListener('pointermove', e => { if (!sw) return; const dy = (e.clientY - sw.y)/S, dx = (e.clientX - sw.x)/S;
+    if (dy > 70 && dy > Math.abs(dx)*1.4) { sw = null; closeDetail(); }
+    else if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)*1.4) { sw = null; switchDrink(dx < 0 ? 1 : -1); } });
   ['pointerup','pointercancel'].forEach(ev => det.addEventListener(ev, () => { sw = null; }));
 })();
 
