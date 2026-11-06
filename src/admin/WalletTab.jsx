@@ -84,11 +84,10 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
     // Chi phí, lợi nhuận và Ví tính tất cả thời gian, không theo bộ lọc ngày/tháng/năm (chỉ số đơn và doanh thu theo bộ lọc)
     const allRev = orders.filter(isLive).reduce((n, o) => n + (o.totalAmount || 0), 0) + txs.filter(extraIncome).reduce((n, t) => n + (t.amount || 0), 0);
     const exp = txs.filter((t) => t.type === 'expense' && !t.excludeRevenue).reduce((n, t) => n + (t.amount || 0), 0);
-    // Ví = tổng khoản thu trừ tổng khoản chi trừ tiền đơn chưa thanh toán (gồm chờ xác nhận); đơn khách trả bằng ví tiền tính là một khoản thu; đơn chủ quán đặt hộ khách không trừ
+    // Ví = tổng khoản thu trừ tổng khoản chi; đơn khách trả bằng ví tiền tính là một khoản thu; đơn ghi nợ (chưa thanh toán) không trừ Ví
     const unpaidIds = new Set(orders.filter((o) => !o.paid).map((o) => o.id));
-    const owed = orders.filter((o) => isLive(o) && !o.paid && !o.byShop).reduce((n, o) => n + (o.totalAmount || 0), 0);
     const byWallet = orders.filter((o) => isLive(o) && o.paid && o.payMethod === 'wallet').reduce((n, o) => n + (o.totalAmount || 0), 0);
-    const wallet = txs.reduce((n, t) => (t.orderId && unpaidIds.has(t.orderId) ? n : n + (t.type === 'income' ? 1 : -1) * (t.amount || 0)), 0) + byWallet - owed;
+    const wallet = txs.reduce((n, t) => (t.orderId && unpaidIds.has(t.orderId) ? n : n + (t.type === 'income' ? 1 : -1) * (t.amount || 0)), 0) + byWallet;
     return { orders: live.reduce((n, o) => n + (o.items || []).reduce((m, x) => m + (x.quantity || 1), 0), 0), revenue: paid + inc, expense: exp, profit: allRev - exp, wallet };
   }, [orders, txs, kind]);
 
