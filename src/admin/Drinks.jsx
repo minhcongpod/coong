@@ -125,9 +125,14 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
       // cùng cỡ, cùng tỉ lệ và cùng trạng thái (Hết hàng ẩn icon giỏ) với thanh giá thật, để hai lớp khớp nhau
       const w = document.createElement('div'); w.className = 'card' + (card.classList.contains('sold') ? ' sold' : ''); w.dataset.id = card.dataset.id;
       const cw = card.offsetWidth || r.width, ch = card.offsetHeight || r.height;
-      Object.assign(w.style, { left: r.left + 'px', top: r.top + 'px', width: cw + 'px', height: ch + 'px', transform: `scale(${r.width / cw})`, transformOrigin: '0 0', pointerEvents: 'none', cursor: 'default' });
+      const k = r.width / cw;
+      Object.assign(w.style, { left: '0px', top: '0px', width: cw + 'px', height: ch + 'px', transform: `scale(${k})`, transformOrigin: '0 0', pointerEvents: 'none', cursor: 'default' });
       w.appendChild(card.querySelector('.pricebar').cloneNode(true));
-      return w;
+      // khung cắt theo thẻ, để thanh giá chui lên từ mép dưới thẻ
+      const box = document.createElement('div');
+      Object.assign(box.style, { position: 'absolute', left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px', overflow: 'hidden', borderRadius: 32 * k + 'px', pointerEvents: 'none' });
+      box.appendChild(w); box.inner = w;
+      return box;
     },
     // thanh giá thật chỉ hiện khi không còn bản sao đang bay phía trên (chỉ một lớp tại mọi thời điểm)
     hideCup(i, hide) { const c = cards.current[i]; if (c) { c.querySelector('.cup').style.visibility = hide ? 'hidden' : ''; c.querySelector('.pricebar').style.visibility = hide ? 'hidden' : ''; } },
@@ -317,7 +322,7 @@ export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, o
     const pill = home.pill(index);
     fx.appendChild(veil); if (item.known) fx.appendChild(fly); fx.appendChild(pill);
     // thanh giá trượt từ dưới lên chậm và mượt, giống các nút ở màn chi tiết
-    const pillA = pill.animate([{ opacity: 0, translate: '0 90px' }, { opacity: 1, translate: '0 0' }], { duration: T(760), delay: T(720) * 0.3, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' });
+    const pillA = pill.inner.animate([{ translate: `0 ${pill.offsetHeight * 0.4}px` }, { translate: '0 0' }], { duration: T(1100), delay: T(720) * 0.3, easing: 'cubic-bezier(.33,1,.68,1)', fill: 'backwards' });
     sp.style.opacity = 0; rootEl.style.visibility = 'hidden';
     await nextFrame();
     const D = T(720);
