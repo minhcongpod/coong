@@ -828,9 +828,9 @@ const api = () => window.CoongAPI ? Promise.resolve(window.CoongAPI) : new Promi
 const fold = t => (t || '').toLowerCase().normalize('NFC');
 const drinkIdOf = name => { const n = fold(name); return n.includes('bạc') ? 'bac' : n.includes('nâu') ? 'nau' : n.includes('đen') ? 'den' : null; };
 let lastMenu = [];
-/* chữ trên thẻ món khi hết hàng / ngoài giờ: chủ quán sửa được khi bật công tắc Hết hàng (tối đa 40 chữ, vừa 2 dòng) */
+/* chữ trên thẻ món khi hết hàng / ngoài giờ: chủ quán sửa được khi bật công tắc Hết hàng (tối đa 25 chữ, vừa 1 dòng) */
 const SOLD_DEFAULT = 'Mai bán lại nha';
-const soldLabel = (d, closed) => (shop && shop.soldOut && typeof shop.soldText === 'string' && shop.soldText.trim()) ? shop.soldText.trim().slice(0, 40) : (d.out || closed) ? SOLD_DEFAULT : '';
+const soldLabel = (d, closed) => (shop && shop.soldOut && typeof shop.soldText === 'string' && shop.soldText.trim()) ? shop.soldText.trim().slice(0, 25) : (d.out || closed) ? SOLD_DEFAULT : '';
 function applyMenu(items){
   lastMenu = items || [];
   const closed = typeof shopClosed === 'function' && !!shopClosed();

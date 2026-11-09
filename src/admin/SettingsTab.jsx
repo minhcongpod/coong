@@ -60,8 +60,8 @@ export default function SettingsTab({ menu, users, shop = {}, adminPhone, onLogo
   );
 }
 
-// Chữ hiện trên thẻ món khi bật Hết hàng: tối đa 40 chữ thì thẻ hiển thị đủ 2 dòng, không bị cắt
-const SOLD_MAX = 40;
+// Chữ hiện trên thẻ món khi bật Hết hàng: tối đa 25 chữ thì thẻ hiển thị gọn, không bị cắt, không bị cắt
+const SOLD_MAX = 25;
 function SoldText({ value }) {
   const { toast } = useUI();
   const [v, setV] = useState(value || '');
