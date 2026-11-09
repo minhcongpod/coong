@@ -141,7 +141,6 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 .cpm:active{transform:scale(.88)}
 .cpm svg{width:19.7px;height:19.7px}
 .cprice{font-size:18px;line-height:23px;font-variant-numeric:tabular-nums}
-.cprice.csold{font-size:14px;font-weight:500;color:var(--err)}
 .copt{font-size:14px;font-weight:500;color:rgba(255,255,255,.5);white-space:nowrap}
 .cempty{left:0;width:390px;top:149px;opacity:0;pointer-events:none;transition:opacity .3s}
 #cart.empty .cempty{opacity:1;pointer-events:auto}
@@ -292,6 +291,7 @@ input{user-select:text;-webkit-user-select:text}
 .pgo{flex:1;height:60px;border-radius:32px;background:#fff;color:#000;font-size:18px;font-weight:700;transition:transform .25s var(--ease-out),opacity .2s}
 .pgo:active{transform:scale(.95)}
 .pgo:disabled{opacity:.5}
+#cPay:disabled{opacity:1;background:rgba(255,255,255,.14);color:rgba(255,255,255,.4)}
 .prow{display:flex;align-items:center;line-height:normal}
 .pnote{flex:none;width:342px;box-sizing:border-box;border:0;outline:0;resize:none;border-radius:32px;background:rgba(255,255,255,.1);color:#fff;font-family:inherit;font-size:14px;font-weight:500;line-height:22px;padding:20px 24px;min-height:62px;display:block}
 .pnote::placeholder{color:rgba(255,255,255,.5)}
@@ -842,7 +842,7 @@ function applyMenu(items){
     if (m) Object.assign(d, {price:m.price, menuId:m.id, menuName:m.name, cost:m.cost || 0, ...(typeof m.upsize === 'number' ? {xl:m.upsize} : {})}); });
   cards.forEach((c, i) => { const d = DRINKS[i]; c.classList.toggle('sold', !!d.sold); $('.pricebar b', c).textContent = soldLabel(d, closed) || fmt(d.price); });
   if (detail.style.visibility === 'visible') $('#dPrice').textContent = fmt(unit()*qty);
-  syncBuy();
+  syncBuy(); syncPay();
   const sig = DRINKS.map(d => d.sold ? 1 : 0).join('');
   if (sig !== soldSig) { soldSig = sig; if (typeof renderCart === 'function') renderCart(); }
 }
@@ -1494,7 +1494,7 @@ function renderCart(){
     row.innerHTML = `<div class="cthumb"><img src="/${d.id}.webp" alt="" draggable="false"></div>
       <div class="cinfo"><span class="cname"></span><button class="copt" aria-label="Chỉnh món"><span></span><svg><use href="#i-caret"/></svg></button><div class="crow">
         <div class="cqty"><button class="cpm" data-d="-1" aria-label="Giảm"><svg><use href="#i-minus"/></svg></button><span>${it.qty}</span><button class="cpm" data-d="1" aria-label="Tăng"><svg><use href="#i-plus"/></svg></button></div>
-        <span class="cprice${d.sold ? ' csold' : ''}">${soldLabel(d, d.sold) || fmt(it.qty*it.unit)}</span></div></div>`;
+        <span class="cprice">${fmt(it.qty*it.unit)}</span></div></div>`;
     $('.cname', row).textContent = d.name; $('.copt span', row).textContent = optText(it.o, it.id);
     $('.copt', row).addEventListener('click', () => openEdit(i));
     $$('.cpm', row).forEach(b => b.addEventListener('click', () => changeItem(i, +b.dataset.d, row)));
@@ -1502,7 +1502,10 @@ function renderCart(){
   });
   $('#cTotal').textContent = fmt(cartTotal());
   cartEl.classList.toggle('empty', !cartItems.length);
+  syncPay();
 }
+/* quán đóng cửa / tạm hết hàng, hoặc trong giỏ có món hết: nút Đặt hàng disable, màu xám */
+function syncPay(){ const b = $('#cPay'); if (b) b.disabled = !!(typeof shopClosed === 'function' && shopClosed()) || cartItems.some(it => { const d = DRINKS.find(x => x.id === it.id); return d && d.sold; }); }
 function changeItem(i, d, row){
   const it = cartItems[i]; if (!it) return;
   it.qty += d;

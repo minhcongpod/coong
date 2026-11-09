@@ -203,7 +203,6 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
                         <span>{l.qty}</span>
                         <button className="o-cpm" onClick={() => setQty(i, 1)} aria-label={`Thêm ${l.name}`}><Sym id="i-plus" size={20} /></button>
                       </span>
-                      {isSold(l) && <span className="o-csold">Mai bán lại nha</span>}
                     </div>
                   </div>
                 </div>
@@ -212,7 +211,7 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
             <div className="a-foot">
               <div className="o-total">
                 <div className="o-sum"><span>Giá chỉ</span><b className="y">{fmt(total)}</b></div>
-                <Btn onClick={() => { const out = lines.find(isSold); if (out) return toast(closed || `${shortOf(out.name)} đã hết hàng, bỏ món này khỏi giỏ nhé`); setPage('pay'); }}>Đặt hàng</Btn>
+                <Btn disabled={!!closed || lines.some(isSold)} onClick={() => { const out = lines.find(isSold); if (out) return toast(closed || `${shortOf(out.name)} đã hết hàng, bỏ món này khỏi giỏ nhé`); setPage('pay'); }}>Đặt hàng</Btn>
               </div>
             </div>
           </>
