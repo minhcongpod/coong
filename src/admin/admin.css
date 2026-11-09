@@ -376,6 +376,14 @@ button.a-card:active{transform:scale(.97)}
 /* Cài đặt theo Figma: thẻ 16/24, chữ 18 đậm, icon 20 trắng, mũi tên phải trắng 50%, cách nhau 16 */
 .s-title{line-height:normal}
 .a-tab .s-list{margin-top:16px;gap:8px}
+.s-soldcard{flex:none;border-radius:32px;background:var(--s10);color:#fff;overflow:hidden}
+.s-sold{display:flex;align-items:center;gap:16px;padding:20px 24px}
+.s-sold>svg{flex:none;color:#fff}
+.s-sold>b{flex:1;min-width:0;font-size:18px;font-weight:700;line-height:normal}
+.s-soldtext{display:flex;align-items:center;gap:12px;margin:0 12px 12px;padding:12px 16px;border-radius:24px;background:rgba(255,255,255,.08)}
+.s-soldtext input{flex:1;min-width:0;background:none;border:0;outline:0;font:inherit;font-size:16px;font-weight:500;color:#fff;padding:0;caret-color:#fff}
+.s-soldtext input::placeholder{color:var(--mute)}
+.s-soldtext small{flex:none;color:var(--mute);font-size:13px}
 .s-item{flex:none;display:flex;align-items:center;gap:16px;padding:20px 24px;border-radius:32px;background:var(--s10);color:#fff;text-align:left;width:100%}
 .s-item>svg{flex:none;color:#fff}
 .s-item>b{flex:1;min-width:0;font-size:18px;font-weight:700;line-height:normal}

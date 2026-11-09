@@ -234,7 +234,7 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
   const det = page && page.detail != null ? drinks[page.detail] : null;
   return (
     <>
-      <DrinkHome ref={homeRef} items={drinks} count={count} unread={unread} onCart={openCart} onBell={() => setPage('notif')} sold={!!closed} onOpen={(i) => setPage({ detail: i })} />
+      <DrinkHome ref={homeRef} items={drinks} count={count} unread={unread} onCart={openCart} onBell={() => setPage('notif')} sold={!!closed} soldText={shop.soldOut ? (shop.soldText || '').trim().slice(0, 40) : ''} onOpen={(i) => setPage({ detail: i })} />
       {det && (
         <DrinkDetail
           key={det.m.id} item={det} index={page.detail} home={homeRef.current} count={count}
