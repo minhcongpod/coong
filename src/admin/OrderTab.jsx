@@ -203,7 +203,7 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
                         <span>{l.qty}</span>
                         <button className="o-cpm" onClick={() => setQty(i, 1)} aria-label={`Thêm ${l.name}`}><Sym id="i-plus" size={20} /></button>
                       </span>
-                      {isSold(l) && <span className="o-csold">Hết hàng</span>}
+                      {isSold(l) && <span className="o-csold">Mai bán lại nha</span>}
                     </div>
                   </div>
                 </div>
