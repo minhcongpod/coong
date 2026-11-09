@@ -1,4 +1,4 @@
-import { createPortal } from 'react-dom';
+import { createPortal, flushSync } from 'react-dom';
 import React, { useRef, useEffect, useLayoutEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import { Sym, fmt, kindOf, XL_EXTRA } from './ui.jsx';
 import './drinks.css';
@@ -175,6 +175,21 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
         c.animate([{ opacity: 0, translate: `${o * 160}px 0` }, { opacity: c.style.opacity, translate: '0 0' }], { duration: T(620), delay: D * 0.35, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' });
       });
     },
+    // vuốt đổi món ở trang chi tiết: các thẻ bên dưới trượt theo, để khi thu nhỏ lại vẫn khớp chỗ
+    switchTo(from, to, dir, D, ease) {
+      const s = st.current; cancelAnimationFrame(s.raf); s.vel = 0;
+      const base = Math.round(s.pos); s.pos = s.target = base + Math.round(wrap(to - base)); s.layout && s.layout();
+      const oc = cards.current[from], nc = cards.current[to]; if (!oc || !nc) return;
+      oc.querySelector('.cup').style.visibility = ''; oc.querySelector('.pricebar').style.visibility = '';
+      nc.querySelector('.cup').style.visibility = 'hidden'; nc.querySelector('.pricebar').style.visibility = 'hidden';
+      const o = Math.sign(wrap(from - s.pos)) || -dir;
+      nc.getAnimations().forEach((a) => a.cancel());
+      nc.querySelectorAll('.top').forEach((el) => { el.getAnimations().forEach((a) => a.cancel()); el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: T(160), fill: 'forwards' }); });
+      oc.querySelectorAll('.top').forEach((el) => el.getAnimations().forEach((a) => a.cancel()));
+      nc.animate([{ translate: `${-o * 160}px 0` }, { translate: '0 0' }], { duration: D, easing: ease });
+      oc.getAnimations().forEach((a) => a.cancel());
+      oc.animate([{ opacity: oc.style.opacity, translate: '0 0' }, { opacity: 0, translate: `${o * 160}px 0` }], { duration: D, easing: ease, fill: 'forwards' });
+    },
     unfreeze() { const s = st.current; s.busy = false; if (carRef.current && s.idle) s.idle(); },
   }));
 
@@ -230,7 +245,7 @@ const preT = (el) => {
 };
 const restT = (el) => (el.classList.contains('bulge') && el.dataset.a === 'r' ? 'scaleX(-1)' : el.dataset.k === 'price' ? 'translateX(-50%)' : 'none');
 
-export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, onCart, soldOut }) {
+export function DrinkDetail({ item, index, items, onIndex, home, count, onClose, onAdd, onBuy, onCart, soldOut }) {
   const d = item.meta, k = item.id, m = item.m;
   const extra = typeof m.upsize === 'number' ? m.upsize : XL_EXTRA;
   const root = useRef(null), stage = useRef(null), spin = useRef(null), fxRef = useRef(null), qtyBox = useRef(null), priceRef = useRef(null), cartBtn = useRef(null);
@@ -239,6 +254,8 @@ export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, o
   const qtyN = useRef(1), busy = useRef(true), adding = useRef(false);
   const unit = m.price + (o.upsize ? extra : 0);
   const made = useRef([]);
+  const idxRef = useRef(index); idxRef.current = index;
+  const closeRef = useRef(null), switchRef = useRef(null), skipBump = useRef(false);
   const track = (n) => { made.current.push(n); return n; };
 
   // lớp hiệu ứng nằm ngoài khung nên cắt theo khung 390×700
@@ -252,7 +269,7 @@ export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, o
     const st = stage.current, t = st.querySelector('.dtitle'), op = st.querySelector('.opts'), c = (76 + st.offsetHeight - 207) / 2;
     const tb = 46 + 19 + op.offsetHeight;
     t.style.top = Math.round(c - tb / 2) + 'px'; op.style.top = Math.round(c - tb / 2 + 65) + 'px'; spin.current.style.top = Math.round(c - 155) + 'px';
-  }, [k, d.sweet, d.cafe]);
+  }, [k, m.id, d.sweet, d.cafe]);
 
   const parts = () => [...root.current.querySelectorAll('[data-a]')];
   const S = () => stage.current.getBoundingClientRect().width / 390;
@@ -312,7 +329,7 @@ export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, o
       sp.style.opacity = ''; fly.remove();
       busy.current = false;
     })();
-    return () => { dead = true; made.current.forEach((n) => n.remove()); made.current = []; home.hideCup(index, false); home.unfreeze(); };
+    return () => { dead = true; made.current.forEach((n) => n.remove()); made.current = []; home.hideCup(idxRef.current, false); home.unfreeze(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -359,6 +376,35 @@ export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, o
     home.unfreeze(); onClose();
   };
 
+  closeRef.current = close;
+
+  // vuốt trái/phải: chỉ nền, tên món, option và ảnh món trượt sang món kế (0.8s); hai hàng nút đứng yên
+  const STATIC = '.back,.cartbtn,.pm,.qty,.dprice,.dacts,.bulge';
+  const switchDrink = async (dir) => {
+    const N = items.length; if (busy.current || adding.current || N < 2) return;
+    busy.current = true;
+    const rootEl = root.current, from = idxRef.current, to = ((from + dir) % N + N) % N;
+    const still = () => { const g = rootEl.cloneNode(true); g.querySelectorAll(STATIC).forEach((el) => { el.style.visibility = 'hidden'; }); g.style.pointerEvents = 'none'; g.removeAttribute('aria-label'); return g; };
+    const ghost = still();
+    rootEl.getAnimations().forEach((a) => a.cancel());
+    const D = T(800), ease = EASE_MORPH;
+    home.switchTo(from, to, dir, D, ease);
+    skipBump.current = true;
+    flushSync(() => { setO({ upsize: 0, hot: 0, sweet: 0, cafe: 0 }); setQty(1); onIndex(to); });
+    qtyN.current = 1; qtyBox.current.innerHTML = '<span>01</span>';
+    const ghost2 = still();
+    rootEl.parentNode.insertBefore(ghost, rootEl); rootEl.parentNode.insertBefore(ghost2, rootEl);
+    const moving = [...rootEl.querySelectorAll('.dtitle,.opts,.spin')];
+    rootEl.style.background = 'transparent'; moving.forEach((el) => { el.style.visibility = 'hidden'; }); rootEl.classList.add('sw');
+    ghost.animate([{ transform: 'translateX(0)' }, { transform: `translateX(${-dir * 100}%)` }], { duration: D, easing: ease, fill: 'forwards' });
+    const a = ghost2.animate([{ transform: `translateX(${dir * 100}%)` }, { transform: 'translateX(0)' }], { duration: D, easing: ease, fill: 'forwards' });
+    await a.finished.catch(() => {});
+    rootEl.style.background = ''; moving.forEach((el) => { el.style.visibility = ''; }); rootEl.classList.remove('sw');
+    ghost.remove(); ghost2.remove();
+    busy.current = false;
+  };
+  switchRef.current = switchDrink;
+
   // số lượng: chữ số cũ trượt đi, số mới trượt vào; nhấn giữ để đếm liên tục
   const bump = (n) => {
     n = Math.max(1, Math.min(99, n)); if (n === qtyN.current) return;
@@ -386,7 +432,7 @@ export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, o
 
   // giá nảy nhẹ khi đổi
   const first = useRef(true);
-  useEffect(() => { if (first.current) { first.current = false; return; } priceRef.current.animate([{ transform: 'translateX(-50%) scale(1.08)' }, { transform: 'translateX(-50%) scale(1)' }], { duration: T(260), easing: 'ease-out' }); }, [unit, qty]);
+  useEffect(() => { if (first.current) { first.current = false; return; } if (skipBump.current) { skipBump.current = false; return; } priceRef.current.animate([{ transform: 'translateX(-50%) scale(1.08)' }, { transform: 'translateX(-50%) scale(1)' }], { duration: T(260), easing: 'ease-out' }); }, [unit, qty]);
 
   const pick = (key, v, e) => {
     e.currentTarget.animate([{ transform: 'scale(.8)' }, { transform: 'scale(1)' }], { duration: T(380), easing: 'cubic-bezier(.34,1.56,.64,1)' });
@@ -398,7 +444,7 @@ export function DrinkDetail({ item, index, home, count, onClose, onAdd, onBuy, o
   useEffect(() => {
     const det = root.current; let sw = null;
     const down = (e) => { sw = e.target.closest('.dacts,.pm,.chip,button') ? null : { x: e.clientX, y: e.clientY }; };
-    const move = (e) => { if (!sw) return; const dy = e.clientY - sw.y, dx = e.clientX - sw.x; if (dy > 70 && dy > Math.abs(dx) * 1.4) { sw = null; close(); } };
+    const move = (e) => { if (!sw) return; const dy = e.clientY - sw.y, dx = e.clientX - sw.x; if (dy > 70 && dy > Math.abs(dx) * 1.4) { sw = null; closeRef.current(); } else if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.4) { sw = null; switchRef.current(dx < 0 ? 1 : -1); } };
     const up = () => { sw = null; };
     det.style.touchAction = 'none';
     det.addEventListener('pointerdown', down); det.addEventListener('pointermove', move); det.addEventListener('pointerup', up); det.addEventListener('pointercancel', up);

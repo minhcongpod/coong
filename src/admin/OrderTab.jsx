@@ -237,7 +237,7 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
       <DrinkHome ref={homeRef} items={drinks} count={count} unread={unread} onCart={openCart} onBell={() => setPage('notif')} sold={!!closed} soldText={shop.soldOut ? (shop.soldText || '').trim().slice(0, 25) : ''} onOpen={(i) => setPage({ detail: i })} />
       {det && (
         <DrinkDetail
-          key={det.m.id} item={det} index={page.detail} home={homeRef.current} count={count}
+          item={det} index={page.detail} items={drinks} onIndex={(i) => setPage({ detail: i })} home={homeRef.current} count={count}
           onClose={() => setPage(null)} onCart={openCart} soldOut={!!closed}
           onAdd={({ o, qty }) => { addLine(lineOf(det.m, o, qty)); toast(`Đã thêm ${qtyText(qty)} ${shortOf(det.m.name)}`, true); }}
           onBuy={({ o, qty }) => { addLine(lineOf(det.m, o, qty)); setPage('pay'); }}

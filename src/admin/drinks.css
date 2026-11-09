@@ -130,3 +130,6 @@
 .dr .dacts{position:absolute}
 .dr-detail .abs[hidden]{display:none}
 .dr-detail .dr-stage .cartbtn{color:var(--fg)}
+
+/* đổi món: nút đứng yên, chỉ đổi màu mượt theo món mới */
+.dr-detail.sw .back,.dr-detail.sw .cartbtn,.dr-detail.sw .pm,.dr-detail.sw .dadd,.dr-detail.sw .dbuy,.dr-detail.sw .dprice,.dr-detail.sw .bulge{transition:background-color .8s,color .8s}
