@@ -497,6 +497,8 @@ input{user-select:text;-webkit-user-select:text}
 .dadd svg{width:28px;height:28px}
 .dbuy{flex:1;height:60px;border-radius:32px;background:var(--buy,#fff);color:var(--buyT,#000);font-size:18px;font-weight:700;transition:transform .25s var(--ease-out)}
 .dadd:active,.dbuy:active{transform:scale(.95)}
+/* while the page swaps drinks, the buttons blend into the new drink's colours instead of jumping */
+#detail.sw .back,#detail.sw .cartbtn,#detail.sw .pm,#detail.sw .dadd,#detail.sw .dbuy,#detail.sw .dprice,#detail.sw .bulge{transition:background-color .8s,color .8s}
 .dbuy:disabled{background:#8e8e93;color:rgba(255,255,255,.75);transform:none}
 #detail[data-id=nau],#detail[data-id=bac]{--buy:#000;--buyT:#fff}
 .knob{position:absolute;left:4px;top:4.28px;width:79px;height:60px;border-radius:32px;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;cursor:grab;z-index:2}
@@ -1307,16 +1309,19 @@ async function closeDetail(){
 }
 $('#back').addEventListener('click', closeDetail);
 
-/* swipe left / right on the detail: the whole page slides to the next / previous drink (Bạc ← Đen → Nâu) */
+/* swipe left / right on the detail: only the background, drink name, options and cup slide to the next / previous drink (Bạc ← Đen → Nâu);
+   both rows of buttons (X / cart, − qty +, add / pay) stay put, and the cards under the page slide along so closing it still lines up. */
+const STATIC_SEL = '#back,#dCart,#minus,#plus,#qty,#dPrice,.dacts,.bulge';
 async function switchDrink(dir){
   if (busy || detail.style.visibility !== 'visible') return;
   busy = true;
   const from = cur, to = ((from + dir) % N + N) % N;
-  /* a still copy of the page that slides away while the new one slides in */
-  const ghost = detail.cloneNode(true);
-  ghost.removeAttribute('id'); $$('[id]', ghost).forEach(el => el.removeAttribute('id'));
-  ghost.style.pointerEvents = 'none';
-  detail.parentNode.insertBefore(ghost, detail.nextSibling);
+  /* a still copy of the page without its buttons: the old one slides away while the new one slides in */
+  const still = () => { const g = detail.cloneNode(true);
+    $$(STATIC_SEL, g).forEach(el => { el.style.visibility = 'hidden'; });
+    $$('[id]', g).forEach(el => el.removeAttribute('id'));   /* the copy keeps #detail itself, so the drink's colours still apply */
+    g.style.pointerEvents = 'none'; return g; };
+  const ghost = still();
   detail.getAnimations().forEach(a => { if (!(window.CSSAnimation && a instanceof CSSAnimation)) a.cancel(); });
 
   /* the home carousel follows, so closing the page returns to the drink on show */
@@ -1328,14 +1333,31 @@ async function switchDrink(dir){
 
   fillDetail(to);
   syncBadges();
-  const D = T(520), ease = 'cubic-bezier(.32,.72,0,1)';
+  const ghost2 = still();
+  detail.parentNode.insertBefore(ghost, detail); detail.parentNode.insertBefore(ghost2, detail);
+  /* the real page keeps only the buttons for now; its background and moving parts live on the two copies */
+  const moving = [$('#dTitle'), $('#opts'), spin];
+  detail.style.background = 'transparent';
+  moving.forEach(el => { el.style.visibility = 'hidden'; });
+  detail.classList.add('sw');
+
+  const D = T(800), ease = 'cubic-bezier(.32,.72,0,1)';
+  /* the cards underneath slide the same way: the new drink's card settles in the middle, the old one steps aside */
+  const o = Math.sign(wrap(from - pos)) || -dir;
+  nc.getAnimations().forEach(a => a.cancel());
+  $$('.top', nc).forEach(el => { el.getAnimations().forEach(a => a.cancel()); el.animate([{opacity:1},{opacity:0}], {duration:T(160), fill:'forwards'}); });
+  $$('.top', oc).forEach(el => el.getAnimations().forEach(a => a.cancel()));
+  nc.animate([{translate:`${-o*160}px 0`},{translate:'0 0'}], {duration:D, easing:ease});
+  oc.getAnimations().forEach(a => a.cancel());
+  oc.animate([{opacity:oc.style.opacity, translate:'0 0'},{opacity:0, translate:`${o*160}px 0`}], {duration:D, easing:ease, fill:'forwards'});
+
   ghost.animate([{transform:'translateX(0)'},{transform:`translateX(${-dir*100}%)`}], {duration:D, easing:ease, fill:'forwards'});
-  const a = detail.animate([{transform:`translateX(${dir*100}%)`},{transform:'translateX(0)'}], {duration:D, easing:ease});
-  /* the cup and title arrive a little late, so the page feels layered */
-  spin.animate([{transform:`translateX(${dir*90}px)`, opacity:0},{transform:'translateX(0)', opacity:1}], {duration:D, delay:T(60), easing:ease, fill:'backwards'});
-  $('#dTitle').animate([{transform:`translateX(${dir*50}px)`, opacity:0},{transform:'translateX(0)', opacity:1}], {duration:D, delay:T(40), easing:ease, fill:'backwards'});
+  const a = ghost2.animate([{transform:`translateX(${dir*100}%)`},{transform:'translateX(0)'}], {duration:D, easing:ease, fill:'forwards'});
   await a.finished.catch(() => {});
-  ghost.remove();
+  detail.style.background = '';
+  moving.forEach(el => { el.style.visibility = ''; });
+  detail.classList.remove('sw');
+  ghost.remove(); ghost2.remove();
   busy = false;
 }
 /* swipe down anywhere on the detail (not on the slider or buttons) to go back */
