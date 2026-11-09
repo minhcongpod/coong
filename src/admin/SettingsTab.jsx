@@ -39,10 +39,13 @@ export default function SettingsTab({ menu, users, shop = {}, adminPhone, onLogo
     <>
       <div className="w-head"><h1 className="a-title s-title">Cài đặt</h1><BellBtn n={unread} onClick={onBell} /></div>
       <div className="a-body s-list">
-        <div className="s-item">
-          <Sym id="i-s-soldout" size={20} />
-          <b>Hết hàng</b>
-          <Toggle on={!!shop.soldOut} onChange={flipSold} label="Hết hàng" />
+        <div className="s-soldcard">
+          <div className="s-sold">
+            <Sym id="i-s-soldout" size={20} />
+            <b>Hết hàng</b>
+            <Toggle on={!!shop.soldOut} onChange={flipSold} label="Hết hàng" />
+          </div>
+          <SoldText value={shop.soldText} />
         </div>
         {rows.map(([i, t, k]) => (
           <button key={k} className="s-item" onClick={() => setPage(k)}>
@@ -54,6 +57,29 @@ export default function SettingsTab({ menu, users, shop = {}, adminPhone, onLogo
         <button className="s-logout" onClick={async () => (await confirm({ title: 'Đăng xuất?', msg: 'Bạn sẽ cần nhập lại mã PIN để vào.', ok: 'Đăng xuất', danger: true })) && onLogout()}>Đăng xuất</button>
       </div>
     </>
+  );
+}
+
+// Chữ hiện trên thẻ món khi bật Hết hàng: tối đa 25 chữ thì thẻ hiển thị gọn, không bị cắt, không bị cắt
+const SOLD_MAX = 25;
+function SoldText({ value }) {
+  const { toast } = useUI();
+  const [v, setV] = useState(value || '');
+  const [focus, setFocus] = useState(false);
+  useEffect(() => { if (!focus) setV(value || ''); }, [value, focus]);
+  const save = async () => {
+    setFocus(false);
+    const t = v.trim();
+    if (t === (value || '')) return;
+    try { await saveShop({ soldText: t }); } catch (e) { toast(errText(e)); }
+  };
+  return (
+    <div className="s-soldtext">
+      <input value={v} maxLength={SOLD_MAX} placeholder="Mai bán lại nha" aria-label="Chữ hiện trên thẻ món khi hết hàng"
+        onChange={(e) => setV(e.target.value)} onFocus={() => setFocus(true)} onBlur={save}
+        onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()} />
+      <small>{v.length}/{SOLD_MAX}</small>
+    </div>
   );
 }
 

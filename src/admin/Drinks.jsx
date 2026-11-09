@@ -48,7 +48,7 @@ const MID_W = 300, SIDE_W = 250; // thẻ giữa 300px, thẻ bên 250px (hình 
 const N_SIDE = MID_W / 2 + 10 + SIDE_W / 2; // 10px khe
 
 // ---------------- Trang chủ: 3 thẻ, kéo ngang, 3 chấm ----------------
-export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, onCart, onBell, onOpen, sold }, ref) {
+export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, onCart, onBell, onOpen, sold, soldText }, ref) {
   const N = items.length;
   const openRef = useRef(onOpen); openRef.current = onOpen;
   const carRef = useRef(null), dotsRef = useRef(null), cards = useRef([]);
@@ -209,7 +209,7 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
                     : <h3>{it.known ? d.name : it.m.name}</h3>}
                   <div className="ico"><span className="circ"><Sym id="i-snow" size={16} /></span><span className="circ"><Sym id="i-flame" size={16} /></span></div>
                 </div>
-                <div className="pricebar"><i className="glint" /><b>{sold ? 'Mai bán lại nha' : fmt(it.m.price)}</b><span><Sym id="i-cardadd" size={28} /></span></div>
+                <div className="pricebar"><i className="glint" /><b>{sold ? (soldText || 'Mai bán lại nha') : fmt(it.m.price)}</b><span><Sym id="i-cardadd" size={28} /></span></div>
               </div>
             );
           })}

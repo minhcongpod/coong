@@ -423,7 +423,7 @@ input{user-select:text;-webkit-user-select:text}
 .pricebar span{height:52px;padding:0 24px;background:#000;border-radius:100px;display:flex;align-items:center;color:#fff}
 .pricebar svg{width:28px;height:28px}
 .card.sold .pricebar span{display:none}
-.card.sold .pricebar b{text-align:center;font-size:16px}
+.card.sold .pricebar b{text-align:center;font-size:16px;line-height:20px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word}
 .card[data-id=den]{--t:#fff;--ib:rgba(255,255,255,.1);--ic:#8e8e93}
 .card[data-id=nau]{--t:#895200;--ib:rgba(255,255,255,.3);--ic:#cc803c}
 .card[data-id=bac]{--t:#000;--ib:rgba(255,255,255,.3);--ic:#8e8e93}
@@ -828,6 +828,9 @@ const api = () => window.CoongAPI ? Promise.resolve(window.CoongAPI) : new Promi
 const fold = t => (t || '').toLowerCase().normalize('NFC');
 const drinkIdOf = name => { const n = fold(name); return n.includes('bạc') ? 'bac' : n.includes('nâu') ? 'nau' : n.includes('đen') ? 'den' : null; };
 let lastMenu = [];
+/* chữ trên thẻ món khi hết hàng / ngoài giờ: chủ quán sửa được khi bật công tắc Hết hàng (tối đa 25 chữ, vừa 1 dòng) */
+const SOLD_DEFAULT = 'Mai bán lại nha';
+const soldLabel = (d, closed) => (shop && shop.soldOut && typeof shop.soldText === 'string' && shop.soldText.trim()) ? shop.soldText.trim().slice(0, 25) : (d.out || closed) ? SOLD_DEFAULT : '';
 function applyMenu(items){
   lastMenu = items || [];
   const closed = typeof shopClosed === 'function' && !!shopClosed();
@@ -835,7 +838,7 @@ function applyMenu(items){
     /* sold out: the owner switched every menu entry for this drink off */
     const all = items.filter(x => drinkIdOf(x.name) === d.id); d.out = !!(shop && shop.soldOut) || (all.length > 0 && !m); d.sold = closed || d.out;
     if (m) Object.assign(d, {price:m.price, menuId:m.id, menuName:m.name, cost:m.cost || 0, ...(typeof m.upsize === 'number' ? {xl:m.upsize} : {})}); });
-  cards.forEach((c, i) => { const d = DRINKS[i]; c.classList.toggle('sold', !!d.sold); $('.pricebar b', c).textContent = d.out ? 'Mai bán lại nha' : closed ? 'Mai bán lại nha' : fmt(d.price); });
+  cards.forEach((c, i) => { const d = DRINKS[i]; c.classList.toggle('sold', !!d.sold); $('.pricebar b', c).textContent = soldLabel(d, closed) || fmt(d.price); });
   if (detail.style.visibility === 'visible') $('#dPrice').textContent = fmt(unit()*qty);
   syncBuy();
   const sig = DRINKS.map(d => d.sold ? 1 : 0).join('');
@@ -1469,7 +1472,7 @@ function renderCart(){
     row.innerHTML = `<div class="cthumb"><img src="/${d.id}.webp" alt="" draggable="false"></div>
       <div class="cinfo"><span class="cname"></span><button class="copt" aria-label="Chỉnh món"><span></span><svg><use href="#i-caret"/></svg></button><div class="crow">
         <div class="cqty"><button class="cpm" data-d="-1" aria-label="Giảm"><svg><use href="#i-minus"/></svg></button><span>${it.qty}</span><button class="cpm" data-d="1" aria-label="Tăng"><svg><use href="#i-plus"/></svg></button></div>
-        <span class="cprice${d.sold ? ' csold' : ''}">${d.out ? 'Mai bán lại nha' : d.sold ? 'Mai bán lại nha' : fmt(it.qty*it.unit)}</span></div></div>`;
+        <span class="cprice${d.sold ? ' csold' : ''}">${soldLabel(d, d.sold) || fmt(it.qty*it.unit)}</span></div></div>`;
     $('.cname', row).textContent = d.name; $('.copt span', row).textContent = optText(it.o, it.id);
     $('.copt', row).addEventListener('click', () => openEdit(i));
     $$('.cpm', row).forEach(b => b.addEventListener('click', () => changeItem(i, +b.dataset.d, row)));
