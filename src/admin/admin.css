@@ -557,3 +557,5 @@ button.a-card:active{transform:scale(.97)}
 .o-pnm .a-s{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 .h-note{display:block;font-size:14px;line-height:18px;font-weight:500;color:var(--ok)}
+
+.h-opt{display:block;font-size:14px;line-height:18px;font-weight:700;color:var(--ok)}

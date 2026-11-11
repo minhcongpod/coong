@@ -44,6 +44,14 @@ const tellCustomer = async (o, patch) => {
 };
 
 // Tab Đơn hàng: danh sách đơn, xem chi tiết, thu tiền, nhận đơn, hoàn thành, huỷ
+// Option của món (size / nóng-lạnh / ngọt / cafe) khi khác mặc định L / Lạnh / 100 ngọt / 100 cafe, để pha không nhầm
+const optOf = (x) => {
+  const k = kindOf(x.name), clean = (v) => String(v || '').replace(/%/g, '');
+  return [x.caffeine ? clean(x.caffeine).replace('Size ', '') : 'L', x.temp || 'Lạnh', ...(k === 'nau' || k === 'bac' ? [clean(x.sweetness) || '100 ngọt'] : []), ...(k === 'bac' ? [clean(x.ice) || '100 cafe'] : [])];
+};
+const DEF_OPT = { den: 'L / Lạnh', nau: 'L / Lạnh / 100 ngọt', bac: 'L / Lạnh / 100 ngọt / 100 cafe' };
+const diffOpts = (o) => (o.items || []).map((x) => { const t = optOf(x).join(' / '); return t !== DEF_OPT[kindOf(x.name)] ? `${x.name}: ${t}` : ''; }).filter(Boolean);
+
 export default function HistoryTab({ orders, users, loading, onGoOrder, track, unread, onBell, onClose }) {
   const [filter, setFilter] = useState('all');
   const [openId, setOpenId] = useState(null);
@@ -109,6 +117,7 @@ export default function HistoryTab({ orders, users, loading, onGoOrder, track, u
                   <b className="a-ell">{o.customerName}</b>
                   <small>{whenText(timeOf(o))}</small>
                 </span>
+                {diffOpts(o).map((t, i) => <span key={i} className="h-opt">{t}</span>)}
                 {o.note && <span className="h-note a-ell">{o.note}</span>}
               </span>
               {(o.status === 'pending' || o.status === 'brewing' || (o.status === 'completed' && !paid && o.payMethod !== 'wallet')) && (
