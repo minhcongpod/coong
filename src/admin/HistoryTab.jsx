@@ -49,8 +49,15 @@ const optOf = (x) => {
   const k = kindOf(x.name), clean = (v) => String(v || '').replace(/%/g, '');
   return [x.caffeine ? clean(x.caffeine).replace('Size ', '') : 'L', x.temp || 'Lạnh', ...(k === 'nau' || k === 'bac' ? [clean(x.sweetness) || '100 ngọt'] : []), ...(k === 'bac' ? [clean(x.ice) || '100 cafe'] : [])];
 };
-const DEF_OPT = { den: 'L / Lạnh', nau: 'L / Lạnh / 100 ngọt', bac: 'L / Lạnh / 100 ngọt / 100 cafe' };
-const diffOpts = (o) => (o.items || []).map((x) => { const t = optOf(x).join(' / '); return t !== DEF_OPT[kindOf(x.name)] ? `${x.name}: ${t}` : ''; }).filter(Boolean);
+const DEF_OPT = { den: ['L', 'Lạnh'], nau: ['L', 'Lạnh', '100 ngọt'], bac: ['L', 'Lạnh', '100 ngọt', '100 cafe'] };
+// Chỉ liệt kê phần khác mặc định; đơn nhiều món thì thêm tên món phía trước
+const diffOpts = (o) => {
+  const items = o.items || [];
+  return items.map((x) => {
+    const def = DEF_OPT[kindOf(x.name)] || [], d = optOf(x).filter((v, i) => v !== def[i]).join(' / ');
+    return d && (items.length > 1 ? `${x.name}: ${d}` : d);
+  }).filter(Boolean);
+};
 
 export default function HistoryTab({ orders, users, loading, onGoOrder, track, unread, onBell, onClose }) {
   const [filter, setFilter] = useState('all');
