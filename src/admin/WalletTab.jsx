@@ -267,7 +267,9 @@ function AddTx({ users, onBack, initial = 'expense', edit }) {
   const [cust, setCust] = useState(edit && edit.walletPhone ? edit.walletPhone : ''); // khách được nạp ví (không bắt buộc)
   const [picking, setPicking] = useState(false);
   const custName = cust ? ((users && users[cust] && users[cust].name) || (edit && edit.walletName) || cust) : '';
-  const wallet = !!cust; // có chọn khách: tiền vào ví khách, không tính doanh thu
+  // Chỉ khoản THU mới gắn được khách (nạp ví). Khoản chi cũ đã gắn khách vẫn giữ để sửa/xoá không làm lệch ví khách
+  const canPickCust = type === 'income' || !!(edit && edit.walletPhone);
+  const wallet = !!cust && canPickCust; // có chọn khách: tiền vào ví khách, không tính doanh thu
 
   const save = async () => {
     const n = Number(amount);
@@ -325,7 +327,7 @@ function AddTx({ users, onBack, initial = 'expense', edit }) {
         <div className="a-chips wrap w-chips">{EXPENSE_CATS.map((c) => <Chip key={c} on={cat === c} onClick={() => setCat(c)}>{c}</Chip>)}</div>
       )}
       {/* Chi: ô ghi chú chỉ hiện khi chọn Khác. Thu: ô Lý do */}
-      {(
+      {canPickCust && (
         <button className="a-card h o-cust" onClick={() => setPicking(true)} aria-label="Chọn khách">
           <span className="grow o-clabel">Khách hàng</span>
           <b className={`a-t ${cust ? '' : 'y'}`}>{custName || 'Chọn khách'}</b>
