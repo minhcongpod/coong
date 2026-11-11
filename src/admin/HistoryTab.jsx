@@ -124,7 +124,7 @@ export default function HistoryTab({ orders, users, loading, onGoOrder, track, u
                   <b className="a-ell">{o.customerName}</b>
                   <small>{whenText(timeOf(o))}</small>
                 </span>
-                {diffOpts(o).map((t, i) => <span key={i} className="h-opt">{t}</span>)}
+                {diffOpts(o).map((t, i) => <span key={i} className="h-opt">Ghi chú: {t}</span>)}
                 {o.note && <span className="h-note a-ell">{o.note}</span>}
               </span>
               {(o.status === 'pending' || o.status === 'brewing' || (o.status === 'completed' && !paid && o.payMethod !== 'wallet')) && (
