@@ -1,6 +1,6 @@
-# CongCa Coffee
+# Coong Cafe
 
-Web app đặt café cho quán CongCa (React + Vite + Firebase).
+Web app đặt café cho quán Coong (app khách: Coong Cafe, app chủ quán: Coong Admin) (React + Vite + Firebase).
 
 ## Cách hoạt động
 
