@@ -12,13 +12,77 @@ import { LOGO_PATH } from './logo.js';
 
 const FW = 390, FH = 700;
 
-// Khung 390×700 co giãn vừa cửa sổ, giống app khách
-function Device({ children }) {
-  const [size, setSize] = useState({ w: window.innerWidth, h: window.innerHeight });
+// Ô nhập chữ: bấm vào là bàn phím hiện lên
+const isEditable = (el) => !!el && (el.tagName === 'TEXTAREA' || el.isContentEditable
+  || (el.tagName === 'INPUT' && !/^(checkbox|radio|button|submit|reset|range|file|color|image)$/.test(el.type)));
+
+// Cuộn ô đang nhập vào vùng nhìn thấy của khung cuộn gần nhất (.a-body), tự tính để không kéo cả trang
+function reveal(el, st) {
+  if (!isEditable(el)) return;
+  const body = el.closest('.a-body');
+  if (!body) return;
+  const box = body.getBoundingClientRect();
+  const r = (el.closest('.a-card') || el).getBoundingClientRect();
+  const gap = 8 * st;
+  if (r.bottom > box.bottom - gap) body.scrollTop += (r.bottom - box.bottom + gap) / st;
+  else if (r.top < box.top + gap) body.scrollTop -= (box.top + gap - r.top) / st;
+}
+
+// Khung 390×700 co giãn vừa cửa sổ, giống app khách.
+// Khi bàn phím hiện: giữ nguyên tỉ lệ, chỉ thu chiều cao khung bằng phần nhìn thấy (visualViewport)
+// và đặt khung đúng đầu vùng đó, nên trang không bị đẩy lên, không hở nền đen, nút Lưu nằm sát trên bàn phím.
+export function Device({ children }) {
+  const [size, setSize] = useState({ w: window.innerWidth, h: window.innerHeight }); // cỡ khi chưa có bàn phím
+  const [vv, setVv] = useState({ h: window.innerHeight, top: 0, zoom: false });
+  const [editing, setEditing] = useState(false);
+  const editRef = useRef(false);
+  const stRef = useRef(1);
   useEffect(() => {
-    const f = () => setSize({ w: window.innerWidth, h: window.innerHeight });
-    window.addEventListener('resize', f);
-    return () => window.removeEventListener('resize', f);
+    const v = window.visualViewport;
+    let t = 0;
+    const sync = () => {
+      if (window.scrollX || window.scrollY) window.scrollTo(0, 0);
+      const w = window.innerWidth;
+      // đang nhập thì bỏ qua việc innerHeight co lại do bàn phím; xoay máy (đổi chiều ngang) thì lấy lại cỡ mới
+      setSize((o) => (editRef.current && Math.abs(o.w - w) <= 1) || (o.w === w && o.h === window.innerHeight) ? o : { w, h: window.innerHeight });
+      const n = { h: v ? v.height : window.innerHeight, top: v ? Math.max(0, v.offsetTop) : 0, zoom: !!v && v.scale > 1.05 };
+      setVv((o) => (o.h === n.h && o.top === n.top && o.zoom === n.zoom ? o : n));
+    };
+    const setEdit = (on) => { editRef.current = on; setEditing(on); };
+    const onIn = (e) => {
+      clearTimeout(t);
+      if (!isEditable(e.target)) return;
+      setEdit(true); sync();
+      // bàn phím chưa kịp báo kích thước: cuộn lại sau khi nó trượt lên
+      setTimeout(() => reveal(e.target, stRef.current), 350);
+    };
+    const onOut = () => {
+      clearTimeout(t);
+      t = setTimeout(() => { if (!isEditable(document.activeElement)) { setEdit(false); sync(); } }, 120);
+    };
+    const onInput = (e) => reveal(e.target, stRef.current);
+    // khung chỉ cuộn trong .a-body: nếu trình duyệt tự cuộn khung ngoài để lộ con trỏ thì kéo về 0
+    const onScroll = (e) => {
+      const el = e.target;
+      if (el && el.classList && !el.classList.contains('a-body') && (el.scrollTop || el.scrollLeft) && el.closest && el.closest('.a-root')) { el.scrollTop = 0; el.scrollLeft = 0; }
+    };
+    window.addEventListener('resize', sync);
+    window.addEventListener('scroll', sync);
+    if (v) { v.addEventListener('resize', sync); v.addEventListener('scroll', sync); }
+    document.addEventListener('focusin', onIn);
+    document.addEventListener('focusout', onOut);
+    document.addEventListener('input', onInput, true);
+    document.addEventListener('scroll', onScroll, true);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener('resize', sync);
+      window.removeEventListener('scroll', sync);
+      if (v) { v.removeEventListener('resize', sync); v.removeEventListener('scroll', sync); }
+      document.removeEventListener('focusin', onIn);
+      document.removeEventListener('focusout', onOut);
+      document.removeEventListener('input', onInput, true);
+      document.removeEventListener('scroll', onScroll, true);
+    };
   }, []);
   useEffect(() => {
     const link = document.createElement('link');
@@ -33,11 +97,16 @@ function Device({ children }) {
   }, []);
   // điện thoại: lấp đầy màn hình, co theo chiều ngang và cao thêm nếu máy dài; cửa sổ lớn: khung 390×700 ở giữa
   const st = Math.min(size.w / FW, size.h / FH);
-  const fh = size.w <= 500 ? Math.min(Math.round(size.h / st), 900) : FH;
-  const dev = Math.abs(size.w - FW * st) > 1 || Math.abs(size.h - fh * st) > 1;
+  stRef.current = st;
+  const phone = size.w <= 500;
+  const kb = phone && editing && !vv.zoom && vv.h < size.h - 100;
+  const fh = phone ? (kb ? Math.max(Math.round(vv.h / st), 240) : Math.min(Math.round(size.h / st), 900)) : FH;
+  const dev = Math.abs(size.w - FW * st) > 1 || Math.abs(size.h - Math.min(Math.round(size.h / st), 900) * st) > 1 || !phone;
+  // bàn phím lên/xuống: đặt lại vị trí cuộn của ô đang nhập sau khi khung đổi cỡ
+  useLayoutEffect(() => { if (editing) reveal(document.activeElement, st); }, [kb, fh, editing, st]);
   return (
-    <div className={`a-root${dev ? ' a-dev' : ''}`} style={{ '--fh': fh + 'px' }}>
-      <div className="a-device" style={{ width: FW * st, height: fh * st }}>
+    <div className={`a-root${dev ? ' a-dev' : ''}${kb ? ' a-kb' : ''}`} style={{ '--fh': fh + 'px' }}>
+      <div className="a-device" style={kb ? { width: FW * st, height: fh * st, top: vv.top, transform: 'translateX(-50%)' } : { width: FW * st, height: fh * st }}>
         <div className="a-stage" style={{ transform: `scale(${st})` }}>{children}</div>
       </div>
     </div>

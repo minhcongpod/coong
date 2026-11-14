@@ -16,7 +16,15 @@
 .a-root svg{display:block}
 .a-device{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%)}
 .a-stage{position:absolute;left:0;top:0;width:390px;height:var(--fh,700px);transform-origin:0 0;background:#000;overflow:hidden;isolation:isolate}
-.a-dev .a-device{border-radius:34px;overflow:hidden;clip-path:inset(0 round 34px)}
+.a-dev .a-device{border-radius:34px;overflow:clip;clip-path:inset(0 round 34px)}
+/* khung ngoài không bao giờ tự cuộn (trình duyệt hay cuộn nó để lộ ô nhập, làm hở nền đen); chỉ .a-body cuộn */
+.a-root,.a-device,.a-stage{overflow:clip}
+/* bàn phím đang mở: khung thấp lại, gọn phần đầu trang để chừa chỗ cho nội dung và nút Lưu */
+.a-kb .a-page{padding-top:12px;padding-bottom:12px}
+.a-kb .a-page>.a-back{width:40px;height:40px;margin-bottom:4px}
+.a-kb .a-page>.a-back svg{width:24px;height:24px}
+.a-kb .a-page .a-title{font-size:24px;line-height:32px}
+.a-kb .a-page .a-sub{display:none}
 
 /* khung một tab */
 .a-tab{position:absolute;inset:0;display:flex;flex-direction:column;padding:24px 24px 80px}
