@@ -26,7 +26,7 @@ function Device({ children }) {
     link.href = 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap';
     document.head.appendChild(link);
     const prev = { title: document.title, bg: document.body.style.background, theme: document.body.className };
-    document.title = 'Coong · Chủ quán';
+    document.title = 'Coong Admin';
     document.body.style.background = '#000';
     document.body.className = '';
     return () => { link.remove(); document.title = prev.title; document.body.style.background = prev.bg; document.body.className = prev.theme; };
@@ -51,7 +51,7 @@ export default function AdminApp() {
 // Màn chờ lúc mở app: ảnh nền và logo như splash app khách
 function Splash({ out }) {
   return (
-    <div className={`a-splash${out ? ' out' : ''}`} role="img" aria-label="Coong">
+    <div className={`a-splash${out ? ' out' : ''}`} role="img" aria-label="Coong Admin">
       <svg className="a-slogo" viewBox="0 0 91.42 35.78"><path fill="currentColor" d={LOGO_PATH} /></svg>
     </div>
   );

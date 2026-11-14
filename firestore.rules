@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// Quy tắc bảo mật Firestore cho CongCa Coffee.
+// Quy tắc bảo mật Firestore cho Coong Cafe.
 // Mỗi điện thoại đăng nhập ẩn danh (có uid riêng). Khi nhập đúng PIN, app tạo
 // devices/{uid} = { phone, pin }; quy tắc bên dưới tự so PIN với pins/{phone}
 // (collection pins không ai đọc được từ app), nên PIN được kiểm tra phía server.
