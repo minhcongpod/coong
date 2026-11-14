@@ -75,7 +75,7 @@ function SoldText({ value }) {
   };
   return (
     <div className="s-soldtext">
-      <input value={v} maxLength={SOLD_MAX} placeholder="Mai bán lại nha" aria-label="Chữ hiện trên thẻ món khi hết hàng"
+      <input value={v} maxLength={SOLD_MAX} placeholder="Mai bán lại nha 😋" aria-label="Chữ hiện trên thẻ món khi hết hàng"
         onChange={(e) => setV(e.target.value)} onFocus={() => setFocus(true)} onBlur={save}
         onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()} />
       <small>{v.length}/{SOLD_MAX}</small>

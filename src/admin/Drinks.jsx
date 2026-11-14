@@ -224,7 +224,7 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
                     : <h3>{it.known ? d.name : it.m.name}</h3>}
                   <div className="ico"><span className="circ"><Sym id="i-snow" size={16} /></span><span className="circ"><Sym id="i-flame" size={16} /></span></div>
                 </div>
-                <div className="pricebar"><i className="glint" /><b>{sold ? (soldText || 'Mai bán lại nha') : fmt(it.m.price)}</b><span><Sym id="i-cardadd" size={28} /></span></div>
+                <div className="pricebar"><i className="glint" /><b>{sold ? (soldText || 'Mai bán lại nha 😋') : fmt(it.m.price)}</b><span><Sym id="i-cardadd" size={28} /></span></div>
               </div>
             );
           })}
