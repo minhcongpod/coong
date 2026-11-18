@@ -1299,8 +1299,14 @@ function pre(el){
 function rest(el){ return el.classList.contains('bulge') && el.dataset.a === 'r' ? 'scaleX(-1)' : el.id === 'dPrice' ? 'translateX(-50%)' : 'none'; }
 
 /* tấm nền phóng lên / thu gọn: Cacao tách ảnh và lớp phủ ra để ảnh đổi khung cắt mượt thay vì hai ảnh chồng mờ lên nhau */
-function veilHTML(d, closing){
-  return `<div style="position:absolute;inset:0;background:${d.card}"></div><div class="vb" style="position:absolute;inset:0;background:${d.bg};opacity:${closing ? 1 : 0}"></div>`;
+/* nền trang chi tiết luôn đủ cỡ màn hình, không bị co giãn: chỉ có khung cắt (clip-path) mở rộng từ thẻ ra toàn màn hình,
+   còn ảnh thẻ nhỏ nằm trên cùng và mờ dần, nên không bị méo hay giật khi đổi khung cắt */
+function veilHTML(d, closing, cardR, sr, rad){
+  return `<div class="vbg" style="position:absolute;inset:0;background:${d.bg}"></div><div class="vcd" style="position:absolute;left:${cardR.left-sr.left}px;top:${cardR.top-sr.top}px;width:${cardR.width}px;height:${cardR.height}px;border-radius:${rad}px;background:${d.card};opacity:${closing ? 0 : 1}"></div>`;
+}
+function revealKF(r, s, rad0, rad1){
+  const c = (rad) => `inset(${r.top-s.top}px ${s.right-r.right}px ${s.bottom-r.bottom}px ${r.left-s.left}px round ${rad}px)`;
+  return [{clipPath:c(rad0)}, {clipPath:`inset(0px 0px 0px 0px round ${rad1}px)`}];
 }
 const PHOTO_CARD = {backgroundSize:'130.38% 130.41%', backgroundPosition:'100% 0%'}, PHOTO_DET = {backgroundSize:'107.15% 107.17%', backgroundPosition:'0% 92.2%'};
 async function openDetail(i){
@@ -1327,8 +1333,8 @@ async function openDetail(i){
 
   /* veil: card surface expanding into the full-screen background */
   const veil = document.createElement('div'); veil.className = 'veil';
-  veil.innerHTML = veilHTML(d, false);
   const sr = scr(); placeVeil(veil, sr);
+  veil.innerHTML = veilHTML(d, false, cardR, sr, 32*CARD_S*S);
   fx.appendChild(veil);
   document.body.classList.add('moving');
   const pill = pillClone(card, cardR);
@@ -1349,9 +1355,8 @@ async function openDetail(i){
   await nextFrame();
   const D = T(760);
   /* transform + opacity only, so the browser can run it on the compositor */
-  const veilA = veil.animate(veilKF(cardR, sr, 32*CARD_S*S, scrRad()), {duration:D*0.9, easing:EASE_MORPH, fill:'forwards'});
-  veil.animate([{opacity:0},{opacity:1, offset:.4},{opacity:1}], {duration:D*0.9, easing:'ease-out', fill:'forwards'});
-  veil.querySelector('.vb').animate([{opacity:0},{opacity:1}], {duration:D*0.7, delay:D*0.1, easing:'ease-in-out', fill:'forwards'});
+  const veilA = veil.querySelector('.vbg').animate(revealKF(cardR, sr, 32*CARD_S*S, scrRad()), {duration:D*0.9, easing:EASE_MORPH, fill:'both'});
+  veil.querySelector('.vcd').animate([{opacity:1},{opacity:1, offset:.25},{opacity:0}], {duration:D*0.7, easing:'ease-in-out', fill:'forwards'});
   fly.animate([{transform:fromT},{transform:midT, offset:.45},{transform:toT}], {duration:D, easing:'cubic-bezier(.5,0,.15,1)', fill:'forwards'});
 
   /* home recedes */
@@ -1409,8 +1414,8 @@ async function closeDetail(){
   $('#dTitle').animate([{opacity:1},{opacity:0}], {duration:T(200), fill:'forwards'});
 
   const veil = document.createElement('div'); veil.className = 'veil';
-  veil.innerHTML = veilHTML(d, true);
   const sr = scr(); placeVeil(veil, sr);
+  veil.innerHTML = veilHTML(d, true, cardR, sr, 32*CARD_S*S);
   /* nền đang trôi nhẹ: lấy đúng tư thế hiện tại làm điểm xuất phát rồi trả về vị trí gốc khi thu gọn */
 
   const fly = document.createElement('img'); fly.className = 'fly'; fly.src = d.id + '.webp';
@@ -1442,10 +1447,9 @@ async function closeDetail(){
     const o = Math.sign(wrap(k - pos)) || 1;
     c.animate([{opacity:0, translate:`${o*160}px 0`},{opacity:c.style.opacity, translate:'0 0'}], {duration:T(620), delay:D*0.35, easing:'cubic-bezier(.22,1,.36,1)', fill:'backwards'}); });
 
-  veil.querySelector('.vb').animate([{opacity:1},{opacity:0}], {duration:D*0.7, easing:'ease-in-out', fill:'forwards'});
   document.body.classList.add('moving');
-  const veilA = veil.animate(veilKF(cardR, sr, 32*CARD_S*S, scrRad()).reverse(), {duration:D, easing:EASE_MORPH, fill:'forwards'});
-  veil.animate([{opacity:1},{opacity:1, offset:.55},{opacity:0}], {duration:D, easing:'ease-in', fill:'forwards'});
+  const veilA = veil.querySelector('.vbg').animate(revealKF(cardR, sr, 32*CARD_S*S, scrRad()).reverse(), {duration:D, easing:EASE_MORPH, fill:'both'});
+  veil.querySelector('.vcd').animate([{opacity:0},{opacity:0, offset:.45},{opacity:1}], {duration:D*0.8, delay:D*0.1, easing:'ease-in-out', fill:'forwards'});
   const midT = `translate(${(from.left+to.left)/2}px,${Math.min(from.top,to.top)-24*S}px) scale(${(sx+1)/2*1.04})`;
   fly.animate([{transform:fromT},{transform:midT, offset:.5},{transform:toT}], {duration:D, easing:'cubic-bezier(.65,0,.25,1)', fill:'forwards'});
   glass.fk.animate([{transform:glass.at(fromT)},{transform:glass.at(midT), offset:.5},{transform:glass.at(toT)}], {duration:D, easing:'cubic-bezier(.65,0,.25,1)', fill:'forwards'});
