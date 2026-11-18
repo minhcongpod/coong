@@ -30,7 +30,7 @@
 .dr .card .ico svg{width:16px;height:16px}
 .dr .rec{display:flex;gap:3px;align-items:center;height:24px;padding:0 8px 0 7px;background:#fff;border-radius:100px;color:#f90;font-size:12px;font-weight:700;letter-spacing:.02em}
 .dr .rec svg{width:13px;height:13px}
-.dr .pricebar{position:absolute;left:16px;right:16px;bottom:16px;height:62px;box-sizing:border-box;border-radius:32px;background:rgba(255,255,255,.3);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);display:flex;align-items:center;padding:4px 4px 4px 20px;gap:10px}
+.dr .pricebar{position:absolute;left:16px;right:16px;bottom:16px;height:62px;box-sizing:border-box;border-radius:32px;background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0) 70%),rgba(255,255,255,.28);display:flex;align-items:center;padding:4px 4px 4px 20px;gap:10px}
 .dr .pricebar{overflow:hidden}
 .dr .pricebar b{flex:1;font-size:18px;position:relative}
 .dr .pricebar span{position:relative}
@@ -99,7 +99,7 @@
 @media (prefers-reduced-motion:reduce){.dr .pricebar::before{animation:none}}
 @keyframes chev{0%,100%{opacity:.25}40%{opacity:1}}
 .dr .dacts{left:24px;bottom:24px;width:342px;height:60px;display:flex;gap:16px}
-.dr .dadd{position:relative;flex:none;width:60px;height:60px;border-radius:32px;background:var(--btn);color:var(--fg);display:flex;align-items:center;justify-content:center;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);transition:transform .25s var(--ease-out)}
+.dr .dadd{position:relative;flex:none;width:60px;height:60px;border-radius:32px;background:var(--btn);color:var(--fg);display:flex;align-items:center;justify-content:center;transition:transform .25s var(--ease-out)}
 .dr .dadd::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.2px;background:linear-gradient(90deg,rgba(255,255,255,.5),rgba(255,255,255,.1) 50%,rgba(255,255,255,.5));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
 .dr .dadd svg{width:28px;height:28px}
 .dr .dbuy{flex:1;height:60px;border-radius:32px;background:var(--buy,#fff);color:var(--buyT,#000);font-size:18px;font-weight:700;transition:transform .25s var(--ease-out)}
@@ -143,8 +143,8 @@
 .dr .card[data-id=cacao] .top h3{line-height:41px}
 .dr .card[data-id=cacao] .pricebar{left:17px;right:17px;bottom:17px;height:63px}
 .dr .card[data-id=cacao] .pricebar::before{padding:1.5px;background:linear-gradient(134deg,#fff,rgba(255,255,255,.1) 50%,#fff);opacity:.5;animation:none}
-.dr .card[data-id=cacao] .ico span{box-sizing:border-box;position:relative;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);background:radial-gradient(circle 10px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
-.dr .card[data-id=cacao] .pricebar{-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.dr .card[data-id=cacao] .ico span{box-sizing:border-box;position:relative;background:radial-gradient(circle 10px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
+.dr .card[data-id=cacao] .pricebar{}
 .dr .card[data-id=cacao] .ico span::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(134deg,#fff,rgba(255,255,255,.1) 50%,#fff);opacity:.5;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
 .dr .card[data-id=cacao] .pricebar b{color:#fff}
 .dr .card[data-id=cacao] .pricebar span{background:linear-gradient(180deg,#037e3c,#093f22);box-shadow:0 0 12px rgba(255,214,107,.85)}
@@ -157,7 +157,7 @@
 .dr-detail[data-id=cacao] .opt label{color:#fff}
 .dr-detail[data-id=cacao] .qty span{background:linear-gradient(180deg,#fff3b8 0%,#f5c842 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
 .dr-detail[data-id=cacao] .back,.dr-detail[data-id=cacao] .cartbtn,.dr-detail[data-id=cacao] .dadd{box-sizing:border-box;-webkit-backdrop-filter:none;backdrop-filter:none}
-.dr-detail[data-id=cacao] .chip{box-sizing:border-box;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+.dr-detail[data-id=cacao] .chip{box-sizing:border-box;}
 .dr-detail[data-id=cacao] .back,.dr-detail[data-id=cacao] .cartbtn{background:radial-gradient(circle 17px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
 .dr-detail[data-id=cacao] .dadd{background:radial-gradient(circle 19.5px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
 .dr-detail[data-id=cacao] .chip{background:radial-gradient(circle 14.3px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
