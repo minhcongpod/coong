@@ -476,7 +476,7 @@ button.a-card:active{transform:scale(.97)}
 /* Splash lúc mở app, giống app khách */
 .a-splash{position:absolute;inset:0;z-index:90;background:#000 url(/cover.webp) center bottom/100% auto no-repeat;transition:opacity .45s ease .05s;will-change:opacity}
 .a-splash.out{opacity:0;pointer-events:none}
-.a-slogo{position:absolute;left:98px;top:226px;width:193px;height:76px;color:#fff}
+.a-slogo{position:absolute;left:96px;top:224px;width:197px;height:80px;color:#fff}
 
 /* Nội dung Khác / Lý do: không tiêu đề, card dãn theo nội dung */
 .w-notecard{padding:20px 24px;border-radius:32px}
