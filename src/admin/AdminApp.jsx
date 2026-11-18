@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo } from 'react';
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { auth } from '../firebase';
-import { getSetup, watchDevice, unlockDevice, lockDevice, watchOrders, watchMenu, watchUsers, watchTransactions, watchShop } from '../db';
+import { getSetup, watchDevice, unlockDevice, lockDevice, watchOrders, watchMenu, watchUsers, watchTransactions, watchShop, seedCacao } from '../db';
 import './admin.css';
 import { Sym, UIProvider, useUI, errText, stagger, orderCode, phoneText } from './ui.jsx';
 import OrderTab, { Notifs, claimGroups } from './OrderTab.jsx';
@@ -140,7 +140,7 @@ function Login({ onLogin }) {
 
   return (
     <div className="a-tab a-login">
-      <div style={{ height: 60, display: 'flex', justifyContent: 'center', marginTop: -6 }}><span className="lgd"><Sym id="i-logo" size={153} /></span><img className="lgx" src="/logo.svg" alt="Coong" draggable="false" style={{ width: 153, height: 60, objectFit: 'contain' }} /></div>
+      <div style={{ height: 64, display: 'flex', justifyContent: 'center', marginTop: -8 }}><span className="lgd"><Sym id="i-logo" size={153} /></span><img className="lgx" src="/logo.svg" alt="Coong" draggable="false" style={{ width: 157, height: 64, objectFit: 'contain' }} /></div>
       <div style={{ marginTop: 44, display: 'flex', flexDirection: 'column', gap: 24 }}>
         <div style={{ textAlign: 'center' }}>
           <h1 className="a-title">Chào Coong</h1>
@@ -218,6 +218,15 @@ export function Shell({ adminPhone, onLogout }) {
   const [txs, setTxs] = useState([]);
 
   const [shop, setShop] = useState({});
+  const got = useRef({ menu: false, shop: false, seeded: false });
+  // thêm món Cacao vào menu thật một lần (khi đã tải xong menu và cấu hình quán)
+  useEffect(() => {
+    const g = got.current;
+    if (!g.menu || !g.shop || g.seeded || shop.cacaoSeeded) return;
+    g.seeded = true;
+    if (menu.some((m) => /ca ?cao/i.test(m.name || ''))) return;
+    seedCacao().catch(() => { g.seeded = false; });
+  }, [menu, shop]);
   const [track, setTrack] = useState(null); // { id, n }: mở chi tiết đơn vừa đặt
   const [payFocus, setPayFocus] = useState(null); // { phone, n }: mở trang Chưa thanh toán của một khách
   const [notif, setNotif] = useState(false); // trang Thông báo mở từ chuông ở các tab
@@ -268,11 +277,11 @@ export function Shell({ adminPhone, onLogout }) {
   useEffect(() => {
     const fail = (e) => toast(errText(e));
     const subs = [
-      watchMenu(setMenu, fail),
+      watchMenu((m) => { got.current.menu = true; setMenu(m); }, fail),
       watchOrders(null, true, setOrders, fail),
       watchUsers(setUsers, fail),
       watchTransactions(setTxs, fail),
-      watchShop(setShop, fail),
+      watchShop((s) => { got.current.shop = true; setShop(s); }, fail),
     ];
     return () => subs.forEach((u) => u && u());
   }, [toast]);
