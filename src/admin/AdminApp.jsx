@@ -52,7 +52,7 @@ export default function AdminApp() {
 function Splash({ out }) {
   return (
     <div className={`a-splash${out ? ' out' : ''}`} role="img" aria-label="Coong Admin">
-      <svg className="a-slogo" viewBox="0 0 91.42 35.78"><path fill="currentColor" d={LOGO_PATH} /></svg>
+      <><svg className="a-slogo lgd" viewBox="0 0 91.42 35.78"><path fill="currentColor" d={LOGO_PATH} /></svg><img className="a-slogo lgx" src="/logo.svg" alt="Coong" draggable="false" style={{ objectFit: 'contain' }} /></>
     </div>
   );
 }
@@ -140,7 +140,7 @@ function Login({ onLogin }) {
 
   return (
     <div className="a-tab a-login">
-      <div style={{ height: 60, display: 'flex', justifyContent: 'center', marginTop: -6 }}><Sym id="i-logo" size={153} /></div>
+      <div style={{ height: 60, display: 'flex', justifyContent: 'center', marginTop: -6 }}><span className="lgd"><Sym id="i-logo" size={153} /></span><img className="lgx" src="/logo.svg" alt="Coong" draggable="false" style={{ width: 153, height: 60, objectFit: 'contain' }} /></div>
       <div style={{ marginTop: 44, display: 'flex', flexDirection: 'column', gap: 24 }}>
         <div style={{ textAlign: 'center' }}>
           <h1 className="a-title">Chào Coong</h1>
@@ -169,7 +169,7 @@ const NavIcon = ({ k }) => <Sym id={TAB_SYM[k]} size={32} />;
 
 const NAV = [['history', 'Đơn hàng'], ['order', 'Menu'], ['wallet', 'Ví tiền'], ['settings', 'Cài đặt']];
 
-function Shell({ adminPhone, onLogout }) {
+export function Shell({ adminPhone, onLogout }) {
   const { toast } = useUI();
   const [tab, setTabState] = useState('history'); // nhập PIN xong vào thẳng tab Đơn hàng
   const [leaving, setLeaving] = useState(null);

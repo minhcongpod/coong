@@ -47,7 +47,7 @@ export const orderCode = (o) => (typeof o.no === 'number' ? `#${String(o.no).pad
 // Món nào có ảnh cốc riêng: khớp theo tên như app khách
 export const kindOf = (name) => {
   const n = (name || '').toLowerCase();
-  return n.includes('bạc') ? 'bac' : n.includes('đen') ? 'den' : n.includes('nâu') ? 'nau' : '';
+  return n.includes('bạc') ? 'bac' : n.includes('đen') ? 'den' : n.includes('nâu') ? 'nau' : /ca ?cao/.test(n) ? 'cacao' : '';
 };
 export const timeOf = (rec) => (rec.createdAt ? new Date(rec.createdAt) : null);
 export const hm = (d) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
@@ -155,7 +155,7 @@ export const stagger = (root, sel, base = 120, step = 45) => {
   const els = [...root.querySelectorAll(sel)].filter((x) => !seen.has(x) && seen.add(x)).slice(0, 14);
   return els.map((r, k) => r.animate([{ opacity: 0, transform: 'translateY(16px) scale(.97)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: base + k * step, easing: SPRING, fill: 'backwards' }));
 };
-export const Page = ({ title, sub, head, onBack, children, footer, className = '' }) => {
+export const Page = ({ title, sub, head, onBack, children, footer, className = '', closeIcon = false }) => {
   const ref = useRef(null);
   const leaving = useRef(false);
   useEffect(() => {
@@ -195,8 +195,8 @@ export const Page = ({ title, sub, head, onBack, children, footer, className = '
   };
   backRef.current = back;
   return (
-    <div className={`a-page a-fx ${className}`} ref={ref}>
-      <button className="a-back" onClick={back} aria-label="Quay lại"><Sym id="i-back" size={28} /></button>
+    <div className={`a-page a-fx ${closeIcon ? 'a-xr ' : ''}${className}`} ref={ref}>
+      <button className="a-back" onClick={back} aria-label="Quay lại"><Sym id={closeIcon ? "i-close" : "i-back"} size={28} /></button>
       {head}
       {title && <h1 className="a-title">{title}</h1>}
       {sub && <p className="a-sub">{sub}</p>}
@@ -238,3 +238,21 @@ export const shopClosed = (shop = {}) => {
 export const BellBtn = ({ n = 0, onClick }) => (
   <button className="a-bell" onClick={onClick} aria-label="Thông báo"><Sym id="i-bell" size={26} />{n > 0 && <span className="a-badge">{n}</span>}</button>
 );
+
+// Theme: cùng khoá lưu "coong-theme" với app khách. Thêm theme mới chỉ cần thêm một dòng vào THEMES và CSS theo html[data-theme=...]
+export const THEMES = [
+  { id: 'default', name: 'Mặc định', swatch: 'linear-gradient(180deg,#4a4a4a,#111)' },
+  { id: 'xmas', name: 'Giáng sinh', swatch: 'radial-gradient(circle at 70% 25%,#ff5a6e,#ac0b0b 60%,#5a0000)' },
+];
+export const getTheme = () => {
+  let id = 'xmas';
+  try { id = localStorage.getItem('coong-theme') || 'xmas'; } catch (e) { /* bỏ qua */ }
+  return THEMES.some((t) => t.id === id) ? id : 'xmas';
+};
+export const setTheme = (id) => {
+  if (!THEMES.some((t) => t.id === id)) id = 'xmas';
+  document.documentElement.dataset.theme = id;
+  try { localStorage.setItem('coong-theme', id); } catch (e) { /* bỏ qua */ }
+  window.dispatchEvent(new Event('coong-theme'));
+};
+if (typeof document !== 'undefined') document.documentElement.dataset.theme = getTheme();
