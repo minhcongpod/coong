@@ -138,7 +138,7 @@
 .dr .card[data-id=cacao] .top{flex-direction:column;gap:8px}
 .dr .card[data-id=cacao]{--t:#fff;--ib:rgba(255,255,255,.2);--ic:#fff}
 .dr .card[data-id=cacao] .surf{border-radius:32px}
-.dr .card[data-id=cacao] .surf::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;background:linear-gradient(180deg,#fff3b8,#f5c842);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.dr .card[data-id=cacao] .surf::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:.8px;background:linear-gradient(180deg,#fff3b8,#f5c842);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
 .dr .card[data-id=cacao] .top{left:17px;top:17px}
 .dr .card[data-id=cacao] .top h3{line-height:41px}
 .dr .card[data-id=cacao] .pricebar{left:17px;right:17px;bottom:17px;height:63px}
