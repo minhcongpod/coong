@@ -302,7 +302,7 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
                 </div>
                 <div className="pricebar"><i className="glint" /><b>{sold ? (soldText || 'Mai bán lại nha 😋') : fmt(it.m.price)}</b><span><Sym id="i-cardadd" size={28} /></span></div>
                 {d.xmas && <img className="snowpile" src="/cacao-snow.svg" alt="" draggable="false" />}
-                {d.xmas && <div className="ribbon"><img src="/cacao-ribbon.webp" alt="" draggable="false" /><span className="rtxt">SEASONAL</span></div>}
+                {d.xmas && <div className="ribbon"><img src="/cacao-ribbon-v2.webp" alt="" draggable="false" /><span className="rtxt">SEASONAL</span></div>}
               </div>
             );
           })}
