@@ -462,7 +462,7 @@ input{user-select:text;-webkit-user-select:text}
 #detail[data-id=den]{background:linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)}
 #detail[data-id=den]{--bg1:#3e3e3e;--bg2:#1e1e1e;--fg:#fff;--title:#fff;--btn:rgba(255,255,255,.1);--chip:rgba(255,255,255,.1);--chipT:#fff;--xOn:#000;--valOn:#000;--bulge:rgba(255,255,255,.1);--round:rgba(0,0,0,.1);--price:#000;--priceT:#fff;--lblc:rgba(255,255,255,.8);--pm:#fff}
 #detail[data-id=nau]{--bg1:#fed3a1;--bg2:#ffc077;--fg:#000;--title:#663d00;--btn:rgba(255,255,255,.3);--chip:rgba(255,255,255,.3);--chipT:#000;--xOn:#000;--valOn:#000;--bulge:rgba(255,255,255,.3);--round:rgba(0,0,0,.1);--price:#fff;--priceT:#000;--lblc:rgba(0,0,0,.8);--pm:#000}
-#detail[data-id=cacao]{--bg1:#ac0b0b;--bg2:#ac0b0b;--fg:#fff;--title:#fff;--btn:rgba(255,255,255,.2);--chip:rgba(255,255,255,.2);--chipT:#fff;--xOn:#a81010;--valOn:#a81010;--bulge:rgba(255,255,255,.1);--round:linear-gradient(180deg,#ff5a6e,#a1001b);--price:linear-gradient(180deg,#037e3c,#093f22);--priceT:#fff;--lblc:#fff;--pm:#fff;--buy:#fff;--buyT:#d02d45;background:var(--cacao-dbg)}
+#detail[data-id=cacao]{--bg1:#ac0b0b;--bg2:#ac0b0b;--fg:#fff;--title:#fff;--btn:rgba(255,255,255,.2);--chip:rgba(255,255,255,.2);--chipT:#fff;--xOn:#a81010;--valOn:#a81010;--bulge:rgba(197,45,40,.7);--round:linear-gradient(180deg,#ff5a6e,#a1001b);--price:linear-gradient(180deg,#037e3c,#093f22);--priceT:#fff;--lblc:#fff;--pm:#fff;--buy:#fff;--buyT:#d02d45;background:var(--cacao-dbg)}
 #detail[data-id=bac]{--bg1:#edecea;--bg2:#d6d3c9;--fg:#000;--title:#000;--btn:rgba(255,255,255,.3);--chip:rgba(255,255,255,.3);--chipT:#000;--xOn:#000;--valOn:#000;--bulge:rgba(255,255,255,.3);--round:rgba(0,0,0,.1);--price:#fff;--priceT:#000;--lblc:rgba(0,0,0,.8);--pm:#000}
 #detail .stage{color:var(--fg)}
 .back{left:24px;top:24px;width:52px;height:52px;background:var(--btn);color:var(--fg)}
@@ -476,23 +476,21 @@ input{user-select:text;-webkit-user-select:text}
 #detail[data-id=den] .opt label{color:#fff}
 #detail[data-id=nau] .opt label,#detail[data-id=bac] .opt label{color:#000}
 #detail[data-id=cacao] .opt label{color:#fff}
-#detail[data-id=cacao] .back,#detail[data-id=cacao] .cartbtn,#detail[data-id=cacao] .chip,#detail[data-id=cacao] .dadd{box-sizing:border-box;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+#detail[data-id=cacao] .qty span{background:linear-gradient(180deg,#fff3b8 0%,#f5c842 76.786%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+#detail[data-id=cacao] .back,#detail[data-id=cacao] .cartbtn,#detail[data-id=cacao] .dadd{box-sizing:border-box;-webkit-backdrop-filter:none;backdrop-filter:none}
+#detail[data-id=cacao] .chip{box-sizing:border-box;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
 #detail[data-id=cacao] .back,#detail[data-id=cacao] .cartbtn{background:radial-gradient(circle 17px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
 #detail[data-id=cacao] .dadd{background:radial-gradient(circle 19.5px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
-#detail[data-id=cacao] .chip{width:40px;height:40px;background:radial-gradient(circle 13px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
+#detail[data-id=cacao] .chip{background:radial-gradient(circle 14.3px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
 #detail[data-id=cacao] .chip{position:relative}
-#detail[data-id=cacao] .chip svg{width:40px;height:40px}
-#detail[data-id=cacao] .opt[data-k=hot] .chip svg{width:24px;height:24px}
-#detail[data-id=cacao] .opt[data-k=hot] .chip.on svg{width:21.8px;height:21.8px}
 #detail[data-id=cacao] .back::before,#detail[data-id=cacao] .cartbtn::before,#detail[data-id=cacao] .chip::before,#detail[data-id=cacao] .dadd::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(135deg,#fff,rgba(255,255,255,.1) 50%,#fff);opacity:.5;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
 #detail[data-id=cacao] .chip.on::before{display:none}
 #detail[data-id=cacao] .chip.on{background:#fff;-webkit-backdrop-filter:none;backdrop-filter:none}
-#detail[data-id=cacao] .opt label{font-size:14px;line-height:18px;margin-bottom:5px}
-#detail[data-id=cacao] .opt[data-k=sweet]{margin-top:16px}
 #detail[data-id=cacao] .pm{background:var(--round);border:1.5px solid #fff3b8;box-sizing:border-box;box-shadow:0 0 12px rgba(255,214,107,.85)}
-#detail[data-id=cacao] .dprice{border:1.5px solid #fff3b8;box-shadow:0 0 12px rgba(255,214,107,.85)}
-#detail[data-id=cacao] .dbuy{border:3px dashed #ff5a6e;box-sizing:border-box}
-#detail[data-id=cacao] .dbuy:disabled{border-color:transparent}
+#detail[data-id=cacao] .dprice{border:1px solid #fff3b8;box-shadow:0 0 12px rgba(255,214,107,.85)}
+/* viền đứt theo Figma: gradient #ff5a6e → #a1001b từ trên xuống, nét 3px, đứt 10/10, bo 30 */
+#detail[data-id=cacao] .dbuy{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 266 60' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop stop-color='%23ff5a6e'/%3E%3Cstop offset='1' stop-color='%23a1001b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='1.5' y='1.5' width='263' height='57' rx='28.5' fill='none' stroke='url(%23g)' stroke-width='3' stroke-dasharray='10 10'/%3E%3C/svg%3E") no-repeat 0 0/100% 100%}
+#detail[data-id=cacao] .dbuy:disabled{background:#8e8e93}
 .opt div{display:flex;gap:8px}
 .chip{width:44px;height:44px;border-radius:100px;background:var(--chip);color:var(--chipT);font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background .3s,color .3s,opacity .3s,transform .3s var(--ease-out)}
 .chip svg{width:44px;height:44px}
