@@ -65,16 +65,6 @@ svg{display:block}
 .acc::-webkit-scrollbar{display:none}
 .acc>*{flex:none}
 .agroup{display:flex;flex-direction:column;gap:8px}
-.arth{align-items:center;gap:16px;padding:20px 24px;width:100%}
-.arth .arico{width:20px;height:20px;flex:none}
-.arth .archev{width:20px;height:20px;flex:none;color:rgba(255,255,255,.5)}
-.arth>span{flex:1;font-size:18px;font-weight:700;text-align:left}
-.trow{display:flex;align-items:center;gap:10px;height:56px;box-sizing:border-box;padding:0 24px;border-radius:32px;background:rgba(255,255,255,.1);color:#fff;font-size:18px;font-weight:700;text-align:left;flex:none;transition:transform .25s var(--ease-out)}
-.trow:active{transform:scale(.97)}
-.trow span{flex:1}
-.trow i{flex:none;width:20px;height:20px;border-radius:50%;box-sizing:border-box;border:2px solid rgba(255,255,255,.5);transition:border-color .2s,background .2s}
-.trow[aria-checked=true] i{border-color:#fff;background:radial-gradient(circle,#fff 0 5.4px,transparent 5.9px)}
-#theme .plist{gap:12px}
 #notif .plist{top:87px;height:calc(589px + var(--ex,0px))}
 .astat{padding:16px 24px}
 .awal{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);font-size:16px;font-weight:700}
@@ -629,7 +619,6 @@ html:not([data-theme=xmas]) #detail .bgphoto{animation:none}
     <symbol id="i-warn" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 7.5v5.5M12 16.5v.01"/><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
     <symbol id="i-cardadd" viewBox="0 0 28 28"><path fill="currentColor" fill-rule="evenodd" d="M8.03979 9.04809H19.9597C20.135 9.04809 20.9238 8.87279 20.9238 8.08398C20.9238 4.57812 18.1191 1.77344 14.6133 1.77344H13.2986C11.6333 1.77344 10.0557 2.47461 8.82861 3.61401C7.68921 4.75341 6.98804 6.4187 6.98804 8.08398C6.98804 9.74926 7.95215 9.04809 7.95215 9.04809H8.03979ZM18.9079 7.03222H9.1792C9.35449 6.2434 9.79272 5.54223 10.3186 5.01635C11.1074 4.22754 12.2468 3.7893 13.3862 3.7893H14.7009C16.7168 3.7893 18.4697 5.19165 18.9079 7.11987V7.03222Z"/><path fill="currentColor" fill-rule="evenodd" d="M23.9039 9.22339C23.9039 7.99634 22.8521 7.03223 21.7127 7.03223H6.37463C5.23523 7.03223 4.27112 7.99634 4.18347 9.22339C3.92053 12.9045 3.30701 19.9162 3.04407 23.7727C3.04407 24.3862 3.21936 24.9997 3.65759 25.5256C4.09582 25.9638 4.6217 26.2268 5.23523 26.2268H22.7645C23.378 26.2268 23.9916 25.9638 24.3421 25.5256C24.7804 25.0874 24.9557 24.4739 24.9557 23.7727L23.9039 9.22339ZM18.4698 17.5498H14.964V21.0556C14.964 21.5815 14.5257 21.9321 14.0875 21.9321C13.6493 21.9321 13.211 21.5815 13.211 21.0556V17.5498H9.70519C9.17931 17.5498 8.82873 17.1116 8.82873 16.6733C8.82873 16.2351 9.17931 15.7969 9.70519 15.7969H13.211V12.291C13.211 11.7651 13.6493 11.4145 14.0875 11.4145C14.5257 11.4145 14.964 11.7651 14.964 12.291V15.7969H18.4698C18.9957 15.7969 19.3463 16.2351 19.3463 16.6733C19.3463 17.1116 18.9957 17.5498 18.4698 17.5498Z"/></symbol>
     <symbol id="i-paid" viewBox="0 0 16 16"><path fill="currentColor" d="M15.6114 7.05714L14.5201 5.9661C14.2611 5.70711 14.0489 5.19531 14.0489 4.82827V3.28527C14.0489 2.55127 13.4493 1.95165 12.7155 1.95126H11.1719C10.8052 1.95126 10.2929 1.73864 10.0338 1.47984L8.94279 0.388806C8.42438 -0.129602 7.57557 -0.129602 7.05716 0.388806L5.96613 1.48062C5.7069 1.73961 5.19392 1.95165 4.8281 1.95165H3.2851C2.55208 1.95165 1.95167 2.55127 1.95167 3.28527V4.82831C1.95167 5.1939 1.73948 5.70731 1.48045 5.96614L0.389221 7.05718C-0.129578 7.57559 -0.129578 8.42439 0.389221 8.94362L1.48045 10.0347C1.73964 10.2936 1.95167 10.8069 1.95167 11.1725V12.7155C1.95167 13.4487 2.55208 14.0492 3.2851 14.0492H4.82814C5.19475 14.0492 5.70714 14.2613 5.96617 14.5202L7.0572 15.6116C7.57561 16.1296 8.42442 16.1296 8.94283 15.6116L10.0339 14.5202C10.2931 14.2612 10.8053 14.0492 11.1719 14.0492H12.7155C13.4493 14.0492 14.0489 13.4487 14.0489 12.7155V11.1725C14.0489 10.8053 14.2613 10.2935 14.5202 10.0347L15.6114 8.94362C16.1294 8.42439 16.1294 7.57555 15.6114 7.05714ZM6.94158 11.0002L3.99972 8.05798L4.94255 7.11534L6.94181 9.1146L11.0573 5.00011L11.9999 5.94274L6.94158 11.0002Z"/></symbol>
-    <symbol id="i-theme" viewBox="0 0 14.1667 17.9167"><path fill="currentColor" d="M8.75 12.5H5.41667C5.25091 12.5 5.09194 12.5658 4.97473 12.6831C4.85752 12.8003 4.79167 12.9592 4.79167 13.125V15.625C4.79167 16.2328 5.03311 16.8157 5.46288 17.2455C5.89265 17.6752 6.47555 17.9167 7.08333 17.9167C7.69112 17.9167 8.27402 17.6752 8.70379 17.2455C9.13356 16.8157 9.375 16.2328 9.375 15.625V13.125C9.375 12.9592 9.30915 12.8003 9.19194 12.6831C9.07473 12.5658 8.91576 12.5 8.75 12.5Z"/><path fill="currentColor" d="M13.5417 2.29167V9.38333C13.4808 9.3764 13.4196 9.37362 13.3583 9.375H0.808333C0.747103 9.37362 0.685851 9.3764 0.625 9.38333V2.29167C0.624781 1.99066 0.683907 1.69256 0.798996 1.41443C0.914085 1.13629 1.08288 0.88357 1.29572 0.670725C1.50857 0.457881 1.76129 0.289086 2.03942 0.173997C2.31756 0.0589076 2.61566 -0.000218547 2.91667 6.06999e-07H3.55C3.99277 0.00167754 4.42501 0.135122 4.79167 0.383334V3.125C4.79167 3.29076 4.85751 3.44973 4.97472 3.56694C5.09194 3.68415 5.25091 3.75 5.41667 3.75C5.58243 3.75 5.7414 3.68415 5.85861 3.56694C5.97582 3.44973 6.04167 3.29076 6.04167 3.125V0.383334C6.40832 0.135122 6.84057 0.00167754 7.28333 6.06999e-07H11.25C11.551 -0.000218547 11.8491 0.0589076 12.1272 0.173997C12.4054 0.289086 12.6581 0.457881 12.8709 0.670725C13.0838 0.88357 13.2526 1.13629 13.3677 1.41443C13.4828 1.69256 13.5419 1.99066 13.5417 2.29167Z"/><path fill="currentColor" d="M12.5 10.2083H1.66667C0.746192 10.2083 0 10.9545 0 11.875C0 12.7955 0.746192 13.5417 1.66667 13.5417H12.5C13.4205 13.5417 14.1667 12.7955 14.1667 11.875C14.1667 10.9545 13.4205 10.2083 12.5 10.2083Z"/></symbol>
     <symbol id="i-rchev" viewBox="0 0 16 16"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-due" viewBox="0 0 16 16"><path fill="currentColor" d="M12.95 3.865C13.305 3.42 13.5 2.865 13.5 2.3V1.5C13.5 0.95 13.05 0.5 12.5 0.5H3.5C2.95 0.5 2.5 0.95 2.5 1.5V2.3C2.5 2.865 2.695 3.42 3.05 3.86L6.11 7.685C6.255 7.87 6.255 8.13 6.11 8.31L3.05 12.135C2.695 12.58 2.5 13.135 2.5 13.7V14.5C2.5 15.05 2.95 15.5 3.5 15.5H12.5C13.05 15.5 13.5 15.05 13.5 14.5V13.7C13.5 13.135 13.305 12.58 12.95 12.14L9.89 8.315C9.745 8.13 9.745 7.87 9.89 7.69L12.95 3.865ZM10.83 12.69C10.95 12.84 10.975 13.045 10.89 13.215C10.805 13.39 10.63 13.5 10.44 13.5H5.56C5.37 13.5 5.195 13.39 5.11 13.215C5.025 13.045 5.05 12.84 5.17 12.69L7.61 9.64C7.8 9.4 8.2 9.4 8.39 9.64L10.83 12.69Z"/></symbol>
     <symbol id="i-wallet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M5 7.5V6.2A1.7 1.7 0 0 1 6.7 4.5H17"/><rect x="2.5" y="7.5" width="19" height="12" rx="3"/><path d="M21.5 12.2h-3.4a1.9 1.9 0 0 0 0 3.8h3.4"/></g></symbol><symbol id="i-cash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="3"/><circle cx="12" cy="12" r="2.6"/></g></symbol>
@@ -679,7 +668,6 @@ html:not([data-theme=xmas]) #detail .bgphoto{animation:none}
           </div>
         </div>
         <div class="arows">
-          <button class="arow arth" id="themeBtn" data-s aria-label="Theme"><svg class="arico"><use href="#i-theme"/></svg><span>Theme</span><svg class="archev"><use href="#i-rchev"/></svg></button>
           <label class="arow" data-s><span>Tên đặt hàng</span><input class="r aname" id="aName" value="LieuNT" enterkeyhint="done" autocomplete="nickname" aria-label="Tên đặt hàng"></label>
           <div class="arow" data-s><span>Số điện thoại</span><span class="r m" id="aPhone"></span></div>
           <button class="arow" id="tgBtn" data-s hidden role="switch" aria-checked="false" aria-label="Thông báo Telegram"><span>Telegram</span><i class="tgl"><b></b></i></button>
@@ -763,15 +751,6 @@ html:not([data-theme=xmas]) #detail .bgphoto{animation:none}
     <h2 class="abs pt" data-s>Trạng thái thanh toán</h2>
     <div class="abs pscroll" id="dBody"></div>
     <div class="psheet" id="dSheet"><div class="sb"></div><div class="sp"></div></div>
-  </div>
-</div>
-
-<div id="theme" class="screen page" data-how="right" aria-label="Theme">
-  <div class="stage">
-    <button class="abs circ pback" data-back aria-label="Quay lại"><svg><use href="#i-back"/></svg></button>
-    <h2 class="abs pt" data-s>Theme</h2>
-    <div class="abs plist" id="thList" role="radiogroup" aria-label="Theme"></div>
-    <div class="abs pfoot" data-s><button class="pgo" id="thSave">Lưu lại</button></div>
   </div>
 </div>
 
@@ -1186,12 +1165,6 @@ function setTheme(id, save = true){
   document.documentElement.dataset.theme = id;
   if (save) { try { localStorage.setItem('coong-theme', id); } catch (e) {} }
   dispatchEvent(new Event('coong-theme'));
-}
-/* trang Theme: chọn một theme rồi bấm "Lưu lại" mới áp dụng */
-let thSel = 'xmas';
-function renderThemePage(){
-  thSel = document.documentElement.dataset.theme;
-  $('#thList').innerHTML = THEMES.map(t => `<button class="trow" role="radio" aria-checked="${t.id === thSel}" data-t="${t.id}" data-s><span>${t.name}</span><i></i></button>`).join('');
 }
 /* nhạc nền: trình duyệt chỉ cho phát sau lần chạm đầu tiên; nhớ lựa chọn tắt/bật, tạm dừng khi rời tab */
 (() => {
@@ -1963,11 +1936,6 @@ function payDues(){
     onPaid:async () => { try { await (await api()).claimPaid(due.map(o => o.id), {name:session.name, phone:session.phone, n:due.length, total:sumOf(due)}); toast('Đã gửi, chờ quán xác nhận', 'bank'); } catch (e) { toast('Chưa gửi được, thử lại nhé'); } }});
 }
 $('#aDebt').addEventListener('click', () => { renderDues(); showPage(duesEl); });
-/* Theme: hàng ở trang Tài khoản mở trang chọn theme */
-const themeEl = $('#theme');
-$('#themeBtn').addEventListener('click', () => { renderThemePage(); showPage(themeEl); });
-$('#thList').addEventListener('click', e => { const b = e.target.closest('.trow'); if (!b) return; thSel = b.dataset.t; $$('#thList .trow').forEach(x => x.setAttribute('aria-checked', x === b)); });
-$('#thSave').addEventListener('click', () => { setTheme(thSel); themeEl.goBack(); });
 
 function setStatus(o, s){ o.status = s; renderHistory(); if (curOrder === o && isOpen(orderEl)) renderOrder(o); }
 
