@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { saveMenuItem, saveShop } from '../db';
 import { collection, getDocs, getDoc, doc, writeBatch, query, orderBy, limit } from 'firebase/firestore';
 import { db as fdb } from '../firebase';
-import { Icon, Sym, Page, Btn, Toggle, Field, Empty, fmt, phoneText, XL_EXTRA, kindOf, useUI, errText, BellBtn } from './ui.jsx';
+import { Icon, Sym, Page, Btn, Toggle, Field, Empty, fmt, phoneText, XL_EXTRA, kindOf, useUI, errText, BellBtn, THEMES, getTheme, setTheme } from './ui.jsx';
 import { getTgCfg, saveTgCfg, tgCheckToken, tgNewCode, tgDeepLink, tgWaitChat, tgToAdmin, tgBroadcast, tgChatCount } from '../telegram';
 import { customersOf, CustomerPicker, NewCustomer, EditCustomerForm } from './Customers.jsx';
 
@@ -47,6 +47,7 @@ export default function SettingsTab({ menu, users, shop = {}, adminPhone, onLogo
           </div>
           <SoldText value={shop.soldText} />
         </div>
+        <ThemeCard />
         {rows.map(([i, t, k]) => (
           <button key={k} className="s-item" onClick={() => setPage(k)}>
             <Sym id={i} size={20} />
@@ -57,6 +58,24 @@ export default function SettingsTab({ menu, users, shop = {}, adminPhone, onLogo
         <button className="s-logout" onClick={async () => (await confirm({ title: 'Đăng xuất?', msg: 'Bạn sẽ cần nhập lại mã PIN để vào.', ok: 'Đăng xuất', danger: true })) && onLogout()}>Đăng xuất</button>
       </div>
     </>
+  );
+}
+
+// Card chọn theme: Mặc định / Giáng sinh (thêm theme khác ở THEMES trong ui.jsx)
+function ThemeCard() {
+  const [cur, setCur] = useState(getTheme);
+  const pick = (id) => { setTheme(id); setCur(id); };
+  return (
+    <div className="s-theme">
+      <div className="s-thhead"><b>Theme</b><small>Giao diện của app</small></div>
+      <div className="s-thopts" role="radiogroup" aria-label="Theme">
+        {THEMES.map((t) => (
+          <button key={t.id} role="radio" aria-checked={cur === t.id} className={`s-thopt${cur === t.id ? ' on' : ''}`} onClick={() => pick(t.id)}>
+            <i style={{ background: t.swatch }} />{t.name}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 

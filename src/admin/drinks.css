@@ -174,7 +174,7 @@
 .dr-detail[data-id=cacao] .dbuy:disabled{background:#8e8e93}
 
 /* ===== đồng bộ với app khách: logo mới, tuyết, nền Cacao trôi, nhạc nền ===== */
-.dr-home .o-logo{display:block;width:180px;height:34px}
+.dr-home .o-logo{display:block;width:159px;height:30px}
 .dr-home .homesnow{z-index:0}
 .dr-home .dr-mid{position:relative;z-index:1}
 .dr-music{position:absolute;right:24px;top:84px;width:36px;height:36px;border-radius:50%;border:0;padding:0;background:rgba(255,255,255,.1);color:#fff;z-index:3;display:flex;align-items:center;justify-content:center;cursor:pointer}
@@ -197,3 +197,9 @@
 @keyframes snowfall{to{transform:translate3d(-30px,480px,0)}}
 @keyframes snowfall2{to{transform:translate3d(20px,360px,0)}}
 @media (prefers-reduced-motion:reduce){.dr-detail .bgphoto,.dr-detail .snowfx::before,.dr-detail .snowfx::after{animation:none}}
+
+/* theme mặc định: không tuyết, không nhạc, nền Cacao đứng yên */
+html:not([data-theme=xmas]) .dr-home .homesnow,html:not([data-theme=xmas]) .dr-detail .snowfx,html:not([data-theme=xmas]) .dr-music{display:none!important}
+html:not([data-theme=xmas]) .dr-detail .bgphoto{animation:none}
+.dr-home .o-head .lgd{display:inline-flex}
+html:not([data-theme=xmas]) .dr-home .o-head .lgx,html[data-theme=xmas] .dr-home .o-head .lgd{display:none}

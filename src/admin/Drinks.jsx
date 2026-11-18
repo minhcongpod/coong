@@ -66,12 +66,15 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
   /* nhạc nền Giáng sinh: chỉ phát được sau lần chạm đầu tiên, tạm dừng khi rời tab */
   useEffect(() => {
     const a = new Audio('/xmas.mp3'); a.loop = true; a.volume = 0.35; a.preload = 'none'; audioRef.current = a;
-    const play = () => { if (musicRef.current && !document.hidden) a.play().catch(() => {}); };
+    const themed = () => document.documentElement.dataset.theme === 'xmas';
+    const play = () => { if (musicRef.current && themed() && !document.hidden) a.play().catch(() => {}); };
+    const onTheme = () => { if (themed()) play(); else a.pause(); };
+    addEventListener('coong-theme', onTheme);
     const first = () => { removeEventListener('pointerdown', first, true); play(); };
     addEventListener('pointerdown', first, true);
     const vis = () => (document.hidden ? a.pause() : play());
     document.addEventListener('visibilitychange', vis);
-    return () => { removeEventListener('pointerdown', first, true); document.removeEventListener('visibilitychange', vis); a.pause(); audioRef.current = null; };
+    return () => { removeEventListener('pointerdown', first, true); removeEventListener('coong-theme', onTheme); document.removeEventListener('visibilitychange', vis); a.pause(); audioRef.current = null; };
   }, []);
   const toggleMusic = () => {
     const on = !music; setMusic(on);
@@ -223,7 +226,7 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
       <i className="snowfx homesnow" aria-hidden="true" />
       <button className="dr-music" onClick={toggleMusic} aria-label="Bật/tắt nhạc nền" aria-pressed={music}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor" /><path className="on" d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" /><path className="off" d="m16 9 5 6m0-6-5 6" /></svg></button>
       <div className="o-head">
-        <span ref={(n) => { partsRef.current.logo = n; }}><img className="o-logo" src="/logo.svg" alt="Coong" draggable="false" /></span>
+        <span ref={(n) => { partsRef.current.logo = n; }}><span className="lgd"><Sym id="i-logo" size={133} /></span><img className="o-logo lgx" src="/logo.svg" alt="Coong" draggable="false" /></span>
         <span className="grow" />
         <button ref={(n) => { partsRef.current.cart = n; }} className="o-bag" onClick={onCart} aria-label="Giỏ hàng"><Sym id="i-bag" size={28} />{count > 0 && <span className="a-badge">{count}</span>}</button>
         <button ref={(n) => { partsRef.current.bell = n; }} className="o-bag" onClick={onBell} aria-label="Thông báo"><Sym id="i-bell" size={26} />{unread > 0 && <span className="a-badge">{unread}</span>}</button>

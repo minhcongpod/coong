@@ -473,7 +473,7 @@ button.a-card:active{transform:scale(.97)}
 /* Splash lúc mở app, giống app khách */
 .a-splash{position:absolute;inset:0;z-index:90;background:#000 url(/cover.webp) center bottom/100% auto no-repeat;transition:opacity .45s ease .05s;will-change:opacity}
 .a-splash.out{opacity:0;pointer-events:none}
-.a-slogo{position:absolute;left:100px;top:227px;width:189px;height:74px;color:#fff}
+.a-slogo{position:absolute;left:98px;top:226px;width:193px;height:76px;color:#fff}
 
 /* Nội dung Khác / Lý do: không tiêu đề, card dãn theo nội dung */
 .w-notecard{padding:20px 24px;border-radius:32px}
@@ -562,3 +562,16 @@ button.a-card:active{transform:scale(.97)}
 .h-note{display:block;font-size:14px;line-height:18px;font-weight:500;color:var(--ok)}
 
 .h-opt{display:block;font-size:14px;line-height:18px;font-weight:700;color:var(--ok)}
+
+/* Theme: logo theo theme (mặc định = logo cũ, Giáng sinh = logo mới) */
+html:not([data-theme=xmas]) .lgx,html[data-theme=xmas] .lgd{display:none}
+.lgd{color:#fff;display:inline-flex}
+.s-theme{flex:none;border-radius:32px;background:var(--s10);color:#fff;padding:16px 24px 20px}
+.s-thhead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}
+.s-thhead b{font-size:18px}.s-thhead small{font-size:14px;color:rgba(255,255,255,.5);font-weight:500}
+.s-thopts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.s-thopt{display:flex;align-items:center;gap:8px;padding:8px 10px 8px 8px;white-space:nowrap;border-radius:32px;background:rgba(255,255,255,.1);color:#fff;font:inherit;font-size:15px;font-weight:700;text-align:left;border:0;transition:transform .25s,background .25s,color .25s}
+.s-thopt:active{transform:scale(.96)}
+.s-thopt i{flex:none;width:36px;height:36px;border-radius:50%;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.5)}
+.s-thopt.on{background:#fff;color:#000}
+.s-thopt.on i{box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.2)}

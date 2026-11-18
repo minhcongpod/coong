@@ -238,3 +238,21 @@ export const shopClosed = (shop = {}) => {
 export const BellBtn = ({ n = 0, onClick }) => (
   <button className="a-bell" onClick={onClick} aria-label="Thông báo"><Sym id="i-bell" size={26} />{n > 0 && <span className="a-badge">{n}</span>}</button>
 );
+
+// Theme: cùng khoá lưu "coong-theme" với app khách. Thêm theme mới chỉ cần thêm một dòng vào THEMES và CSS theo html[data-theme=...]
+export const THEMES = [
+  { id: 'default', name: 'Mặc định', swatch: 'linear-gradient(180deg,#4a4a4a,#111)' },
+  { id: 'xmas', name: 'Giáng sinh', swatch: 'radial-gradient(circle at 70% 25%,#ff5a6e,#ac0b0b 60%,#5a0000)' },
+];
+export const getTheme = () => {
+  let id = 'xmas';
+  try { id = localStorage.getItem('coong-theme') || 'xmas'; } catch (e) { /* bỏ qua */ }
+  return THEMES.some((t) => t.id === id) ? id : 'xmas';
+};
+export const setTheme = (id) => {
+  if (!THEMES.some((t) => t.id === id)) id = 'xmas';
+  document.documentElement.dataset.theme = id;
+  try { localStorage.setItem('coong-theme', id); } catch (e) { /* bỏ qua */ }
+  window.dispatchEvent(new Event('coong-theme'));
+};
+if (typeof document !== 'undefined') document.documentElement.dataset.theme = getTheme();
