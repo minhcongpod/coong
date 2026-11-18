@@ -5,7 +5,7 @@ import { Icon, Sym, Page, Btn, Empty, fmt, dmy, hm, timeOf, phoneText, kindOf, X
 import { CustomerPicker, NewCustomer, EditCustomerForm } from './Customers.jsx';
 import { DrinkHome, DrinkDetail, drinkOf } from './Drinks.jsx';
 
-const ORDER = ['bac', 'den', 'nau'];
+const ORDER = ['bac', 'den', 'nau', 'cacao'];
 const METHODS = [['debt', 'Ghi nợ nhé!', 'i-debt'], ['cash', 'Chuyển khoản / Tiền mặt', 'i-cash']];
 const PAY_NAME = { bank: 'Chuyển khoản', cash: 'Chuyển khoản / Tiền mặt', debt: 'Ghi nợ', wallet: 'Ví tiền' };
 
@@ -17,7 +17,7 @@ const qtyText = (n) => String(n).padStart(2, '0');
 let cartSw = null; // vuốt xuống để đóng giỏ hàng
 const O0 = { upsize: 0, hot: 0, sweet: 0, cafe: 0 }; // sweet/cafe: 0 = 100%, 50 = 50%
 const pctOf = (v) => (v === 1 ? 0 : v || 100); // sweet: 1 = 0% (chỉ Bạc)
-const flagsOf = (kind) => ({ sweet: kind === 'nau' || kind === 'bac', cafe: kind === 'bac' });
+const flagsOf = (kind) => ({ sweet: kind === 'nau' || kind === 'bac' || kind === 'cacao', cafe: kind === 'bac' });
 const optText = (l) => {
   const f = flagsOf(l.kind), o = l.o;
   return [o.upsize ? 'XL' : 'L', o.hot ? 'Nóng' : 'Lạnh', f.sweet ? `${pctOf(o.sweet)} ngọt` : 'Không đường', ...(f.cafe ? [`${o.cafe || 100} cafe`] : [])].join(' / ');
@@ -30,9 +30,9 @@ const mergeLines = (ls) => ls.reduce((acc, l) => {
   if (j < 0) acc.push(l); else acc[j] = { ...acc[j], qty: Math.min(99, acc[j].qty + l.qty) };
   return acc;
 }, []);
-const SHORT = { den: 'Đen', nau: 'Nâu', bac: 'Bạc' };
+const SHORT = { den: 'Đen', nau: 'Nâu', bac: 'Bạc', cacao: 'Cacao' };
 const shortOf = (name) => SHORT[kindOf(name)] || name;
-const THUMB = { den: '/den.webp', nau: '/nau.webp', bac: '/bac.webp' };
+const THUMB = { den: '/den.webp', nau: '/nau.webp', bac: '/bac.webp', cacao: '/cacao.webp' };
 
 export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, shop = {} }) {
   // quán bật Hết hàng hoặc đang ngoài giờ mở cửa: 3 món hiện Hết hàng, không mở được món
@@ -73,7 +73,7 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
   const setQty = (i, d) => setLines((ls) => ls.flatMap((l, k) => (k !== i ? [l] : l.qty + d > 0 ? [{ ...l, qty: Math.min(99, l.qty + d) }] : [])));
   const openCart = () => setPage('cart');
 
-  const drinkText = ['den', 'nau', 'bac'].map((k) => [k, lines.filter((l) => kindOf(l.name) === k).reduce((n, l) => n + l.qty, 0)]).filter((x) => x[1] > 0).map(([k, n]) => `${n} ${SHORT[k]}`).join(' / ') || `${count}`;
+  const drinkText = ['den', 'nau', 'bac', 'cacao'].map((k) => [k, lines.filter((l) => kindOf(l.name) === k).reduce((n, l) => n + l.qty, 0)]).filter((x) => x[1] > 0).map(([k, n]) => `${n} ${SHORT[k]}`).join(' / ') || `${count}`;
 
   const place = async () => {
     if (!customer) return toast('Chọn khách');
@@ -172,14 +172,15 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
     const cur = sheet >= 0 ? lines[sheet] : null;
     return (
       <div
-        className="a-page o-cartpg"
+        className="a-page a-xr o-cartpg"
         style={{ touchAction: 'pan-y' }}
         onPointerDown={(e) => { cartSw = e.target.closest('button,input,textarea,.o-line') ? null : { x: e.clientX, y: e.clientY }; }}
-        onPointerMove={(e) => { if (cartSw && e.clientY - cartSw.y > 70 && e.clientY - cartSw.y > Math.abs(e.clientX - cartSw.x) * 1.4) { cartSw = null; setSheet(-1); setPage(null); } }}
+        onPointerMove={(e) => { if (cartSw && e.clientX - cartSw.x > 70 && e.clientX - cartSw.x > Math.abs(e.clientY - cartSw.y) * 1.4) { cartSw = null; setSheet(-1); setPage(null); } }}
         onPointerUp={() => { cartSw = null; }}
         onPointerCancel={() => { cartSw = null; }}
       >
         <button className="a-back" onClick={() => { setSheet(-1); setPage(null); }} aria-label="Đóng giỏ hàng"><Sym id="i-close" size={28} /></button>
+        <h1 className="a-title">Giỏ hàng</h1>
         {lines.length === 0 ? (
           <div className="o-cempty">
             <div className="eico"><Sym id="i-bag" size={40} /></div>
@@ -322,7 +323,7 @@ export function Notifs({ orders, onBack, onOpen, onPay }) {
   const list = orders.slice(0, 30);
   const claims = claimGroups(orders);
   return (
-    <Page title="Thông báo" onBack={onBack}>
+    <Page title="Thông báo" onBack={onBack} closeIcon>
       {claims.map((g) => (
         <button key={`claim-${g.phone}`} className="o-nrow wait new" onClick={() => onPay && onPay(g.phone)}>
           <span className="ni"><Sym id="i-verified" size={20} /></span>

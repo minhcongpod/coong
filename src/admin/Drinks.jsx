@@ -15,12 +15,64 @@ export const META = {
   bac: { name: 'Bạc', sweet: true, cafe: true, aspect: 512 / 901, rec: true, stops: [[0, '#e2e2e2'], [0.5739, '#d9d0b7']], edge: 0.35, card: 'linear-gradient(0deg,#d9d0b7 42.61%,#e2e2e2 100%)', bg: 'linear-gradient(0deg,#d9d0b7 42.61%,#e2e2e2 100%)' },
   den: { name: 'Đen', sweet: false, cafe: false, aspect: 512 / 792, stops: [[0, '#484848'], [0.5739, '#1e1e1e']], edge: 0.12, card: 'linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)', bg: 'linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)' },
   nau: { name: 'Nâu', sweet: true, cafe: false, aspect: 512 / 797, stops: [[0, '#fed9ae'], [0.574, '#ffc077']], edge: 0.35, card: 'linear-gradient(180deg,#fed9ae 0%,#ffc077 57.4%)', bg: 'linear-gradient(180deg,#fed3a1,#ffc077)' },
+  // Cacao: món theo mùa (Noel), như app khách
+  cacao: {
+    name: 'Cacao', sweet: true, cafe: false, aspect: 741 / 996, spinH: 277.6, cupLeft: 64, rot: 16.7, xmas: true, stops: [[0, '#ac0b0b']], edge: 0,
+    card: 'linear-gradient(0deg,rgba(172,11,11,0) 56.036%,rgba(172,11,11,.9) 93.103%),linear-gradient(-90deg,rgba(172,11,11,.8) 1.0549%,rgba(172,11,11,0) 13.984% 73.103%,rgba(172,11,11,.8) 94.586%),linear-gradient(180deg,rgba(172,11,11,0) 36.59%,rgba(172,11,11,.2) 71.138%,#8e0000 100.89%),url(/cacao-bg.webp) 100% 0/130.38% 130.41% no-repeat #ac0b0b',
+    bg: 'radial-gradient(ellipse 50% 50% at 50% 50%,rgba(58,0,16,0) 60%,rgba(58,0,16,.33) 100%),linear-gradient(0deg,rgba(172,11,11,0) 73.09%,rgba(172,11,11,.9) 100%),linear-gradient(-90deg,rgba(172,11,11,0) 51.759%,rgba(172,11,11,.8) 67.335%,#ac0b0b 100%),linear-gradient(180deg,rgba(172,11,11,0) 36.59%,rgba(172,11,11,.8) 71.138%,#ac0b0b 100.89%),url(/cacao-bg.webp) 0 92.2%/107.15% 107.17% no-repeat #ac0b0b',
+  },
 };
 // món trong menu → món đã thiết kế (tên khác 3 món này dùng kiểu Đen)
 export const drinkOf = (m) => { const k = kindOf(m.name); return { m, id: k || 'den', known: !!k, meta: META[k || 'den'] }; };
 
 const rootRect = () => document.querySelector('.a-device').getBoundingClientRect();
 const untransformedRect = (el) => { const p = el.style.transform; el.style.transform = 'none'; const r = el.getBoundingClientRect(); el.style.transform = p; return r; };
+// Tấm nền phóng lên / thu gọn. Món thường: tấm nền cỡ màn hình phóng ra từ thẻ.
+// Món Giáng sinh (Cacao): chỉ MỘT tấm nền; ảnh nền trượt/co giãn từ khung cắt của thẻ sang khung cắt của trang chi tiết (transform),
+// lớp phủ đỏ chuyển dần, còn khung cắt (clip-path) mở rộng ra toàn màn hình, nên không có ảnh thẻ mờ dần chồng lên.
+const PH = /^(.*),(url\([^)]*\)) ([^/]+)\/([^ ]+ [^ ]+) no-repeat/;
+const splitXmas = (str) => { const m = PH.exec(str); return { shade: m[1], photo: m[2], pos: m[3].trim().split(/\s+/).map((v) => parseFloat(v) / 100), size: m[4].split(' ').map((v) => parseFloat(v) / 100) }; };
+function revealKF(r, s, rad0, rad1) {
+  const c = (rad) => `inset(${r.top - s.top}px ${s.right - r.right}px ${s.bottom - r.bottom}px ${r.left - s.left}px round ${rad}px)`;
+  return [{ clipPath: c(rad0) }, { clipPath: `inset(0px 0px 0px 0px round ${rad1}px)` }];
+}
+function makeVeil(d, closing, cardR, sr, rad) {
+  if (!d.xmas) {
+    return {
+      html: `<div style="position:absolute;inset:0;background:${d.card}"></div><div class="vb" style="position:absolute;inset:0;background:${d.bg};opacity:${closing ? 1 : 0}"></div>`,
+      play(veil, D) {
+        if (!closing) {
+          const a = veil.animate(veilKF(cardR, sr, rad, 0), { duration: D * 0.9, easing: EASE_MORPH, fill: 'forwards' });
+          veil.animate([{ opacity: 0 }, { opacity: 1, offset: 0.4 }, { opacity: 1 }], { duration: D * 0.9, easing: 'ease-out', fill: 'forwards' });
+          veil.querySelector('.vb').animate([{ opacity: 0 }, { opacity: 1 }], { duration: D * 0.7, delay: D * 0.1, easing: 'ease-in-out', fill: 'forwards' });
+          return a;
+        }
+        veil.querySelector('.vb').animate([{ opacity: 1 }, { opacity: 0 }], { duration: D * 0.7, easing: 'ease-in-out', fill: 'forwards' });
+        const a = veil.animate(veilKF(cardR, sr, rad, 0).reverse(), { duration: D, easing: EASE_MORPH, fill: 'forwards' });
+        veil.animate([{ opacity: 1 }, { opacity: 1, offset: 0.55 }, { opacity: 0 }], { duration: D, easing: 'ease-in', fill: 'forwards' });
+        return a;
+      },
+    };
+  }
+  const C = splitXmas(d.card), B = splitXmas(d.bg);
+  const box = (c, a, rel) => { const w = c.size[0] * a.width, h = c.size[1] * a.height; return { l: a.left - rel.left + (a.width - w) * c.pos[0], t: a.top - rel.top + (a.height - h) * c.pos[1], w, h }; };
+  const cb = box(C, cardR, sr), db = box(B, sr, sr);
+  const tf = (b) => `translate(${b.l}px,${b.t}px) scale(${b.w / db.w},${b.h / db.h})`;
+  const cardT = `translate(${cardR.left - sr.left}px,${cardR.top - sr.top}px) scale(${cardR.width / sr.width},${cardR.height / sr.height})`;
+  return {
+    html: `<div class="vclip" style="position:absolute;inset:0;background:#ac0b0b"><div class="vph" style="position:absolute;left:0;top:0;width:${db.w}px;height:${db.h}px;transform-origin:0 0;transform:${tf(db)};background:${B.photo} 0 0/100% 100% no-repeat"></div><div class="vs1" style="position:absolute;inset:0;transform-origin:0 0;background:${C.shade};opacity:0"></div><div class="vs2" style="position:absolute;inset:0;background:${B.shade};opacity:1"></div></div>`,
+    play(veil, D) {
+      const o = { duration: closing ? D : D * 0.9, easing: EASE_MORPH, fill: 'both' }, rv = (a) => (closing ? a.slice().reverse() : a);
+      const clip = veil.querySelector('.vclip').animate(rv(revealKF(cardR, sr, rad, 0)), o);
+      veil.querySelector('.vph').animate(rv([{ transform: tf(cb) }, { transform: tf(db) }]), o);
+      const s1 = veil.querySelector('.vs1'), s2 = veil.querySelector('.vs2'), oo = { duration: o.duration, easing: 'ease-in-out', fill: 'both' };
+      s1.animate(rv([{ transform: cardT }, { transform: 'none' }]), o);
+      s1.animate(rv([{ opacity: 1 }, { opacity: 1, offset: 0.45 }, { opacity: 0 }]), oo);
+      s2.animate(rv([{ opacity: 0 }, { opacity: 1, offset: 0.5 }, { opacity: 1 }]), oo);
+      return clip;
+    },
+  };
+}
 function veilKF(r, s, rad0, rad1) {
   const sx = r.width / s.width, sy = r.height / s.height;
   return [{ transform: `translate(${r.left - s.left}px,${r.top - s.top}px) scale(${sx},${sy})`, borderRadius: `${rad0 / sx}px / ${rad0 / sy}px` },
@@ -50,16 +102,38 @@ const N_SIDE = MID_W / 2 + 10 + SIDE_W / 2; // 10px khe
 // ---------------- Trang chủ: 3 thẻ, kéo ngang, 3 chấm ----------------
 export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, onCart, onBell, onOpen, sold, soldText }, ref) {
   const N = items.length;
+  const START = Math.max(0, items.findIndex((it) => it.meta.xmas)) || Math.min(1, Math.max(0, N - 1));   /* món theo mùa (Cacao) nằm giữa khi mở app */
   const openRef = useRef(onOpen); openRef.current = onOpen;
   const carRef = useRef(null), dotsRef = useRef(null), cards = useRef([]);
   const partsRef = useRef({});
-  const st = useRef({ pos: Math.min(1, Math.max(0, N - 1)), target: 1, vel: 0, raf: 0, drag: null, busy: false });
+  const [music, setMusic] = useState(() => { try { return localStorage.getItem('coong-music') !== '0'; } catch (e) { return true; } });
+  const audioRef = useRef(null), musicRef = useRef(music);
+  musicRef.current = music;
+  /* nhạc nền Giáng sinh: chỉ phát được sau lần chạm đầu tiên, tạm dừng khi rời tab */
+  useEffect(() => {
+    const a = new Audio('/xmas.mp3'); a.loop = true; a.volume = 0.175; a.preload = 'none'; audioRef.current = a;
+    const themed = () => document.documentElement.dataset.theme === 'xmas';
+    const play = () => { if (musicRef.current && themed() && !document.hidden) a.play().catch(() => {}); };
+    const onTheme = () => { if (themed()) play(); else a.pause(); };
+    addEventListener('coong-theme', onTheme);
+    const first = () => { removeEventListener('pointerdown', first, true); play(); };
+    addEventListener('pointerdown', first, true);
+    const vis = () => (document.hidden ? a.pause() : play());
+    document.addEventListener('visibilitychange', vis);
+    return () => { removeEventListener('pointerdown', first, true); removeEventListener('coong-theme', onTheme); document.removeEventListener('visibilitychange', vis); a.pause(); audioRef.current = null; };
+  }, []);
+  const toggleMusic = () => {
+    const on = !music; setMusic(on);
+    try { localStorage.setItem('coong-music', on ? '1' : '0'); } catch (e) {}
+    const a = audioRef.current; if (a) { if (on) a.play().catch(() => {}); else a.pause(); }
+  };
+  const st = useRef({ pos: START, target: START, vel: 0, raf: 0, drag: null, busy: false });
   const wrap = (o) => { o = ((o % N) + N) % N; return o >= N / 2 ? o - N : o; };
 
   useEffect(() => {
     if (!N) return undefined;
     const s = st.current, car = carRef.current;
-    if (!s.init) { s.init = true; s.pos = s.target = Math.min(1, N - 1); }
+    if (!s.init) { s.init = true; s.pos = s.target = START; }
     if (s.pos > N - 1) s.pos = N - 1;
     const active = () => ((Math.round(s.pos) % N) + N) % N;
     const layout = () => {
@@ -73,7 +147,7 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
         el.style.zIndex = 10 - Math.round(a * 3);
         const cup = el.querySelector('.cup');
         const bob = RM ? 0 : Math.sin(t * 1.6 + i) * 4 * (1 - Math.min(a, 1));
-        cup.style.transform = `translate(${-o * 26}px,${bob}px) rotate(${11.7 + o * 6}deg)`;
+        cup.style.transform = `translate(${-o * 26}px,${bob}px) rotate(${(META[el.dataset.id]?.rot ?? 11.7) + o * 6}deg)`;
       });
       const ai = active();
       if (dotsRef.current) [...dotsRef.current.children].forEach((d, i) => d.classList.toggle('on', i === ai));
@@ -132,14 +206,14 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
     freeze(i) {
       const s = st.current; cancelAnimationFrame(s.raf); s.pos = Math.round(s.pos); s.vel = 0; s.layout && s.layout(); s.busy = true;
       const card = cards.current[i], cup = card.querySelector('.cup');
-      cup.style.transform = 'none'; const cupR = cup.getBoundingClientRect(); cup.style.transform = 'rotate(11.7deg)';
+      cup.style.transform = 'none'; const cupR = cup.getBoundingClientRect(); cup.style.transform = `rotate(${META[card.dataset.id]?.rot ?? 11.7}deg)`;
       return { cardR: card.getBoundingClientRect(), cupR, pill: this.pill(i) };
     },
-    cardRect(i) { const card = cards.current[i], cup = card.querySelector('.cup'); cup.style.transform = 'none'; const c = cup.getBoundingClientRect(); cup.style.transform = 'rotate(11.7deg)'; return { cardR: card.getBoundingClientRect(), cupR: c }; },
+    cardRect(i) { const card = cards.current[i], cup = card.querySelector('.cup'); cup.style.transform = 'none'; const c = cup.getBoundingClientRect(); cup.style.transform = `rotate(${META[card.dataset.id]?.rot ?? 11.7}deg)`; return { cardR: card.getBoundingClientRect(), cupR: c }; },
     pill(i) {
       const card = cards.current[i], r = card.getBoundingClientRect();
       // cùng cỡ, cùng tỉ lệ và cùng trạng thái (Hết hàng ẩn icon giỏ) với thanh giá thật, để hai lớp khớp nhau
-      const w = document.createElement('div'); w.className = 'card' + (card.classList.contains('sold') ? ' sold' : ''); w.dataset.id = card.dataset.id;
+      const w = document.createElement('div'); w.className = 'card' + (card.classList.contains('sold') ? ' sold' : ''); w.dataset.id = card.dataset.id; w.style.setProperty('--ptint', card.style.getPropertyValue('--ptint'));
       // lớp bọc rỗng (chỉ để có style .card): không cắt, không transform trên cha, để blur nền của thanh giá hoạt động
       Object.assign(w.style, { left: '0px', top: '0px', width: '0px', height: '0px', willChange: 'auto', pointerEvents: 'none', cursor: 'default' });
       const src = card.querySelector('.pricebar'), k = r.width / (card.offsetWidth || r.width);
@@ -195,8 +269,10 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
 
   return (
     <div className="dr dr-home">
+      <i className="snowfx homesnow" aria-hidden="true" />
+      <button className="dr-music" onClick={toggleMusic} aria-label="Bật/tắt nhạc nền" aria-pressed={music}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor" /><path className="on" d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" /><path className="off" d="m16 9 5 6m0-6-5 6" /></svg></button>
       <div className="o-head">
-        <span ref={(n) => { partsRef.current.logo = n; }}><Sym id="i-logo" size={133} /></span>
+        <span ref={(n) => { partsRef.current.logo = n; }}><span className="lgd"><Sym id="i-logo" size={133} /></span><img className="o-logo lgx" src="/logo.svg" alt="Coong" draggable="false" /></span>
         <span className="grow" />
         <button ref={(n) => { partsRef.current.cart = n; }} className="o-bag" onClick={onCart} aria-label="Giỏ hàng"><Sym id="i-bag" size={28} />{count > 0 && <span className="a-badge">{count}</span>}</button>
         <button ref={(n) => { partsRef.current.bell = n; }} className="o-bag" onClick={onBell} aria-label="Thông báo"><Sym id="i-bell" size={26} />{unread > 0 && <span className="a-badge">{unread}</span>}</button>
@@ -206,16 +282,16 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
           {items.map((it, i) => {
             const d = it.meta, k = it.id;
             return (
-              <div key={it.m.id} className={`card${sold ? ' sold' : ''}`} data-id={k} data-i={i} role="button" aria-label={`Xem ${d.name}`} ref={(n) => { cards.current[i] = n; }}>
-                <svg className="surf" viewBox="0 0 270 360" aria-hidden="true">
+              <div key={it.m.id} className={`card${sold ? ' sold' : ''}`} style={{ '--ptint': (d.stops && d.stops.length ? d.stops[d.stops.length - 1][1] : undefined) }} data-id={k} data-i={i} role="button" aria-label={`Xem ${d.name}`} ref={(n) => { cards.current[i] = n; }}>
+                {d.xmas ? <div className="surf" aria-hidden="true" style={{ background: d.card }} /> : <svg className="surf" viewBox="0 0 270 360" aria-hidden="true">
                   <defs>
                     <linearGradient id={`g-${k}-${i}`} x1="0" y1="0" x2="0" y2="1">{d.stops.map(([o, c]) => <stop key={o} offset={o} stopColor={c} />)}</linearGradient>
                     <linearGradient id={`e-${k}-${i}`} x1="0" y1="0" x2="1" y2="0"><stop stopColor="#fff" /><stop offset=".5" stopColor="#fff" stopOpacity=".5" /><stop offset="1" stopColor="#fff" /></linearGradient>
                   </defs>
                   <rect width="270" height="360" rx="32" fill={`url(#g-${k}-${i})`} />
                   <rect x=".75" y=".75" width="268.5" height="358.5" rx="31.25" fill="none" stroke={`url(#e-${k}-${i})`} strokeOpacity={d.edge} strokeWidth="1.5" />
-                </svg>
-                <div className="cup" style={k === 'bac' ? undefined : { left: (135 - (245 * d.aspect) / 2).toFixed(1) + 'px' }}>
+                </svg>}
+                <div className="cup" style={k === 'bac' ? undefined : { left: (d.cupLeft ?? 135 - (245 * d.aspect) / 2).toFixed(1) + 'px' }}>
                   {it.known ? <img src={`/${k}.webp`} alt="" draggable="false" /> : <Sym id="i-cup" size={120} />}
                 </div>
                 <div className="top">
@@ -225,6 +301,8 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
                   <div className="ico"><span className="circ"><Sym id="i-snow" size={16} /></span><span className="circ"><Sym id="i-flame" size={16} /></span></div>
                 </div>
                 <div className="pricebar"><i className="glint" /><b>{sold ? (soldText || 'Mai bán lại nha 😋') : fmt(it.m.price)}</b><span><Sym id="i-cardadd" size={28} /></span></div>
+                {d.xmas && <img className="snowpile" src="/cacao-snow.svg" alt="" draggable="false" />}
+                {d.xmas && <div className="ribbon"><img src="/cacao-ribbon.webp" alt="" draggable="false" /></div>}
               </div>
             );
           })}
@@ -268,7 +346,7 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
   useLayoutEffect(() => {
     const st = stage.current, t = st.querySelector('.dtitle'), op = st.querySelector('.opts'), c = (76 + st.offsetHeight - 207) / 2;
     const tb = 46 + 19 + op.offsetHeight;
-    t.style.top = Math.round(c - tb / 2) + 'px'; op.style.top = Math.round(c - tb / 2 + 65) + 'px'; spin.current.style.top = Math.round(c - 155) + 'px';
+    t.style.top = Math.round(c - tb / 2) + 'px'; op.style.top = Math.round(c - tb / 2 + 65) + 'px'; spin.current.style.top = Math.round(c - (d.spinH || 310) / 2) + 'px';
   }, [k, m.id, d.sweet, d.cafe]);
 
   const parts = () => [...root.current.querySelectorAll('[data-a]')];
@@ -290,22 +368,19 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
       const to = untransformedRect(sp);
       const sr = rootRect(), Sc = S();
       const veil = track(document.createElement('div')); veil.className = 'veil';
-      veil.innerHTML = `<div style="position:absolute;inset:0;background:${d.card}"></div><div class="vb" style="position:absolute;inset:0;background:${d.bg};opacity:0"></div>`;
-      placeVeil(veil, sr); fx.appendChild(veil);
+      placeVeil(veil, sr); const vm = makeVeil(d, false, cardR, sr, 32 * Sc); veil.innerHTML = vm.html; fx.appendChild(veil);
       const fly = track(document.createElement('img')); fly.className = 'fly'; fly.src = item.known ? `/${k}.webp` : '';
       fly.style.width = to.width + 'px'; fly.style.height = to.height + 'px'; fly.style.filter = `drop-shadow(0 0 22px ${GLOW})`;
       if (item.known) fx.appendChild(fly);
       const sx = from.width / to.width;
-      const fromT = `translate(${from.left}px,${from.top}px) translate(${from.width / 2}px,${from.height / 2}px) rotate(11.7deg) translate(${-from.width / 2}px,${-from.height / 2}px) scale(${sx})`;
+      const fromT = `translate(${from.left}px,${from.top}px) translate(${from.width / 2}px,${from.height / 2}px) rotate(${d.rot ?? 11.7}deg) translate(${-from.width / 2}px,${-from.height / 2}px) scale(${sx})`;
       const midT = `translate(${(from.left + to.left) / 2}px,${Math.min(from.top, to.top) - 30 * Sc}px) scale(${((sx + 1) / 2) * 1.04})`;
       const toT = `translate(${to.left}px,${to.top}px)`;
       fx.appendChild(pill); pill.inner.animate([{ opacity: 1 }, { opacity: 0 }], { duration: T(160), fill: 'forwards' });
       home.hideCup(index, true);
       await nextFrame(); if (dead) return;
       const D = T(760);
-      const veilA = veil.animate(veilKF(cardR, sr, 32 * Sc, 0), { duration: D * 0.9, easing: EASE_MORPH, fill: 'forwards' });
-      veil.animate([{ opacity: 0 }, { opacity: 1, offset: 0.4 }, { opacity: 1 }], { duration: D * 0.9, easing: 'ease-out', fill: 'forwards' });
-      veil.querySelector('.vb').animate([{ opacity: 0 }, { opacity: 1 }], { duration: D * 0.7, delay: D * 0.1, easing: 'ease-in-out', fill: 'forwards' });
+      const veilA = vm.play(veil, D);
       if (item.known) fly.animate([{ transform: fromT }, { transform: midT, offset: 0.45 }, { transform: toT }], { duration: D, easing: 'cubic-bezier(.5,0,.15,1)', fill: 'forwards' });
       home.recede(index);
       await veilA.finished; if (dead) return;
@@ -343,12 +418,11 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
     ps.forEach((el, kk) => el.animate([{ opacity: 1, transform: restT(el) }, { opacity: 0, transform: preT(el) }], { duration: T(260), delay: kk * 18, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' }));
     const title = rootEl.querySelector('.dtitle'); title.animate([{ opacity: 1 }, { opacity: 0 }], { duration: T(200), fill: 'forwards' });
     const veil = document.createElement('div'); veil.className = 'veil';
-    veil.innerHTML = `<div style="position:absolute;inset:0;background:${d.card}"></div><div class="vb" style="position:absolute;inset:0;background:${d.bg}"></div>`;
-    const sr = rootRect(); placeVeil(veil, sr);
+    const sr = rootRect(); placeVeil(veil, sr); const vm = makeVeil(d, true, cardR, sr, 32 * Sc); veil.innerHTML = vm.html;
     const fly = document.createElement('img'); fly.className = 'fly'; fly.src = item.known ? `/${k}.webp` : '';
     fly.style.width = from.width + 'px'; fly.style.height = from.height + 'px'; fly.style.filter = `drop-shadow(0 0 22px ${GLOW})`;
     const sx = to.width / from.width;
-    const toT = `translate(${to.left}px,${to.top}px) translate(${to.width / 2}px,${to.height / 2}px) rotate(11.7deg) translate(${-to.width / 2}px,${-to.height / 2}px) scale(${sx})`;
+    const toT = `translate(${to.left}px,${to.top}px) translate(${to.width / 2}px,${to.height / 2}px) rotate(${d.rot ?? 11.7}deg) translate(${-to.width / 2}px,${-to.height / 2}px) scale(${sx})`;
     const fromT = `translate(${from.left}px,${from.top}px)`;
     await new Promise((r) => setTimeout(r, T(160)));
     const pill = home.pill(index);
@@ -364,9 +438,7 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
     await nextFrame();
     const D = T(720);
     home.restore(index, D);
-    veil.querySelector('.vb').animate([{ opacity: 1 }, { opacity: 0 }], { duration: D * 0.7, easing: 'ease-in-out', fill: 'forwards' });
-    const veilA = veil.animate(veilKF(cardR, sr, 32 * Sc, 0).reverse(), { duration: D, easing: EASE_MORPH, fill: 'forwards' });
-    veil.animate([{ opacity: 1 }, { opacity: 1, offset: 0.55 }, { opacity: 0 }], { duration: D, easing: 'ease-in', fill: 'forwards' });
+    const veilA = vm.play(veil, D);
     const midT = `translate(${(from.left + to.left) / 2}px,${Math.min(from.top, to.top) - 24 * Sc}px) scale(${((sx + 1) / 2) * 1.04})`;
     if (item.known) fly.animate([{ transform: fromT }, { transform: midT, offset: 0.5 }, { transform: toT }], { duration: D, easing: 'cubic-bezier(.65,0,.25,1)', fill: 'forwards' });
     if (glass) glass.fk.animate([{ transform: glass.at(fromT) }, { transform: glass.at(midT), offset: 0.5 }, { transform: glass.at(toT) }], { duration: D, easing: 'cubic-bezier(.65,0,.25,1)', fill: 'forwards' });
@@ -394,7 +466,7 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
     qtyN.current = 1; qtyBox.current.innerHTML = '<span>01</span>';
     const ghost2 = still();
     rootEl.parentNode.insertBefore(ghost, rootEl); rootEl.parentNode.insertBefore(ghost2, rootEl);
-    const moving = [...rootEl.querySelectorAll('.dtitle,.opts,.spin')];
+    const moving = [...rootEl.querySelectorAll('.dtitle,.opts,.spin,.bgphoto,.bgshade,.snowfx')];
     rootEl.style.background = 'transparent'; moving.forEach((el) => { el.style.visibility = 'hidden'; }); rootEl.classList.add('sw');
     ghost.animate([{ transform: 'translateX(0)' }, { transform: `translateX(${-dir * 100}%)` }], { duration: D, easing: ease, fill: 'forwards' });
     const a = ghost2.animate([{ transform: `translateX(${dir * 100}%)` }, { transform: 'translateX(0)' }], { duration: D, easing: ease, fill: 'forwards' });
@@ -478,6 +550,7 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
   return (
     <>
     <div className="dr dr-detail" data-id={k} ref={root} aria-label="Chi tiết đồ uống">
+      <i className="bgphoto" aria-hidden="true" /><i className="bgshade" aria-hidden="true" /><i className="snowfx" aria-hidden="true" />
       <div className="dr-stage" ref={stage} style={{ transform: 'translate(-50%,-50%)' }}>
         <div className="abs bulge l" data-a="l"><Sym id="i-bulge" size={84} /></div>
         <div className="abs bulge r" data-a="r"><Sym id="i-bulge" size={84} /></div>
@@ -490,7 +563,7 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
           {f.cafe && <div className="opt" data-a="left" data-k="cafe"><label>Cafe</label><div>{chip('cafe', 0, 'Cafe 100%', '100')}{chip('cafe', 50, 'Cafe 50%', '50', true)}</div></div>}
           {(f.sweet || k === 'den') && <div className="opt" data-a="left" data-k="sweet"><label>Ngọt</label><div>{k === 'den' ? chip('sweet', 1, 'Ngọt 0%', '0', true, true) : <>{chip('sweet', 0, 'Ngọt 100%', '100')}{chip('sweet', 50, 'Ngọt 50%', '50', true)}{k === 'bac' && chip('sweet', 1, 'Ngọt 0%', '0', true)}</>}</div></div>}
         </div>
-        <div className="abs spin" ref={spin} role="img" aria-label={d.name} style={{ transform: o.upsize ? 'scale(1.12)' : 'scale(1)', transformOrigin: '50% 100%', transition: 'transform .6s cubic-bezier(.34,1.8,.5,1)', backgroundImage: item.known ? `url(/${k}.webp)` : 'none', height: 310, width: 310 * d.aspect, left: 261 - (310 * d.aspect) / 2 }} />
+        <div className="abs spin" ref={spin} role="img" aria-label={d.name} style={{ transform: o.upsize ? 'scale(1.12)' : 'scale(1)', transformOrigin: '50% 100%', transition: 'transform .6s cubic-bezier(.34,1.8,.5,1)', backgroundImage: item.known ? `url(/${k}.webp)` : 'none', height: d.spinH || 310, width: (d.spinH || 310) * d.aspect, left: 261 - ((d.spinH || 310) * d.aspect) / 2 }} />
         <button className="abs circ pm minus" data-a="l" aria-label="Giảm" {...minus.current}><Sym id="i-minus" size={32} /></button>
         <button className="abs circ pm plus" data-a="r" aria-label="Tăng" {...plus.current}><Sym id="i-plus" size={32} /></button>
         <div className="abs qty" data-k="qty" data-a="up" ref={qtyBox} dangerouslySetInnerHTML={{ __html: '<span>01</span>' }} />

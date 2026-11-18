@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { saveMenuItem, saveShop } from '../db';
 import { collection, getDocs, getDoc, doc, writeBatch, query, orderBy, limit } from 'firebase/firestore';
 import { db as fdb } from '../firebase';
-import { Icon, Sym, Page, Btn, Toggle, Field, Empty, fmt, phoneText, XL_EXTRA, kindOf, useUI, errText, BellBtn } from './ui.jsx';
+import { Icon, Sym, Page, Btn, Toggle, Field, Empty, fmt, phoneText, XL_EXTRA, kindOf, useUI, errText, BellBtn, THEMES, getTheme, setTheme } from './ui.jsx';
 import { getTgCfg, saveTgCfg, tgCheckToken, tgNewCode, tgDeepLink, tgWaitChat, tgToAdmin, tgBroadcast, tgChatCount } from '../telegram';
 import { customersOf, CustomerPicker, NewCustomer, EditCustomerForm } from './Customers.jsx';
 
@@ -21,6 +21,7 @@ export default function SettingsTab({ menu, users, shop = {}, adminPhone, onLogo
   if (page === 'customers') return <CustomerPicker users={users} onBack={back} onAdd={() => setPage('newCustomer')} onPick={(c) => setPage({ customer: c })} onEdit={(c) => setPage({ customer: c })} onChat />;
   if (page === 'newCustomer') return <NewCustomer users={users} onBack={() => setPage('customers')} onCreated={() => setPage('customers')} />;
   if (page && page.customer) return <EditCustomerForm customer={page.customer} onBack={() => setPage('customers')} onSaved={() => setPage('customers')} onDeleted={() => setPage('customers')} />;
+  if (page === 'theme') return <ThemePage shop={shop} onBack={back} />;
   if (page === 'hours') return <Hours shop={shop} onBack={back} />;
   if (page === 'telegram') return <Telegram onBack={back} />;
   if (page === 'backup') return <Backup adminPhone={adminPhone} onBack={back} />;
@@ -29,6 +30,7 @@ export default function SettingsTab({ menu, users, shop = {}, adminPhone, onLogo
 
   const rows = [
     ['i-s-user', 'Quản lý khách hàng', 'customers'],
+    ['i-s-theme', 'Theme', 'theme'],
     ['i-s-cup', 'Quản lý menu', 'menu'],
     ['i-s-clock', 'Giờ đóng mở cửa', 'hours'],
     ['i-s-bell', 'Thông báo Telegram', 'telegram'],
@@ -57,6 +59,23 @@ export default function SettingsTab({ menu, users, shop = {}, adminPhone, onLogo
         <button className="s-logout" onClick={async () => (await confirm({ title: 'Đăng xuất?', msg: 'Bạn sẽ cần nhập lại mã PIN để vào.', ok: 'Đăng xuất', danger: true })) && onLogout()}>Đăng xuất</button>
       </div>
     </>
+  );
+}
+
+// Trang Theme: chọn một theme rồi bấm "Lưu lại" mới áp dụng (thêm theme khác ở THEMES trong ui.jsx)
+function ThemePage({ shop, onBack }) {
+  const { toast } = useUI();
+  const [sel, setSel] = useState(() => (THEMES.some((t) => t.id === shop.theme) ? shop.theme : getTheme()));
+  return (
+    <Page className="s-pg s-theme" title="Theme" onBack={onBack} footer={<Btn onClick={async () => { setTheme(sel); try { await saveShop({ theme: sel }); toast('Đã lưu', true); } catch (e) { toast(errText(e)); } onBack(); }}>Lưu lại</Btn>}>
+      <div className="s-thlist" role="radiogroup" aria-label="Theme">
+        {THEMES.map((t) => (
+          <button key={t.id} role="radio" aria-checked={sel === t.id} className="s-throw" onClick={() => setSel(t.id)}>
+            <span>{t.name}</span><i />
+          </button>
+        ))}
+      </div>
+    </Page>
   );
 }
 

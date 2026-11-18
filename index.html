@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("coong-theme")||"xmas"}catch(e){document.documentElement.dataset.theme="xmas"}</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
 <meta name="build" content="__BUILD__">
@@ -64,6 +65,7 @@ svg{display:block}
 .acc::-webkit-scrollbar{display:none}
 .acc>*{flex:none}
 .agroup{display:flex;flex-direction:column;gap:8px}
+#notif .plist{top:87px;height:calc(589px + var(--ex,0px))}
 .astat{padding:16px 24px}
 .awal{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);font-size:16px;font-weight:700}
 .awal[hidden]{display:none}
@@ -104,9 +106,10 @@ button.arow:active,.logout:active,.hrow:active{transform:scale(.97)}
 
 /* ---------- Cart ---------- */
 #cart{visibility:hidden;background:#000;--fg:#fff;--lblc:rgba(255,255,255,.8)}
-.cclose{left:24px;top:24px;width:52px;height:52px;background:rgba(255,255,255,.1);color:#fff}
+.cclose{right:24px;top:24px;width:52px;height:52px;background:rgba(255,255,255,.1);color:#fff}
 .cclose svg{width:32px;height:32px}
-.clist{left:24px;top:84px;width:342px;height:calc(524px + var(--ex,0px));overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
+.ctitle{left:24px;top:26px;margin:0;font-size:32px;line-height:46px;font-weight:700}
+.clist{left:24px;top:100px;width:342px;height:calc(508px + var(--ex,0px));overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
 .clist::-webkit-scrollbar{display:none}
 .citem{display:flex;align-items:center;gap:24px;height:112px;padding:12px 0;box-sizing:border-box;overflow:hidden}
 .cthumb{position:relative;flex:none;width:80px;height:80px;border-radius:100px;background:rgba(255,255,255,.1);overflow:hidden}
@@ -192,10 +195,10 @@ input{user-select:text;-webkit-user-select:text}
 #splash{visibility:visible;z-index:90;background:#000}
 .sbg,#auth .stage{background:#000 url(/cover.webp) center bottom/100% auto no-repeat}
 .sbg{inset:0}
-.slogo{left:100px;top:227px;width:189px;height:74px;color:#fff;transform-origin:0 0}
+.slogo{left:98px;top:226px;width:193px;height:76px;object-fit:contain;transform-origin:0 0}
 
 /* auth: follows the Figma sign-in frames (content block from y 110, gap 24) */
-.alogo{left:118px;top:32px;width:153px;height:60px;color:#fff;transition:opacity .3s}
+.alogo{left:118px;top:32px;width:153px;height:60px;object-fit:contain;transition:opacity .3s}
 .kbp{left:0;top:0;width:1px;height:1px;opacity:0;border:0;padding:0;margin:0;font-size:16px;pointer-events:none}
 .aform{left:24px;top:128px;width:342px;margin:0;display:flex;flex-direction:column;gap:24px;z-index:4}
 .aform.off{display:none}
@@ -357,7 +360,13 @@ input{user-select:text;-webkit-user-select:text}
 /* ---------- Home ---------- */
 #home{background:#000}
 .hello{left:24px;top:24px;width:214px;height:52px;color:#fff}
-.hlogo{display:block;height:52px;width:133px}
+.hlogo{display:block;height:30px;width:159px;margin-top:11px}
+.lgd{color:#fff}
+.hlogo.lgd{height:52px;width:133px;margin-top:0}
+.lgd{display:none!important}   /* logo mới (.lgx) dùng cho mọi theme; logo cũ không còn hiện */
+/* theme mặc định: không tuyết, không nhạc, nền Cacao đứng yên */
+html:not([data-theme=xmas]) #home .homesnow,html:not([data-theme=xmas]) #detail .snowfx,html:not([data-theme=xmas]) .musicbtn{display:none!important}
+html:not([data-theme=xmas]) #detail .bgphoto{animation:none}
 .hello b{display:block;font-size:32px;line-height:46px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cartbtn{width:52px;height:52px;background:rgba(255,255,255,.1);top:24px;left:314px;color:#fff}
 .cartbtn svg{width:28px;height:28px}
@@ -378,6 +387,9 @@ input{user-select:text;-webkit-user-select:text}
 #home.noorder #carousel{top:calc(76px + var(--ex,0px)/2)}
 /* the carousel reaches under the header, so keep the header buttons on top of it */
 #home .bellbtn,#home .cartbtn{z-index:3}
+.musicbtn{left:330px;top:84px;width:36px;height:36px;border-radius:50%;border:0;padding:0;background:rgba(255,255,255,.1);color:#fff;z-index:3;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.musicbtn svg{width:20px;height:20px}
+.musicbtn .off{display:none}.musicbtn[aria-pressed=false] .on{display:none}.musicbtn[aria-pressed=false] .off{display:block}
 #home .cartbtn{left:254px}
 #home .bellbtn{left:314px}
 .card{position:absolute;left:60px;top:96px;width:270px;height:360px;will-change:transform;cursor:pointer}
@@ -387,6 +399,8 @@ input{user-select:text;-webkit-user-select:text}
 .card[data-id=den] .cup{top:78px}
 .card[data-id=nau] .cup{top:74px}
 .card[data-id=bac] .cup{top:74px}
+.card[data-id=cacao] .cup{top:69px;height:249px}
+.card[data-id=cacao] .top{flex-direction:column;gap:8px}
 /* soft white outer glow, breathing slowly with a small swell */
 .card .cup img,.spin{--glow:rgba(255,255,255,.5);--glow0:rgba(255,255,255,.5);filter:drop-shadow(0 0 22px var(--glow0));animation:beat 4.8s ease-in-out infinite}
 /* pause the glow while screens morph, so the transition gets the whole frame budget */
@@ -411,7 +425,7 @@ input{user-select:text;-webkit-user-select:text}
 .card .ico svg{width:16px;height:16px}
 .rec{display:flex;gap:3px;align-items:center;height:24px;padding:0 8px 0 7px;background:#fff;border-radius:100px;color:#f90;font-size:12px;font-weight:700;letter-spacing:.02em}
 .rec svg{width:13px;height:13px}
-.pricebar{position:absolute;left:16px;right:16px;bottom:16px;height:62px;box-sizing:border-box;border-radius:32px;background:rgba(255,255,255,.3);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);display:flex;align-items:center;padding:4px 4px 4px 20px;gap:10px}
+.pricebar{position:absolute;left:16px;right:16px;bottom:16px;height:62px;box-sizing:border-box;border-radius:32px;background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0) 70%),linear-gradient(rgba(255,255,255,.18),rgba(255,255,255,.18)),linear-gradient(color-mix(in srgb,var(--ptint,transparent) 80%,transparent),color-mix(in srgb,var(--ptint,transparent) 80%,transparent));display:flex;align-items:center;padding:4px 4px 4px 20px;gap:10px}
 .pricebar{overflow:hidden}
 .pricebar b{flex:1;font-size:18px;position:relative}
 .pricebar span{position:relative}
@@ -433,6 +447,30 @@ input{user-select:text;-webkit-user-select:text}
 .card[data-id=den] .pricebar b{color:#fff}
 .card[data-id=nau] .pricebar b,.card[data-id=bac] .pricebar b{color:#000}
 .card.sold[data-id] .pricebar b{color:#fff}
+/* Cacao (Noel, theo Figma): thẻ đỏ có ảnh tuyết, viền vàng nhạt, nút + đỏ viền vàng, ruy-băng SEASONAL và đống tuyết dưới ly */
+.card[data-id=cacao]{--t:#fff;--ib:rgba(255,255,255,.2);--ic:#fff}
+.card[data-id=cacao] .surf{border-radius:32px;overflow:hidden}
+#home,#detail{isolation:isolate}
+#home .homesnow{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:40}   /* tuyết nằm trên cùng, phủ lên cả thẻ và nút */
+#home .homesnow::before,#home .homesnow::after{content:"";position:absolute;left:0;right:0;top:-100%;height:200%;will-change:transform}
+#home .homesnow::before{opacity:.6;background-image:radial-gradient(3.6px 3.6px at 30px 40px,#fff,transparent),radial-gradient(2.6px 2.6px at 110px 150px,rgba(255,255,255,.8),transparent),radial-gradient(4.4px 4.4px at 190px 80px,#fff,transparent),radial-gradient(3px 3px at 270px 200px,rgba(255,255,255,.8),transparent),radial-gradient(3.8px 3.8px at 340px 110px,#fff,transparent);background-size:380px 260px;animation:snowfall 24s linear infinite}
+#home .homesnow::after{opacity:.4;background-image:radial-gradient(2.2px 2.2px at 60px 90px,#fff,transparent),radial-gradient(2.8px 2.8px at 150px 30px,#fff,transparent),radial-gradient(2.2px 2.2px at 240px 170px,#fff,transparent),radial-gradient(3.2px 3.2px at 320px 60px,#fff,transparent);background-size:340px 200px;animation:snowfall2 36s linear infinite}
+@media (prefers-reduced-motion:reduce){#home .homesnow::before,#home .homesnow::after{animation:none}}
+.card[data-id=cacao] .surf::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;background:linear-gradient(180deg,#fff3b8,#ffd456);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.card[data-id=cacao] .top{left:17px;top:17px}
+.card[data-id=cacao] .top h3{line-height:41px}
+.card[data-id=cacao] .pricebar{left:17px;right:17px;bottom:17px;height:63px}
+.card[data-id=cacao] .pricebar::before{padding:1.5px;background:linear-gradient(134deg,#fff,rgba(255,255,255,.1) 50%,#fff);opacity:.5;animation:none}
+.card[data-id=cacao] .ico span{box-sizing:border-box;position:relative;background:radial-gradient(circle 10px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
+.card[data-id=cacao] .pricebar{}
+.card[data-id=cacao] .ico span::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(134deg,#fff,rgba(255,255,255,.1) 50%,#fff);opacity:.5;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.card[data-id=cacao] .pricebar b{color:#fff}
+.card[data-id=cacao] .pricebar span{background:linear-gradient(180deg,#037e3c,#093f22);box-shadow:0 0 12px rgba(255,214,107,.85)}
+.card[data-id=cacao] .pricebar span::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(180deg,#fff3b8,#f5c842 50%,#b8860b);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.card .ribbon{position:absolute;right:1.5px;top:1.5px;width:128px;height:88px;overflow:hidden;border-top-right-radius:30.5px;pointer-events:none}
+.card .ribbon img{position:absolute;width:136.78%;height:138.14%;left:-16.31%;top:-16.87%;max-width:none}
+.card .snowpile{position:absolute;left:40px;top:272.87px;width:104px;height:16.26px;transform:scaleX(-1);pointer-events:none}
+.card.sold[data-id=cacao] .ribbon{opacity:.6}
 
 .dots{left:0;width:390px;bottom:94px;display:none;justify-content:center;gap:6px}
 .dots i{width:6px;height:6px;border-radius:6px;background:rgba(255,255,255,.3);transition:width .4s var(--ease-out),background .4s}
@@ -448,8 +486,22 @@ input{user-select:text;-webkit-user-select:text}
 #detail[data-id=den]{background:linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)}
 #detail[data-id=den]{--bg1:#3e3e3e;--bg2:#1e1e1e;--fg:#fff;--title:#fff;--btn:rgba(255,255,255,.1);--chip:rgba(255,255,255,.1);--chipT:#fff;--xOn:#000;--valOn:#000;--bulge:rgba(255,255,255,.1);--round:rgba(0,0,0,.1);--price:#000;--priceT:#fff;--lblc:rgba(255,255,255,.8);--pm:#fff}
 #detail[data-id=nau]{--bg1:#fed3a1;--bg2:#ffc077;--fg:#000;--title:#663d00;--btn:rgba(255,255,255,.3);--chip:rgba(255,255,255,.3);--chipT:#000;--xOn:#000;--valOn:#000;--bulge:rgba(255,255,255,.3);--round:rgba(0,0,0,.1);--price:#fff;--priceT:#000;--lblc:rgba(0,0,0,.8);--pm:#000}
+#detail[data-id=cacao]{--bg1:#ac0b0b;--bg2:#ac0b0b;--fg:#fff;--title:#fff;--btn:rgba(255,255,255,.2);--chip:rgba(255,255,255,.2);--chipT:#fff;--xOn:#a81010;--valOn:#a81010;--bulge:rgba(197,45,40,.7);--round:linear-gradient(180deg,#ff5a6e,#a1001b);--price:linear-gradient(180deg,#037e3c,#093f22);--priceT:#fff;--lblc:#fff;--pm:#fff;--buy:#fff;--buyT:#d02d45;background:#ac0b0b}
 #detail[data-id=bac]{--bg1:#edecea;--bg2:#d6d3c9;--fg:#000;--title:#000;--btn:rgba(255,255,255,.3);--chip:rgba(255,255,255,.3);--chipT:#000;--xOn:#000;--valOn:#000;--bulge:rgba(255,255,255,.3);--round:rgba(0,0,0,.1);--price:#fff;--priceT:#000;--lblc:rgba(0,0,0,.8);--pm:#000}
 #detail .stage{color:var(--fg)}
+/* Cacao: nền chi tiết gồm ảnh (trôi chậm), lớp phủ đỏ và tuyết rơi nhẹ; các món khác không hiện */
+#detail .bgphoto,#detail .bgshade,#detail .snowfx{display:none;position:absolute;inset:0;pointer-events:none}
+#detail[data-id=cacao] .bgphoto,#detail[data-id=cacao] .bgshade,#detail[data-id=cacao] .snowfx{display:block}
+#detail .bgphoto{background:url(/cacao-bg.webp) 0 92.2%/107.15% 107.17% no-repeat;transform-origin:50% 55%;will-change:transform;animation:bgdrift 18s ease-in-out infinite alternate}
+#detail .bgshade{background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(58,0,16,0) 60%,rgba(58,0,16,.33) 100%),linear-gradient(0deg,rgba(172,11,11,0) 73.09%,rgba(172,11,11,.9) 100%),linear-gradient(-90deg,rgba(172,11,11,0) 51.759%,rgba(172,11,11,.8) 67.335%,#ac0b0b 100%),linear-gradient(180deg,rgba(172,11,11,0) 36.59%,rgba(172,11,11,.8) 71.138%,#ac0b0b 100.89%)}
+#detail .snowfx{overflow:hidden;z-index:40}
+#detail .snowfx::before,#detail .snowfx::after{content:"";position:absolute;left:0;right:0;top:-100%;height:200%;will-change:transform}
+#detail .snowfx::before{opacity:.5;background-image:radial-gradient(3.2px 3.2px at 30px 40px,#fff,transparent),radial-gradient(2.4px 2.4px at 110px 150px,rgba(255,255,255,.8),transparent),radial-gradient(4px 4px at 190px 80px,#fff,transparent),radial-gradient(2.8px 2.8px at 270px 200px,rgba(255,255,255,.8),transparent),radial-gradient(3.6px 3.6px at 340px 110px,#fff,transparent);background-size:380px 240px;animation:snowfall 26s linear infinite}
+#detail .snowfx::after{opacity:.35;background-image:radial-gradient(2px 2px at 60px 90px,#fff,transparent),radial-gradient(2.6px 2.6px at 150px 30px,#fff,transparent),radial-gradient(2px 2px at 240px 170px,#fff,transparent),radial-gradient(3px 3px at 320px 60px,#fff,transparent);background-size:340px 180px;animation:snowfall2 38s linear infinite}
+@keyframes bgdrift{0%{transform:scale(1) translate(0,0)}100%{transform:scale(1.1) translate(-8px,-12px)}}
+@keyframes snowfall{to{transform:translate3d(-30px,480px,0)}}
+@keyframes snowfall2{to{transform:translate3d(20px,360px,0)}}
+@media (prefers-reduced-motion:reduce){#detail .bgphoto,#detail .snowfx::before,#detail .snowfx::after{animation:none}}
 .back{left:24px;top:24px;width:52px;height:52px;background:var(--btn);color:var(--fg)}
 .back svg{width:28px;height:28px}
 #detail .cartbtn{top:24px;background:var(--btn);color:var(--fg)}
@@ -460,6 +512,24 @@ input{user-select:text;-webkit-user-select:text}
 .opt label{display:block;font-size:16px;line-height:20px;margin-bottom:4px}
 #detail[data-id=den] .opt label{color:#fff}
 #detail[data-id=nau] .opt label,#detail[data-id=bac] .opt label{color:#000}
+#detail[data-id=cacao] .opt label{color:#fff}
+#detail[data-id=cacao] .qty span{background:linear-gradient(180deg,#fff3b8 0%,#f5c842 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+#detail[data-id=cacao] .back,#detail[data-id=cacao] .cartbtn,#detail[data-id=cacao] .dadd{box-sizing:border-box;-webkit-backdrop-filter:none;backdrop-filter:none}
+#detail[data-id=cacao] .chip{box-sizing:border-box;}
+#detail[data-id=cacao] .back,#detail[data-id=cacao] .cartbtn{background:radial-gradient(circle 17px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
+#detail[data-id=cacao] .dadd{background:radial-gradient(circle 19.5px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
+#detail[data-id=cacao] .chip{background:radial-gradient(circle 14.3px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
+#detail[data-id=cacao] .chip{position:relative}
+#detail[data-id=cacao] .back::before,#detail[data-id=cacao] .cartbtn::before,#detail[data-id=cacao] .chip::before,#detail[data-id=cacao] .dadd::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(134deg,#fff,rgba(255,255,255,.1) 50%,#fff);opacity:.5;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+#detail[data-id=cacao] .chip.on::before{display:none}
+#detail[data-id=cacao] .chip.on{background:#fff;-webkit-backdrop-filter:none;backdrop-filter:none}
+#detail[data-id=cacao] .pm{background:var(--round);box-shadow:0 0 12px rgba(255,214,107,.85)}
+#detail[data-id=cacao] .pm::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;background:linear-gradient(180deg,#fff3b8,#f5c842 50%,#b8860b);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+#detail[data-id=cacao] .dprice{box-shadow:0 0 12px rgba(255,214,107,.85)}
+#detail[data-id=cacao] .dprice::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;background:linear-gradient(180deg,#fff3b8,#f5c842 50%,#b8860b);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+/* viền đứt theo Figma: gradient #ff5a6e → #a1001b từ trên xuống, nét 3px, đứt 10/10, bo 30 */
+#detail[data-id=cacao] .dbuy{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 266 60' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop stop-color='%23ff5a6e'/%3E%3Cstop offset='1' stop-color='%23a1001b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='1.5' y='1.5' width='263' height='57' rx='28.5' fill='none' stroke='url(%23g)' stroke-width='3' pathLength='600' stroke-dasharray='10 10'/%3E%3C/svg%3E") no-repeat 0 0/100% 100%}
+#detail[data-id=cacao] .dbuy:disabled{background:#8e8e93}
 .opt div{display:flex;gap:8px}
 .chip{width:44px;height:44px;border-radius:100px;background:var(--chip);color:var(--chipT);font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background .3s,color .3s,opacity .3s,transform .3s var(--ease-out)}
 .chip svg{width:44px;height:44px}
@@ -481,7 +551,7 @@ input{user-select:text;-webkit-user-select:text}
 .qty{left:130px;width:134px;bottom:168px;height:58px;overflow:hidden;text-align:center;font-size:44px;font-weight:500;line-height:58px;font-variant-numeric:tabular-nums}
 .qty span{position:absolute;left:0;right:0}
 .dprice{left:197px;bottom:126px;transform:translateX(-50%);background:var(--price);color:var(--priceT,#fff);border-radius:32px;padding:9px 21px 8px;font-size:18px;font-weight:700;line-height:23px;font-variant-numeric:tabular-nums;white-space:nowrap}
-.add{left:24px;bottom:24px;width:342px;height:68.56px;box-sizing:border-box;border-radius:32px;background:rgba(255,255,255,.1);--bw:1.2px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);touch-action:none;overflow:hidden}
+.add{left:24px;bottom:24px;width:342px;height:68.56px;box-sizing:border-box;border-radius:32px;background:rgba(255,255,255,.1);--bw:1.2px;touch-action:none;overflow:hidden}
 .add .lbl{position:absolute;left:92px;right:76px;top:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--lblc,var(--fg));white-space:nowrap}
 .add .chev{position:absolute;right:30px;top:26.34px;width:30px;height:16px;color:var(--fg)}
 /* slide-to-unlock sheen: a bright band sweeps left→right across the label and the arrows */
@@ -493,7 +563,7 @@ input{user-select:text;-webkit-user-select:text}
 @keyframes chev{0%,100%{opacity:.25}40%{opacity:1}}
 /* drink detail: add-to-cart circle + pay-now pill */
 .dacts{left:24px;bottom:24px;width:342px;height:60px;display:flex;gap:16px}
-.dadd{position:relative;flex:none;width:60px;height:60px;border-radius:32px;background:var(--btn);color:var(--fg);display:flex;align-items:center;justify-content:center;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);transition:transform .25s var(--ease-out)}
+.dadd{position:relative;flex:none;width:60px;height:60px;border-radius:32px;background:var(--btn);color:var(--fg);display:flex;align-items:center;justify-content:center;transition:transform .25s var(--ease-out)}
 .dadd::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.2px;background:linear-gradient(90deg,rgba(255,255,255,.5),rgba(255,255,255,.1) 50%,rgba(255,255,255,.5));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
 .dadd svg{width:28px;height:28px}
 .dbuy{flex:1;height:60px;border-radius:32px;background:var(--buy,#fff);color:var(--buyT,#000);font-size:18px;font-weight:700;transition:transform .25s var(--ease-out)}
@@ -560,11 +630,13 @@ input{user-select:text;-webkit-user-select:text}
 
 <div id="device"><div id="app">
 <div id="home" class="screen noorder" aria-label="Trang chủ">
+  <i class="snowfx homesnow" aria-hidden="true"></i>
   <div class="stage">
     <button class="abs circ cartbtn" aria-label="Giỏ hàng"><svg><use href="#i-bag"/></svg><span class="badge"></span></button>
     <button class="abs circ bellbtn" id="bell" aria-label="Thông báo"><svg><use href="#i-bell"/></svg><span class="nbadge"></span></button>
     <div class="tab" id="tOrder">
-    <div class="abs hello"><svg class="hlogo" viewBox="0 0 91.42 35.78" role="img" aria-label="Coong"><use href="#i-logo"/></svg><b id="helloName" style="display:none">LieuNT</b></div>
+      <button class="abs musicbtn" id="music" aria-label="Bật/tắt nhạc nền" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor"/><path class="on" d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/><path class="off" d="m16 9 5 6m0-6-5 6"/></svg></button>
+    <div class="abs hello"><svg class="hlogo lgd" viewBox="0 0 91.42 35.78" role="img" aria-label="Coong"><use href="#i-logo"/></svg><img class="hlogo lgx" src="/logo.svg" alt="Coong"><b id="helloName" style="display:none">LieuNT</b></div>
     <div class="abs order" id="lastOrder" style="display:none"><span><b id="orderTxt"></b><small id="orderWhen"></small></span><button id="reorder">Đặt lại</button><button class="oclose" id="lastClose" aria-label="Ẩn thẻ đặt lại"><svg><use href="#i-close"/></svg></button></div>
     <button class="abs order tgcard" id="tgCard" style="display:none" aria-label="Bật thông báo Telegram"><svg class="tgico" viewBox="0 0 28 28"><circle cx="14" cy="14" r="14" fill="#2AABEE"/><path d="M6.4 13.7l12.9-5c.6-.2 1.1.1.9 1l-2.2 10.3c-.2.7-.6.9-1.2.6l-3.3-2.4-1.6 1.5c-.2.2-.3.3-.7.3l.2-3.4 6.2-5.6c.3-.2-.1-.4-.4-.2l-7.7 4.8-3.3-1c-.7-.2-.7-.7.2-1z" fill="#fff"/></svg><span class="tgt"><small>THOẢI MÁI GHI NỢ CHỈ CẦN</small><b>Bật thông báo Telegram</b></span><i class="tgl"><b></b></i><i class="glint"></i></button>
     <div id="carousel" class="abs"></div>
@@ -615,6 +687,7 @@ input{user-select:text;-webkit-user-select:text}
 </div>
 
 <div id="detail" class="screen" data-id="den" aria-label="Chi tiết đồ uống">
+  <i class="bgphoto" aria-hidden="true"></i><i class="bgshade" aria-hidden="true"></i><i class="snowfx" aria-hidden="true"></i>
   <div class="stage">
     <div class="abs bulge l" data-a="l"><svg><use href="#i-bulge"/></svg></div>
     <div class="abs bulge r" data-a="r"><svg><use href="#i-bulge"/></svg></div>
@@ -641,6 +714,7 @@ input{user-select:text;-webkit-user-select:text}
 
 <div id="cart" class="screen empty" aria-label="Giỏ hàng">
   <div class="stage">
+    <h2 class="abs ctitle" data-s>Giỏ hàng</h2>
     <button class="abs circ cclose" id="cClose" aria-label="Đóng giỏ hàng"><svg><use href="#i-close"/></svg></button>
     <div class="abs clist" id="clist"></div>
     <div class="abs estate cempty">
@@ -683,8 +757,8 @@ input{user-select:text;-webkit-user-select:text}
 
 <div id="notif" class="screen page" data-how="right" aria-label="Thông báo">
   <div class="stage">
-    <button class="abs circ pback" data-back aria-label="Quay lại"><svg><use href="#i-back"/></svg></button>
-    <h2 class="abs pt" data-s>Thông báo</h2>
+    <button class="abs circ pback" data-back aria-label="Quay lại" style="left:auto;right:24px"><svg><use href="#i-close"/></svg></button>
+    <h2 class="abs pt" data-s style="top:26px">Thông báo</h2>
     <div class="abs plist" id="nlist"></div>
     <div class="abs estate nempty" id="nEmpty" hidden>
       <div class="eico"><svg><use href="#i-bell"/></svg></div>
@@ -746,7 +820,7 @@ input{user-select:text;-webkit-user-select:text}
 <div id="auth" class="screen page" data-how="fade" aria-label="Tài khoản Coong">
   <div class="stage">
     <input class="abs kbp" id="kbProxy" inputmode="numeric" aria-hidden="true" tabindex="-1" autocomplete="off">
-    <svg class="abs alogo" viewBox="0 0 91.42 35.78" role="img" aria-label="Coong"><use href="#i-logo"/></svg>
+    <svg class="abs alogo lgd" viewBox="0 0 91.42 35.78" role="img" aria-label="Coong"><use href="#i-logo"/></svg><img class="abs alogo lgx" src="/logo.svg" alt="Coong">
     <button class="abs circ pback" id="aBack" data-back aria-label="Quay lại"><svg><use href="#i-back"/></svg></button>
     <form class="abs aform" data-m="phone" novalidate>
       <div class="ahead"><h2 class="atitle" data-s>Can’t sleep?</h2><p class="asub" data-s>Let’s get a sip</p></div>
@@ -804,7 +878,7 @@ input{user-select:text;-webkit-user-select:text}
 <div id="splash" class="screen" aria-label="Coong">
   <div class="stage">
     <div class="abs sbg"></div>
-    <svg class="abs slogo" viewBox="0 0 91.42 35.78" role="img" aria-label="Coong"><use href="#i-logo"/></svg>
+    <svg class="abs slogo lgd" viewBox="0 0 91.42 35.78" role="img" aria-label="Coong"><use href="#i-logo"/></svg><img class="abs slogo lgx" src="/logo.svg" alt="Coong">
   </div>
 </div>
 
@@ -818,18 +892,26 @@ const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const T = ms => RM ? Math.min(ms, 120) : ms;
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const vis = (s, r=document) => $$(s, r).find(el => getComputedStyle(el).display !== 'none') || $(s, r);   /* the logo variant the current theme shows */
 
 const DRINKS = [
   {id:'bac', name:'Bạc', price:20000, xl:5000, sweet:true, cafe:true, aspect:512/901, rec:true,  stops:[[0,'#e2e2e2'],[.5739,'#d9d0b7']], edge:.35, card:'linear-gradient(0deg,#d9d0b7 42.61%,#e2e2e2 100%)', bg:'linear-gradient(0deg,#d9d0b7 42.61%,#e2e2e2 100%)'},
   {id:'den', name:'Đen', price:20000, xl:5000, sweet:false, cafe:false, aspect:512/792,            stops:[[0,'#484848'],[.5739,'#1e1e1e']], edge:.12, card:'linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)', bg:'linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)'},
   {id:'nau', name:'Nâu', price:20000, xl:5000, sweet:true, cafe:false, aspect:512/797,            stops:[[0,'#fed9ae'],[.574,'#ffc077']], edge:.35, card:'linear-gradient(180deg,#fed9ae 0%,#ffc077 57.4%)', bg:'linear-gradient(180deg,#fed3a1,#ffc077)'},
+  /* Cacao: món theo mùa (Noel). Ảnh nền thẻ/màn chi tiết là /cacao-bg.webp phủ thêm các lớp đỏ */
+  {id:'cacao', name:'Cacao', price:20000, xl:5000, sweet:true, cafe:false, aspect:741/996, spinH:277.6, cupLeft:64, rot:16.7, xmas:true, stops:[[0,'#ac0b0b']], edge:0,
+   photo:'url(/cacao-bg.webp)', posCard:'100% 0/130.38% 130.41%', posDet:'0 92.2%/107.15% 107.17%',
+   cardShade:'linear-gradient(0deg,rgba(172,11,11,0) 56.036%,rgba(172,11,11,.9) 93.103%),linear-gradient(-90deg,rgba(172,11,11,.8) 1.0549%,rgba(172,11,11,0) 13.984% 73.103%,rgba(172,11,11,.8) 94.586%),linear-gradient(180deg,rgba(172,11,11,0) 36.59%,rgba(172,11,11,.2) 71.138%,#8e0000 100.89%)',
+   bgShade:'radial-gradient(ellipse 50% 50% at 50% 50%,rgba(58,0,16,0) 60%,rgba(58,0,16,.33) 100%),linear-gradient(0deg,rgba(172,11,11,0) 73.09%,rgba(172,11,11,.9) 100%),linear-gradient(-90deg,rgba(172,11,11,0) 51.759%,rgba(172,11,11,.8) 67.335%,#ac0b0b 100%),linear-gradient(180deg,rgba(172,11,11,0) 36.59%,rgba(172,11,11,.8) 71.138%,#ac0b0b 100.89%)'},
 ];
+/* Cacao: nền thẻ và nền chi tiết cùng một ảnh, chỉ khác khung cắt và lớp phủ đỏ */
+DRINKS.forEach(d => { if (d.xmas) { d.card = `${d.cardShade},${d.photo} ${d.posCard} no-repeat #ac0b0b`; d.bg = `${d.bgShade},${d.photo} ${d.posDet} no-repeat #ac0b0b`; } });
 const N = DRINKS.length, FRAMES = 24;
 /* Firebase bridge (src/coong/api.js), loaded as a module next to this script */
 const api = () => window.CoongAPI ? Promise.resolve(window.CoongAPI) : new Promise(r => addEventListener('coong-api', () => r(window.CoongAPI), {once:true}));
 /* match a shop menu item to one of the three designed drinks by name */
 const fold = t => (t || '').toLowerCase().normalize('NFC');
-const drinkIdOf = name => { const n = fold(name); return n.includes('bạc') ? 'bac' : n.includes('nâu') ? 'nau' : n.includes('đen') ? 'den' : null; };
+const drinkIdOf = name => { const n = fold(name); return n.includes('bạc') ? 'bac' : n.includes('nâu') ? 'nau' : n.includes('đen') ? 'den' : /ca ?cao/.test(n) ? 'cacao' : null; };
 let lastMenu = [];
 /* chữ trên thẻ món khi hết hàng / ngoài giờ: chủ quán sửa được khi bật công tắc Hết hàng (tối đa 25 chữ, vừa 1 dòng) */
 const SOLD_DEFAULT = 'Mai bán lại nha 😋';
@@ -850,13 +932,14 @@ function applyMenu(items){
 let soldSig = '';
 /* hết hàng hoặc chưa mở cửa: vẫn xem và thêm vào giỏ được, chỉ không cho "Thanh toán ngay" */
 function syncBuy(){ const b = $('#buy'); if (b && typeof cur === 'number' && DRINKS[cur]) b.disabled = !!DRINKS[cur].sold; }
-const GLOW = {den:'rgba(255,255,255,.5)', nau:'rgba(255,255,255,.5)', bac:'rgba(255,255,255,.5)'};
+const GLOW = {den:'rgba(255,255,255,.5)', nau:'rgba(255,255,255,.5)', bac:'rgba(255,255,255,.5)', cacao:'rgba(255,255,255,.5)'};
 const fmt = n => n.toLocaleString('vi-VN').replace(/,/g,'.');
 const pad = n => String(n).padStart(2,'0');
 let Z = 10;   /* stacking order for screens opened on top of each other */
 
 /* preload the drink photos so the detail screen is ready */
 DRINKS.forEach(d => { const i = new Image(); i.src = d.id + '.webp'; if (i.decode) i.decode().catch(() => {}); });
+if (DRINKS.some(d => d.xmas)) { const i = new Image(); i.src = '/cacao-bg.webp'; }
 const nextFrame = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
 /* ---------- stage scaling ---------- */
@@ -884,7 +967,7 @@ const clipOf = (r, rad) => `inset(${r.top}px ${innerWidth-r.right}px ${innerHeig
 const fullClip = () => clipOf(scr(), scrRad());
 /* a copy of the card's price pill that sits above the flying cup, so the pill never jumps from under the cup to over it */
 function pillClone(card, r){
-  const w = document.createElement('div'); w.className = 'card' + (card.classList.contains('sold') ? ' sold' : ''); w.dataset.id = card.dataset.id;
+  const w = document.createElement('div'); w.className = 'card' + (card.classList.contains('sold') ? ' sold' : ''); w.dataset.id = card.dataset.id; w.style.setProperty('--ptint', card.style.getPropertyValue('--ptint'));
   /* an empty wrapper (only there for the .card styles): no clip, transform or will-change above the pill, so its backdrop blur keeps working */
   Object.assign(w.style, {left:'0px', top:'0px', width:'0px', height:'0px', willChange:'auto', pointerEvents:'none', cursor:'default'});
   const src = $('.pricebar', card), k = r.width/(card.offsetWidth || r.width);
@@ -925,21 +1008,23 @@ addEventListener('resize', fit); fit();
 const car = $('#carousel'), dots = $('#dots');
 const cards = DRINKS.map((d,i) => {
   const el = document.createElement('div');
-  el.className = 'card'; el.dataset.id = d.id; el.dataset.i = i;
+  el.className = 'card'; el.dataset.id = d.id; el.dataset.i = i; el.style.setProperty('--ptint', d.stops[d.stops.length - 1][1]);
   el.setAttribute('role','button'); el.setAttribute('aria-label', 'Xem ' + d.name);
   const icons = `<div class="ico"><span class="circ"><svg><use href="#i-snow"/></svg></span><span class="circ"><svg><use href="#i-flame"/></svg></span></div>`;
-  el.innerHTML = `<svg class="surf" viewBox="0 0 270 360" aria-hidden="true"><defs><linearGradient id="g-${d.id}" x1="0" y1="0" x2="0" y2="1">${d.stops.map(([o,c]) => `<stop offset="${o}" stop-color="${c}"/>`).join('')}</linearGradient><linearGradient id="e-${d.id}" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#fff"/><stop offset=".5" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><rect width="270" height="360" rx="32" fill="url(#g-${d.id})"/><rect x=".75" y=".75" width="268.5" height="358.5" rx="31.25" fill="none" stroke="url(#e-${d.id})" stroke-opacity="${d.edge}" stroke-width="1.5"/></svg>
-    <div class="cup"${d.id === 'bac' ? '' : ` style="left:${(135 - 245*d.aspect/2).toFixed(1)}px"`}><img src="/${d.id}.webp" alt="" draggable="false"></div>
-    <div class="top">${d.rec
+  const surf = d.xmas ? `<div class="surf" aria-hidden="true" style="background:${d.card}"></div>` : `<svg class="surf" viewBox="0 0 270 360" aria-hidden="true"><defs><linearGradient id="g-${d.id}" x1="0" y1="0" x2="0" y2="1">${d.stops.map(([o,c]) => `<stop offset="${o}" stop-color="${c}"/>`).join('')}</linearGradient><linearGradient id="e-${d.id}" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#fff"/><stop offset=".5" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><rect width="270" height="360" rx="32" fill="url(#g-${d.id})"/><rect x=".75" y=".75" width="268.5" height="358.5" rx="31.25" fill="none" stroke="url(#e-${d.id})" stroke-opacity="${d.edge}" stroke-width="1.5"/></svg>`;
+  el.innerHTML = surf + `
+    <div class="cup"${d.id === 'bac' ? '' : ` style="left:${(d.cupLeft ?? 135 - 245*d.aspect/2).toFixed(1)}px"`}><img src="/${d.id}.webp" alt="" draggable="false"></div>    <div class="top">${d.rec
       ? `<div class="row"><h3>${d.name}</h3><span class="rec"><svg><use href="#i-star"/></svg>RECOMMEND</span></div>${icons}`
       : `<h3>${d.name}</h3>${icons}`}</div>
-    <div class="pricebar"><i class="glint"></i><b>${fmt(d.price)}</b><span><svg><use href="#i-cardadd"/></svg></span></div>`;
+    <div class="pricebar"><i class="glint"></i><b>${fmt(d.price)}</b><span><svg><use href="#i-cardadd"/></svg></span></div>${d.xmas ? '<img class="snowpile" src="/cacao-snow.svg" alt="" draggable="false">' : ''}${d.xmas ? '<div class="ribbon"><img src="/cacao-ribbon.webp" alt="" draggable="false"></div>' : ''}`;
   car.appendChild(el);
   const dot = document.createElement('i'); dots.appendChild(dot);
   return el;
 });
 
-let pos = 1, target = 1, vel = 0, raf = 0;
+/* lúc mới mở app, món theo mùa (Cacao) nằm chính giữa; không có thì món thứ hai như cũ */
+const START = Math.max(0, DRINKS.findIndex(d => d.xmas)) || 1;
+let pos = START, target = START, vel = 0, raf = 0;
 const CARD_S = 1;
 const MID_W = 300, SIDE_W = 250, SIDE_STEP = MID_W/2 + 10 + SIDE_W/2;   /* 270px-wide artwork shown 300px in the middle and 250px beside it, 10px gap */
 const wrap = o => { o = ((o % N) + N) % N; return o >= N/2 ? o - N : o; };
@@ -956,7 +1041,7 @@ function layout(){
     el.style.zIndex = 10 - Math.round(a*3);
     const cup = el.firstElementChild.nextElementSibling;
     const bob = RM ? 0 : Math.sin(t*1.6 + i)*4*(1-Math.min(a,1));
-    cup.style.transform = `translate(${-o*26}px,${bob}px) rotate(${11.7 + o*6}deg)`;
+    cup.style.transform = `translate(${-o*26}px,${bob}px) rotate(${(DRINKS[i].rot ?? 11.7) + o*6}deg)`;
   });
   const ai = active();
   [...dots.children].forEach((d,i) => d.classList.toggle('on', i === ai));
@@ -1048,12 +1133,12 @@ $('#lastClose').addEventListener('click', () => {
 
 /* ---------- detail state ---------- */
 const detail = $('#detail'), spin = $('#spin');
-let cur = 1, qty = 1, frame = 0, cart = 0;
+let cur = START, qty = 1, frame = 0, cart = 0;
 const opts = {upsize:0, hot:0, sweet:0, cafe:0};
 const unit = () => DRINKS[cur].price + (opts.upsize ? DRINKS[cur].xl : 0);
 
 function sizeSpin(){
-  const d = DRINKS[cur], h = 310, w = h*d.aspect;
+  const d = DRINKS[cur], h = d.spinH || 310, w = h*d.aspect;
   spin.style.height = h + 'px'; spin.style.width = w + 'px'; spin.style.left = (261 - w/2) + 'px';
 }
 /* tên món + option + ảnh nằm giữa hàng nút trên (X / giỏ) và hàng nút dưới (− / +) */
@@ -1061,19 +1146,49 @@ function centerDetail(){
   const c = (76 + 637 + DH) / 2, o = $('#opts'), t = $('#dTitle');
   const tb = 46 + 19 + o.offsetHeight;
   t.style.top = Math.round(c - tb/2) + 'px'; o.style.top = Math.round(c - tb/2 + 65) + 'px';
-  spin.style.top = Math.round(c - 155) + 'px';
+  spin.style.top = Math.round(c - (DRINKS[cur].spinH || 310)/2) + 'px';
 }
 const spin2 = document.createElement('i'); spin2.className = 'spin2'; spin.appendChild(spin2);
 /* the cup is a still photo now: no turning */
 function setFrame(){ frame = 0; }
-/* which option chips a drink offers: Den = Ngot 0 only, Nau = Cafe 100 only, Bac = everything */
+/* which option chips a drink offers: Den = Ngot 0 only, Nau / Cacao = no Ngot 0, Bac = everything */
 const chipShown = (id, k, v) => { const p = +v === 0 ? 100 : +v;
-  if (k === 'sweet') return id === 'den' ? p === 1 : id === 'nau' ? p !== 1 : true;
+  if (k === 'sweet') return id === 'den' ? p === 1 : (id === 'nau' || id === 'cacao') ? p !== 1 : true;
   if (k === 'cafe') return id === 'bac';
   return true; };
+/* theme: danh sách để thêm theme mới về sau, chỉ cần thêm một dòng ở đây và CSS html[data-theme=...] */
+const THEMES = [
+  {id:'default', name:'Mặc định', swatch:'linear-gradient(180deg,#4a4a4a,#111)'},
+  {id:'xmas', name:'Giáng sinh', swatch:'radial-gradient(circle at 70% 25%,#ff5a6e,#ac0b0b 60%,#5a0000)'},
+];
+function setTheme(id, save = true){
+  if (!THEMES.some(t => t.id === id)) id = 'xmas';
+  document.documentElement.dataset.theme = id;
+  if (save) { try { localStorage.setItem('coong-theme', id); } catch (e) {} }
+  dispatchEvent(new Event('coong-theme'));
+}
+/* nhạc nền: trình duyệt chỉ cho phát sau lần chạm đầu tiên; nhớ lựa chọn tắt/bật, tạm dừng khi rời tab */
+(() => {
+  const a = new Audio('/xmas.mp3'); a.loop = true; a.volume = .175; a.preload = 'none';
+  const btn = $('#music'); let on = true;
+  try { on = localStorage.getItem('coong-music') !== '0'; } catch (e) {}
+  const sync = () => btn.setAttribute('aria-pressed', on);
+  const themed = () => document.documentElement.dataset.theme === 'xmas';
+  const play = () => { if (on && themed() && !document.hidden) a.play().catch(() => {}); };
+  sync();
+  addEventListener('coong-theme', () => { if (themed()) play(); else a.pause(); });
+  const first = () => { removeEventListener('pointerdown', first, true); play(); };
+  addEventListener('pointerdown', first, true);
+  btn.addEventListener('click', () => { on = !on; try { localStorage.setItem('coong-music', on ? '1' : '0'); } catch (e) {} sync(); on ? play() : a.pause(); });
+  document.addEventListener('visibilitychange', () => document.hidden ? a.pause() : play());
+})();
+
+/* nền Cacao trôi chậm: mỗi lần mở / đổi món cho chạy lại từ vị trí gốc, khớp với tấm nền lúc thu phóng */
+function restartBgFx(){ const el = $('#detail .bgphoto'); if (!el) return; el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; }
 function fillDetail(i){
   cur = i; const d = DRINKS[i];
   detail.dataset.id = d.id;
+  restartBgFx();
   $('#dTitle').textContent = d.name;
   spin.style.backgroundImage = `url(/${d.id}.webp)`; spin.setAttribute('aria-label', d.name);
   sizeSpin();
@@ -1157,6 +1272,56 @@ function pre(el){
 }
 function rest(el){ return el.classList.contains('bulge') && el.dataset.a === 'r' ? 'scaleX(-1)' : el.id === 'dPrice' ? 'translateX(-50%)' : 'none'; }
 
+/* tấm nền phóng lên / thu gọn: Cacao tách ảnh và lớp phủ ra để ảnh đổi khung cắt mượt thay vì hai ảnh chồng mờ lên nhau */
+/* tấm nền phóng lên / thu gọn.
+   Món thường: tấm nền cỡ màn hình phóng ra từ thẻ như cũ.
+   Món Giáng sinh (Cacao): chỉ MỘT tấm nền duy nhất. Ảnh nền luôn là một lớp, chỉ trượt/co giãn từ khung cắt của thẻ sang khung cắt của trang chi tiết
+   (transform, chạy trên GPU), lớp phủ đỏ của thẻ chuyển dần sang lớp phủ của trang chi tiết, còn khung cắt (clip-path) mở rộng ra toàn màn hình.
+   Không có ảnh thẻ nhỏ mờ dần chồng lên nữa nên không còn "tấm bìa" ma. */
+const parsePhoto = s => { const [pos, size] = s.split('/'), [ax, ay] = pos.trim().split(/\s+/).map(v => parseFloat(v)/100), [w, h] = size.trim().split(/\s+/).map(v => parseFloat(v)/100); return {ax, ay, w, h}; };
+function makeVeil(d, closing, cardR, sr, rad){
+  if (!d.xmas) return {
+    html: `<div style="position:absolute;inset:0;background:${d.card}"></div><div class="vb" style="position:absolute;inset:0;background:${d.bg};opacity:${closing ? 1 : 0}"></div>`,
+    play(veil, D){
+      if (!closing) {
+        const a = veil.animate(veilKF(cardR, sr, rad, scrRad()), {duration:D*0.9, easing:EASE_MORPH, fill:'forwards'});
+        veil.animate([{opacity:0},{opacity:1, offset:.4},{opacity:1}], {duration:D*0.9, easing:'ease-out', fill:'forwards'});
+        veil.querySelector('.vb').animate([{opacity:0},{opacity:1}], {duration:D*0.7, delay:D*0.1, easing:'ease-in-out', fill:'forwards'});
+        return a;
+      }
+      veil.querySelector('.vb').animate([{opacity:1},{opacity:0}], {duration:D*0.7, easing:'ease-in-out', fill:'forwards'});
+      const a = veil.animate(veilKF(cardR, sr, rad, scrRad()).reverse(), {duration:D, easing:EASE_MORPH, fill:'forwards'});
+      veil.animate([{opacity:1},{opacity:1, offset:.55},{opacity:0}], {duration:D, easing:'ease-in', fill:'forwards'});
+      return a;
+    }
+  };
+  const box = (c, a, rel) => { const w = c.w*a.width, h = c.h*a.height; return {l:a.left-rel.left + (a.width-w)*c.ax, t:a.top-rel.top + (a.height-h)*c.ay, w, h}; };
+  const cb = box(parsePhoto(d.posCard), cardR, sr), db = box(parsePhoto(d.posDet), sr, sr);
+  const tf = b => `translate(${b.l}px,${b.t}px) scale(${b.w/db.w},${b.h/db.h})`;
+  const cardT = `translate(${cardR.left-sr.left}px,${cardR.top-sr.top}px) scale(${cardR.width/sr.width},${cardR.height/sr.height})`;
+  return {
+    html: `<div class="vclip" style="position:absolute;inset:0;background:#ac0b0b">
+      <div class="vph" style="position:absolute;left:0;top:0;width:${db.w}px;height:${db.h}px;transform-origin:0 0;transform:${tf(db)};background:${d.photo} 0 0/100% 100% no-repeat"></div>
+      <div class="vs1" style="position:absolute;inset:0;transform-origin:0 0;background:${d.cardShade};opacity:0"></div>
+      <div class="vs2" style="position:absolute;inset:0;background:${d.bgShade};opacity:1"></div></div>`,
+    play(veil, D){
+      const o = {duration: closing ? D : D*0.9, easing:EASE_MORPH, fill:'both'}, rv = a => closing ? a.slice().reverse() : a;
+      const clip = veil.querySelector('.vclip').animate(rv(revealKF(cardR, sr, rad, scrRad())), o);
+      veil.querySelector('.vph').animate(rv([{transform:tf(cb)},{transform:tf(db)}]), o);
+      const s1 = veil.querySelector('.vs1'), s2 = veil.querySelector('.vs2'), oo = {duration:o.duration, easing:'ease-in-out', fill:'both'};
+      s1.animate(rv([{transform:cardT},{transform:'none'}]), o);
+      /* hai lớp phủ chồng lên nhau rồi lớp cũ mới tan đi, nên giữa chừng ảnh không bị sáng lên */
+      s1.animate(rv([{opacity:1},{opacity:1, offset:.45},{opacity:0}]), oo);
+      s2.animate(rv([{opacity:0},{opacity:1, offset:.5},{opacity:1}]), oo);
+      return clip;
+    }
+  };
+}
+function revealKF(r, s, rad0, rad1){
+  const c = (rad) => `inset(${r.top-s.top}px ${s.right-r.right}px ${s.bottom-r.bottom}px ${r.left-s.left}px round ${rad}px)`;
+  return [{clipPath:c(rad0)}, {clipPath:`inset(0px 0px 0px 0px round ${rad1}px)`}];
+}
+const PHOTO_CARD = {backgroundSize:'130.38% 130.41%', backgroundPosition:'100% 0%'}, PHOTO_DET = {backgroundSize:'107.15% 107.17%', backgroundPosition:'0% 92.2%'};
 async function openDetail(i){
   if (busy) return;
   busy = true;
@@ -1165,7 +1330,7 @@ async function openDetail(i){
   const cupEl = $('.cup', card);
   cupEl.style.transform = 'none';
   const from = rectOf(cupEl);
-  cupEl.style.transform = 'rotate(11.7deg)';
+  cupEl.style.transform = `rotate(${d.rot ?? 11.7}deg)`;
   const cardR = rectOf(card);
 
   fillDetail(i);
@@ -1181,8 +1346,8 @@ async function openDetail(i){
 
   /* veil: card surface expanding into the full-screen background */
   const veil = document.createElement('div'); veil.className = 'veil';
-  veil.innerHTML = `<div style="position:absolute;inset:0;background:${d.card}"></div><div class="vb" style="position:absolute;inset:0;background:${d.bg};opacity:0"></div>`;
   const sr = scr(); placeVeil(veil, sr);
+  const vm = makeVeil(d, false, cardR, sr, 32*CARD_S*S); veil.innerHTML = vm.html;
   fx.appendChild(veil);
   document.body.classList.add('moving');
   const pill = pillClone(card, cardR);
@@ -1193,7 +1358,7 @@ async function openDetail(i){
   fly.style.filter = `drop-shadow(0 0 22px ${GLOW[d.id]})`;
   fx.appendChild(fly);
   const sx = from.width/to.width;
-  const fromT = `translate(${from.left}px,${from.top}px) translate(${from.width/2}px,${from.height/2}px) rotate(11.7deg) translate(${-from.width/2}px,${-from.height/2}px) scale(${sx})`;
+  const fromT = `translate(${from.left}px,${from.top}px) translate(${from.width/2}px,${from.height/2}px) rotate(${d.rot ?? 11.7}deg) translate(${-from.width/2}px,${-from.height/2}px) scale(${sx})`;
   const midT = `translate(${(from.left+to.left)/2}px,${Math.min(from.top,to.top)-30*S}px) scale(${(sx+1)/2*1.04})`;
   const toT = `translate(${to.left}px,${to.top}px)`;
   fx.appendChild(pill);
@@ -1203,9 +1368,7 @@ async function openDetail(i){
   await nextFrame();
   const D = T(760);
   /* transform + opacity only, so the browser can run it on the compositor */
-  const veilA = veil.animate(veilKF(cardR, sr, 32*CARD_S*S, scrRad()), {duration:D*0.9, easing:EASE_MORPH, fill:'forwards'});
-  veil.animate([{opacity:0},{opacity:1, offset:.4},{opacity:1}], {duration:D*0.9, easing:'ease-out', fill:'forwards'});
-  veil.querySelector('.vb').animate([{opacity:0},{opacity:1}], {duration:D*0.7, delay:D*0.1, easing:'ease-in-out', fill:'forwards'});
+  const veilA = vm.play(veil, D);
   fly.animate([{transform:fromT},{transform:midT, offset:.45},{transform:toT}], {duration:D, easing:'cubic-bezier(.5,0,.15,1)', fill:'forwards'});
 
   /* home recedes */
@@ -1255,7 +1418,7 @@ async function closeDetail(){
   setFrame(0);
   const from = untransformedRect(spin);
   const cupEl = $('.cup', card);
-  cupEl.style.transform = 'none'; const to = rectOf(cupEl); cupEl.style.transform = 'rotate(11.7deg)';
+  cupEl.style.transform = 'none'; const to = rectOf(cupEl); cupEl.style.transform = `rotate(${d.rot ?? 11.7}deg)`;
   const cardR = rectOf(card);
 
   const parts = detailParts().reverse();
@@ -1263,14 +1426,15 @@ async function closeDetail(){
   $('#dTitle').animate([{opacity:1},{opacity:0}], {duration:T(200), fill:'forwards'});
 
   const veil = document.createElement('div'); veil.className = 'veil';
-  veil.innerHTML = `<div style="position:absolute;inset:0;background:${d.card}"></div><div class="vb" style="position:absolute;inset:0;background:${d.bg}"></div>`;
   const sr = scr(); placeVeil(veil, sr);
+  const vm = makeVeil(d, true, cardR, sr, 32*CARD_S*S); veil.innerHTML = vm.html;
+  /* nền đang trôi nhẹ: lấy đúng tư thế hiện tại làm điểm xuất phát rồi trả về vị trí gốc khi thu gọn */
 
   const fly = document.createElement('img'); fly.className = 'fly'; fly.src = d.id + '.webp';
   fly.style.width = from.width + 'px'; fly.style.height = from.height + 'px';
   fly.style.filter = `drop-shadow(0 0 22px ${GLOW[d.id]})`;
   const sx = to.width/from.width;
-  const toT = `translate(${to.left}px,${to.top}px) translate(${to.width/2}px,${to.height/2}px) rotate(11.7deg) translate(${-to.width/2}px,${-to.height/2}px) scale(${sx})`;
+  const toT = `translate(${to.left}px,${to.top}px) translate(${to.width/2}px,${to.height/2}px) rotate(${d.rot ?? 11.7}deg) translate(${-to.width/2}px,${-to.height/2}px) scale(${sx})`;
   const fromT = `translate(${from.left}px,${from.top}px)`;
   await new Promise(r => setTimeout(r, T(160)));
   const pill = pillClone(card, cardR);
@@ -1295,10 +1459,8 @@ async function closeDetail(){
     const o = Math.sign(wrap(k - pos)) || 1;
     c.animate([{opacity:0, translate:`${o*160}px 0`},{opacity:c.style.opacity, translate:'0 0'}], {duration:T(620), delay:D*0.35, easing:'cubic-bezier(.22,1,.36,1)', fill:'backwards'}); });
 
-  veil.querySelector('.vb').animate([{opacity:1},{opacity:0}], {duration:D*0.7, easing:'ease-in-out', fill:'forwards'});
   document.body.classList.add('moving');
-  const veilA = veil.animate(veilKF(cardR, sr, 32*CARD_S*S, scrRad()).reverse(), {duration:D, easing:EASE_MORPH, fill:'forwards'});
-  veil.animate([{opacity:1},{opacity:1, offset:.55},{opacity:0}], {duration:D, easing:'ease-in', fill:'forwards'});
+  const veilA = vm.play(veil, D);
   const midT = `translate(${(from.left+to.left)/2}px,${Math.min(from.top,to.top)-24*S}px) scale(${(sx+1)/2*1.04})`;
   fly.animate([{transform:fromT},{transform:midT, offset:.5},{transform:toT}], {duration:D, easing:'cubic-bezier(.65,0,.25,1)', fill:'forwards'});
   glass.fk.animate([{transform:glass.at(fromT)},{transform:glass.at(midT), offset:.5},{transform:glass.at(toT)}], {duration:D, easing:'cubic-bezier(.65,0,.25,1)', fill:'forwards'});
@@ -1324,6 +1486,7 @@ async function switchDrink(dir){
   const still = () => { const g = detail.cloneNode(true);
     $$(STATIC_SEL, g).forEach(el => { el.style.visibility = 'hidden'; });
     $$('[id]', g).forEach(el => el.removeAttribute('id'));   /* the copy keeps #detail itself, so the drink's colours still apply */
+    const bp = $('.bgphoto', detail), gp = $('.bgphoto', g); if (bp && gp) { gp.style.animation = 'none'; gp.style.transform = getComputedStyle(bp).transform; }
     g.style.pointerEvents = 'none'; return g; };
   const ghost = still();
   detail.getAnimations().forEach(a => { if (!(window.CSSAnimation && a instanceof CSSAnimation)) a.cancel(); });
@@ -1342,7 +1505,8 @@ async function switchDrink(dir){
   /* the real page keeps only the buttons for now; its background and moving parts live on the two copies */
   const moving = [$('#dTitle'), $('#opts'), spin];
   detail.style.background = 'transparent';
-  moving.forEach(el => { el.style.visibility = 'hidden'; });
+  const bgLayers = $$('.bgphoto,.bgshade,.snowfx', detail);
+  moving.concat(bgLayers).forEach(el => { el.style.visibility = 'hidden'; });
   detail.classList.add('sw');
 
   const D = T(800), ease = 'cubic-bezier(.32,.72,0,1)';
@@ -1359,7 +1523,7 @@ async function switchDrink(dir){
   const a = ghost2.animate([{transform:`translateX(${dir*100}%)`},{transform:'translateX(0)'}], {duration:D, easing:ease, fill:'forwards'});
   await a.finished.catch(() => {});
   detail.style.background = '';
-  moving.forEach(el => { el.style.visibility = ''; });
+  moving.concat(bgLayers).forEach(el => { el.style.visibility = ''; });
   detail.classList.remove('sw');
   ghost.remove(); ghost2.remove();
   busy = false;
@@ -1530,20 +1694,20 @@ function openCart(){
   renderCart(); paying = false;
   cartEl.getAnimations().forEach(a => a.cancel());
   cartEl.style.zIndex = ++Z; cartEl.style.visibility = 'visible';
-  cartEl.animate([{transform:'translateY(100%)'},{transform:'none'}], {duration:T(520), easing:'cubic-bezier(.22,1,.36,1)'});
-  $$(cartItems.length ? '.citem,.cfoot' : '.nope', cartEl).forEach((r, k) => r.animate([{opacity:0, transform:'translateY(24px)'},{opacity:1, transform:'none'}], {duration:T(520), delay:T(120 + k*60), easing:'cubic-bezier(.34,1.4,.64,1)', fill:'backwards'}));
+  cartEl.animate([{transform:'translateX(100%)'},{transform:'none'}], {duration:T(520), easing:'cubic-bezier(.22,1,.36,1)'});
+  $$(cartItems.length ? '.citem,.cfoot' : '.nope', cartEl).forEach((r, k) => r.animate([{opacity:0, transform:'translateX(24px)'},{opacity:1, transform:'none'}], {duration:T(520), delay:T(120 + k*60), easing:'cubic-bezier(.34,1.4,.64,1)', fill:'backwards'}));
 }
 function closeCart(){
   if (!cartOpen) return; cartOpen = false;
-  cartEl.animate([{transform:'none'},{transform:'translateY(100%)'}], {duration:T(360), easing:'cubic-bezier(.4,0,.6,1)'}).onfinish = () => { cartEl.style.visibility = ''; };
+  cartEl.animate([{transform:'none'},{transform:'translateX(100%)'}], {duration:T(360), easing:'cubic-bezier(.4,0,.6,1)'}).onfinish = () => { cartEl.style.visibility = ''; };
 }
 $$('#home .cartbtn, #dCart').forEach(b => b.addEventListener('click', openCart));
 $('#cClose').addEventListener('click', closeCart);
-/* swipe the sheet down to close it */
+/* swipe the cart to the right to close it */
 (() => { let sw = null;
   cartEl.style.touchAction = 'none';
   cartEl.addEventListener('pointerdown', e => { sw = e.target.closest('button') || (e.target.closest('.clist') && clist.scrollTop > 0) ? null : {x:e.clientX, y:e.clientY}; });
-  cartEl.addEventListener('pointermove', e => { if (!sw) return; const dy = (e.clientY - sw.y)/S, dx = (e.clientX - sw.x)/S; if (dy > 70 && dy > Math.abs(dx)*1.4) { sw = null; closeCart(); } });
+  cartEl.addEventListener('pointermove', e => { if (!sw) return; const dy = (e.clientY - sw.y)/S, dx = (e.clientX - sw.x)/S; if (dx > 70 && dx > Math.abs(dy)*1.4) { sw = null; closeCart(); } });
   ['pointerup','pointercancel'].forEach(ev => cartEl.addEventListener(ev, () => { sw = null; }));
 })();
 /* "Đặt hàng" in the cart goes on to the payment page */
@@ -1675,8 +1839,8 @@ let orders = [], curOrder = null, lastPlaced = null;
 const oQty = o => o.items.reduce((n, x) => n + x.qty, 0);
 const oTotal = o => o.items.reduce((n, x) => n + x.qty*x.unit, 0);
 const oNames = o => [...new Set(o.items.map(x => x.name || drink(x.id).name))].join(', ');
-/* order title: each drink once with its total count, Đen → Nâu → Bạc, e.g. "3 Đen / 1 Bạc" */
-const MENU_ORDER = ['den', 'nau', 'bac'];
+/* order title: each drink once with its total count, Đen → Nâu → Bạc → Cacao, e.g. "3 Đen / 1 Bạc" */
+const MENU_ORDER = ['den', 'nau', 'bac', 'cacao'];
 function oSummary(o){
   const by = new Map();
   o.items.forEach(x => { const d = drink(x.id), k = d ? d.id : x.name; const g = by.get(k) || {name: x.name || d.name, n: 0}; g.n += x.qty; by.set(k, g); });
@@ -2111,7 +2275,7 @@ function go(m, anim = true){
   const from = formOf(step), to = formOf(m); step = m;
   const home = m === 'phone';
   $('#aBack').style.visibility = home ? 'hidden' : '';
-  $('.alogo', authEl).style.opacity = home ? 1 : 0;
+  $$('.alogo', authEl).forEach(el => { el.style.opacity = home ? 1 : 0; });
   clearErr();
   if (m === 'pin') pinView();
   if (m === 'forgot' && A.phone) formOf('forgot').elements.phone.value = A.phone;
@@ -2273,7 +2437,8 @@ function startSession(s){
     }, () => toast('Mất kết nối tới quán', 'wifioff'));
     stopMenu = a.watchMenu(applyMenu, () => {});
     if (stopWallet) stopWallet(); stopWallet = a.watchWallet(s.phone, b => { walletBal = b; renderWallet(); }, () => {});
-    if (stopShop) stopShop(); stopShop = a.watchShop(s2 => { shop = s2 || {}; applyMenu(lastMenu); }, () => {});
+    /* theme do admin chọn (meta/shop.theme) áp dụng cho mọi app khách */
+    if (stopShop) stopShop(); stopShop = a.watchShop(s2 => { shop = s2 || {}; if (shop.theme && shop.theme !== document.documentElement.dataset.theme) setTheme(shop.theme); applyMenu(lastMenu); }, () => {});
   });
 }
 function endSession(){
@@ -2392,7 +2557,7 @@ setInterval(checkUpdate, 60000);
 (async () => {
   /* is this device already signed in? checked while the splash plays */
   const known = api().then(a => a.session()).catch(() => null);
-  const sp = $('#splash'), logo = $('.slogo', sp), bg = $('.sbg', sp), al = $('.alogo', authEl);
+  const sp = $('#splash'), logo = vis('.slogo', sp), bg = $('.sbg', sp), al = vis('.alogo', authEl);
   logo.animate([{opacity:0, transform:'translateY(14px) scale(.92)'},{opacity:1, transform:'none'}], {duration:T(800), delay:T(300), easing:'cubic-bezier(.22,1,.36,1)', fill:'backwards'});
   await wait(T(2000));
   const go = location.hash.slice(1);
@@ -2407,8 +2572,8 @@ setInterval(checkUpdate, 60000);
     /* the same background sits under both screens, so only the logo seems to move: it glides from the splash spot up to the sign-in header */
     al.style.transition = 'none'; openAuth('phone'); al.style.opacity = 0;
     sp.style.zIndex = ++Z;
-    /* splash logo box 189x74 at (100,227) → header logo box 153x60 at (118,32) */
-    const move = logo.animate([{transform:'none'},{transform:`translate(18px, -195px) scale(${153/189})`}], {duration:T(760), easing:'cubic-bezier(.65,0,.25,1)', fill:'forwards'});
+    /* splash logo box 193x76 at (98,226) → header logo box 153x60 at (118,32) */
+    const move = logo.animate([{transform:'none'},{transform:`translate(20px, -194px) scale(${153/193})`}], {duration:T(760), easing:'cubic-bezier(.65,0,.25,1)', fill:'forwards'});
     bg.animate([{opacity:1},{opacity:0}], {duration:T(560), delay:T(120), easing:'ease-out', fill:'forwards'});
     sp.animate([{backgroundColor:'#000'},{backgroundColor:'rgba(0,0,0,0)'}], {duration:T(560), delay:T(120), easing:'ease-out', fill:'forwards'});
     await move.finished; al.style.opacity = 1; sp.style.visibility = 'hidden'; move.cancel();
