@@ -89,6 +89,15 @@ export const saveMenuItem = ({ id, ...data }) =>
 
 export const deleteMenuItem = (id) => deleteDoc(doc(db, 'menu', id));
 
+// Món Cacao (Noel): thêm vào menu thật một lần duy nhất (id cố định 'cacao', cờ meta/shop.cacaoSeeded) để hiện ở app khách,
+// trang Menu và Quản lý menu mà không cần thêm tay. Xoá món đi sau đó thì không tự thêm lại.
+export const seedCacao = async () => {
+  const batch = writeBatch(db);
+  batch.set(doc(db, 'menu', 'cacao'), { name: 'Cacao', price: 20000, cost: 0, upsize: 5000, active: true });
+  batch.set(doc(db, 'meta', 'shop'), { cacaoSeeded: true }, { merge: true });
+  await batch.commit();
+};
+
 export const seedMenu = async (items) => {
   const batch = writeBatch(db);
   items.forEach(({ id, ...item }) => batch.set(doc(collection(db, 'menu')), item));
