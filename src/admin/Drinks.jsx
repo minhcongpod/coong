@@ -17,7 +17,7 @@ export const META = {
   nau: { name: 'Nâu', sweet: true, cafe: false, aspect: 512 / 797, stops: [[0, '#fed9ae'], [0.574, '#ffc077']], edge: 0.35, card: 'linear-gradient(180deg,#fed9ae 0%,#ffc077 57.4%)', bg: 'linear-gradient(180deg,#fed3a1,#ffc077)' },
   // Cacao: món theo mùa (Noel), như app khách
   cacao: {
-    name: 'Cacao', sweet: true, cafe: false, aspect: 438 / 620, spinH: 262, cupLeft: 84.7, rot: 0, xmas: true, stops: [[0, '#ac0b0b']], edge: 0,
+    name: 'Cacao', sweet: true, cafe: false, aspect: 438 / 620, spinH: 262, cupLeft: 74, xmas: true, stops: [[0, '#ac0b0b']], edge: 0,
     card: 'linear-gradient(0deg,rgba(172,11,11,0) 56.036%,rgba(172,11,11,.9) 93.103%),linear-gradient(-90deg,rgba(172,11,11,.8) 1.0549%,rgba(172,11,11,0) 13.984% 73.103%,rgba(172,11,11,.8) 94.586%),linear-gradient(180deg,rgba(172,11,11,0) 36.59%,rgba(172,11,11,.2) 71.138%,#8e0000 100.89%),url(/cacao-bg.webp) 100% 0/130.38% 130.41% no-repeat #ac0b0b',
     bg: 'radial-gradient(ellipse 50% 50% at 50% 50%,rgba(58,0,16,0) 60%,rgba(58,0,16,.33) 100%),linear-gradient(0deg,rgba(172,11,11,0) 73.09%,rgba(172,11,11,.9) 100%),linear-gradient(-90deg,rgba(172,11,11,0) 51.759%,rgba(172,11,11,.8) 67.335%,#ac0b0b 100%),linear-gradient(180deg,rgba(172,11,11,0) 36.59%,rgba(172,11,11,.8) 71.138%,#ac0b0b 100.89%),url(/cacao-bg.webp) 0 92.2%/107.15% 107.17% no-repeat #ac0b0b',
   },

@@ -438,9 +438,9 @@ input{user-select:text;-webkit-user-select:text}
 /* Cacao (Noel, theo Figma): thẻ đỏ có ảnh tuyết, viền vàng nhạt, nút + đỏ viền vàng, ruy-băng SEASONAL và đống tuyết dưới ly */
 .card[data-id=cacao]{--t:#fff;--ib:rgba(255,255,255,.2);--ic:#fff}
 .card[data-id=cacao] .surf{border-radius:32px;box-shadow:inset 0 0 0 1.5px #fff3b8}
-.card[data-id=cacao] .ico span{box-sizing:border-box;border:1px solid #fff;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);background:radial-gradient(circle 10px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
+.card[data-id=cacao] .ico span{box-sizing:border-box;position:relative;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);background:radial-gradient(circle 10px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
 .card[data-id=cacao] .pricebar{-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
-.card[data-id=cacao] .pricebar::before{padding:1.5px;background:#fff;animation:none}
+.card[data-id=cacao] .ico span::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(135deg,#fff,rgba(255,255,255,.1) 50%,#fff);opacity:.5;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
 .card[data-id=cacao] .pricebar b{color:#fff}
 .card[data-id=cacao] .pricebar span{background:linear-gradient(180deg,#ff5a6e,#a1001b);box-shadow:inset 0 0 0 1.5px #fff3b8,0 0 12px rgba(255,214,107,.85)}
 .card .ribbon{position:absolute;right:-1.5px;top:-1.5px;width:128px;height:88px;overflow:hidden;border-top-right-radius:32px;pointer-events:none}
@@ -476,14 +476,17 @@ input{user-select:text;-webkit-user-select:text}
 #detail[data-id=den] .opt label{color:#fff}
 #detail[data-id=nau] .opt label,#detail[data-id=bac] .opt label{color:#000}
 #detail[data-id=cacao] .opt label{color:#fff}
-#detail[data-id=cacao] .back,#detail[data-id=cacao] .cartbtn,#detail[data-id=cacao] .chip,#detail[data-id=cacao] .dadd{box-sizing:border-box;border:1px solid #fff;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+#detail[data-id=cacao] .back,#detail[data-id=cacao] .cartbtn,#detail[data-id=cacao] .chip,#detail[data-id=cacao] .dadd{box-sizing:border-box;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
 #detail[data-id=cacao] .back,#detail[data-id=cacao] .cartbtn{background:radial-gradient(circle 17px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
 #detail[data-id=cacao] .dadd{background:radial-gradient(circle 19.5px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
 #detail[data-id=cacao] .chip{width:40px;height:40px;background:radial-gradient(circle 13px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
+#detail[data-id=cacao] .chip{position:relative}
 #detail[data-id=cacao] .chip svg{width:40px;height:40px}
 #detail[data-id=cacao] .opt[data-k=hot] .chip svg{width:24px;height:24px}
 #detail[data-id=cacao] .opt[data-k=hot] .chip.on svg{width:21.8px;height:21.8px}
-#detail[data-id=cacao] .chip.on{background:#fff;border-color:transparent;-webkit-backdrop-filter:none;backdrop-filter:none}
+#detail[data-id=cacao] .back::before,#detail[data-id=cacao] .cartbtn::before,#detail[data-id=cacao] .chip::before,#detail[data-id=cacao] .dadd::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(135deg,#fff,rgba(255,255,255,.1) 50%,#fff);opacity:.5;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+#detail[data-id=cacao] .chip.on::before{display:none}
+#detail[data-id=cacao] .chip.on{background:#fff;-webkit-backdrop-filter:none;backdrop-filter:none}
 #detail[data-id=cacao] .opt label{font-size:14px;line-height:18px;margin-bottom:5px}
 #detail[data-id=cacao] .opt[data-k=sweet]{margin-top:16px}
 #detail[data-id=cacao] .pm{background:var(--round);border:1.5px solid #fff3b8;box-sizing:border-box;box-shadow:0 0 12px rgba(255,214,107,.85)}
@@ -853,8 +856,8 @@ const DRINKS = [
   {id:'bac', name:'Bạc', price:20000, xl:5000, sweet:true, cafe:true, aspect:512/901, rec:true,  stops:[[0,'#e2e2e2'],[.5739,'#d9d0b7']], edge:.35, card:'linear-gradient(0deg,#d9d0b7 42.61%,#e2e2e2 100%)', bg:'linear-gradient(0deg,#d9d0b7 42.61%,#e2e2e2 100%)'},
   {id:'den', name:'Đen', price:20000, xl:5000, sweet:false, cafe:false, aspect:512/792,            stops:[[0,'#484848'],[.5739,'#1e1e1e']], edge:.12, card:'linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)', bg:'linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)'},
   {id:'nau', name:'Nâu', price:20000, xl:5000, sweet:true, cafe:false, aspect:512/797,            stops:[[0,'#fed9ae'],[.574,'#ffc077']], edge:.35, card:'linear-gradient(180deg,#fed9ae 0%,#ffc077 57.4%)', bg:'linear-gradient(180deg,#fed3a1,#ffc077)'},
-  /* Cacao: món theo mùa (Noel). Ảnh nền thẻ/màn chi tiết là /cacao-bg.webp phủ thêm các lớp đỏ; ly đứng thẳng (rot 0) */
-  {id:'cacao', name:'Cacao', price:20000, xl:5000, sweet:true, cafe:false, aspect:438/620, spinH:262, cupLeft:84.7, rot:0, xmas:true, stops:[[0,'#ac0b0b']], edge:0,
+  /* Cacao: món theo mùa (Noel). Ảnh nền thẻ/màn chi tiết là /cacao-bg.webp phủ thêm các lớp đỏ */
+  {id:'cacao', name:'Cacao', price:20000, xl:5000, sweet:true, cafe:false, aspect:438/620, spinH:262, cupLeft:74, xmas:true, stops:[[0,'#ac0b0b']], edge:0,
    card:'linear-gradient(0deg,rgba(172,11,11,0) 56.036%,rgba(172,11,11,.9) 93.103%),linear-gradient(-90deg,rgba(172,11,11,.8) 1.0549%,rgba(172,11,11,0) 13.984% 73.103%,rgba(172,11,11,.8) 94.586%),linear-gradient(180deg,rgba(172,11,11,0) 36.59%,rgba(172,11,11,.2) 71.138%,#8e0000 100.89%),url(/cacao-bg.webp) 100% 0/130.38% 130.41% no-repeat #ac0b0b',
    bg:'radial-gradient(ellipse 50% 50% at 50% 50%,rgba(58,0,16,0) 60%,rgba(58,0,16,.33) 100%),linear-gradient(0deg,rgba(172,11,11,0) 73.09%,rgba(172,11,11,.9) 100%),linear-gradient(-90deg,rgba(172,11,11,0) 51.759%,rgba(172,11,11,.8) 67.335%,#ac0b0b 100%),linear-gradient(180deg,rgba(172,11,11,0) 36.59%,rgba(172,11,11,.8) 71.138%,#ac0b0b 100.89%),url(/cacao-bg.webp) 0 92.2%/107.15% 107.17% no-repeat #ac0b0b'},
 ];
@@ -975,7 +978,9 @@ const cards = DRINKS.map((d,i) => {
   return el;
 });
 
-let pos = 1, target = 1, vel = 0, raf = 0;
+/* lúc mới mở app, món theo mùa (Cacao) nằm chính giữa; không có thì món thứ hai như cũ */
+const START = Math.max(0, DRINKS.findIndex(d => d.xmas)) || 1;
+let pos = START, target = START, vel = 0, raf = 0;
 const CARD_S = 1;
 const MID_W = 300, SIDE_W = 250, SIDE_STEP = MID_W/2 + 10 + SIDE_W/2;   /* 270px-wide artwork shown 300px in the middle and 250px beside it, 10px gap */
 const wrap = o => { o = ((o % N) + N) % N; return o >= N/2 ? o - N : o; };
@@ -1084,7 +1089,7 @@ $('#lastClose').addEventListener('click', () => {
 
 /* ---------- detail state ---------- */
 const detail = $('#detail'), spin = $('#spin');
-let cur = 1, qty = 1, frame = 0, cart = 0;
+let cur = START, qty = 1, frame = 0, cart = 0;
 const opts = {upsize:0, hot:0, sweet:0, cafe:0};
 const unit = () => DRINKS[cur].price + (opts.upsize ? DRINKS[cur].xl : 0);
 
