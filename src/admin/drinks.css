@@ -153,7 +153,7 @@
 .dr .card .ribbon .rtxt{position:absolute;left:42px;top:38.4px;transform:translateY(-50%);color:#fff;font:800 10.5px/1 Inter,Roboto,system-ui,sans-serif;letter-spacing:.1px;white-space:nowrap}
 .dr .card .ribbon img{filter:brightness(1.18) saturate(1.12);position:absolute;width:136.78%;height:138.14%;left:-16.31%;top:-16.87%;max-width:none}
 .dr .card .snowpile{position:absolute;left:40px;top:272.87px;width:104px;height:16.26px;transform:scaleX(-1);pointer-events:none}
-.dr-detail[data-id=cacao]{--bg1:#ac0b0b;--bg2:#ac0b0b;--fg:#fff;--title:#fff;--btn:rgba(255,255,255,.2);--chip:rgba(255,255,255,.2);--chipT:#fff;--xOn:#a81010;--valOn:#a81010;--bulge:rgba(197,45,40,.7);--round:linear-gradient(180deg,#ff5a6e,#a1001b);--price:linear-gradient(180deg,#037e3c,#093f22);--priceT:#fff;--lblc:#fff;--pm:#fff;--buy:#fff;--buyT:#d02d45;background:#ac0b0b}
+.dr-detail[data-id=cacao]{--bg1:#ac0b0b;--bg2:#ac0b0b;--fg:#fff;--title:#fff;--btn:rgba(255,255,255,.2);--chip:rgba(255,255,255,.2);--chipT:#fff;--xOn:#a81010;--valOn:#a81010;--bulge:rgba(197,45,40,.7);--round:linear-gradient(180deg,#ff5a6e,#a1001b);--price:#fff;--priceT:#a81010;--lblc:#fff;--pm:#fff;--buy:#fff;--buyT:#fff;background:#ac0b0b}
 .dr-detail[data-id=cacao] .opt label{color:#fff}
 .dr-detail[data-id=cacao] .qty span{background:linear-gradient(180deg,#fff3b8 0%,#f5c842 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
 .dr-detail[data-id=cacao] .back,.dr-detail[data-id=cacao] .cartbtn,.dr-detail[data-id=cacao] .dadd{box-sizing:border-box;-webkit-backdrop-filter:none;backdrop-filter:none}
@@ -167,10 +167,10 @@
 .dr-detail[data-id=cacao] .chip.on{background:#fff;-webkit-backdrop-filter:none;backdrop-filter:none}
 .dr-detail[data-id=cacao] .pm{background:var(--round);box-shadow:0 0 12px rgba(255,214,107,.85)}
 .dr-detail[data-id=cacao] .pm::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;background:linear-gradient(180deg,#fff3b8,#f5c842 50%,#b8860b);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
-.dr-detail[data-id=cacao] .dprice{box-shadow:0 0 12px rgba(255,214,107,.85)}
-.dr-detail[data-id=cacao] .dprice::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;background:linear-gradient(180deg,#fff3b8,#f5c842 50%,#b8860b);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.dr-detail[data-id=cacao] .dprice{box-shadow:none}
+.dr-detail[data-id=cacao] .dprice::before{display:none;content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;background:linear-gradient(180deg,#fff3b8,#f5c842 50%,#b8860b);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
 /* viền đứt theo Figma: gradient #ff5a6e → #a1001b từ trên xuống, nét 3px, đứt 10/10, bo 30 */
-.dr-detail[data-id=cacao] .dbuy{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 266 60' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop stop-color='%23ff5a6e'/%3E%3Cstop offset='1' stop-color='%23a1001b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='1.5' y='1.5' width='263' height='57' rx='28.5' fill='none' stroke='url(%23g)' stroke-width='3' pathLength='600' stroke-dasharray='10 10'/%3E%3C/svg%3E") no-repeat 0 0/100% 100%}
+.dr-detail[data-id=cacao] .dbuy{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 266 60' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop stop-color='%23fff3b8'/%3E%3Cstop offset='1' stop-color='%23f5c842'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='1.5' y='1.5' width='263' height='57' rx='28.5' fill='none' stroke='url(%23g)' stroke-width='3' pathLength='600' stroke-dasharray='10 10'/%3E%3C/svg%3E") no-repeat 0 0/100% 100%,linear-gradient(180deg,#037e3c,#093f22)}
 .dr-detail[data-id=cacao] .dbuy:disabled{background:#8e8e93}
 
 /* ===== đồng bộ với app khách: logo mới, tuyết, nền Cacao trôi, nhạc nền ===== */
@@ -188,7 +188,7 @@
 .dr-detail .bgphoto,.dr-detail .bgshade,.dr-detail .snowfx{display:none;position:absolute;inset:0;pointer-events:none}
 .dr-detail[data-id=cacao] .bgphoto,.dr-detail[data-id=cacao] .bgshade,.dr-detail[data-id=cacao] .snowfx{display:block}
 .dr-detail .bgphoto{background:url(/cacao-bg.webp) 0 92.2%/107.15% 107.17% no-repeat;transform-origin:50% 55%;will-change:transform;animation:bgdrift 18s ease-in-out infinite alternate}
-.dr-detail .bgshade{background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(58,0,16,0) 60%,rgba(58,0,16,.33) 100%),linear-gradient(0deg,rgba(172,11,11,0) 73.09%,rgba(172,11,11,.9) 100%),linear-gradient(-90deg,rgba(172,11,11,0) 51.759%,rgba(172,11,11,.8) 67.335%,#ac0b0b 100%),linear-gradient(180deg,rgba(172,11,11,0) 36.59%,rgba(172,11,11,.8) 71.138%,#ac0b0b 100.89%)}
+.dr-detail .bgshade{background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(58,0,16,0) 60%,rgba(58,0,16,.264) 100%),linear-gradient(0deg,rgba(172,11,11,0) 73.09%,rgba(172,11,11,.72) 100%),linear-gradient(-90deg,rgba(172,11,11,0) 51.759%,rgba(172,11,11,.64) 67.335%,rgba(172,11,11,.8) 100%),linear-gradient(180deg,rgba(172,11,11,0) 36.59%,rgba(172,11,11,.64) 71.138%,rgba(172,11,11,.8) 100.89%)}
 .dr-detail .snowfx{overflow:hidden;z-index:40}
 .dr-detail .snowfx::before,.dr-detail .snowfx::after{content:"";position:absolute;left:0;right:0;top:-100%;height:200%;will-change:transform}
 .dr-detail .snowfx::before{opacity:.5;background-image:radial-gradient(3.2px 3.2px at 30px 40px,#fff,transparent),radial-gradient(2.4px 2.4px at 110px 150px,rgba(255,255,255,.8),transparent),radial-gradient(4px 4px at 190px 80px,#fff,transparent),radial-gradient(2.8px 2.8px at 270px 200px,rgba(255,255,255,.8),transparent),radial-gradient(3.6px 3.6px at 340px 110px,#fff,transparent);background-size:380px 240px;animation:snowfall 26s linear infinite}
