@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("coong-theme")||"xmas"}catch(e){document.documentElement.dataset.theme="xmas"}</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
 <meta name="build" content="__BUILD__">
@@ -64,6 +65,15 @@ svg{display:block}
 .acc::-webkit-scrollbar{display:none}
 .acc>*{flex:none}
 .agroup{display:flex;flex-direction:column;gap:8px}
+.atheme{padding:16px 24px 20px}
+.athead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}
+.athead b{font-size:18px}.athead small{font-size:14px;color:rgba(255,255,255,.5);font-weight:500}
+.thopts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.thopt{display:flex;align-items:center;gap:8px;padding:8px 10px 8px 8px;white-space:nowrap;border-radius:32px;background:rgba(255,255,255,.1);color:#fff;font:inherit;font-size:15px;font-weight:700;text-align:left;border:0;transition:transform .25s var(--ease-out),background .25s,color .25s}
+.thopt:active{transform:scale(.96)}
+.thopt i{flex:none;width:36px;height:36px;border-radius:50%;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.5)}
+.thopt.on{background:#fff;color:#000}
+.thopt.on i{box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.2)}
 .astat{padding:16px 24px}
 .awal{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);font-size:16px;font-weight:700}
 .awal[hidden]{display:none}
@@ -358,6 +368,12 @@ input{user-select:text;-webkit-user-select:text}
 #home{background:#000}
 .hello{left:24px;top:24px;width:214px;height:52px;color:#fff}
 .hlogo{display:block;height:34px;width:180px;margin-top:9px}
+.lgd{color:#fff}
+.hlogo.lgd{height:52px;width:133px;margin-top:0}
+html:not([data-theme=xmas]) .lgx,html[data-theme=xmas] .lgd{display:none}
+/* theme mặc định: không tuyết, không nhạc, nền Cacao đứng yên */
+html:not([data-theme=xmas]) #home .homesnow,html:not([data-theme=xmas]) #detail .snowfx,html:not([data-theme=xmas]) .musicbtn{display:none!important}
+html:not([data-theme=xmas]) #detail .bgphoto{animation:none}
 .hello b{display:block;font-size:32px;line-height:46px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cartbtn{width:52px;height:52px;background:rgba(255,255,255,.1);top:24px;left:314px;color:#fff}
 .cartbtn svg{width:28px;height:28px}
@@ -623,10 +639,10 @@ input{user-select:text;-webkit-user-select:text}
   <i class="snowfx homesnow" aria-hidden="true"></i>
   <div class="stage">
     <button class="abs circ cartbtn" aria-label="Giỏ hàng"><svg><use href="#i-bag"/></svg><span class="badge"></span></button>
-    <button class="abs musicbtn" id="music" aria-label="Bật/tắt nhạc nền" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor"/><path class="on" d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/><path class="off" d="m16 9 5 6m0-6-5 6"/></svg></button>
     <button class="abs circ bellbtn" id="bell" aria-label="Thông báo"><svg><use href="#i-bell"/></svg><span class="nbadge"></span></button>
     <div class="tab" id="tOrder">
-    <div class="abs hello"><img class="hlogo" src="/logo.svg" alt="Coong"><b id="helloName" style="display:none">LieuNT</b></div>
+      <button class="abs musicbtn" id="music" aria-label="Bật/tắt nhạc nền" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor"/><path class="on" d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/><path class="off" d="m16 9 5 6m0-6-5 6"/></svg></button>
+    <div class="abs hello"><svg class="hlogo lgd" viewBox="0 0 91.42 35.78" role="img" aria-label="Coong"><use href="#i-logo"/></svg><img class="hlogo lgx" src="/logo.svg" alt="Coong"><b id="helloName" style="display:none">LieuNT</b></div>
     <div class="abs order" id="lastOrder" style="display:none"><span><b id="orderTxt"></b><small id="orderWhen"></small></span><button id="reorder">Đặt lại</button><button class="oclose" id="lastClose" aria-label="Ẩn thẻ đặt lại"><svg><use href="#i-close"/></svg></button></div>
     <button class="abs order tgcard" id="tgCard" style="display:none" aria-label="Bật thông báo Telegram"><svg class="tgico" viewBox="0 0 28 28"><circle cx="14" cy="14" r="14" fill="#2AABEE"/><path d="M6.4 13.7l12.9-5c.6-.2 1.1.1.9 1l-2.2 10.3c-.2.7-.6.9-1.2.6l-3.3-2.4-1.6 1.5c-.2.2-.3.3-.7.3l.2-3.4 6.2-5.6c.3-.2-.1-.4-.4-.2l-7.7 4.8-3.3-1c-.7-.2-.7-.7.2-1z" fill="#fff"/></svg><span class="tgt"><small>THOẢI MÁI GHI NỢ CHỈ CẦN</small><b>Bật thông báo Telegram</b></span><i class="tgl"><b></b></i><i class="glint"></i></button>
     <div id="carousel" class="abs"></div>
@@ -657,6 +673,10 @@ input{user-select:text;-webkit-user-select:text}
             <div><b><svg><use href="#i-due"/></svg><span id="aDue">0</span></b><small id="aDueN"></small></div>
             <svg class="adchev" id="aPayNow"><use href="#i-rchev"/></svg>
           </div>
+        </div>
+        <div class="card2 atheme" data-s>
+          <div class="athead"><b>Theme</b><small>Giao diện của app</small></div>
+          <div class="thopts" id="thOpts" role="radiogroup" aria-label="Theme"></div>
         </div>
         <div class="arows">
           <label class="arow" data-s><span>Tên đặt hàng</span><input class="r aname" id="aName" value="LieuNT" enterkeyhint="done" autocomplete="nickname" aria-label="Tên đặt hàng"></label>
@@ -809,7 +829,7 @@ input{user-select:text;-webkit-user-select:text}
 <div id="auth" class="screen page" data-how="fade" aria-label="Tài khoản Coong">
   <div class="stage">
     <input class="abs kbp" id="kbProxy" inputmode="numeric" aria-hidden="true" tabindex="-1" autocomplete="off">
-    <img class="abs alogo" src="/logo.svg" alt="Coong">
+    <svg class="abs alogo lgd" viewBox="0 0 91.42 35.78" role="img" aria-label="Coong"><use href="#i-logo"/></svg><img class="abs alogo lgx" src="/logo.svg" alt="Coong">
     <button class="abs circ pback" id="aBack" data-back aria-label="Quay lại"><svg><use href="#i-back"/></svg></button>
     <form class="abs aform" data-m="phone" novalidate>
       <div class="ahead"><h2 class="atitle" data-s>Can’t sleep?</h2><p class="asub" data-s>Let’s get a sip</p></div>
@@ -867,7 +887,7 @@ input{user-select:text;-webkit-user-select:text}
 <div id="splash" class="screen" aria-label="Coong">
   <div class="stage">
     <div class="abs sbg"></div>
-    <img class="abs slogo" src="/logo.svg" alt="Coong">
+    <svg class="abs slogo lgd" viewBox="0 0 91.42 35.78" role="img" aria-label="Coong"><use href="#i-logo"/></svg><img class="abs slogo lgx" src="/logo.svg" alt="Coong">
   </div>
 </div>
 
@@ -881,6 +901,7 @@ const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const T = ms => RM ? Math.min(ms, 120) : ms;
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const vis = (s, r=document) => $$(s, r).find(el => getComputedStyle(el).display !== 'none') || $(s, r);   /* the logo variant the current theme shows */
 
 const DRINKS = [
   {id:'bac', name:'Bạc', price:20000, xl:5000, sweet:true, cafe:true, aspect:512/901, rec:true,  stops:[[0,'#e2e2e2'],[.5739,'#d9d0b7']], edge:.35, card:'linear-gradient(0deg,#d9d0b7 42.61%,#e2e2e2 100%)', bg:'linear-gradient(0deg,#d9d0b7 42.61%,#e2e2e2 100%)'},
@@ -1144,14 +1165,34 @@ const chipShown = (id, k, v) => { const p = +v === 0 ? 100 : +v;
   if (k === 'sweet') return id === 'den' ? p === 1 : (id === 'nau' || id === 'cacao') ? p !== 1 : true;
   if (k === 'cafe') return id === 'bac';
   return true; };
+/* theme: danh sách để thêm theme mới về sau, chỉ cần thêm một dòng ở đây và CSS html[data-theme=...] */
+const THEMES = [
+  {id:'default', name:'Mặc định', swatch:'linear-gradient(180deg,#4a4a4a,#111)'},
+  {id:'xmas', name:'Giáng sinh', swatch:'radial-gradient(circle at 70% 25%,#ff5a6e,#ac0b0b 60%,#5a0000)'},
+];
+function setTheme(id, save = true){
+  if (!THEMES.some(t => t.id === id)) id = 'xmas';
+  document.documentElement.dataset.theme = id;
+  if (save) { try { localStorage.setItem('coong-theme', id); } catch (e) {} }
+  $$('#thOpts .thopt').forEach(b => { const on = b.dataset.t === id; b.classList.toggle('on', on); b.setAttribute('aria-checked', on); });
+  dispatchEvent(new Event('coong-theme'));
+}
+(() => {
+  const box = $('#thOpts');
+  box.innerHTML = THEMES.map(t => `<button class="thopt" role="radio" data-t="${t.id}"><i style="background:${t.swatch}"></i>${t.name}</button>`).join('');
+  box.addEventListener('click', e => { const b = e.target.closest('.thopt'); if (b) setTheme(b.dataset.t); });
+  setTheme(document.documentElement.dataset.theme, false);
+})();
 /* nhạc nền: trình duyệt chỉ cho phát sau lần chạm đầu tiên; nhớ lựa chọn tắt/bật, tạm dừng khi rời tab */
 (() => {
   const a = new Audio('/xmas.mp3'); a.loop = true; a.volume = .35; a.preload = 'none';
   const btn = $('#music'); let on = true;
   try { on = localStorage.getItem('coong-music') !== '0'; } catch (e) {}
   const sync = () => btn.setAttribute('aria-pressed', on);
-  const play = () => { if (on && !document.hidden) a.play().catch(() => {}); };
+  const themed = () => document.documentElement.dataset.theme === 'xmas';
+  const play = () => { if (on && themed() && !document.hidden) a.play().catch(() => {}); };
   sync();
+  addEventListener('coong-theme', () => { if (themed()) play(); else a.pause(); });
   const first = () => { removeEventListener('pointerdown', first, true); play(); };
   addEventListener('pointerdown', first, true);
   btn.addEventListener('click', () => { on = !on; try { localStorage.setItem('coong-music', on ? '1' : '0'); } catch (e) {} sync(); on ? play() : a.pause(); });
@@ -2209,7 +2250,7 @@ function go(m, anim = true){
   const from = formOf(step), to = formOf(m); step = m;
   const home = m === 'phone';
   $('#aBack').style.visibility = home ? 'hidden' : '';
-  $('.alogo', authEl).style.opacity = home ? 1 : 0;
+  $$('.alogo', authEl).forEach(el => { el.style.opacity = home ? 1 : 0; });
   clearErr();
   if (m === 'pin') pinView();
   if (m === 'forgot' && A.phone) formOf('forgot').elements.phone.value = A.phone;
@@ -2490,7 +2531,7 @@ setInterval(checkUpdate, 60000);
 (async () => {
   /* is this device already signed in? checked while the splash plays */
   const known = api().then(a => a.session()).catch(() => null);
-  const sp = $('#splash'), logo = $('.slogo', sp), bg = $('.sbg', sp), al = $('.alogo', authEl);
+  const sp = $('#splash'), logo = vis('.slogo', sp), bg = $('.sbg', sp), al = vis('.alogo', authEl);
   logo.animate([{opacity:0, transform:'translateY(14px) scale(.92)'},{opacity:1, transform:'none'}], {duration:T(800), delay:T(300), easing:'cubic-bezier(.22,1,.36,1)', fill:'backwards'});
   await wait(T(2000));
   const go = location.hash.slice(1);
