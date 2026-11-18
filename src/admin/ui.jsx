@@ -155,7 +155,7 @@ export const stagger = (root, sel, base = 120, step = 45) => {
   const els = [...root.querySelectorAll(sel)].filter((x) => !seen.has(x) && seen.add(x)).slice(0, 14);
   return els.map((r, k) => r.animate([{ opacity: 0, transform: 'translateY(16px) scale(.97)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: base + k * step, easing: SPRING, fill: 'backwards' }));
 };
-export const Page = ({ title, sub, head, onBack, children, footer, className = '' }) => {
+export const Page = ({ title, sub, head, onBack, children, footer, className = '', closeIcon = false }) => {
   const ref = useRef(null);
   const leaving = useRef(false);
   useEffect(() => {
@@ -196,7 +196,7 @@ export const Page = ({ title, sub, head, onBack, children, footer, className = '
   backRef.current = back;
   return (
     <div className={`a-page a-fx ${className}`} ref={ref}>
-      <button className="a-back" onClick={back} aria-label="Quay lại"><Sym id="i-back" size={28} /></button>
+      <button className="a-back" onClick={back} aria-label="Quay lại"><Sym id={closeIcon ? "i-close" : "i-back"} size={28} /></button>
       {head}
       {title && <h1 className="a-title">{title}</h1>}
       {sub && <p className="a-sub">{sub}</p>}

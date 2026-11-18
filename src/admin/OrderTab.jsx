@@ -322,7 +322,7 @@ export function Notifs({ orders, onBack, onOpen, onPay }) {
   const list = orders.slice(0, 30);
   const claims = claimGroups(orders);
   return (
-    <Page title="Thông báo" onBack={onBack}>
+    <Page title="Thông báo" onBack={onBack} closeIcon>
       {claims.map((g) => (
         <button key={`claim-${g.phone}`} className="o-nrow wait new" onClick={() => onPay && onPay(g.phone)}>
           <span className="ni"><Sym id="i-verified" size={20} /></span>
