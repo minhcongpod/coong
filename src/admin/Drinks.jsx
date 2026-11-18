@@ -116,11 +116,18 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
     const play = () => { if (musicRef.current && themed() && !document.hidden) a.play().catch(() => {}); };
     const onTheme = () => { if (themed()) play(); else a.pause(); };
     addEventListener('coong-theme', onTheme);
-    const first = () => { removeEventListener('pointerdown', first, true); play(); };
-    addEventListener('pointerdown', first, true);
+    // trình duyệt chỉ cho phát sau thao tác thật của người dùng (và thao tác đầu có thể trượt): thử lại ở mỗi thao tác cho tới khi phát được
+    let started = false;
+    const EV = ['pointerup', 'click', 'touchend', 'keydown'];
+    const unlock = () => {
+      if (started || !musicRef.current || !themed() || document.hidden) return;
+      a.play().then(() => { started = true; EV.forEach((t) => removeEventListener(t, unlock, true)); }).catch(() => {});
+    };
+    EV.forEach((t) => addEventListener(t, unlock, true));
+    unlock();
     const vis = () => (document.hidden ? a.pause() : play());
     document.addEventListener('visibilitychange', vis);
-    return () => { removeEventListener('pointerdown', first, true); removeEventListener('coong-theme', onTheme); document.removeEventListener('visibilitychange', vis); a.pause(); audioRef.current = null; };
+    return () => { EV.forEach((t) => removeEventListener(t, unlock, true)); removeEventListener('coong-theme', onTheme); document.removeEventListener('visibilitychange', vis); a.pause(); audioRef.current = null; };
   }, []);
   const toggleMusic = () => {
     const on = !music; setMusic(on);
