@@ -1016,7 +1016,7 @@ const cards = DRINKS.map((d,i) => {
     <div class="cup"${d.id === 'bac' ? '' : ` style="left:${(d.cupLeft ?? 135 - 245*d.aspect/2).toFixed(1)}px"`}><img src="/${d.id}.webp" alt="" draggable="false"></div>    <div class="top">${d.rec
       ? `<div class="row"><h3>${d.name}</h3><span class="rec"><svg><use href="#i-star"/></svg>RECOMMEND</span></div>${icons}`
       : `<h3>${d.name}</h3>${icons}`}</div>
-    <div class="pricebar"><i class="glint"></i><b>${fmt(d.price)}</b><span><svg><use href="#i-cardadd"/></svg></span></div>${d.xmas ? '<img class="snowpile" src="/cacao-snow.svg" alt="" draggable="false">' : ''}${d.xmas ? '<div class="ribbon"><img src="/cacao-ribbon.webp" alt="" draggable="false"><span class="rtxt">SEASONAL</span></div>' : ''}`;
+    <div class="pricebar"><i class="glint"></i><b>${fmt(d.price)}</b><span><svg><use href="#i-cardadd"/></svg></span></div>${d.xmas ? '<img class="snowpile" src="/cacao-snow.svg" alt="" draggable="false">' : ''}${d.xmas ? '<div class="ribbon"><img src="/cacao-ribbon-v2.webp" alt="" draggable="false"><span class="rtxt">SEASONAL</span></div>' : ''}`;
   car.appendChild(el);
   const dot = document.createElement('i'); dots.appendChild(dot);
   return el;
