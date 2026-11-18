@@ -65,7 +65,7 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
   musicRef.current = music;
   /* nhạc nền Giáng sinh: chỉ phát được sau lần chạm đầu tiên, tạm dừng khi rời tab */
   useEffect(() => {
-    const a = new Audio('/xmas.mp3'); a.loop = true; a.volume = 0.35; a.preload = 'none'; audioRef.current = a;
+    const a = new Audio('/xmas.mp3'); a.loop = true; a.volume = 0.175; a.preload = 'none'; audioRef.current = a;
     const themed = () => document.documentElement.dataset.theme === 'xmas';
     const play = () => { if (musicRef.current && themed() && !document.hidden) a.play().catch(() => {}); };
     const onTheme = () => { if (themed()) play(); else a.pause(); };

@@ -172,7 +172,7 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
     const cur = sheet >= 0 ? lines[sheet] : null;
     return (
       <div
-        className="a-page o-cartpg"
+        className="a-page a-xr o-cartpg"
         style={{ touchAction: 'pan-y' }}
         onPointerDown={(e) => { cartSw = e.target.closest('button,input,textarea,.o-line') ? null : { x: e.clientX, y: e.clientY }; }}
         onPointerMove={(e) => { if (cartSw && e.clientX - cartSw.x > 70 && e.clientX - cartSw.x > Math.abs(e.clientY - cartSw.y) * 1.4) { cartSw = null; setSheet(-1); setPage(null); } }}
@@ -180,6 +180,7 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
         onPointerCancel={() => { cartSw = null; }}
       >
         <button className="a-back" onClick={() => { setSheet(-1); setPage(null); }} aria-label="Đóng giỏ hàng"><Sym id="i-close" size={28} /></button>
+        <h1 className="a-title">Giỏ hàng</h1>
         {lines.length === 0 ? (
           <div className="o-cempty">
             <div className="eico"><Sym id="i-bag" size={40} /></div>

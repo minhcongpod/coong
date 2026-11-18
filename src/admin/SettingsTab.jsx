@@ -21,6 +21,7 @@ export default function SettingsTab({ menu, users, shop = {}, adminPhone, onLogo
   if (page === 'customers') return <CustomerPicker users={users} onBack={back} onAdd={() => setPage('newCustomer')} onPick={(c) => setPage({ customer: c })} onEdit={(c) => setPage({ customer: c })} onChat />;
   if (page === 'newCustomer') return <NewCustomer users={users} onBack={() => setPage('customers')} onCreated={() => setPage('customers')} />;
   if (page && page.customer) return <EditCustomerForm customer={page.customer} onBack={() => setPage('customers')} onSaved={() => setPage('customers')} onDeleted={() => setPage('customers')} />;
+  if (page === 'theme') return <ThemePage onBack={back} />;
   if (page === 'hours') return <Hours shop={shop} onBack={back} />;
   if (page === 'telegram') return <Telegram onBack={back} />;
   if (page === 'backup') return <Backup adminPhone={adminPhone} onBack={back} />;
@@ -29,6 +30,7 @@ export default function SettingsTab({ menu, users, shop = {}, adminPhone, onLogo
 
   const rows = [
     ['i-s-user', 'Quản lý khách hàng', 'customers'],
+    ['i-s-theme', 'Theme', 'theme'],
     ['i-s-cup', 'Quản lý menu', 'menu'],
     ['i-s-clock', 'Giờ đóng mở cửa', 'hours'],
     ['i-s-bell', 'Thông báo Telegram', 'telegram'],
@@ -47,7 +49,6 @@ export default function SettingsTab({ menu, users, shop = {}, adminPhone, onLogo
           </div>
           <SoldText value={shop.soldText} />
         </div>
-        <ThemeCard />
         {rows.map(([i, t, k]) => (
           <button key={k} className="s-item" onClick={() => setPage(k)}>
             <Sym id={i} size={20} />
@@ -61,21 +62,19 @@ export default function SettingsTab({ menu, users, shop = {}, adminPhone, onLogo
   );
 }
 
-// Card chọn theme: Mặc định / Giáng sinh (thêm theme khác ở THEMES trong ui.jsx)
-function ThemeCard() {
-  const [cur, setCur] = useState(getTheme);
-  const pick = (id) => { setTheme(id); setCur(id); };
+// Trang Theme: chọn một theme rồi bấm "Lưu lại" mới áp dụng (thêm theme khác ở THEMES trong ui.jsx)
+function ThemePage({ onBack }) {
+  const [sel, setSel] = useState(getTheme);
   return (
-    <div className="s-theme">
-      <div className="s-thhead"><b>Theme</b><small>Giao diện của app</small></div>
-      <div className="s-thopts" role="radiogroup" aria-label="Theme">
+    <Page className="s-pg s-theme" title="Theme" onBack={onBack} footer={<Btn onClick={() => { setTheme(sel); onBack(); }}>Lưu lại</Btn>}>
+      <div className="s-thlist" role="radiogroup" aria-label="Theme">
         {THEMES.map((t) => (
-          <button key={t.id} role="radio" aria-checked={cur === t.id} className={`s-thopt${cur === t.id ? ' on' : ''}`} onClick={() => pick(t.id)}>
-            <i style={{ background: t.swatch }} />{t.name}
+          <button key={t.id} role="radio" aria-checked={sel === t.id} className="s-throw" onClick={() => setSel(t.id)}>
+            <span>{t.name}</span><i />
           </button>
         ))}
       </div>
-    </div>
+    </Page>
   );
 }
 

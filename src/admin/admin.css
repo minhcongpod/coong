@@ -268,7 +268,10 @@ button.a-card:active{transform:scale(.97)}
 .d-buy{flex:1;height:60px;border-radius:32px;background:#fff;color:#000;font-size:18px;font-weight:700}
 .d-add:active,.d-buy:active{transform:scale(.95)}
 
-.o-cartpg .a-back{margin-bottom:8px}
+.a-xr .a-back{position:absolute;right:24px;top:24px;margin:0;z-index:2}
+.a-xr .a-title{margin-top:2px}
+.a-xr .a-body{margin-top:15px}
+.o-cartpg .a-body{margin-top:28px}
 .o-cartpg{animation:a-right .5s cubic-bezier(.22,1,.36,1)}
 @keyframes a-right{from{transform:translateX(100%)}to{transform:none}}
 @media (prefers-reduced-motion:reduce){.o-cartpg{animation:none}}
@@ -566,12 +569,9 @@ button.a-card:active{transform:scale(.97)}
 /* Theme: logo theo theme (mặc định = logo cũ, Giáng sinh = logo mới) */
 html:not([data-theme=xmas]) .lgx,html[data-theme=xmas] .lgd{display:none}
 .lgd{color:#fff;display:inline-flex}
-.s-theme{flex:none;border-radius:32px;background:var(--s10);color:#fff;padding:16px 24px 20px}
-.s-thhead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}
-.s-thhead b{font-size:18px}.s-thhead small{font-size:14px;color:rgba(255,255,255,.5);font-weight:500}
-.s-thopts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.s-thopt{display:flex;align-items:center;gap:8px;padding:8px 10px 8px 8px;white-space:nowrap;border-radius:32px;background:rgba(255,255,255,.1);color:#fff;font:inherit;font-size:15px;font-weight:700;text-align:left;border:0;transition:transform .25s,background .25s,color .25s}
-.s-thopt:active{transform:scale(.96)}
-.s-thopt i{flex:none;width:36px;height:36px;border-radius:50%;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.5)}
-.s-thopt.on{background:#fff;color:#000}
-.s-thopt.on i{box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.2)}
+.s-thlist{display:flex;flex-direction:column;gap:12px}
+.s-throw{display:flex;align-items:center;gap:10px;height:56px;box-sizing:border-box;padding:0 24px;border-radius:32px;background:var(--s10);color:#fff;font:inherit;font-size:18px;font-weight:700;text-align:left;width:100%;transition:transform .25s}
+.s-throw:active{transform:scale(.97)}
+.s-throw span{flex:1}
+.s-throw i{flex:none;width:20px;height:20px;border-radius:50%;box-sizing:border-box;border:2px solid rgba(255,255,255,.5);transition:border-color .2s,background .2s}
+.s-throw[aria-checked=true] i{border-color:#fff;background:radial-gradient(circle,#fff 0 5.4px,transparent 5.9px)}

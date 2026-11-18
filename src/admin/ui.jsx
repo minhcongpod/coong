@@ -195,7 +195,7 @@ export const Page = ({ title, sub, head, onBack, children, footer, className = '
   };
   backRef.current = back;
   return (
-    <div className={`a-page a-fx ${className}`} ref={ref}>
+    <div className={`a-page a-fx ${closeIcon ? 'a-xr ' : ''}${className}`} ref={ref}>
       <button className="a-back" onClick={back} aria-label="Quay lại"><Sym id={closeIcon ? "i-close" : "i-back"} size={28} /></button>
       {head}
       {title && <h1 className="a-title">{title}</h1>}
