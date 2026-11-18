@@ -84,11 +84,21 @@ export const tgBroadcast = async (text) => {
   return { sent, total: chats.length };
 };
 
-// "1 Đen, 2 Nâu": gộp theo món, thứ tự Đen, Nâu, Bạc (items của đơn: name + quantity)
+// "1 Đen (XL/Nóng), 2 Nâu": gộp theo món + option đặc biệt, thứ tự Đen, Nâu, Bạc (items của đơn: name, quantity, caffeine, temp, sweetness, ice)
+// Option đặc biệt = khác mặc định (size L, lạnh, 100% ngọt, 100% cafe); không có thì không ghi ngoặc.
+const pctNum = (t) => { const m = /(\d+)/.exec(String(t || '')); return m ? +m[1] : null; };
+export const specialOpts = (x = {}) => {
+  const out = [];
+  if (/xl/i.test(x.caffeine || '')) out.push('XL');
+  if (/nóng/i.test(x.temp || '')) out.push('Nóng');
+  const sw = pctNum(x.sweetness); if (sw !== null && sw !== 100) out.push(`${sw}% ngọt`);
+  const cf = pctNum(x.ice); if (cf !== null && cf !== 100) out.push(`${cf}% cafe`);
+  return out.join('/');
+};
 export const itemsText = (items = []) => {
   const order = ['đen', 'nâu', 'bạc'];
   const by = new Map();
-  items.forEach((x) => { const n = x.name || ''; by.set(n, (by.get(n) || 0) + (x.quantity || x.qty || 1)); });
+  items.forEach((x) => { const o = specialOpts(x), n = `${x.name || ''}${o ? ` (${o})` : ''}`; by.set(n, (by.get(n) || 0) + (x.quantity || x.qty || 1)); });
   const rank = (n) => { const i = order.findIndex((k) => n.toLowerCase().includes(k)); return i < 0 ? 99 : i; };
   return [...by].sort((a, b) => rank(a[0]) - rank(b[0])).map(([n, q]) => `${q} ${n}`).join(', ');
 };
