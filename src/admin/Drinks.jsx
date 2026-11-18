@@ -27,11 +27,51 @@ export const drinkOf = (m) => { const k = kindOf(m.name); return { m, id: k || '
 
 const rootRect = () => document.querySelector('.a-device').getBoundingClientRect();
 const untransformedRect = (el) => { const p = el.style.transform; el.style.transform = 'none'; const r = el.getBoundingClientRect(); el.style.transform = p; return r; };
-// nền chi tiết luôn đủ cỡ, chỉ khung cắt (clip-path) mở rộng từ thẻ ra toàn màn hình; ảnh thẻ nhỏ nằm trên cùng và mờ dần
-const veilHTML = (d, closing, r, s, rad) => `<div class="vbg" style="position:absolute;inset:0;background:${d.bg}"></div><div class="vcd" style="position:absolute;left:${r.left - s.left}px;top:${r.top - s.top}px;width:${r.width}px;height:${r.height}px;border-radius:${rad}px;background:${d.card};opacity:${closing ? 0 : 1}"></div>`;
+// Tấm nền phóng lên / thu gọn. Món thường: tấm nền cỡ màn hình phóng ra từ thẻ.
+// Món Giáng sinh (Cacao): chỉ MỘT tấm nền; ảnh nền trượt/co giãn từ khung cắt của thẻ sang khung cắt của trang chi tiết (transform),
+// lớp phủ đỏ chuyển dần, còn khung cắt (clip-path) mở rộng ra toàn màn hình, nên không có ảnh thẻ mờ dần chồng lên.
+const PH = /^(.*),(url\([^)]*\)) ([^/]+)\/([^ ]+ [^ ]+) no-repeat/;
+const splitXmas = (str) => { const m = PH.exec(str); return { shade: m[1], photo: m[2], pos: m[3].trim().split(/\s+/).map((v) => parseFloat(v) / 100), size: m[4].split(' ').map((v) => parseFloat(v) / 100) }; };
 function revealKF(r, s, rad0, rad1) {
   const c = (rad) => `inset(${r.top - s.top}px ${s.right - r.right}px ${s.bottom - r.bottom}px ${r.left - s.left}px round ${rad}px)`;
   return [{ clipPath: c(rad0) }, { clipPath: `inset(0px 0px 0px 0px round ${rad1}px)` }];
+}
+function makeVeil(d, closing, cardR, sr, rad) {
+  if (!d.xmas) {
+    return {
+      html: `<div style="position:absolute;inset:0;background:${d.card}"></div><div class="vb" style="position:absolute;inset:0;background:${d.bg};opacity:${closing ? 1 : 0}"></div>`,
+      play(veil, D) {
+        if (!closing) {
+          const a = veil.animate(veilKF(cardR, sr, rad, 0), { duration: D * 0.9, easing: EASE_MORPH, fill: 'forwards' });
+          veil.animate([{ opacity: 0 }, { opacity: 1, offset: 0.4 }, { opacity: 1 }], { duration: D * 0.9, easing: 'ease-out', fill: 'forwards' });
+          veil.querySelector('.vb').animate([{ opacity: 0 }, { opacity: 1 }], { duration: D * 0.7, delay: D * 0.1, easing: 'ease-in-out', fill: 'forwards' });
+          return a;
+        }
+        veil.querySelector('.vb').animate([{ opacity: 1 }, { opacity: 0 }], { duration: D * 0.7, easing: 'ease-in-out', fill: 'forwards' });
+        const a = veil.animate(veilKF(cardR, sr, rad, 0).reverse(), { duration: D, easing: EASE_MORPH, fill: 'forwards' });
+        veil.animate([{ opacity: 1 }, { opacity: 1, offset: 0.55 }, { opacity: 0 }], { duration: D, easing: 'ease-in', fill: 'forwards' });
+        return a;
+      },
+    };
+  }
+  const C = splitXmas(d.card), B = splitXmas(d.bg);
+  const box = (c, a, rel) => { const w = c.size[0] * a.width, h = c.size[1] * a.height; return { l: a.left - rel.left + (a.width - w) * c.pos[0], t: a.top - rel.top + (a.height - h) * c.pos[1], w, h }; };
+  const cb = box(C, cardR, sr), db = box(B, sr, sr);
+  const tf = (b) => `translate(${b.l}px,${b.t}px) scale(${b.w / db.w},${b.h / db.h})`;
+  const cardT = `translate(${cardR.left - sr.left}px,${cardR.top - sr.top}px) scale(${cardR.width / sr.width},${cardR.height / sr.height})`;
+  return {
+    html: `<div class="vclip" style="position:absolute;inset:0;background:#ac0b0b"><div class="vph" style="position:absolute;left:0;top:0;width:${db.w}px;height:${db.h}px;transform-origin:0 0;transform:${tf(db)};background:${B.photo} 0 0/100% 100% no-repeat"></div><div class="vs1" style="position:absolute;inset:0;transform-origin:0 0;background:${C.shade};opacity:0"></div><div class="vs2" style="position:absolute;inset:0;background:${B.shade};opacity:1"></div></div>`,
+    play(veil, D) {
+      const o = { duration: closing ? D : D * 0.9, easing: EASE_MORPH, fill: 'both' }, rv = (a) => (closing ? a.slice().reverse() : a);
+      const clip = veil.querySelector('.vclip').animate(rv(revealKF(cardR, sr, rad, 0)), o);
+      veil.querySelector('.vph').animate(rv([{ transform: tf(cb) }, { transform: tf(db) }]), o);
+      const s1 = veil.querySelector('.vs1'), s2 = veil.querySelector('.vs2'), oo = { duration: o.duration, easing: 'ease-in-out', fill: 'both' };
+      s1.animate(rv([{ transform: cardT }, { transform: 'none' }]), o);
+      s1.animate(rv([{ opacity: 1 }, { opacity: 1, offset: 0.45 }, { opacity: 0 }]), oo);
+      s2.animate(rv([{ opacity: 0 }, { opacity: 1, offset: 0.5 }, { opacity: 1 }]), oo);
+      return clip;
+    },
+  };
 }
 function veilKF(r, s, rad0, rad1) {
   const sx = r.width / s.width, sy = r.height / s.height;
@@ -328,7 +368,7 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
       const to = untransformedRect(sp);
       const sr = rootRect(), Sc = S();
       const veil = track(document.createElement('div')); veil.className = 'veil';
-      placeVeil(veil, sr); veil.innerHTML = veilHTML(d, false, cardR, sr, 32 * Sc); fx.appendChild(veil);
+      placeVeil(veil, sr); const vm = makeVeil(d, false, cardR, sr, 32 * Sc); veil.innerHTML = vm.html; fx.appendChild(veil);
       const fly = track(document.createElement('img')); fly.className = 'fly'; fly.src = item.known ? `/${k}.webp` : '';
       fly.style.width = to.width + 'px'; fly.style.height = to.height + 'px'; fly.style.filter = `drop-shadow(0 0 22px ${GLOW})`;
       if (item.known) fx.appendChild(fly);
@@ -340,8 +380,7 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
       home.hideCup(index, true);
       await nextFrame(); if (dead) return;
       const D = T(760);
-      const veilA = veil.querySelector('.vbg').animate(revealKF(cardR, sr, 32 * Sc, 0), { duration: D * 0.9, easing: EASE_MORPH, fill: 'both' });
-      veil.querySelector('.vcd').animate([{ opacity: 1 }, { opacity: 1, offset: 0.25 }, { opacity: 0 }], { duration: D * 0.7, easing: 'ease-in-out', fill: 'forwards' });
+      const veilA = vm.play(veil, D);
       if (item.known) fly.animate([{ transform: fromT }, { transform: midT, offset: 0.45 }, { transform: toT }], { duration: D, easing: 'cubic-bezier(.5,0,.15,1)', fill: 'forwards' });
       home.recede(index);
       await veilA.finished; if (dead) return;
@@ -379,7 +418,7 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
     ps.forEach((el, kk) => el.animate([{ opacity: 1, transform: restT(el) }, { opacity: 0, transform: preT(el) }], { duration: T(260), delay: kk * 18, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' }));
     const title = rootEl.querySelector('.dtitle'); title.animate([{ opacity: 1 }, { opacity: 0 }], { duration: T(200), fill: 'forwards' });
     const veil = document.createElement('div'); veil.className = 'veil';
-    const sr = rootRect(); placeVeil(veil, sr); veil.innerHTML = veilHTML(d, true, cardR, sr, 32 * Sc);
+    const sr = rootRect(); placeVeil(veil, sr); const vm = makeVeil(d, true, cardR, sr, 32 * Sc); veil.innerHTML = vm.html;
     const fly = document.createElement('img'); fly.className = 'fly'; fly.src = item.known ? `/${k}.webp` : '';
     fly.style.width = from.width + 'px'; fly.style.height = from.height + 'px'; fly.style.filter = `drop-shadow(0 0 22px ${GLOW})`;
     const sx = to.width / from.width;
@@ -399,8 +438,7 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
     await nextFrame();
     const D = T(720);
     home.restore(index, D);
-    const veilA = veil.querySelector('.vbg').animate(revealKF(cardR, sr, 32 * Sc, 0).reverse(), { duration: D, easing: EASE_MORPH, fill: 'both' });
-    veil.querySelector('.vcd').animate([{ opacity: 0 }, { opacity: 0, offset: 0.45 }, { opacity: 1 }], { duration: D * 0.8, delay: D * 0.1, easing: 'ease-in-out', fill: 'forwards' });
+    const veilA = vm.play(veil, D);
     const midT = `translate(${(from.left + to.left) / 2}px,${Math.min(from.top, to.top) - 24 * Sc}px) scale(${((sx + 1) / 2) * 1.04})`;
     if (item.known) fly.animate([{ transform: fromT }, { transform: midT, offset: 0.5 }, { transform: toT }], { duration: D, easing: 'cubic-bezier(.65,0,.25,1)', fill: 'forwards' });
     if (glass) glass.fk.animate([{ transform: glass.at(fromT) }, { transform: glass.at(midT), offset: 0.5 }, { transform: glass.at(toT) }], { duration: D, easing: 'cubic-bezier(.65,0,.25,1)', fill: 'forwards' });
