@@ -1,4 +1,4 @@
-.dr-home{background:#000}
+.dr-home{background:#000;isolation:isolate}
 .dr .cartbtn{width:52px;height:52px;background:rgba(255,255,255,.1);top:24px;left:314px;color:#fff}
 .dr .cartbtn svg{width:28px;height:28px}
 .dr .badge{position:absolute;top:-2px;right:-2px;min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:20px;background:var(--yellow);color:#000;font-size:12px;font-weight:700;line-height:20px;text-align:center;transform:scale(0);transition:transform .35s var(--ease-out)}
@@ -149,7 +149,7 @@
 .dr .card[data-id=cacao] .pricebar b{color:#fff}
 .dr .card[data-id=cacao] .pricebar span{background:linear-gradient(180deg,#037e3c,#093f22);box-shadow:0 0 12px rgba(255,214,107,.85)}
 .dr .card[data-id=cacao] .pricebar span::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(180deg,#fff3b8,#f5c842 50%,#b8860b);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
-.dr .card .ribbon{position:absolute;right:-1.5px;top:-1.5px;width:128px;height:88px;overflow:hidden;border-top-right-radius:32px;pointer-events:none}
+.dr .card .ribbon{position:absolute;right:1.5px;top:1.5px;width:128px;height:88px;overflow:hidden;border-top-right-radius:30.5px;pointer-events:none}
 .dr .card .ribbon img{position:absolute;width:136.78%;height:138.14%;left:-16.31%;top:-16.87%;max-width:none}
 .dr .card .snowpile{position:absolute;left:40px;top:272.87px;width:104px;height:16.26px;transform:scaleX(-1);pointer-events:none}
 .dr .card.sold[data-id=cacao] .ribbon{opacity:.6}
@@ -175,7 +175,7 @@
 
 /* ===== đồng bộ với app khách: logo mới, tuyết, nền Cacao trôi, nhạc nền ===== */
 .dr-home .o-logo{display:block;width:159px;height:30px}
-.dr-home .homesnow{z-index:0}
+.dr-home .homesnow{z-index:40}
 .dr-home .dr-mid{position:relative;z-index:1}
 .dr-music{position:absolute;right:24px;top:84px;width:36px;height:36px;border-radius:50%;border:0;padding:0;background:rgba(255,255,255,.1);color:#fff;z-index:3;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .dr-music svg{width:20px;height:20px}
@@ -189,7 +189,7 @@
 .dr-detail[data-id=cacao] .bgphoto,.dr-detail[data-id=cacao] .bgshade,.dr-detail[data-id=cacao] .snowfx{display:block}
 .dr-detail .bgphoto{background:url(/cacao-bg.webp) 0 92.2%/107.15% 107.17% no-repeat;transform-origin:50% 55%;will-change:transform;animation:bgdrift 18s ease-in-out infinite alternate}
 .dr-detail .bgshade{background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(58,0,16,0) 60%,rgba(58,0,16,.33) 100%),linear-gradient(0deg,rgba(172,11,11,0) 73.09%,rgba(172,11,11,.9) 100%),linear-gradient(-90deg,rgba(172,11,11,0) 51.759%,rgba(172,11,11,.8) 67.335%,#ac0b0b 100%),linear-gradient(180deg,rgba(172,11,11,0) 36.59%,rgba(172,11,11,.8) 71.138%,#ac0b0b 100.89%)}
-.dr-detail .snowfx{overflow:hidden}
+.dr-detail .snowfx{overflow:hidden;z-index:40}
 .dr-detail .snowfx::before,.dr-detail .snowfx::after{content:"";position:absolute;left:0;right:0;top:-100%;height:200%;will-change:transform}
 .dr-detail .snowfx::before{opacity:.5;background-image:radial-gradient(3.2px 3.2px at 30px 40px,#fff,transparent),radial-gradient(2.4px 2.4px at 110px 150px,rgba(255,255,255,.8),transparent),radial-gradient(4px 4px at 190px 80px,#fff,transparent),radial-gradient(2.8px 2.8px at 270px 200px,rgba(255,255,255,.8),transparent),radial-gradient(3.6px 3.6px at 340px 110px,#fff,transparent);background-size:380px 240px;animation:snowfall 26s linear infinite}
 .dr-detail .snowfx::after{opacity:.35;background-image:radial-gradient(2px 2px at 60px 90px,#fff,transparent),radial-gradient(2.6px 2.6px at 150px 30px,#fff,transparent),radial-gradient(2px 2px at 240px 170px,#fff,transparent),radial-gradient(3px 3px at 320px 60px,#fff,transparent);background-size:340px 180px;animation:snowfall2 38s linear infinite}
@@ -201,5 +201,3 @@
 /* theme mặc định: không tuyết, không nhạc, nền Cacao đứng yên */
 html:not([data-theme=xmas]) .dr-home .homesnow,html:not([data-theme=xmas]) .dr-detail .snowfx,html:not([data-theme=xmas]) .dr-music{display:none!important}
 html:not([data-theme=xmas]) .dr-detail .bgphoto{animation:none}
-.dr-home .o-head .lgd{display:inline-flex}
-html:not([data-theme=xmas]) .dr-home .o-head .lgx,html[data-theme=xmas] .dr-home .o-head .lgd{display:none}

@@ -567,8 +567,7 @@ button.a-card:active{transform:scale(.97)}
 .h-opt{display:block;font-size:14px;line-height:18px;font-weight:700;color:var(--ok)}
 
 /* Theme: logo theo theme (mặc định = logo cũ, Giáng sinh = logo mới) */
-html:not([data-theme=xmas]) .lgx,html[data-theme=xmas] .lgd{display:none}
-.lgd{color:#fff;display:inline-flex}
+.lgd{display:none!important}
 .s-thlist{display:flex;flex-direction:column;gap:12px}
 .s-throw{display:flex;align-items:center;gap:10px;height:56px;box-sizing:border-box;padding:0 24px;border-radius:32px;background:var(--s10);color:#fff;font:inherit;font-size:18px;font-weight:700;text-align:left;width:100%;transition:transform .25s}
 .s-throw:active{transform:scale(.97)}

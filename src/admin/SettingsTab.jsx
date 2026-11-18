@@ -21,7 +21,7 @@ export default function SettingsTab({ menu, users, shop = {}, adminPhone, onLogo
   if (page === 'customers') return <CustomerPicker users={users} onBack={back} onAdd={() => setPage('newCustomer')} onPick={(c) => setPage({ customer: c })} onEdit={(c) => setPage({ customer: c })} onChat />;
   if (page === 'newCustomer') return <NewCustomer users={users} onBack={() => setPage('customers')} onCreated={() => setPage('customers')} />;
   if (page && page.customer) return <EditCustomerForm customer={page.customer} onBack={() => setPage('customers')} onSaved={() => setPage('customers')} onDeleted={() => setPage('customers')} />;
-  if (page === 'theme') return <ThemePage onBack={back} />;
+  if (page === 'theme') return <ThemePage shop={shop} onBack={back} />;
   if (page === 'hours') return <Hours shop={shop} onBack={back} />;
   if (page === 'telegram') return <Telegram onBack={back} />;
   if (page === 'backup') return <Backup adminPhone={adminPhone} onBack={back} />;
@@ -63,10 +63,11 @@ export default function SettingsTab({ menu, users, shop = {}, adminPhone, onLogo
 }
 
 // Trang Theme: chọn một theme rồi bấm "Lưu lại" mới áp dụng (thêm theme khác ở THEMES trong ui.jsx)
-function ThemePage({ onBack }) {
-  const [sel, setSel] = useState(getTheme);
+function ThemePage({ shop, onBack }) {
+  const { toast } = useUI();
+  const [sel, setSel] = useState(() => (THEMES.some((t) => t.id === shop.theme) ? shop.theme : getTheme()));
   return (
-    <Page className="s-pg s-theme" title="Theme" onBack={onBack} footer={<Btn onClick={() => { setTheme(sel); onBack(); }}>Lưu lại</Btn>}>
+    <Page className="s-pg s-theme" title="Theme" onBack={onBack} footer={<Btn onClick={async () => { setTheme(sel); try { await saveShop({ theme: sel }); toast('Đã lưu', true); } catch (e) { toast(errText(e)); } onBack(); }}>Lưu lại</Btn>}>
       <div className="s-thlist" role="radiogroup" aria-label="Theme">
         {THEMES.map((t) => (
           <button key={t.id} role="radio" aria-checked={sel === t.id} className="s-throw" onClick={() => setSel(t.id)}>

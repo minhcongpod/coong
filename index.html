@@ -363,7 +363,7 @@ input{user-select:text;-webkit-user-select:text}
 .hlogo{display:block;height:30px;width:159px;margin-top:11px}
 .lgd{color:#fff}
 .hlogo.lgd{height:52px;width:133px;margin-top:0}
-html:not([data-theme=xmas]) .lgx,html[data-theme=xmas] .lgd{display:none}
+.lgd{display:none!important}   /* logo mới (.lgx) dùng cho mọi theme; logo cũ không còn hiện */
 /* theme mặc định: không tuyết, không nhạc, nền Cacao đứng yên */
 html:not([data-theme=xmas]) #home .homesnow,html:not([data-theme=xmas]) #detail .snowfx,html:not([data-theme=xmas]) .musicbtn{display:none!important}
 html:not([data-theme=xmas]) #detail .bgphoto{animation:none}
@@ -450,7 +450,8 @@ html:not([data-theme=xmas]) #detail .bgphoto{animation:none}
 /* Cacao (Noel, theo Figma): thẻ đỏ có ảnh tuyết, viền vàng nhạt, nút + đỏ viền vàng, ruy-băng SEASONAL và đống tuyết dưới ly */
 .card[data-id=cacao]{--t:#fff;--ib:rgba(255,255,255,.2);--ic:#fff}
 .card[data-id=cacao] .surf{border-radius:32px;overflow:hidden}
-#home .homesnow{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+#home,#detail{isolation:isolate}
+#home .homesnow{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:40}   /* tuyết nằm trên cùng, phủ lên cả thẻ và nút */
 #home .homesnow::before,#home .homesnow::after{content:"";position:absolute;left:0;right:0;top:-100%;height:200%;will-change:transform}
 #home .homesnow::before{opacity:.6;background-image:radial-gradient(3.6px 3.6px at 30px 40px,#fff,transparent),radial-gradient(2.6px 2.6px at 110px 150px,rgba(255,255,255,.8),transparent),radial-gradient(4.4px 4.4px at 190px 80px,#fff,transparent),radial-gradient(3px 3px at 270px 200px,rgba(255,255,255,.8),transparent),radial-gradient(3.8px 3.8px at 340px 110px,#fff,transparent);background-size:380px 260px;animation:snowfall 24s linear infinite}
 #home .homesnow::after{opacity:.4;background-image:radial-gradient(2.2px 2.2px at 60px 90px,#fff,transparent),radial-gradient(2.8px 2.8px at 150px 30px,#fff,transparent),radial-gradient(2.2px 2.2px at 240px 170px,#fff,transparent),radial-gradient(3.2px 3.2px at 320px 60px,#fff,transparent);background-size:340px 200px;animation:snowfall2 36s linear infinite}
@@ -466,7 +467,7 @@ html:not([data-theme=xmas]) #detail .bgphoto{animation:none}
 .card[data-id=cacao] .pricebar b{color:#fff}
 .card[data-id=cacao] .pricebar span{background:linear-gradient(180deg,#037e3c,#093f22);box-shadow:0 0 12px rgba(255,214,107,.85)}
 .card[data-id=cacao] .pricebar span::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(180deg,#fff3b8,#f5c842 50%,#b8860b);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
-.card .ribbon{position:absolute;right:-1.5px;top:-1.5px;width:128px;height:88px;overflow:hidden;border-top-right-radius:32px;pointer-events:none}
+.card .ribbon{position:absolute;right:1.5px;top:1.5px;width:128px;height:88px;overflow:hidden;border-top-right-radius:30.5px;pointer-events:none}
 .card .ribbon img{position:absolute;width:136.78%;height:138.14%;left:-16.31%;top:-16.87%;max-width:none}
 .card .snowpile{position:absolute;left:40px;top:272.87px;width:104px;height:16.26px;transform:scaleX(-1);pointer-events:none}
 .card.sold[data-id=cacao] .ribbon{opacity:.6}
@@ -493,7 +494,7 @@ html:not([data-theme=xmas]) #detail .bgphoto{animation:none}
 #detail[data-id=cacao] .bgphoto,#detail[data-id=cacao] .bgshade,#detail[data-id=cacao] .snowfx{display:block}
 #detail .bgphoto{background:url(/cacao-bg.webp) 0 92.2%/107.15% 107.17% no-repeat;transform-origin:50% 55%;will-change:transform;animation:bgdrift 18s ease-in-out infinite alternate}
 #detail .bgshade{background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(58,0,16,0) 60%,rgba(58,0,16,.33) 100%),linear-gradient(0deg,rgba(172,11,11,0) 73.09%,rgba(172,11,11,.9) 100%),linear-gradient(-90deg,rgba(172,11,11,0) 51.759%,rgba(172,11,11,.8) 67.335%,#ac0b0b 100%),linear-gradient(180deg,rgba(172,11,11,0) 36.59%,rgba(172,11,11,.8) 71.138%,#ac0b0b 100.89%)}
-#detail .snowfx{overflow:hidden}
+#detail .snowfx{overflow:hidden;z-index:40}
 #detail .snowfx::before,#detail .snowfx::after{content:"";position:absolute;left:0;right:0;top:-100%;height:200%;will-change:transform}
 #detail .snowfx::before{opacity:.5;background-image:radial-gradient(3.2px 3.2px at 30px 40px,#fff,transparent),radial-gradient(2.4px 2.4px at 110px 150px,rgba(255,255,255,.8),transparent),radial-gradient(4px 4px at 190px 80px,#fff,transparent),radial-gradient(2.8px 2.8px at 270px 200px,rgba(255,255,255,.8),transparent),radial-gradient(3.6px 3.6px at 340px 110px,#fff,transparent);background-size:380px 240px;animation:snowfall 26s linear infinite}
 #detail .snowfx::after{opacity:.35;background-image:radial-gradient(2px 2px at 60px 90px,#fff,transparent),radial-gradient(2.6px 2.6px at 150px 30px,#fff,transparent),radial-gradient(2px 2px at 240px 170px,#fff,transparent),radial-gradient(3px 3px at 320px 60px,#fff,transparent);background-size:340px 180px;animation:snowfall2 38s linear infinite}
@@ -2436,7 +2437,8 @@ function startSession(s){
     }, () => toast('Mất kết nối tới quán', 'wifioff'));
     stopMenu = a.watchMenu(applyMenu, () => {});
     if (stopWallet) stopWallet(); stopWallet = a.watchWallet(s.phone, b => { walletBal = b; renderWallet(); }, () => {});
-    if (stopShop) stopShop(); stopShop = a.watchShop(s2 => { shop = s2 || {}; applyMenu(lastMenu); }, () => {});
+    /* theme do admin chọn (meta/shop.theme) áp dụng cho mọi app khách */
+    if (stopShop) stopShop(); stopShop = a.watchShop(s2 => { shop = s2 || {}; if (shop.theme && shop.theme !== document.documentElement.dataset.theme) setTheme(shop.theme); applyMenu(lastMenu); }, () => {});
   });
 }
 function endSession(){
