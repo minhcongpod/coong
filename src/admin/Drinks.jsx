@@ -56,16 +56,17 @@ const N_SIDE = MID_W / 2 + 10 + SIDE_W / 2; // 10px khe
 // ---------------- Trang chủ: 3 thẻ, kéo ngang, 3 chấm ----------------
 export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, onCart, onBell, onOpen, sold, soldText }, ref) {
   const N = items.length;
+  const START = Math.max(0, items.findIndex((it) => it.meta.xmas)) || Math.min(1, Math.max(0, N - 1));   /* món theo mùa (Cacao) nằm giữa khi mở app */
   const openRef = useRef(onOpen); openRef.current = onOpen;
   const carRef = useRef(null), dotsRef = useRef(null), cards = useRef([]);
   const partsRef = useRef({});
-  const st = useRef({ pos: Math.min(1, Math.max(0, N - 1)), target: 1, vel: 0, raf: 0, drag: null, busy: false });
+  const st = useRef({ pos: START, target: START, vel: 0, raf: 0, drag: null, busy: false });
   const wrap = (o) => { o = ((o % N) + N) % N; return o >= N / 2 ? o - N : o; };
 
   useEffect(() => {
     if (!N) return undefined;
     const s = st.current, car = carRef.current;
-    if (!s.init) { s.init = true; s.pos = s.target = Math.min(1, N - 1); }
+    if (!s.init) { s.init = true; s.pos = s.target = START; }
     if (s.pos > N - 1) s.pos = N - 1;
     const active = () => ((Math.round(s.pos) % N) + N) % N;
     const layout = () => {
