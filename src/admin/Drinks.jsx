@@ -456,14 +456,19 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
     await nextFrame();
     const D = T(720);
     home.restore(index, D);
-    if (topC) topC.animate([{ opacity: 0 }, { opacity: 0, offset: 0.35 }, { opacity: 1 }], { duration: D, easing: 'ease-in-out', fill: 'forwards' });
+    if (topC) {   // chữ, từng chip và nhãn hiện lần lượt, bay từ dưới lên đúng vị trí (giống các món khác)
+      const real = [...cards.current[index].querySelectorAll('.top, .ribbon')]; real.forEach((e) => { e.style.visibility = 'hidden'; });
+      const parts = [...topC.querySelectorAll('h3'), ...topC.querySelectorAll('.ico > *'), ...topC.querySelectorAll('.ribbon')];
+      const as = parts.map((e, n) => e.animate([{ opacity: 0, transform: 'translateY(26px)' }, { opacity: 1, transform: 'none' }], { duration: T(520), delay: D * 0.5 + n * 110, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'both' }).finished.catch(() => {}));
+      Promise.all(as).then(() => { real.forEach((e) => { e.style.visibility = ''; }); topC.remove(); });
+    }
     const veilA = vm.play(veil, D);
     const midT = `translate(${(from.left + to.left) / 2}px,${Math.min(from.top, to.top) - 24 * Sc}px) scale(${((sx + 1) / 2) * 1.04})`;
     if (item.known) fly.animate([{ transform: fromT }, { transform: midT, offset: 0.5 }, { transform: toT }], { duration: D, easing: 'cubic-bezier(.65,0,.25,1)', fill: 'forwards' });
     if (glass) glass.fk.animate([{ transform: glass.at(fromT) }, { transform: glass.at(midT), offset: 0.5 }, { transform: glass.at(toT) }], { duration: D, easing: 'cubic-bezier(.65,0,.25,1)', fill: 'forwards' });
     await veilA.finished;
     await pillA.finished.catch(() => {});
-    home.hideCup(index, false); veil.remove(); fly.remove(); pill.remove(); if (topC) topC.remove();
+    home.hideCup(index, false); veil.remove(); fly.remove(); pill.remove();
     home.unfreeze(); onClose();
   };
 
