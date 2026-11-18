@@ -438,7 +438,9 @@ input{user-select:text;-webkit-user-select:text}
 /* Cacao (Noel, theo Figma): thẻ đỏ có ảnh tuyết, viền vàng nhạt, nút + đỏ viền vàng, ruy-băng SEASONAL và đống tuyết dưới ly */
 .card[data-id=cacao]{--t:#fff;--ib:rgba(255,255,255,.2);--ic:#fff}
 .card[data-id=cacao] .surf{border-radius:32px;box-shadow:inset 0 0 0 1.5px #fff3b8}
-.card[data-id=cacao] .ico span{box-sizing:border-box;border:1px solid #fff;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+.card[data-id=cacao] .ico span{box-sizing:border-box;border:1px solid #fff;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);background:radial-gradient(circle 10px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
+.card[data-id=cacao] .pricebar{-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.card[data-id=cacao] .pricebar::before{padding:1.5px;background:#fff;animation:none}
 .card[data-id=cacao] .pricebar b{color:#fff}
 .card[data-id=cacao] .pricebar span{background:linear-gradient(180deg,#ff5a6e,#a1001b);box-shadow:inset 0 0 0 1.5px #fff3b8,0 0 12px rgba(255,214,107,.85)}
 .card .ribbon{position:absolute;right:-1.5px;top:-1.5px;width:128px;height:88px;overflow:hidden;border-top-right-radius:32px;pointer-events:none}
@@ -474,8 +476,16 @@ input{user-select:text;-webkit-user-select:text}
 #detail[data-id=den] .opt label{color:#fff}
 #detail[data-id=nau] .opt label,#detail[data-id=bac] .opt label{color:#000}
 #detail[data-id=cacao] .opt label{color:#fff}
-#detail[data-id=cacao] .back,#detail[data-id=cacao] .cartbtn,#detail[data-id=cacao] .chip,#detail[data-id=cacao] .dadd{box-sizing:border-box;border:1px solid #fff}
-#detail[data-id=cacao] .chip.on{border-color:transparent}
+#detail[data-id=cacao] .back,#detail[data-id=cacao] .cartbtn,#detail[data-id=cacao] .chip,#detail[data-id=cacao] .dadd{box-sizing:border-box;border:1px solid #fff;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+#detail[data-id=cacao] .back,#detail[data-id=cacao] .cartbtn{background:radial-gradient(circle 17px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
+#detail[data-id=cacao] .dadd{background:radial-gradient(circle 19.5px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
+#detail[data-id=cacao] .chip{width:40px;height:40px;background:radial-gradient(circle 13px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
+#detail[data-id=cacao] .chip svg{width:40px;height:40px}
+#detail[data-id=cacao] .opt[data-k=hot] .chip svg{width:24px;height:24px}
+#detail[data-id=cacao] .opt[data-k=hot] .chip.on svg{width:21.8px;height:21.8px}
+#detail[data-id=cacao] .chip.on{background:#fff;border-color:transparent;-webkit-backdrop-filter:none;backdrop-filter:none}
+#detail[data-id=cacao] .opt label{font-size:14px;line-height:18px;margin-bottom:5px}
+#detail[data-id=cacao] .opt[data-k=sweet]{margin-top:16px}
 #detail[data-id=cacao] .pm{background:var(--round);border:1.5px solid #fff3b8;box-sizing:border-box;box-shadow:0 0 12px rgba(255,214,107,.85)}
 #detail[data-id=cacao] .dprice{border:1.5px solid #fff3b8;box-shadow:0 0 12px rgba(255,214,107,.85)}
 #detail[data-id=cacao] .dbuy{border:3px dashed #ff5a6e;box-sizing:border-box}
@@ -844,7 +854,7 @@ const DRINKS = [
   {id:'den', name:'Đen', price:20000, xl:5000, sweet:false, cafe:false, aspect:512/792,            stops:[[0,'#484848'],[.5739,'#1e1e1e']], edge:.12, card:'linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)', bg:'linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)'},
   {id:'nau', name:'Nâu', price:20000, xl:5000, sweet:true, cafe:false, aspect:512/797,            stops:[[0,'#fed9ae'],[.574,'#ffc077']], edge:.35, card:'linear-gradient(180deg,#fed9ae 0%,#ffc077 57.4%)', bg:'linear-gradient(180deg,#fed3a1,#ffc077)'},
   /* Cacao: món theo mùa (Noel). Ảnh nền thẻ/màn chi tiết là /cacao-bg.webp phủ thêm các lớp đỏ; ly đứng thẳng (rot 0) */
-  {id:'cacao', name:'Cacao', price:20000, xl:5000, sweet:true, cafe:false, aspect:438/620, cupLeft:84.7, rot:0, xmas:true, stops:[[0,'#ac0b0b']], edge:0,
+  {id:'cacao', name:'Cacao', price:20000, xl:5000, sweet:true, cafe:false, aspect:438/620, spinH:262, cupLeft:84.7, rot:0, xmas:true, stops:[[0,'#ac0b0b']], edge:0,
    card:'linear-gradient(0deg,rgba(172,11,11,0) 56.036%,rgba(172,11,11,.9) 93.103%),linear-gradient(-90deg,rgba(172,11,11,.8) 1.0549%,rgba(172,11,11,0) 13.984% 73.103%,rgba(172,11,11,.8) 94.586%),linear-gradient(180deg,rgba(172,11,11,0) 36.59%,rgba(172,11,11,.2) 71.138%,#8e0000 100.89%),url(/cacao-bg.webp) 100% 0/130.38% 130.41% no-repeat #ac0b0b',
    bg:'radial-gradient(ellipse 50% 50% at 50% 50%,rgba(58,0,16,0) 60%,rgba(58,0,16,.33) 100%),linear-gradient(0deg,rgba(172,11,11,0) 73.09%,rgba(172,11,11,.9) 100%),linear-gradient(-90deg,rgba(172,11,11,0) 51.759%,rgba(172,11,11,.8) 67.335%,#ac0b0b 100%),linear-gradient(180deg,rgba(172,11,11,0) 36.59%,rgba(172,11,11,.8) 71.138%,#ac0b0b 100.89%),url(/cacao-bg.webp) 0 92.2%/107.15% 107.17% no-repeat #ac0b0b'},
 ];
@@ -1079,7 +1089,7 @@ const opts = {upsize:0, hot:0, sweet:0, cafe:0};
 const unit = () => DRINKS[cur].price + (opts.upsize ? DRINKS[cur].xl : 0);
 
 function sizeSpin(){
-  const d = DRINKS[cur], h = 310, w = h*d.aspect;
+  const d = DRINKS[cur], h = d.spinH || 310, w = h*d.aspect;
   spin.style.height = h + 'px'; spin.style.width = w + 'px'; spin.style.left = (261 - w/2) + 'px';
 }
 /* tên món + option + ảnh nằm giữa hàng nút trên (X / giỏ) và hàng nút dưới (− / +) */
@@ -1087,7 +1097,7 @@ function centerDetail(){
   const c = (76 + 637 + DH) / 2, o = $('#opts'), t = $('#dTitle');
   const tb = 46 + 19 + o.offsetHeight;
   t.style.top = Math.round(c - tb/2) + 'px'; o.style.top = Math.round(c - tb/2 + 65) + 'px';
-  spin.style.top = Math.round(c - 155) + 'px';
+  spin.style.top = Math.round(c - (DRINKS[cur].spinH || 310)/2) + 'px';
 }
 const spin2 = document.createElement('i'); spin2.className = 'spin2'; spin.appendChild(spin2);
 /* the cup is a still photo now: no turning */

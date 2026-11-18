@@ -138,7 +138,9 @@
 .dr .card[data-id=cacao] .top{flex-direction:column;gap:8px}
 .dr .card[data-id=cacao]{--t:#fff;--ib:rgba(255,255,255,.2);--ic:#fff}
 .dr .card[data-id=cacao] .surf{border-radius:32px;box-shadow:inset 0 0 0 1.5px #fff3b8}
-.dr .card[data-id=cacao] .ico span{box-sizing:border-box;border:1px solid #fff;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+.dr .card[data-id=cacao] .ico span{box-sizing:border-box;border:1px solid #fff;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);background:radial-gradient(circle 10px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
+.dr .card[data-id=cacao] .pricebar{-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.dr .card[data-id=cacao] .pricebar::before{padding:1.5px;background:#fff;animation:none}
 .dr .card[data-id=cacao] .pricebar b{color:#fff}
 .dr .card[data-id=cacao] .pricebar span{background:linear-gradient(180deg,#ff5a6e,#a1001b);box-shadow:inset 0 0 0 1.5px #fff3b8,0 0 12px rgba(255,214,107,.85)}
 .dr .card .ribbon{position:absolute;right:-1.5px;top:-1.5px;width:128px;height:88px;overflow:hidden;border-top-right-radius:32px;pointer-events:none}
@@ -147,8 +149,16 @@
 .dr .card.sold[data-id=cacao] .ribbon{opacity:.6}
 .dr-detail[data-id=cacao]{--bg1:#ac0b0b;--bg2:#ac0b0b;--fg:#fff;--title:#fff;--btn:rgba(255,255,255,.2);--chip:rgba(255,255,255,.2);--chipT:#fff;--xOn:#a81010;--valOn:#a81010;--bulge:rgba(255,255,255,.1);--round:linear-gradient(180deg,#ff5a6e,#a1001b);--price:linear-gradient(180deg,#037e3c,#093f22);--priceT:#fff;--lblc:#fff;--pm:#fff;--buy:#fff;--buyT:#d02d45;background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(58,0,16,0) 60%,rgba(58,0,16,.33) 100%),linear-gradient(0deg,rgba(172,11,11,0) 73.09%,rgba(172,11,11,.9) 100%),linear-gradient(-90deg,rgba(172,11,11,0) 51.759%,rgba(172,11,11,.8) 67.335%,#ac0b0b 100%),linear-gradient(180deg,rgba(172,11,11,0) 36.59%,rgba(172,11,11,.8) 71.138%,#ac0b0b 100.89%),url(/cacao-bg.webp) 0 92.2%/107.15% 107.17% no-repeat #ac0b0b}
 .dr-detail[data-id=cacao] .opt label{color:#fff}
-.dr-detail[data-id=cacao] .back,.dr-detail[data-id=cacao] .cartbtn,.dr-detail[data-id=cacao] .chip,.dr-detail[data-id=cacao] .dadd{box-sizing:border-box;border:1px solid #fff}
-.dr-detail[data-id=cacao] .chip.on{border-color:transparent}
+.dr-detail[data-id=cacao] .back,.dr-detail[data-id=cacao] .cartbtn,.dr-detail[data-id=cacao] .chip,.dr-detail[data-id=cacao] .dadd{box-sizing:border-box;border:1px solid #fff;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+.dr-detail[data-id=cacao] .back,.dr-detail[data-id=cacao] .cartbtn{background:radial-gradient(circle 17px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
+.dr-detail[data-id=cacao] .dadd{background:radial-gradient(circle 19.5px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
+.dr-detail[data-id=cacao] .chip{width:40px;height:40px;background:radial-gradient(circle 13px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
+.dr-detail[data-id=cacao] .chip svg{width:40px;height:40px}
+.dr-detail[data-id=cacao] .opt[data-k=hot] .chip svg{width:24px;height:24px}
+.dr-detail[data-id=cacao] .opt[data-k=hot] .chip.on svg{width:21.8px;height:21.8px}
+.dr-detail[data-id=cacao] .chip.on{background:#fff;border-color:transparent;-webkit-backdrop-filter:none;backdrop-filter:none}
+.dr-detail[data-id=cacao] .opt label{font-size:14px;line-height:18px;margin-bottom:5px}
+.dr-detail[data-id=cacao] .opt[data-k=sweet]{margin-top:16px}
 .dr-detail[data-id=cacao] .pm{background:var(--round);border:1.5px solid #fff3b8;box-sizing:border-box;box-shadow:0 0 12px rgba(255,214,107,.85)}
 .dr-detail[data-id=cacao] .dprice{border:1.5px solid #fff3b8;box-shadow:0 0 12px rgba(255,214,107,.85)}
 .dr-detail[data-id=cacao] .dbuy{border:3px dashed #ff5a6e;box-sizing:border-box}

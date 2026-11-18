@@ -17,7 +17,7 @@ export const META = {
   nau: { name: 'Nâu', sweet: true, cafe: false, aspect: 512 / 797, stops: [[0, '#fed9ae'], [0.574, '#ffc077']], edge: 0.35, card: 'linear-gradient(180deg,#fed9ae 0%,#ffc077 57.4%)', bg: 'linear-gradient(180deg,#fed3a1,#ffc077)' },
   // Cacao: món theo mùa (Noel), như app khách
   cacao: {
-    name: 'Cacao', sweet: true, cafe: false, aspect: 438 / 620, cupLeft: 84.7, rot: 0, xmas: true, stops: [[0, '#ac0b0b']], edge: 0,
+    name: 'Cacao', sweet: true, cafe: false, aspect: 438 / 620, spinH: 262, cupLeft: 84.7, rot: 0, xmas: true, stops: [[0, '#ac0b0b']], edge: 0,
     card: 'linear-gradient(0deg,rgba(172,11,11,0) 56.036%,rgba(172,11,11,.9) 93.103%),linear-gradient(-90deg,rgba(172,11,11,.8) 1.0549%,rgba(172,11,11,0) 13.984% 73.103%,rgba(172,11,11,.8) 94.586%),linear-gradient(180deg,rgba(172,11,11,0) 36.59%,rgba(172,11,11,.2) 71.138%,#8e0000 100.89%),url(/cacao-bg.webp) 100% 0/130.38% 130.41% no-repeat #ac0b0b',
     bg: 'radial-gradient(ellipse 50% 50% at 50% 50%,rgba(58,0,16,0) 60%,rgba(58,0,16,.33) 100%),linear-gradient(0deg,rgba(172,11,11,0) 73.09%,rgba(172,11,11,.9) 100%),linear-gradient(-90deg,rgba(172,11,11,0) 51.759%,rgba(172,11,11,.8) 67.335%,#ac0b0b 100%),linear-gradient(180deg,rgba(172,11,11,0) 36.59%,rgba(172,11,11,.8) 71.138%,#ac0b0b 100.89%),url(/cacao-bg.webp) 0 92.2%/107.15% 107.17% no-repeat #ac0b0b',
   },
@@ -276,7 +276,7 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
   useLayoutEffect(() => {
     const st = stage.current, t = st.querySelector('.dtitle'), op = st.querySelector('.opts'), c = (76 + st.offsetHeight - 207) / 2;
     const tb = 46 + 19 + op.offsetHeight;
-    t.style.top = Math.round(c - tb / 2) + 'px'; op.style.top = Math.round(c - tb / 2 + 65) + 'px'; spin.current.style.top = Math.round(c - 155) + 'px';
+    t.style.top = Math.round(c - tb / 2) + 'px'; op.style.top = Math.round(c - tb / 2 + 65) + 'px'; spin.current.style.top = Math.round(c - (d.spinH || 310) / 2) + 'px';
   }, [k, m.id, d.sweet, d.cafe]);
 
   const parts = () => [...root.current.querySelectorAll('[data-a]')];
@@ -498,7 +498,7 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
           {f.cafe && <div className="opt" data-a="left" data-k="cafe"><label>Cafe</label><div>{chip('cafe', 0, 'Cafe 100%', '100')}{chip('cafe', 50, 'Cafe 50%', '50', true)}</div></div>}
           {(f.sweet || k === 'den') && <div className="opt" data-a="left" data-k="sweet"><label>Ngọt</label><div>{k === 'den' ? chip('sweet', 1, 'Ngọt 0%', '0', true, true) : <>{chip('sweet', 0, 'Ngọt 100%', '100')}{chip('sweet', 50, 'Ngọt 50%', '50', true)}{k === 'bac' && chip('sweet', 1, 'Ngọt 0%', '0', true)}</>}</div></div>}
         </div>
-        <div className="abs spin" ref={spin} role="img" aria-label={d.name} style={{ transform: o.upsize ? 'scale(1.12)' : 'scale(1)', transformOrigin: '50% 100%', transition: 'transform .6s cubic-bezier(.34,1.8,.5,1)', backgroundImage: item.known ? `url(/${k}.webp)` : 'none', height: 310, width: 310 * d.aspect, left: 261 - (310 * d.aspect) / 2 }} />
+        <div className="abs spin" ref={spin} role="img" aria-label={d.name} style={{ transform: o.upsize ? 'scale(1.12)' : 'scale(1)', transformOrigin: '50% 100%', transition: 'transform .6s cubic-bezier(.34,1.8,.5,1)', backgroundImage: item.known ? `url(/${k}.webp)` : 'none', height: d.spinH || 310, width: (d.spinH || 310) * d.aspect, left: 261 - ((d.spinH || 310) * d.aspect) / 2 }} />
         <button className="abs circ pm minus" data-a="l" aria-label="Giảm" {...minus.current}><Sym id="i-minus" size={32} /></button>
         <button className="abs circ pm plus" data-a="r" aria-label="Tăng" {...plus.current}><Sym id="i-plus" size={32} /></button>
         <div className="abs qty" data-k="qty" data-a="up" ref={qtyBox} dangerouslySetInnerHTML={{ __html: '<span>01</span>' }} />
