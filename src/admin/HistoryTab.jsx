@@ -5,8 +5,8 @@ import { Icon, Sym, Page, Btn, Seg, fmt, hm, dmy, timeOf, phoneText, payLabel, p
 
 const FILTERS = [['all', 'Tất cả'], ['pending', 'Chờ xác nhận'], ['brewing', 'Đang chế'], ['completed', 'Hoàn thành'], ['cancelled', 'Hủy']];
 const LIST_LABEL = { brewing: 'Đang chế' };
-const MENU_ORDER = ['den', 'nau', 'bac'];
-const SHORT = { den: 'Đen', nau: 'Nâu', bac: 'Bạc' };
+const MENU_ORDER = ['den', 'nau', 'bac', 'cacao'];
+const SHORT = { den: 'Đen', nau: 'Nâu', bac: 'Bạc', cacao: 'Cacao' };
 // "3 Đen / 3 Nâu / 3 Bạc": mỗi loại một lần, theo thứ tự Đen, Nâu, Bạc
 export const summary = (o, sep = ' / ') => {
   const by = new Map();
@@ -47,9 +47,9 @@ const tellCustomer = async (o, patch) => {
 // Option của món (size / nóng-lạnh / ngọt / cafe) khi khác mặc định L / Lạnh / 100 ngọt / 100 cafe, để pha không nhầm
 const optOf = (x) => {
   const k = kindOf(x.name), clean = (v) => String(v || '').replace(/%/g, '');
-  return [x.caffeine ? clean(x.caffeine).replace('Size ', '') : 'L', x.temp || 'Lạnh', ...(k === 'nau' || k === 'bac' ? [clean(x.sweetness) || '100 ngọt'] : []), ...(k === 'bac' ? [clean(x.ice) || '100 cafe'] : [])];
+  return [x.caffeine ? clean(x.caffeine).replace('Size ', '') : 'L', x.temp || 'Lạnh', ...(k === 'nau' || k === 'bac' || k === 'cacao' ? [clean(x.sweetness) || '100 ngọt'] : []), ...(k === 'bac' ? [clean(x.ice) || '100 cafe'] : [])];
 };
-const DEF_OPT = { den: ['L', 'Lạnh'], nau: ['L', 'Lạnh', '100 ngọt'], bac: ['L', 'Lạnh', '100 ngọt', '100 cafe'] };
+const DEF_OPT = { den: ['L', 'Lạnh'], nau: ['L', 'Lạnh', '100 ngọt'], bac: ['L', 'Lạnh', '100 ngọt', '100 cafe'], cacao: ['L', 'Lạnh', '100 ngọt'] };
 // Chỉ liệt kê phần khác mặc định; đơn nhiều món thì thêm tên món phía trước
 const diffOpts = (o) => {
   const items = o.items || [];

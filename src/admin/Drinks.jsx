@@ -15,6 +15,12 @@ export const META = {
   bac: { name: 'Bạc', sweet: true, cafe: true, aspect: 512 / 901, rec: true, stops: [[0, '#e2e2e2'], [0.5739, '#d9d0b7']], edge: 0.35, card: 'linear-gradient(0deg,#d9d0b7 42.61%,#e2e2e2 100%)', bg: 'linear-gradient(0deg,#d9d0b7 42.61%,#e2e2e2 100%)' },
   den: { name: 'Đen', sweet: false, cafe: false, aspect: 512 / 792, stops: [[0, '#484848'], [0.5739, '#1e1e1e']], edge: 0.12, card: 'linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)', bg: 'linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)' },
   nau: { name: 'Nâu', sweet: true, cafe: false, aspect: 512 / 797, stops: [[0, '#fed9ae'], [0.574, '#ffc077']], edge: 0.35, card: 'linear-gradient(180deg,#fed9ae 0%,#ffc077 57.4%)', bg: 'linear-gradient(180deg,#fed3a1,#ffc077)' },
+  // Cacao: món theo mùa (Noel), như app khách
+  cacao: {
+    name: 'Cacao', sweet: true, cafe: false, aspect: 438 / 620, cupLeft: 84.7, rot: 0, xmas: true, stops: [[0, '#ac0b0b']], edge: 0,
+    card: 'linear-gradient(0deg,rgba(172,11,11,0) 56.036%,rgba(172,11,11,.9) 93.103%),linear-gradient(-90deg,rgba(172,11,11,.8) 1.0549%,rgba(172,11,11,0) 13.984% 73.103%,rgba(172,11,11,.8) 94.586%),linear-gradient(180deg,rgba(172,11,11,0) 36.59%,rgba(172,11,11,.2) 71.138%,#8e0000 100.89%),url(/cacao-bg.webp) 100% 0/130.38% 130.41% no-repeat #ac0b0b',
+    bg: 'radial-gradient(ellipse 50% 50% at 50% 50%,rgba(58,0,16,0) 60%,rgba(58,0,16,.33) 100%),linear-gradient(0deg,rgba(172,11,11,0) 73.09%,rgba(172,11,11,.9) 100%),linear-gradient(-90deg,rgba(172,11,11,0) 51.759%,rgba(172,11,11,.8) 67.335%,#ac0b0b 100%),linear-gradient(180deg,rgba(172,11,11,0) 36.59%,rgba(172,11,11,.8) 71.138%,#ac0b0b 100.89%),url(/cacao-bg.webp) 0 92.2%/107.15% 107.17% no-repeat #ac0b0b',
+  },
 };
 // món trong menu → món đã thiết kế (tên khác 3 món này dùng kiểu Đen)
 export const drinkOf = (m) => { const k = kindOf(m.name); return { m, id: k || 'den', known: !!k, meta: META[k || 'den'] }; };
@@ -73,7 +79,7 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
         el.style.zIndex = 10 - Math.round(a * 3);
         const cup = el.querySelector('.cup');
         const bob = RM ? 0 : Math.sin(t * 1.6 + i) * 4 * (1 - Math.min(a, 1));
-        cup.style.transform = `translate(${-o * 26}px,${bob}px) rotate(${11.7 + o * 6}deg)`;
+        cup.style.transform = `translate(${-o * 26}px,${bob}px) rotate(${(META[el.dataset.id]?.rot ?? 11.7) + o * 6}deg)`;
       });
       const ai = active();
       if (dotsRef.current) [...dotsRef.current.children].forEach((d, i) => d.classList.toggle('on', i === ai));
@@ -132,10 +138,10 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
     freeze(i) {
       const s = st.current; cancelAnimationFrame(s.raf); s.pos = Math.round(s.pos); s.vel = 0; s.layout && s.layout(); s.busy = true;
       const card = cards.current[i], cup = card.querySelector('.cup');
-      cup.style.transform = 'none'; const cupR = cup.getBoundingClientRect(); cup.style.transform = 'rotate(11.7deg)';
+      cup.style.transform = 'none'; const cupR = cup.getBoundingClientRect(); cup.style.transform = `rotate(${META[card.dataset.id]?.rot ?? 11.7}deg)`;
       return { cardR: card.getBoundingClientRect(), cupR, pill: this.pill(i) };
     },
-    cardRect(i) { const card = cards.current[i], cup = card.querySelector('.cup'); cup.style.transform = 'none'; const c = cup.getBoundingClientRect(); cup.style.transform = 'rotate(11.7deg)'; return { cardR: card.getBoundingClientRect(), cupR: c }; },
+    cardRect(i) { const card = cards.current[i], cup = card.querySelector('.cup'); cup.style.transform = 'none'; const c = cup.getBoundingClientRect(); cup.style.transform = `rotate(${META[card.dataset.id]?.rot ?? 11.7}deg)`; return { cardR: card.getBoundingClientRect(), cupR: c }; },
     pill(i) {
       const card = cards.current[i], r = card.getBoundingClientRect();
       // cùng cỡ, cùng tỉ lệ và cùng trạng thái (Hết hàng ẩn icon giỏ) với thanh giá thật, để hai lớp khớp nhau
@@ -207,17 +213,18 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
             const d = it.meta, k = it.id;
             return (
               <div key={it.m.id} className={`card${sold ? ' sold' : ''}`} data-id={k} data-i={i} role="button" aria-label={`Xem ${d.name}`} ref={(n) => { cards.current[i] = n; }}>
-                <svg className="surf" viewBox="0 0 270 360" aria-hidden="true">
+                {d.xmas ? <div className="surf" aria-hidden="true" style={{ background: d.card }} /> : <svg className="surf" viewBox="0 0 270 360" aria-hidden="true">
                   <defs>
                     <linearGradient id={`g-${k}-${i}`} x1="0" y1="0" x2="0" y2="1">{d.stops.map(([o, c]) => <stop key={o} offset={o} stopColor={c} />)}</linearGradient>
                     <linearGradient id={`e-${k}-${i}`} x1="0" y1="0" x2="1" y2="0"><stop stopColor="#fff" /><stop offset=".5" stopColor="#fff" stopOpacity=".5" /><stop offset="1" stopColor="#fff" /></linearGradient>
                   </defs>
                   <rect width="270" height="360" rx="32" fill={`url(#g-${k}-${i})`} />
                   <rect x=".75" y=".75" width="268.5" height="358.5" rx="31.25" fill="none" stroke={`url(#e-${k}-${i})`} strokeOpacity={d.edge} strokeWidth="1.5" />
-                </svg>
-                <div className="cup" style={k === 'bac' ? undefined : { left: (135 - (245 * d.aspect) / 2).toFixed(1) + 'px' }}>
+                </svg>}
+                <div className="cup" style={k === 'bac' ? undefined : { left: (d.cupLeft ?? 135 - (245 * d.aspect) / 2).toFixed(1) + 'px' }}>
                   {it.known ? <img src={`/${k}.webp`} alt="" draggable="false" /> : <Sym id="i-cup" size={120} />}
                 </div>
+                {d.xmas && <img className="snowpile" src="/cacao-snow.svg" alt="" draggable="false" />}
                 <div className="top">
                   {d.rec
                     ? <div className="row"><h3>{it.known ? d.name : it.m.name}</h3><span className="rec"><Sym id="i-star" size={13} />RECOMMEND</span></div>
@@ -225,6 +232,7 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
                   <div className="ico"><span className="circ"><Sym id="i-snow" size={16} /></span><span className="circ"><Sym id="i-flame" size={16} /></span></div>
                 </div>
                 <div className="pricebar"><i className="glint" /><b>{sold ? (soldText || 'Mai bán lại nha 😋') : fmt(it.m.price)}</b><span><Sym id="i-cardadd" size={28} /></span></div>
+                {d.xmas && <div className="ribbon"><img src="/cacao-ribbon.webp" alt="" draggable="false" /></div>}
               </div>
             );
           })}
@@ -296,7 +304,7 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
       fly.style.width = to.width + 'px'; fly.style.height = to.height + 'px'; fly.style.filter = `drop-shadow(0 0 22px ${GLOW})`;
       if (item.known) fx.appendChild(fly);
       const sx = from.width / to.width;
-      const fromT = `translate(${from.left}px,${from.top}px) translate(${from.width / 2}px,${from.height / 2}px) rotate(11.7deg) translate(${-from.width / 2}px,${-from.height / 2}px) scale(${sx})`;
+      const fromT = `translate(${from.left}px,${from.top}px) translate(${from.width / 2}px,${from.height / 2}px) rotate(${d.rot ?? 11.7}deg) translate(${-from.width / 2}px,${-from.height / 2}px) scale(${sx})`;
       const midT = `translate(${(from.left + to.left) / 2}px,${Math.min(from.top, to.top) - 30 * Sc}px) scale(${((sx + 1) / 2) * 1.04})`;
       const toT = `translate(${to.left}px,${to.top}px)`;
       fx.appendChild(pill); pill.inner.animate([{ opacity: 1 }, { opacity: 0 }], { duration: T(160), fill: 'forwards' });
@@ -348,7 +356,7 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
     const fly = document.createElement('img'); fly.className = 'fly'; fly.src = item.known ? `/${k}.webp` : '';
     fly.style.width = from.width + 'px'; fly.style.height = from.height + 'px'; fly.style.filter = `drop-shadow(0 0 22px ${GLOW})`;
     const sx = to.width / from.width;
-    const toT = `translate(${to.left}px,${to.top}px) translate(${to.width / 2}px,${to.height / 2}px) rotate(11.7deg) translate(${-to.width / 2}px,${-to.height / 2}px) scale(${sx})`;
+    const toT = `translate(${to.left}px,${to.top}px) translate(${to.width / 2}px,${to.height / 2}px) rotate(${d.rot ?? 11.7}deg) translate(${-to.width / 2}px,${-to.height / 2}px) scale(${sx})`;
     const fromT = `translate(${from.left}px,${from.top}px)`;
     await new Promise((r) => setTimeout(r, T(160)));
     const pill = home.pill(index);

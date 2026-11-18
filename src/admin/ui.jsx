@@ -47,7 +47,7 @@ export const orderCode = (o) => (typeof o.no === 'number' ? `#${String(o.no).pad
 // Món nào có ảnh cốc riêng: khớp theo tên như app khách
 export const kindOf = (name) => {
   const n = (name || '').toLowerCase();
-  return n.includes('bạc') ? 'bac' : n.includes('đen') ? 'den' : n.includes('nâu') ? 'nau' : '';
+  return n.includes('bạc') ? 'bac' : n.includes('đen') ? 'den' : n.includes('nâu') ? 'nau' : /ca ?cao/.test(n) ? 'cacao' : '';
 };
 export const timeOf = (rec) => (rec.createdAt ? new Date(rec.createdAt) : null);
 export const hm = (d) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;

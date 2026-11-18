@@ -18,7 +18,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap">
 <style>
 /* Layout: two full-viewport screens, each holding a 390×844 design stage scaled to fit; a top fx layer carries shared-element transitions. */
-:root{
+:root{--cacao-dbg:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(58,0,16,0) 60%,rgba(58,0,16,.33) 100%),linear-gradient(0deg,rgba(172,11,11,0) 73.09%,rgba(172,11,11,.9) 100%),linear-gradient(-90deg,rgba(172,11,11,0) 51.759%,rgba(172,11,11,.8) 67.335%,#ac0b0b 100%),linear-gradient(180deg,rgba(172,11,11,0) 36.59%,rgba(172,11,11,.8) 71.138%,#ac0b0b 100.89%),url(/cacao-bg.webp) 0 92.2%/107.15% 107.17% no-repeat #ac0b0b;
   color-scheme:dark;
   --ink:#000; --paper:#fff; --mute:rgba(255,255,255,.5); --yellow:#fc0; --gray:#8e8e93; --ok:#34c759; --err:#ff383c; --info:#00c0e8;
   --font:'Space Grotesk',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
@@ -387,6 +387,8 @@ input{user-select:text;-webkit-user-select:text}
 .card[data-id=den] .cup{top:78px}
 .card[data-id=nau] .cup{top:74px}
 .card[data-id=bac] .cup{top:74px}
+.card[data-id=cacao] .cup{top:76px;height:235px}
+.card[data-id=cacao] .top{flex-direction:column;gap:8px}
 /* soft white outer glow, breathing slowly with a small swell */
 .card .cup img,.spin{--glow:rgba(255,255,255,.5);--glow0:rgba(255,255,255,.5);filter:drop-shadow(0 0 22px var(--glow0));animation:beat 4.8s ease-in-out infinite}
 /* pause the glow while screens morph, so the transition gets the whole frame budget */
@@ -433,6 +435,16 @@ input{user-select:text;-webkit-user-select:text}
 .card[data-id=den] .pricebar b{color:#fff}
 .card[data-id=nau] .pricebar b,.card[data-id=bac] .pricebar b{color:#000}
 .card.sold[data-id] .pricebar b{color:#fff}
+/* Cacao (Noel, theo Figma): thẻ đỏ có ảnh tuyết, viền vàng nhạt, nút + đỏ viền vàng, ruy-băng SEASONAL và đống tuyết dưới ly */
+.card[data-id=cacao]{--t:#fff;--ib:rgba(255,255,255,.2);--ic:#fff}
+.card[data-id=cacao] .surf{border-radius:32px;box-shadow:inset 0 0 0 1.5px #fff3b8}
+.card[data-id=cacao] .ico span{box-sizing:border-box;border:1px solid #fff;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+.card[data-id=cacao] .pricebar b{color:#fff}
+.card[data-id=cacao] .pricebar span{background:linear-gradient(180deg,#ff5a6e,#a1001b);box-shadow:inset 0 0 0 1.5px #fff3b8,0 0 12px rgba(255,214,107,.85)}
+.card .ribbon{position:absolute;right:-1.5px;top:-1.5px;width:128px;height:88px;overflow:hidden;border-top-right-radius:32px;pointer-events:none}
+.card .ribbon img{position:absolute;width:136.78%;height:138.14%;left:-16.31%;top:-16.87%;max-width:none}
+.card .snowpile{position:absolute;left:40px;top:272.87px;width:104px;height:16.26px;transform:scaleX(-1);pointer-events:none}
+.card.sold[data-id=cacao] .ribbon{opacity:.6}
 
 .dots{left:0;width:390px;bottom:94px;display:none;justify-content:center;gap:6px}
 .dots i{width:6px;height:6px;border-radius:6px;background:rgba(255,255,255,.3);transition:width .4s var(--ease-out),background .4s}
@@ -448,6 +460,7 @@ input{user-select:text;-webkit-user-select:text}
 #detail[data-id=den]{background:linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)}
 #detail[data-id=den]{--bg1:#3e3e3e;--bg2:#1e1e1e;--fg:#fff;--title:#fff;--btn:rgba(255,255,255,.1);--chip:rgba(255,255,255,.1);--chipT:#fff;--xOn:#000;--valOn:#000;--bulge:rgba(255,255,255,.1);--round:rgba(0,0,0,.1);--price:#000;--priceT:#fff;--lblc:rgba(255,255,255,.8);--pm:#fff}
 #detail[data-id=nau]{--bg1:#fed3a1;--bg2:#ffc077;--fg:#000;--title:#663d00;--btn:rgba(255,255,255,.3);--chip:rgba(255,255,255,.3);--chipT:#000;--xOn:#000;--valOn:#000;--bulge:rgba(255,255,255,.3);--round:rgba(0,0,0,.1);--price:#fff;--priceT:#000;--lblc:rgba(0,0,0,.8);--pm:#000}
+#detail[data-id=cacao]{--bg1:#ac0b0b;--bg2:#ac0b0b;--fg:#fff;--title:#fff;--btn:rgba(255,255,255,.2);--chip:rgba(255,255,255,.2);--chipT:#fff;--xOn:#a81010;--valOn:#a81010;--bulge:rgba(255,255,255,.1);--round:linear-gradient(180deg,#ff5a6e,#a1001b);--price:linear-gradient(180deg,#037e3c,#093f22);--priceT:#fff;--lblc:#fff;--pm:#fff;--buy:#fff;--buyT:#d02d45;background:var(--cacao-dbg)}
 #detail[data-id=bac]{--bg1:#edecea;--bg2:#d6d3c9;--fg:#000;--title:#000;--btn:rgba(255,255,255,.3);--chip:rgba(255,255,255,.3);--chipT:#000;--xOn:#000;--valOn:#000;--bulge:rgba(255,255,255,.3);--round:rgba(0,0,0,.1);--price:#fff;--priceT:#000;--lblc:rgba(0,0,0,.8);--pm:#000}
 #detail .stage{color:var(--fg)}
 .back{left:24px;top:24px;width:52px;height:52px;background:var(--btn);color:var(--fg)}
@@ -460,6 +473,13 @@ input{user-select:text;-webkit-user-select:text}
 .opt label{display:block;font-size:16px;line-height:20px;margin-bottom:4px}
 #detail[data-id=den] .opt label{color:#fff}
 #detail[data-id=nau] .opt label,#detail[data-id=bac] .opt label{color:#000}
+#detail[data-id=cacao] .opt label{color:#fff}
+#detail[data-id=cacao] .back,#detail[data-id=cacao] .cartbtn,#detail[data-id=cacao] .chip,#detail[data-id=cacao] .dadd{box-sizing:border-box;border:1px solid #fff}
+#detail[data-id=cacao] .chip.on{border-color:transparent}
+#detail[data-id=cacao] .pm{background:var(--round);border:1.5px solid #fff3b8;box-sizing:border-box;box-shadow:0 0 12px rgba(255,214,107,.85)}
+#detail[data-id=cacao] .dprice{border:1.5px solid #fff3b8;box-shadow:0 0 12px rgba(255,214,107,.85)}
+#detail[data-id=cacao] .dbuy{border:3px dashed #ff5a6e;box-sizing:border-box}
+#detail[data-id=cacao] .dbuy:disabled{border-color:transparent}
 .opt div{display:flex;gap:8px}
 .chip{width:44px;height:44px;border-radius:100px;background:var(--chip);color:var(--chipT);font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background .3s,color .3s,opacity .3s,transform .3s var(--ease-out)}
 .chip svg{width:44px;height:44px}
@@ -823,13 +843,17 @@ const DRINKS = [
   {id:'bac', name:'Bạc', price:20000, xl:5000, sweet:true, cafe:true, aspect:512/901, rec:true,  stops:[[0,'#e2e2e2'],[.5739,'#d9d0b7']], edge:.35, card:'linear-gradient(0deg,#d9d0b7 42.61%,#e2e2e2 100%)', bg:'linear-gradient(0deg,#d9d0b7 42.61%,#e2e2e2 100%)'},
   {id:'den', name:'Đen', price:20000, xl:5000, sweet:false, cafe:false, aspect:512/792,            stops:[[0,'#484848'],[.5739,'#1e1e1e']], edge:.12, card:'linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)', bg:'linear-gradient(0deg,#1e1e1e 42.61%,#484848 100%)'},
   {id:'nau', name:'Nâu', price:20000, xl:5000, sweet:true, cafe:false, aspect:512/797,            stops:[[0,'#fed9ae'],[.574,'#ffc077']], edge:.35, card:'linear-gradient(180deg,#fed9ae 0%,#ffc077 57.4%)', bg:'linear-gradient(180deg,#fed3a1,#ffc077)'},
+  /* Cacao: món theo mùa (Noel). Ảnh nền thẻ/màn chi tiết là /cacao-bg.webp phủ thêm các lớp đỏ; ly đứng thẳng (rot 0) */
+  {id:'cacao', name:'Cacao', price:20000, xl:5000, sweet:true, cafe:false, aspect:438/620, cupLeft:84.7, rot:0, xmas:true, stops:[[0,'#ac0b0b']], edge:0,
+   card:'linear-gradient(0deg,rgba(172,11,11,0) 56.036%,rgba(172,11,11,.9) 93.103%),linear-gradient(-90deg,rgba(172,11,11,.8) 1.0549%,rgba(172,11,11,0) 13.984% 73.103%,rgba(172,11,11,.8) 94.586%),linear-gradient(180deg,rgba(172,11,11,0) 36.59%,rgba(172,11,11,.2) 71.138%,#8e0000 100.89%),url(/cacao-bg.webp) 100% 0/130.38% 130.41% no-repeat #ac0b0b',
+   bg:'radial-gradient(ellipse 50% 50% at 50% 50%,rgba(58,0,16,0) 60%,rgba(58,0,16,.33) 100%),linear-gradient(0deg,rgba(172,11,11,0) 73.09%,rgba(172,11,11,.9) 100%),linear-gradient(-90deg,rgba(172,11,11,0) 51.759%,rgba(172,11,11,.8) 67.335%,#ac0b0b 100%),linear-gradient(180deg,rgba(172,11,11,0) 36.59%,rgba(172,11,11,.8) 71.138%,#ac0b0b 100.89%),url(/cacao-bg.webp) 0 92.2%/107.15% 107.17% no-repeat #ac0b0b'},
 ];
 const N = DRINKS.length, FRAMES = 24;
 /* Firebase bridge (src/coong/api.js), loaded as a module next to this script */
 const api = () => window.CoongAPI ? Promise.resolve(window.CoongAPI) : new Promise(r => addEventListener('coong-api', () => r(window.CoongAPI), {once:true}));
 /* match a shop menu item to one of the three designed drinks by name */
 const fold = t => (t || '').toLowerCase().normalize('NFC');
-const drinkIdOf = name => { const n = fold(name); return n.includes('bạc') ? 'bac' : n.includes('nâu') ? 'nau' : n.includes('đen') ? 'den' : null; };
+const drinkIdOf = name => { const n = fold(name); return n.includes('bạc') ? 'bac' : n.includes('nâu') ? 'nau' : n.includes('đen') ? 'den' : /ca ?cao/.test(n) ? 'cacao' : null; };
 let lastMenu = [];
 /* chữ trên thẻ món khi hết hàng / ngoài giờ: chủ quán sửa được khi bật công tắc Hết hàng (tối đa 25 chữ, vừa 1 dòng) */
 const SOLD_DEFAULT = 'Mai bán lại nha 😋';
@@ -850,13 +874,14 @@ function applyMenu(items){
 let soldSig = '';
 /* hết hàng hoặc chưa mở cửa: vẫn xem và thêm vào giỏ được, chỉ không cho "Thanh toán ngay" */
 function syncBuy(){ const b = $('#buy'); if (b && typeof cur === 'number' && DRINKS[cur]) b.disabled = !!DRINKS[cur].sold; }
-const GLOW = {den:'rgba(255,255,255,.5)', nau:'rgba(255,255,255,.5)', bac:'rgba(255,255,255,.5)'};
+const GLOW = {den:'rgba(255,255,255,.5)', nau:'rgba(255,255,255,.5)', bac:'rgba(255,255,255,.5)', cacao:'rgba(255,255,255,.5)'};
 const fmt = n => n.toLocaleString('vi-VN').replace(/,/g,'.');
 const pad = n => String(n).padStart(2,'0');
 let Z = 10;   /* stacking order for screens opened on top of each other */
 
 /* preload the drink photos so the detail screen is ready */
 DRINKS.forEach(d => { const i = new Image(); i.src = d.id + '.webp'; if (i.decode) i.decode().catch(() => {}); });
+if (DRINKS.some(d => d.xmas)) { const i = new Image(); i.src = '/cacao-bg.webp'; }
 const nextFrame = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
 /* ---------- stage scaling ---------- */
@@ -928,12 +953,13 @@ const cards = DRINKS.map((d,i) => {
   el.className = 'card'; el.dataset.id = d.id; el.dataset.i = i;
   el.setAttribute('role','button'); el.setAttribute('aria-label', 'Xem ' + d.name);
   const icons = `<div class="ico"><span class="circ"><svg><use href="#i-snow"/></svg></span><span class="circ"><svg><use href="#i-flame"/></svg></span></div>`;
-  el.innerHTML = `<svg class="surf" viewBox="0 0 270 360" aria-hidden="true"><defs><linearGradient id="g-${d.id}" x1="0" y1="0" x2="0" y2="1">${d.stops.map(([o,c]) => `<stop offset="${o}" stop-color="${c}"/>`).join('')}</linearGradient><linearGradient id="e-${d.id}" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#fff"/><stop offset=".5" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><rect width="270" height="360" rx="32" fill="url(#g-${d.id})"/><rect x=".75" y=".75" width="268.5" height="358.5" rx="31.25" fill="none" stroke="url(#e-${d.id})" stroke-opacity="${d.edge}" stroke-width="1.5"/></svg>
-    <div class="cup"${d.id === 'bac' ? '' : ` style="left:${(135 - 245*d.aspect/2).toFixed(1)}px"`}><img src="/${d.id}.webp" alt="" draggable="false"></div>
+  const surf = d.xmas ? `<div class="surf" aria-hidden="true" style="background:${d.card}"></div>` : `<svg class="surf" viewBox="0 0 270 360" aria-hidden="true"><defs><linearGradient id="g-${d.id}" x1="0" y1="0" x2="0" y2="1">${d.stops.map(([o,c]) => `<stop offset="${o}" stop-color="${c}"/>`).join('')}</linearGradient><linearGradient id="e-${d.id}" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#fff"/><stop offset=".5" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><rect width="270" height="360" rx="32" fill="url(#g-${d.id})"/><rect x=".75" y=".75" width="268.5" height="358.5" rx="31.25" fill="none" stroke="url(#e-${d.id})" stroke-opacity="${d.edge}" stroke-width="1.5"/></svg>`;
+  el.innerHTML = surf + `
+    <div class="cup"${d.id === 'bac' ? '' : ` style="left:${(d.cupLeft ?? 135 - 245*d.aspect/2).toFixed(1)}px"`}><img src="/${d.id}.webp" alt="" draggable="false"></div>${d.xmas ? '<img class="snowpile" src="/cacao-snow.svg" alt="" draggable="false">' : ''}
     <div class="top">${d.rec
       ? `<div class="row"><h3>${d.name}</h3><span class="rec"><svg><use href="#i-star"/></svg>RECOMMEND</span></div>${icons}`
       : `<h3>${d.name}</h3>${icons}`}</div>
-    <div class="pricebar"><i class="glint"></i><b>${fmt(d.price)}</b><span><svg><use href="#i-cardadd"/></svg></span></div>`;
+    <div class="pricebar"><i class="glint"></i><b>${fmt(d.price)}</b><span><svg><use href="#i-cardadd"/></svg></span></div>${d.xmas ? '<div class="ribbon"><img src="/cacao-ribbon.webp" alt="" draggable="false"></div>' : ''}`;
   car.appendChild(el);
   const dot = document.createElement('i'); dots.appendChild(dot);
   return el;
@@ -956,7 +982,7 @@ function layout(){
     el.style.zIndex = 10 - Math.round(a*3);
     const cup = el.firstElementChild.nextElementSibling;
     const bob = RM ? 0 : Math.sin(t*1.6 + i)*4*(1-Math.min(a,1));
-    cup.style.transform = `translate(${-o*26}px,${bob}px) rotate(${11.7 + o*6}deg)`;
+    cup.style.transform = `translate(${-o*26}px,${bob}px) rotate(${(DRINKS[i].rot ?? 11.7) + o*6}deg)`;
   });
   const ai = active();
   [...dots.children].forEach((d,i) => d.classList.toggle('on', i === ai));
@@ -1066,9 +1092,9 @@ function centerDetail(){
 const spin2 = document.createElement('i'); spin2.className = 'spin2'; spin.appendChild(spin2);
 /* the cup is a still photo now: no turning */
 function setFrame(){ frame = 0; }
-/* which option chips a drink offers: Den = Ngot 0 only, Nau = Cafe 100 only, Bac = everything */
+/* which option chips a drink offers: Den = Ngot 0 only, Nau / Cacao = no Ngot 0, Bac = everything */
 const chipShown = (id, k, v) => { const p = +v === 0 ? 100 : +v;
-  if (k === 'sweet') return id === 'den' ? p === 1 : id === 'nau' ? p !== 1 : true;
+  if (k === 'sweet') return id === 'den' ? p === 1 : (id === 'nau' || id === 'cacao') ? p !== 1 : true;
   if (k === 'cafe') return id === 'bac';
   return true; };
 function fillDetail(i){
@@ -1165,7 +1191,7 @@ async function openDetail(i){
   const cupEl = $('.cup', card);
   cupEl.style.transform = 'none';
   const from = rectOf(cupEl);
-  cupEl.style.transform = 'rotate(11.7deg)';
+  cupEl.style.transform = `rotate(${d.rot ?? 11.7}deg)`;
   const cardR = rectOf(card);
 
   fillDetail(i);
@@ -1193,7 +1219,7 @@ async function openDetail(i){
   fly.style.filter = `drop-shadow(0 0 22px ${GLOW[d.id]})`;
   fx.appendChild(fly);
   const sx = from.width/to.width;
-  const fromT = `translate(${from.left}px,${from.top}px) translate(${from.width/2}px,${from.height/2}px) rotate(11.7deg) translate(${-from.width/2}px,${-from.height/2}px) scale(${sx})`;
+  const fromT = `translate(${from.left}px,${from.top}px) translate(${from.width/2}px,${from.height/2}px) rotate(${d.rot ?? 11.7}deg) translate(${-from.width/2}px,${-from.height/2}px) scale(${sx})`;
   const midT = `translate(${(from.left+to.left)/2}px,${Math.min(from.top,to.top)-30*S}px) scale(${(sx+1)/2*1.04})`;
   const toT = `translate(${to.left}px,${to.top}px)`;
   fx.appendChild(pill);
@@ -1255,7 +1281,7 @@ async function closeDetail(){
   setFrame(0);
   const from = untransformedRect(spin);
   const cupEl = $('.cup', card);
-  cupEl.style.transform = 'none'; const to = rectOf(cupEl); cupEl.style.transform = 'rotate(11.7deg)';
+  cupEl.style.transform = 'none'; const to = rectOf(cupEl); cupEl.style.transform = `rotate(${d.rot ?? 11.7}deg)`;
   const cardR = rectOf(card);
 
   const parts = detailParts().reverse();
@@ -1270,7 +1296,7 @@ async function closeDetail(){
   fly.style.width = from.width + 'px'; fly.style.height = from.height + 'px';
   fly.style.filter = `drop-shadow(0 0 22px ${GLOW[d.id]})`;
   const sx = to.width/from.width;
-  const toT = `translate(${to.left}px,${to.top}px) translate(${to.width/2}px,${to.height/2}px) rotate(11.7deg) translate(${-to.width/2}px,${-to.height/2}px) scale(${sx})`;
+  const toT = `translate(${to.left}px,${to.top}px) translate(${to.width/2}px,${to.height/2}px) rotate(${d.rot ?? 11.7}deg) translate(${-to.width/2}px,${-to.height/2}px) scale(${sx})`;
   const fromT = `translate(${from.left}px,${from.top}px)`;
   await new Promise(r => setTimeout(r, T(160)));
   const pill = pillClone(card, cardR);
@@ -1675,8 +1701,8 @@ let orders = [], curOrder = null, lastPlaced = null;
 const oQty = o => o.items.reduce((n, x) => n + x.qty, 0);
 const oTotal = o => o.items.reduce((n, x) => n + x.qty*x.unit, 0);
 const oNames = o => [...new Set(o.items.map(x => x.name || drink(x.id).name))].join(', ');
-/* order title: each drink once with its total count, Đen → Nâu → Bạc, e.g. "3 Đen / 1 Bạc" */
-const MENU_ORDER = ['den', 'nau', 'bac'];
+/* order title: each drink once with its total count, Đen → Nâu → Bạc → Cacao, e.g. "3 Đen / 1 Bạc" */
+const MENU_ORDER = ['den', 'nau', 'bac', 'cacao'];
 function oSummary(o){
   const by = new Map();
   o.items.forEach(x => { const d = drink(x.id), k = d ? d.id : x.name; const g = by.get(k) || {name: x.name || d.name, n: 0}; g.n += x.qty; by.set(k, g); });
