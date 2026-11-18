@@ -60,6 +60,24 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
   const openRef = useRef(onOpen); openRef.current = onOpen;
   const carRef = useRef(null), dotsRef = useRef(null), cards = useRef([]);
   const partsRef = useRef({});
+  const [music, setMusic] = useState(() => { try { return localStorage.getItem('coong-music') !== '0'; } catch (e) { return true; } });
+  const audioRef = useRef(null), musicRef = useRef(music);
+  musicRef.current = music;
+  /* nhạc nền Giáng sinh: chỉ phát được sau lần chạm đầu tiên, tạm dừng khi rời tab */
+  useEffect(() => {
+    const a = new Audio('/xmas.mp3'); a.loop = true; a.volume = 0.35; a.preload = 'none'; audioRef.current = a;
+    const play = () => { if (musicRef.current && !document.hidden) a.play().catch(() => {}); };
+    const first = () => { removeEventListener('pointerdown', first, true); play(); };
+    addEventListener('pointerdown', first, true);
+    const vis = () => (document.hidden ? a.pause() : play());
+    document.addEventListener('visibilitychange', vis);
+    return () => { removeEventListener('pointerdown', first, true); document.removeEventListener('visibilitychange', vis); a.pause(); audioRef.current = null; };
+  }, []);
+  const toggleMusic = () => {
+    const on = !music; setMusic(on);
+    try { localStorage.setItem('coong-music', on ? '1' : '0'); } catch (e) {}
+    const a = audioRef.current; if (a) { if (on) a.play().catch(() => {}); else a.pause(); }
+  };
   const st = useRef({ pos: START, target: START, vel: 0, raf: 0, drag: null, busy: false });
   const wrap = (o) => { o = ((o % N) + N) % N; return o >= N / 2 ? o - N : o; };
 
@@ -146,7 +164,7 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
     pill(i) {
       const card = cards.current[i], r = card.getBoundingClientRect();
       // cùng cỡ, cùng tỉ lệ và cùng trạng thái (Hết hàng ẩn icon giỏ) với thanh giá thật, để hai lớp khớp nhau
-      const w = document.createElement('div'); w.className = 'card' + (card.classList.contains('sold') ? ' sold' : ''); w.dataset.id = card.dataset.id;
+      const w = document.createElement('div'); w.className = 'card' + (card.classList.contains('sold') ? ' sold' : ''); w.dataset.id = card.dataset.id; w.style.setProperty('--ptint', card.style.getPropertyValue('--ptint'));
       // lớp bọc rỗng (chỉ để có style .card): không cắt, không transform trên cha, để blur nền của thanh giá hoạt động
       Object.assign(w.style, { left: '0px', top: '0px', width: '0px', height: '0px', willChange: 'auto', pointerEvents: 'none', cursor: 'default' });
       const src = card.querySelector('.pricebar'), k = r.width / (card.offsetWidth || r.width);
@@ -202,8 +220,10 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
 
   return (
     <div className="dr dr-home">
+      <i className="snowfx homesnow" aria-hidden="true" />
+      <button className="dr-music" onClick={toggleMusic} aria-label="Bật/tắt nhạc nền" aria-pressed={music}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor" /><path className="on" d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" /><path className="off" d="m16 9 5 6m0-6-5 6" /></svg></button>
       <div className="o-head">
-        <span ref={(n) => { partsRef.current.logo = n; }}><Sym id="i-logo" size={133} /></span>
+        <span ref={(n) => { partsRef.current.logo = n; }}><img className="o-logo" src="/logo.svg" alt="Coong" draggable="false" /></span>
         <span className="grow" />
         <button ref={(n) => { partsRef.current.cart = n; }} className="o-bag" onClick={onCart} aria-label="Giỏ hàng"><Sym id="i-bag" size={28} />{count > 0 && <span className="a-badge">{count}</span>}</button>
         <button ref={(n) => { partsRef.current.bell = n; }} className="o-bag" onClick={onBell} aria-label="Thông báo"><Sym id="i-bell" size={26} />{unread > 0 && <span className="a-badge">{unread}</span>}</button>
@@ -213,7 +233,7 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
           {items.map((it, i) => {
             const d = it.meta, k = it.id;
             return (
-              <div key={it.m.id} className={`card${sold ? ' sold' : ''}`} data-id={k} data-i={i} role="button" aria-label={`Xem ${d.name}`} ref={(n) => { cards.current[i] = n; }}>
+              <div key={it.m.id} className={`card${sold ? ' sold' : ''}`} style={{ '--ptint': (d.stops && d.stops.length ? d.stops[d.stops.length - 1][1] : undefined) }} data-id={k} data-i={i} role="button" aria-label={`Xem ${d.name}`} ref={(n) => { cards.current[i] = n; }}>
                 {d.xmas ? <div className="surf" aria-hidden="true" style={{ background: d.card }} /> : <svg className="surf" viewBox="0 0 270 360" aria-hidden="true">
                   <defs>
                     <linearGradient id={`g-${k}-${i}`} x1="0" y1="0" x2="0" y2="1">{d.stops.map(([o, c]) => <stop key={o} offset={o} stopColor={c} />)}</linearGradient>
@@ -403,7 +423,7 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
     qtyN.current = 1; qtyBox.current.innerHTML = '<span>01</span>';
     const ghost2 = still();
     rootEl.parentNode.insertBefore(ghost, rootEl); rootEl.parentNode.insertBefore(ghost2, rootEl);
-    const moving = [...rootEl.querySelectorAll('.dtitle,.opts,.spin')];
+    const moving = [...rootEl.querySelectorAll('.dtitle,.opts,.spin,.bgphoto,.bgshade,.snowfx')];
     rootEl.style.background = 'transparent'; moving.forEach((el) => { el.style.visibility = 'hidden'; }); rootEl.classList.add('sw');
     ghost.animate([{ transform: 'translateX(0)' }, { transform: `translateX(${-dir * 100}%)` }], { duration: D, easing: ease, fill: 'forwards' });
     const a = ghost2.animate([{ transform: `translateX(${dir * 100}%)` }, { transform: 'translateX(0)' }], { duration: D, easing: ease, fill: 'forwards' });
@@ -487,6 +507,7 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
   return (
     <>
     <div className="dr dr-detail" data-id={k} ref={root} aria-label="Chi tiết đồ uống">
+      <i className="bgphoto" aria-hidden="true" /><i className="bgshade" aria-hidden="true" /><i className="snowfx" aria-hidden="true" />
       <div className="dr-stage" ref={stage} style={{ transform: 'translate(-50%,-50%)' }}>
         <div className="abs bulge l" data-a="l"><Sym id="i-bulge" size={84} /></div>
         <div className="abs bulge r" data-a="r"><Sym id="i-bulge" size={84} /></div>

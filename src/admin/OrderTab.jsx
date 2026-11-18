@@ -175,7 +175,7 @@ export default function OrderTab({ menu, users, orders, onTrack, onPay, dive, sh
         className="a-page o-cartpg"
         style={{ touchAction: 'pan-y' }}
         onPointerDown={(e) => { cartSw = e.target.closest('button,input,textarea,.o-line') ? null : { x: e.clientX, y: e.clientY }; }}
-        onPointerMove={(e) => { if (cartSw && e.clientY - cartSw.y > 70 && e.clientY - cartSw.y > Math.abs(e.clientX - cartSw.x) * 1.4) { cartSw = null; setSheet(-1); setPage(null); } }}
+        onPointerMove={(e) => { if (cartSw && e.clientX - cartSw.x > 70 && e.clientX - cartSw.x > Math.abs(e.clientY - cartSw.y) * 1.4) { cartSw = null; setSheet(-1); setPage(null); } }}
         onPointerUp={() => { cartSw = null; }}
         onPointerCancel={() => { cartSw = null; }}
       >
