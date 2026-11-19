@@ -217,6 +217,7 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
       return { cardR: card.getBoundingClientRect(), cupR, pill: this.pill(i) };
     },
     cardRect(i) { const card = cards.current[i], cup = card.querySelector('.cup'); cup.style.transform = 'none'; const c = cup.getBoundingClientRect(); cup.style.transform = `rotate(${META[card.dataset.id]?.rot ?? 11.7}deg)`; return { cardR: card.getBoundingClientRect(), cupR: c }; },
+    tops(i) { return [...cards.current[i].querySelectorAll('.top, .ribbon')]; },
     // bản sao chữ, chip và nhãn trên thẻ (Cacao) để mờ dần mượt cùng tấm nền
     topClone(i) {
       const card = cards.current[i], r = card.getBoundingClientRect();
@@ -457,7 +458,7 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
     const D = T(720);
     home.restore(index, D);
     if (topC) {   // chữ, từng chip và nhãn hiện lần lượt, bay từ dưới lên đúng vị trí (giống các món khác)
-      const real = [...cards.current[index].querySelectorAll('.top, .ribbon')]; real.forEach((e) => { e.style.visibility = 'hidden'; });
+      const real = home.tops(index); real.forEach((e) => { e.style.visibility = 'hidden'; });
       const parts = [...topC.querySelectorAll('h3'), ...topC.querySelectorAll('.ico > *'), ...topC.querySelectorAll('.ribbon')];
       const as = parts.map((e, n) => e.animate([{ opacity: 0, transform: e.matches('.ribbon') ? 'none' : 'translateY(13px)' }, { opacity: 1, transform: 'none' }], { duration: T(520), delay: D * 0.5 + n * 110, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'both' }).finished.catch(() => {}));
       Promise.all(as).then(() => { real.forEach((e) => { e.style.visibility = ''; }); topC.remove(); });
