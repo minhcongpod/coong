@@ -217,6 +217,7 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
       return { cardR: card.getBoundingClientRect(), cupR, pill: this.pill(i) };
     },
     cardRect(i) { const card = cards.current[i], cup = card.querySelector('.cup'); cup.style.transform = 'none'; const c = cup.getBoundingClientRect(); cup.style.transform = `rotate(${META[card.dataset.id]?.rot ?? 11.7}deg)`; return { cardR: card.getBoundingClientRect(), cupR: c }; },
+    tops(i) { return [...cards.current[i].querySelectorAll('.top, .ribbon')]; },
     // bản sao chữ, chip và nhãn trên thẻ (Cacao) để mờ dần mượt cùng tấm nền
     topClone(i) {
       const card = cards.current[i], r = card.getBoundingClientRect();
@@ -444,7 +445,9 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
     await new Promise((r) => setTimeout(r, T(160)));
     const pill = home.pill(index);
     const topC = d.xmas ? home.topClone(index) : null;
-    fx.appendChild(veil); if (item.known) fx.appendChild(fly); if (topC) fx.appendChild(topC); fx.appendChild(pill);
+    // bản sao chữ/chip/nhãn sống ở lớp riêng ngoài màn chi tiết: màn chi tiết bị gỡ ngay khi tấm nền xong, còn chữ vẫn phải hiện nốt
+    let topHost = null; if (topC) { topHost = document.createElement('div'); topHost.className = 'dr dr-fx'; topHost.style.clipPath = fx.style.clipPath; document.body.appendChild(topHost); topHost.appendChild(topC); }
+    fx.appendChild(veil); if (item.known) fx.appendChild(fly); fx.appendChild(pill);
     // thanh giá trượt từ dưới lên chậm và mượt, giống các nút ở màn chi tiết
     // thanh giá hiện dần ngay tại vị trí của nó, lớp blur vẽ tay hiện dần cùng
     const slideO = { duration: T(520), delay: T(720) * 0.3, easing: 'ease-out', fill: 'backwards' };
@@ -456,14 +459,19 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
     await nextFrame();
     const D = T(720);
     home.restore(index, D);
-    if (topC) topC.animate([{ opacity: 0 }, { opacity: 0, offset: 0.35 }, { opacity: 1 }], { duration: D, easing: 'ease-in-out', fill: 'forwards' });
+    if (topC) {   // chữ, từng chip và nhãn hiện lần lượt, bay từ dưới lên đúng vị trí (giống các món khác)
+      const real = home.tops(index); real.forEach((e) => { e.style.visibility = 'hidden'; });
+      const parts = [...topC.querySelectorAll('h3'), ...topC.querySelectorAll('.ico > *'), ...topC.querySelectorAll('.ribbon')];
+      const as = parts.map((e, n) => e.animate([{ opacity: 0, transform: e.matches('.ribbon') ? 'none' : 'translateY(13px)' }, { opacity: 1, transform: 'none' }], { duration: T(520), delay: D * 0.5 + n * 110, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'both' }).finished.catch(() => {}));
+      Promise.all(as).then(() => { real.forEach((e) => { e.style.visibility = ''; }); topC.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, easing: 'linear', fill: 'forwards' }).finished.catch(() => {}).then(() => topHost.remove()); });   // chuyển mềm sang bản thật để không bị giật vì lệch dưới 1px
+    }
     const veilA = vm.play(veil, D);
     const midT = `translate(${(from.left + to.left) / 2}px,${Math.min(from.top, to.top) - 24 * Sc}px) scale(${((sx + 1) / 2) * 1.04})`;
     if (item.known) fly.animate([{ transform: fromT }, { transform: midT, offset: 0.5 }, { transform: toT }], { duration: D, easing: 'cubic-bezier(.65,0,.25,1)', fill: 'forwards' });
     if (glass) glass.fk.animate([{ transform: glass.at(fromT) }, { transform: glass.at(midT), offset: 0.5 }, { transform: glass.at(toT) }], { duration: D, easing: 'cubic-bezier(.65,0,.25,1)', fill: 'forwards' });
     await veilA.finished;
     await pillA.finished.catch(() => {});
-    home.hideCup(index, false); veil.remove(); fly.remove(); pill.remove(); if (topC) topC.remove();
+    home.hideCup(index, false); veil.remove(); fly.remove(); pill.remove();
     home.unfreeze(); onClose();
   };
 

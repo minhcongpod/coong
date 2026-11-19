@@ -32,7 +32,8 @@ function Device({ children }) {
     return () => { link.remove(); document.title = prev.title; document.body.style.background = prev.bg; document.body.className = prev.theme; };
   }, []);
   // điện thoại: lấp đầy màn hình, co theo chiều ngang và cao thêm nếu máy dài; cửa sổ lớn: khung 390×700 ở giữa
-  const st = Math.min(size.w / FW, size.h / FH);
+  let st = Math.min(size.w / FW, size.h / FH);
+  if (size.w <= 500 && size.h / (size.w / FW) >= 660) st = size.w / FW;   // máy hơi ngắn: vẫn lấp kín chiều ngang, không hở viền 2 bên
   const fh = size.w <= 500 ? Math.min(Math.round(size.h / st), 900) : FH;
   const dev = Math.abs(size.w - FW * st) > 1 || Math.abs(size.h - fh * st) > 1;
   return (
