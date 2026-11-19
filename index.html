@@ -9,9 +9,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="Coong Cafe">
-<link rel="icon" href="/favicon.png?v=2" type="image/png">
+<link rel="icon" href="/favicon.png?v=3" type="image/png">
 <link rel="preload" as="image" href="/cover.webp">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
 <link rel="manifest" href="/manifest-khach.webmanifest">
 <title>Coong Cafe</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -460,7 +460,6 @@ html:not([data-theme=xmas]) #detail .bgphoto{animation:none}
 .card[data-id=cacao] .top{left:17px;top:17px}
 .card[data-id=cacao] .top h3{line-height:41px}
 .card[data-id=cacao] .pricebar{left:17px;right:17px;bottom:17px;height:63px}
-.card[data-id=cacao] .pricebar::before{padding:1.5px;background:linear-gradient(134deg,#fff,rgba(255,255,255,.1) 50%,#fff);opacity:.5;animation:none}
 .card[data-id=cacao] .ico span{box-sizing:border-box;position:relative;background:radial-gradient(circle 10px at 69% 95%,rgba(255,255,255,.3),rgba(255,255,255,0)),linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2))}
 .card[data-id=cacao] .pricebar{}
 .card[data-id=cacao] .ico span::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(134deg,#fff,rgba(255,255,255,.1) 50%,#fff);opacity:.5;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
@@ -1476,7 +1475,7 @@ async function closeDetail(){
   if (topC) {   /* chữ, từng chip và nhãn hiện lần lượt, bay từ dưới lên đúng vị trí (giống các món khác) */
     const tops = $$('.top, .ribbon', card); tops.forEach(e => e.style.visibility = 'hidden');
     const parts = [...$$('h3', topC), ...$$('.ico > *', topC), ...$$('.ribbon', topC)];
-    const as = parts.map((e, n) => e.animate([{opacity:0, transform:'translateY(26px)'},{opacity:1, transform:'none'}], {duration:T(520), delay:D*0.5 + n*110, easing:'cubic-bezier(.22,1,.36,1)', fill:'both'}).finished.catch(() => {}));
+    const as = parts.map((e, n) => e.animate([{opacity:0, transform: e.matches('.ribbon') ? 'none' : 'translateY(13px)'},{opacity:1, transform:'none'}], {duration:T(520), delay:D*0.5 + n*110, easing:'cubic-bezier(.22,1,.36,1)', fill:'both'}).finished.catch(() => {}));
     Promise.all(as).then(() => { tops.forEach(e => e.style.visibility = ''); topC.remove(); });
   }
   cards.forEach((c,k) => { if (k===i) { if (!d.xmas) $$('.top', c).forEach(el => el.animate([{opacity:0, transform:'translateY(10px)'},{opacity:1, transform:'none'}], {duration:T(400), delay:D*0.7, easing:'ease-out', fill:'backwards'})); return; }
