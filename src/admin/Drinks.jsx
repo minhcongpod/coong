@@ -261,7 +261,7 @@ export const DrinkHome = forwardRef(function DrinkHome({ items, count, unread, o
       parts.forEach((el, k) => el && el.animate([{ opacity: 0, transform: k >= 3 ? 'translateY(30px)' : 'translateY(-24px)' }, { opacity: 1, transform: 'none' }], { duration: T(520), delay: D * 0.45 + k * 40, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' }));
       cards.current.forEach((c, k) => {
         if (!c) return;
-        if (k === i) { if (!META[c.dataset.id]?.xmas) c.querySelectorAll('.top').forEach((el) => el.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: T(400), delay: D * 0.7, easing: 'ease-out', fill: 'backwards' })); return; }
+        if (k === i) { c.querySelectorAll('.ribbon').forEach((el) => el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: T(400), delay: D * 0.7, easing: 'ease-out', fill: 'backwards' })); c.querySelectorAll('.top').forEach((el) => el.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: T(400), delay: D * 0.7, easing: 'ease-out', fill: 'backwards' })); return; }
         const o = Math.sign(wrap(k - s.pos)) || 1;
         c.animate([{ opacity: 0, translate: `${o * 160}px 0` }, { opacity: c.style.opacity, translate: '0 0' }], { duration: T(620), delay: D * 0.35, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' });
       });
@@ -444,9 +444,6 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
     const fromT = `translate(${from.left}px,${from.top}px)`;
     await new Promise((r) => setTimeout(r, T(160)));
     const pill = home.pill(index);
-    const topC = d.xmas ? home.topClone(index) : null;
-    // bản sao chữ/chip/nhãn sống ở lớp riêng ngoài màn chi tiết: màn chi tiết bị gỡ ngay khi tấm nền xong, còn chữ vẫn phải hiện nốt
-    let topHost = null; if (topC) { topHost = document.createElement('div'); topHost.className = 'dr dr-fx'; topHost.style.clipPath = fx.style.clipPath; document.body.appendChild(topHost); topHost.appendChild(topC); }
     fx.appendChild(veil); if (item.known) fx.appendChild(fly); fx.appendChild(pill);
     // thanh giá trượt từ dưới lên chậm và mượt, giống các nút ở màn chi tiết
     // thanh giá hiện dần ngay tại vị trí của nó, lớp blur vẽ tay hiện dần cùng
@@ -459,12 +456,8 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
     await nextFrame();
     const D = T(720);
     home.restore(index, D);
-    if (topC) {   // chữ, từng chip và nhãn hiện lần lượt, bay từ dưới lên đúng vị trí (giống các món khác)
-      const real = home.tops(index); real.forEach((e) => { e.style.visibility = 'hidden'; });
-      const parts = [...topC.querySelectorAll('h3'), ...topC.querySelectorAll('.ico > *'), ...topC.querySelectorAll('.ribbon')];
-      const as = parts.map((e, n) => e.animate([{ opacity: 0, transform: e.matches('.ribbon') ? 'none' : 'translateY(13px)' }, { opacity: 1, transform: 'none' }], { duration: T(520), delay: D * 0.5 + n * 110, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'both' }).finished.catch(() => {}));
-      Promise.all(as).then(() => { real.forEach((e) => { e.style.visibility = ''; }); topC.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, easing: 'linear', fill: 'forwards' }).finished.catch(() => {}).then(() => topHost.remove()); });   // chuyển mềm sang bản thật để không bị giật vì lệch dưới 1px
-    }
+    // Cacao: tấm nền mờ dần ở cuối để lộ thẻ thật phía dưới, không đổi lớp đột ngột
+    if (d.xmas) veil.animate([{ opacity: 1 }, { opacity: 1, offset: 0.7 }, { opacity: 0 }], { duration: D, easing: 'linear', fill: 'forwards' });
     const veilA = vm.play(veil, D);
     const midT = `translate(${(from.left + to.left) / 2}px,${Math.min(from.top, to.top) - 24 * Sc}px) scale(${((sx + 1) / 2) * 1.04})`;
     if (item.known) fly.animate([{ transform: fromT }, { transform: midT, offset: 0.5 }, { transform: toT }], { duration: D, easing: 'cubic-bezier(.65,0,.25,1)', fill: 'forwards' });
