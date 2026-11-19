@@ -949,7 +949,9 @@ let FH = FH0;
 function fit(){
   /* phone: fill the whole screen, scaled to the width, taller phones just get more height; larger window: fixed 390×700 frame centred */
   const phone = innerWidth <= 500;
-  const st = Math.min(innerWidth/FW, innerHeight/FH0);
+  let st = Math.min(innerWidth/FW, innerHeight/FH0);
+  /* điện thoại màn hơi ngắn: vẫn lấp kín chiều ngang (không để hở viền 2 bên), chiều cao co lại tới 660 */
+  if (phone && innerHeight/(innerWidth/FW) >= 660) st = innerWidth/FW;
   FH = phone ? Math.min(Math.round(innerHeight/st), 900) : FH0;
   DEV = Math.abs(innerWidth - FW*st) > 1 || Math.abs(innerHeight - FH*st) > 1;   /* letterboxed → show the frame */
   document.body.classList.toggle('dev', DEV);
@@ -1476,7 +1478,7 @@ async function closeDetail(){
     const tops = $$('.top, .ribbon', card); tops.forEach(e => e.style.visibility = 'hidden');
     const parts = [...$$('h3', topC), ...$$('.ico > *', topC), ...$$('.ribbon', topC)];
     const as = parts.map((e, n) => e.animate([{opacity:0, transform: e.matches('.ribbon') ? 'none' : 'translateY(13px)'},{opacity:1, transform:'none'}], {duration:T(520), delay:D*0.5 + n*110, easing:'cubic-bezier(.22,1,.36,1)', fill:'both'}).finished.catch(() => {}));
-    Promise.all(as).then(() => { tops.forEach(e => e.style.visibility = ''); topC.remove(); });
+    Promise.all(as).then(() => { tops.forEach(e => e.style.visibility = ''); topC.animate([{opacity:1},{opacity:0}], {duration:140, easing:'linear', fill:'forwards'}).finished.catch(() => {}).then(() => topC.remove()); });   /* chuyển mềm sang bản thật để không bị giật vì lệch dưới 1px */
   }
   cards.forEach((c,k) => { if (k===i) { if (!d.xmas) $$('.top', c).forEach(el => el.animate([{opacity:0, transform:'translateY(10px)'},{opacity:1, transform:'none'}], {duration:T(400), delay:D*0.7, easing:'ease-out', fill:'backwards'})); return; }
     const o = Math.sign(wrap(k - pos)) || 1;
