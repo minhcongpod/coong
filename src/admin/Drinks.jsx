@@ -461,7 +461,7 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
       const real = home.tops(index); real.forEach((e) => { e.style.visibility = 'hidden'; });
       const parts = [...topC.querySelectorAll('h3'), ...topC.querySelectorAll('.ico > *'), ...topC.querySelectorAll('.ribbon')];
       const as = parts.map((e, n) => e.animate([{ opacity: 0, transform: e.matches('.ribbon') ? 'none' : 'translateY(13px)' }, { opacity: 1, transform: 'none' }], { duration: T(520), delay: D * 0.5 + n * 110, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'both' }).finished.catch(() => {}));
-      Promise.all(as).then(() => { real.forEach((e) => { e.style.visibility = ''; }); topC.remove(); });
+      Promise.all(as).then(() => { real.forEach((e) => { e.style.visibility = ''; }); topC.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, easing: 'linear', fill: 'forwards' }).finished.catch(() => {}).then(() => topC.remove()); });   // chuyển mềm sang bản thật để không bị giật vì lệch dưới 1px
     }
     const veilA = vm.play(veil, D);
     const midT = `translate(${(from.left + to.left) / 2}px,${Math.min(from.top, to.top) - 24 * Sc}px) scale(${((sx + 1) / 2) * 1.04})`;
