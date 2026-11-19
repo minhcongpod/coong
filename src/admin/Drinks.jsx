@@ -445,7 +445,9 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
     await new Promise((r) => setTimeout(r, T(160)));
     const pill = home.pill(index);
     const topC = d.xmas ? home.topClone(index) : null;
-    fx.appendChild(veil); if (item.known) fx.appendChild(fly); if (topC) fx.appendChild(topC); fx.appendChild(pill);
+    // bản sao chữ/chip/nhãn sống ở lớp riêng ngoài màn chi tiết: màn chi tiết bị gỡ ngay khi tấm nền xong, còn chữ vẫn phải hiện nốt
+    let topHost = null; if (topC) { topHost = document.createElement('div'); topHost.className = 'dr dr-fx'; topHost.style.clipPath = fx.style.clipPath; document.body.appendChild(topHost); topHost.appendChild(topC); }
+    fx.appendChild(veil); if (item.known) fx.appendChild(fly); fx.appendChild(pill);
     // thanh giá trượt từ dưới lên chậm và mượt, giống các nút ở màn chi tiết
     // thanh giá hiện dần ngay tại vị trí của nó, lớp blur vẽ tay hiện dần cùng
     const slideO = { duration: T(520), delay: T(720) * 0.3, easing: 'ease-out', fill: 'backwards' };
@@ -461,7 +463,7 @@ export function DrinkDetail({ item, index, items, onIndex, home, count, onClose,
       const real = home.tops(index); real.forEach((e) => { e.style.visibility = 'hidden'; });
       const parts = [...topC.querySelectorAll('h3'), ...topC.querySelectorAll('.ico > *'), ...topC.querySelectorAll('.ribbon')];
       const as = parts.map((e, n) => e.animate([{ opacity: 0, transform: e.matches('.ribbon') ? 'none' : 'translateY(13px)' }, { opacity: 1, transform: 'none' }], { duration: T(520), delay: D * 0.5 + n * 110, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'both' }).finished.catch(() => {}));
-      Promise.all(as).then(() => { real.forEach((e) => { e.style.visibility = ''; }); topC.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, easing: 'linear', fill: 'forwards' }).finished.catch(() => {}).then(() => topC.remove()); });   // chuyển mềm sang bản thật để không bị giật vì lệch dưới 1px
+      Promise.all(as).then(() => { real.forEach((e) => { e.style.visibility = ''; }); topC.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, easing: 'linear', fill: 'forwards' }).finished.catch(() => {}).then(() => topHost.remove()); });   // chuyển mềm sang bản thật để không bị giật vì lệch dưới 1px
     }
     const veilA = vm.play(veil, D);
     const midT = `translate(${(from.left + to.left) / 2}px,${Math.min(from.top, to.top) - 24 * Sc}px) scale(${((sx + 1) / 2) * 1.04})`;
