@@ -6,7 +6,7 @@ import { Icon, Sym, Page, Btn, Seg, Chip, Empty, fmt, hm, timeOf, isLive, orderC
 import { summary } from './HistoryTab.jsx';
 
 const PERIODS = [['day', 'Ngày'], ['month', 'Tháng'], ['year', 'Năm']];
-const EXPENSE_CATS = ['Cafe', 'Sữa tươi', 'Sữa đặc', 'Cốc', 'Nắp', 'Ống hút', 'Rút tiền', 'Khác'];
+const EXPENSE_CATS = ['Cafe', 'Cacao', 'Sữa', 'Cốc', 'Ống hút', 'Rút tiền', 'Khác'];
 
 const range = (kind, a) => {
   if (kind === 'day') return [new Date(a.getFullYear(), a.getMonth(), a.getDate()), new Date(a.getFullYear(), a.getMonth(), a.getDate() + 1)];
@@ -84,10 +84,9 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
     // Chi phí, lợi nhuận và Ví tính tất cả thời gian, không theo bộ lọc ngày/tháng/năm (chỉ số đơn và doanh thu theo bộ lọc)
     const allRev = orders.filter(isLive).reduce((n, o) => n + (o.totalAmount || 0), 0) + txs.filter(extraIncome).reduce((n, t) => n + (t.amount || 0), 0);
     const exp = txs.filter((t) => t.type === 'expense' && !t.excludeRevenue).reduce((n, t) => n + (t.amount || 0), 0);
-    // Ví = tổng khoản thu trừ tổng khoản chi; đơn khách trả bằng ví tiền tính là một khoản thu; đơn ghi nợ (chưa thanh toán) không trừ Ví
+    // Ví = tổng khoản thu trừ tổng khoản chi; đơn khách trả bằng ví tiền của họ KHÔNG cộng vào Ví quán (tiền đã vào Ví lúc nạp); đơn ghi nợ (chưa thanh toán) không trừ Ví
     const unpaidIds = new Set(orders.filter((o) => !o.paid).map((o) => o.id));
-    const byWallet = orders.filter((o) => isLive(o) && o.paid && o.payMethod === 'wallet').reduce((n, o) => n + (o.totalAmount || 0), 0);
-    const wallet = txs.reduce((n, t) => (t.orderId && unpaidIds.has(t.orderId) ? n : n + (t.type === 'income' ? 1 : -1) * (t.amount || 0)), 0) + byWallet;
+    const wallet = txs.reduce((n, t) => (t.orderId && unpaidIds.has(t.orderId) ? n : n + (t.type === 'income' ? 1 : -1) * (t.amount || 0)), 0);
     return { orders: live.reduce((n, o) => n + (o.items || []).reduce((m, x) => m + (x.quantity || 1), 0), 0), revenue: paid + inc, expense: exp, profit: allRev - exp, wallet };
   }, [orders, txs, kind]);
 
@@ -97,10 +96,7 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
   const orderById = useMemo(() => new Map(orders.map((o) => [o.id, o])), [orders]);
   // mỗi đơn chưa thanh toán là một thẻ vàng riêng
   const pending = useMemo(() => orders.filter((o) => isLive(o) && !o.paid).map((o) => ({ id: 'unpaid_' + o.id, pending: true, name: o.customerName || 'Khách', code: orderCode(o), orderId: o.id, sum: summary(o), amount: o.totalAmount || 0, createdAt: o.createdAt })), [orders]);
-  // đơn khách trả bằng ví tiền không có khoản thu riêng: hiện trong lịch sử, tiền của đơn được cộng vào Ví ở phần thống kê
-  const walletPaid = useMemo(() => orders.filter((o) => isLive(o) && o.paid && o.payMethod === 'wallet').map((o) => ({ id: 'wal_' + o.id, type: 'income', walletOrder: true, name: o.customerName || 'Khách', code: orderCode(o), orderId: o.id, amount: o.totalAmount || 0, createdAt: o.paidAt || o.createdAt })), [orders]);
   const list = [
-    ...(filter === 'expense' ? [] : walletPaid),
     ...txs.filter((t) => (filter === 'all' || t.type === filter) && !(t.orderId && unpaidIds.has(t.orderId))),
     ...(filter === 'expense' ? [] : pending),
   ].sort((x, y) => String(y.createdAt || '').localeCompare(String(x.createdAt || '')));
@@ -257,7 +253,7 @@ function Unpaid({ orders, onBack, only, focus, onOpen }) {
 
 function AddTx({ users, onBack, initial = 'expense', edit }) {
   const { toast, confirm } = useUI();
-  const c0 = edit ? txCat(edit) : '';
+  const c0 = edit ? txCat(edit).replace(/^Sữa (tươi|đặc)$/, 'Sữa') : '';
   const [type, setType] = useState(edit ? edit.type : initial);
   const [amount, setAmount] = useState(edit ? String(edit.amount || '') : '');
   const [cat, setCat] = useState(edit && edit.type === 'expense' && !edit.walletPhone ? (EXPENSE_CATS.includes(c0) ? c0 : 'Khác') : EXPENSE_CATS[0]);
