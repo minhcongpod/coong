@@ -37,15 +37,33 @@ export const setTgChat = (phone, chatId) => setDoc(doc(db, 'tg', phone), { chatI
 // Mở bot kèm mã, rồi chờ tin "/start <mã>" để biết chat id của người đó. Trả về chat id hoặc null nếu hết giờ.
 export const tgNewCode = () => 'c' + Math.random().toString(36).slice(2, 10);
 export const tgDeepLink = (bot, code) => `https://t.me/${bot}?start=${code}`;
-export const tgWaitChat = async (token, code, ms = 120000) => {
+// Tìm tin "/start <mã>" trong các cập nhật mới nhất. Phải dùng offset=-100: không có offset thì Telegram trả 100 cập nhật CŨ NHẤT
+// chưa xác nhận (giữ tới 24 giờ), nên khi bot đã có hơn 100 tin thì "/start" của khách mới không bao giờ nằm trong danh sách.
+export const tgFindChat = async (token, code) => {
+  const r = await call(token, 'getUpdates?limit=100&offset=-100&allowed_updates=%5B%22message%22%5D');
+  if (!r || !r.ok) { console.warn('telegram: getUpdates lỗi', r && r.description); return null; }
+  const hit = r.result.map((u) => u.message).filter(Boolean).reverse().find((m) => {
+    const t = (m.text || '').trim();
+    return m.chat && m.chat.type === 'private' && (t === `/start ${code}` || t.startsWith(`/start ${code}`));
+  });
+  return hit ? hit.chat.id : null;
+};
+export const tgWaitChat = async (token, code, ms = 300000) => {
   const end = Date.now() + ms;
   while (Date.now() < end) {
-    const r = await call(token, 'getUpdates?limit=100');
-    const hit = r && r.ok && r.result.map((u) => u.message).filter(Boolean).reverse().find((m) => (m.text || '').trim() === `/start ${code}`);
-    if (hit) return hit.chat.id;
+    const id = await tgFindChat(token, code);
+    if (id) return id;
     await new Promise((res) => setTimeout(res, 2500));
   }
   return null;
+};
+// Mã đang chờ được nhớ trên máy: sang app Telegram bấm Start xong, trình duyệt điện thoại thường đã tạm dừng hoặc tải lại trang,
+// vòng chờ mất; lần mở app sau sẽ tìm lại tin "/start <mã>" (Telegram giữ tin 24 giờ) và gắn Telegram cho khách.
+const PEND = 'coong-tg-pending';
+export const tgSetPending = (phone, code) => { try { localStorage.setItem(PEND, JSON.stringify({ phone, code, at: Date.now() })); } catch (e) {} };
+export const tgClearPending = () => { try { localStorage.removeItem(PEND); } catch (e) {} };
+export const tgGetPending = (phone) => {
+  try { const p = JSON.parse(localStorage.getItem(PEND) || 'null'); return p && p.phone === phone && Date.now() - p.at < 3600000 ? p : null; } catch (e) { return null; }
 };
 
 // Mỗi tin có dòng "Xem ngay" gắn link vào app (chủ quán: /admin, khách: trang chủ)
