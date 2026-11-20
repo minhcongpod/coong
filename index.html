@@ -2525,6 +2525,8 @@ async function tgToggle(from){
   tgRefresh();
 }
 tgBtn.addEventListener('click', () => tgToggle(tgBtn));
+/* quay lại app từ Telegram: kiểm tra lại, nếu khách đã bấm Start thì gắn luôn */
+document.addEventListener('visibilitychange', () => { if (!document.hidden && session && !busy && !tgSt.linked) tgRefresh(); });
 tgCard.addEventListener('click', () => { if (!session) return; tgCard.style.display = 'none'; $('#home').classList.add('noorder'); tgToggle(tgCard); });
 $('#resetPw').addEventListener('click', async () => {
   if (!session) return;

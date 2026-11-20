@@ -1,6 +1,6 @@
 // Cầu nối giữa giao diện Coong (index.html, JS thuần) và Firebase.
 // Giao diện gọi window.CoongAPI; mọi đọc/ghi đi qua src/db.js như app chủ quán.
-import { APP_URL, tgToAdmin, tgToCustomer, getTgCfg, peekTgCfg, itemsText, tgDebtText, getTgChat, setTgChat, clearTgChat, tgNewCode, tgDeepLink, tgWaitChat } from '../telegram';
+import { APP_URL, tgToAdmin, tgToCustomer, getTgCfg, peekTgCfg, itemsText, tgDebtText, getTgChat, setTgChat, clearTgChat, tgNewCode, tgDeepLink, tgWaitChat, tgFindChat, tgSetPending, tgClearPending, tgGetPending } from '../telegram';
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { doc, writeBatch, increment } from 'firebase/firestore';
 import { auth, db } from '../firebase';
@@ -110,10 +110,17 @@ window.CoongAPI = {
     if (info) tgToAdmin(`📣 ${info.name} báo đã thanh toán ${info.total.toLocaleString('vi-VN')}đ.`, `${APP_URL}/admin/wallet${info.phone ? `?pay=${info.phone}` : ''}`, 'Xác nhận ngay');
   },
 
-  /** Telegram: quán đã cài bot chưa, và khách này đã gắn Telegram chưa */
+  /** Telegram: quán đã cài bot chưa, và khách này đã gắn Telegram chưa (nếu khách đã bấm Start mà app bị tạm dừng giữa chừng thì gắn nốt) */
   async tgState(phone) {
     const c = await getTgCfg(true);
-    return { on: !!(c.token && c.bot), linked: !!(await getTgChat(phone)) };
+    const on = !!(c.token && c.bot);
+    let linked = !!(await getTgChat(phone));
+    const p = on && !linked && tgGetPending(phone);
+    if (p) {
+      const chat = await tgFindChat(c.token, p.code);
+      if (chat) { await setTgChat(phone, chat); tgClearPending(); linked = true; tgToCustomer(phone, '✨ Telegram đã kết nối thành công! Chào mừng bạn đến với Coong ☕️', `${APP_URL}/menu`, 'Đặt hàng ngay nhé!'); }
+    }
+    return { on, linked };
   },
   /** Khách tắt thông báo Telegram: bỏ liên kết, quán không gửi tin nữa */
   tgOff(phone) { return clearTgChat(phone); },
@@ -121,9 +128,9 @@ window.CoongAPI = {
   tgConnect(phone) {
     const c = peekTgCfg();
     if (!c || !c.token || !c.bot) return Promise.resolve(false);
-    const code = tgNewCode();
+    const code = tgNewCode(); tgSetPending(phone, code);
     window.open(tgDeepLink(c.bot, code), '_blank');
-    return tgWaitChat(c.token, code).then(async (chat) => { if (!chat) return false; await setTgChat(phone, chat);
+    return tgWaitChat(c.token, code).then(async (chat) => { if (!chat) return false; await setTgChat(phone, chat); tgClearPending();
       // chào mừng ngay sau khi khách bấm Start
       tgToCustomer(phone, '✨ Telegram đã kết nối thành công! Chào mừng bạn đến với Coong ☕️\nMột dự án nhỏ với 100% tâm huyết, rất mong nhận được những góp ý từ bạn để tối ưu trải nghiệm mỗi ngày.\n🚀', `${APP_URL}/menu`, 'Đặt hàng ngay nhé!');
       return true;
