@@ -41,12 +41,6 @@
 .tk-xl span{position:absolute;top:0;white-space:nowrap}
 .tk-xl .on{color:var(--yellow)}
 
-/* chú thích kỳ này / kỳ trước */
-.tk-legend{display:flex;gap:16px;margin-top:12px;font-size:12px;line-height:16px;font-weight:500;color:var(--mute)}
-.tk-legend span{display:flex;align-items:center;gap:6px}
-.tk-legend i{width:12px;height:3px;border-radius:2px;background:#5c5c5c}
-.tk-legend i.y{background:var(--yellow)}
-
 /* 3 ô thu chi số cốc */
 .tk-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .tk-kpi{padding:16px;border-radius:24px;gap:6px;background:#1c1c1c}

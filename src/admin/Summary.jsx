@@ -202,7 +202,6 @@ export default function Summary({ orders, txs, users, onBack }) {
         <Num v={cur.inc} className="tk-big" />
         <Delta pct={deltaOf(cur.inc, prev.inc)} label={`so với ${PREV_LABEL[kind]}`} />
         <Trend key={kind} kind={kind} series={series} prevSeries={prevSeries} />
-        <div className="tk-legend"><span><i className="y" />{NOW_LABEL[kind][0].toUpperCase() + NOW_LABEL[kind].slice(1)}</span><span><i />{PREV_LABEL[kind][0].toUpperCase() + PREV_LABEL[kind].slice(1)}</span></div>
       </div>
 
       <div className="a-card tk-list">
