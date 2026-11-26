@@ -1,5 +1,9 @@
 /* Trang Tổng kết (design A trong Figma, Section 9) */
-.tk-page .a-body{gap:12px}
+.tk-page .a-body{gap:12px;margin-top:0}
+/* nút back và tiêu đề cùng một hàng, tab cách nút back 8px */
+.tk-page .a-back{margin-bottom:8px}
+.tk-title{position:absolute;top:24px;left:84px;right:84px;height:52px;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:24px;font-weight:700;pointer-events:none}
+.tk-page .a-body>.w-sticky:first-child{padding-top:0}
 .tk-mute{color:var(--mute);font-size:12px;line-height:16px;font-weight:500}
 .tk-h{font-size:18px;line-height:24px;font-weight:700}
 .tk-list>.tk-h{margin-bottom:-8px}

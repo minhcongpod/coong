@@ -179,7 +179,7 @@ export default function Summary({ orders, txs, users, onBack }) {
       if (!o.customerPhone) return;
       const c = cm.get(o.customerPhone) || { phone: o.customerPhone, name: (users && users[o.customerPhone] && users[o.customerPhone].name) || o.customerName || 'Khách', cups: 0, paid: 0 };
       c.cups += cupsOf(o);
-      if (o.paid) c.paid += o.totalAmount || 0;
+      c.paid += o.totalAmount || 0; // tính cả đơn khách chưa trả
       cm.set(o.customerPhone, c);
     });
     const custs = [...cm.values()].sort((a, b) => b.cups - a.cups || b.paid - a.paid).slice(0, 10);
@@ -195,7 +195,7 @@ export default function Summary({ orders, txs, users, onBack }) {
   const ratio = cur.inc ? Math.round((cur.exp / cur.inc) * 100) : 0;
 
   return (
-    <Page onBack={onBack} className="tk-page">
+    <Page onBack={onBack} className="tk-page" head={<h1 className="tk-title">Tổng kết</h1>}>
       <div className="w-sticky"><Seg items={PERIODS} value={kind} onChange={setKind} /></div>
 
       <div className="a-card tk-hero">
