@@ -51,12 +51,6 @@ const calc = (orders, txs, s, e) => {
 };
 
 const signed = (n) => (n < 0 ? '−' : '') + fmt(Math.abs(n));
-const compact = (n) => {
-  const a = Math.abs(n), s = n < 0 ? '−' : '';
-  if (a >= 1e6) return s + (a / 1e6).toFixed(2).replace(/\.?0+$/, '').replace('.', ',') + 'tr';
-  if (a >= 1e3) return s + Math.round(a / 1e3) + 'k';
-  return s + Math.round(a);
-};
 const deltaOf = (cur, prev) => (prev ? Math.round(((cur - prev) / Math.abs(prev)) * 100) : null);
 
 const reduced = () => typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -109,16 +103,18 @@ const smooth = (pts, lo = -Infinity, hi = Infinity) => {
 };
 
 // Biểu đồ lãi ròng theo ngày/tháng: đường vàng vẽ dần, vùng dưới hiện theo, điểm cao nhất nảy ra
-function Trend({ kind, series }) {
+function Trend({ kind, series, prevSeries = [] }) {
   const W = 300, H = 100, TOP = 16, BOT = 96;
   const live = series.filter((b) => !b.future); // ngày/tháng chưa tới thì không vẽ
   const vals = live.map((b) => b.v);
-  const hi = Math.max(0, ...vals), lo = Math.min(0, ...vals);
+  const pvals = prevSeries.slice(0, series.length).map((b) => b.v);
+  const hi = Math.max(0, ...vals, ...pvals), lo = Math.min(0, ...vals, ...pvals);
   const span = hi - lo || 1;
   const y = (v) => TOP + (BOT - TOP) * (1 - (v - lo) / span);
   const step = series.length > 1 ? W / (series.length - 1) : W;
   const pts = live.map((b, i) => [i * step, y(b.v)]);
   const line = smooth(pts, TOP, BOT);
+  const pline = smooth(pvals.map((v, i) => [i * step, y(v)]), TOP, BOT); // kỳ trước: đường xám
   const zero = y(0);
   const area = pts.length ? `${line} L ${pts[pts.length - 1][0]} ${zero} L 0 ${zero} Z` : '';
   const pk = vals.length ? vals.indexOf(Math.max(...vals)) : -1;
@@ -135,6 +131,7 @@ function Trend({ kind, series }) {
           <clipPath id="tk-reveal"><rect className="tk-reveal" x="0" y="0" width={W} height={H} /></clipPath>
         </defs>
         {[TOP, (TOP + BOT) / 2, BOT].map((g) => <line key={g} x1="0" x2={W} y1={g} y2={g} className="tk-grid" />)}
+        {pline && <path d={pline} className="tk-pline" pathLength="1" vectorEffect="non-scaling-stroke" />}
         <path d={area} fill="url(#tk-area)" clipPath="url(#tk-reveal)" />
         <path d={line} className="tk-line" pathLength="1" vectorEffect="non-scaling-stroke" />
       </svg>
@@ -167,7 +164,8 @@ export default function Summary({ orders, txs, users, onBack }) {
     const now = new Date();
     const st = startOf(kind, now), en = shift(kind, st, 1), pv = shift(kind, st, -1);
     const cur = calc(orders, txs, st, en), prev = calc(orders, txs, pv, st);
-    const series = buckets(kind, st).map((b) => ({ l: b.l, future: b.s > now, v: b.s > now ? 0 : calc(orders, txs, b.s, b.e).net }));
+    const series = buckets(kind, st).map((b) => ({ l: b.l, future: b.s > now, v: b.s > now ? 0 : calc(orders, txs, b.s, b.e).inc }));
+    const prevSeries = buckets(kind, pv).map((b) => ({ l: b.l, v: calc(orders, txs, b.s, b.e).inc }));
     const dm = new Map();
     cur.os.forEach((o) => (o.items || []).forEach((x) => {
       const d = dm.get(x.name) || { name: x.name, cups: 0, rev: 0 };
@@ -185,10 +183,10 @@ export default function Summary({ orders, txs, users, onBack }) {
     });
     const custs = [...cm.values()].sort((a, b) => b.cups - a.cups || b.paid - a.paid).slice(0, 10);
     const cats = CATS.map(([name, color], i) => ({ name, color, v: sum(cur.ex.filter((t) => catOf(t) === i), (t) => t.amount) }));
-    return { cur, prev, series, drinks, custs, cats };
+    return { cur, prev, series, prevSeries, drinks, custs, cats };
   }, [orders, txs, users, kind]);
 
-  const { cur, prev, series, drinks, custs, cats } = s;
+  const { cur, prev, series, prevSeries, drinks, custs, cats } = s;
   const maxCups = drinks[0] ? drinks[0].cups : 1;
   const podium = [custs[1], custs[0], custs[2]];
   const PCOL = ['#00c0e8', '#ffcc00', '#30d158']; // màu bục theo Figma: hạng 2, 1, 3
@@ -200,20 +198,10 @@ export default function Summary({ orders, txs, users, onBack }) {
       <div className="w-sticky"><Seg items={PERIODS} value={kind} onChange={setKind} /></div>
 
       <div className="a-card tk-hero">
-        <span className="tk-mute">Lãi ròng · {NOW_LABEL[kind]}</span>
-        <Num v={cur.net} className={`tk-big ${cur.net < 0 ? 'r' : ''}`} />
-        <Delta pct={deltaOf(cur.net, prev.net)} label={`so với ${PREV_LABEL[kind]}`} />
-        <Trend key={kind} kind={kind} series={series} />
-      </div>
-
-      <div className="tk-kpis">
-        {[['Tổng thu', cur.inc, prev.inc, 'var(--ok)', false], ['Tổng chi', cur.exp, prev.exp, 'var(--err)', true], ['Số cốc', cur.cups, prev.cups, 'var(--yellow)', false]].map(([l, v, p, c, inv]) => (
-          <div key={l} className="a-card tk-kpi">
-            <span className="tk-mute tk-lab"><i style={{ background: c }} />{l}</span>
-            <Num v={v} f={l === 'Số cốc' ? (x) => fmt(x) : compact} className="tk-mid" />
-            <Delta pct={deltaOf(v, p)} invert={inv} />
-          </div>
-        ))}
+        <span className="tk-mute">Doanh thu · {NOW_LABEL[kind]}</span>
+        <Num v={cur.inc} className="tk-big" />
+        <Delta pct={deltaOf(cur.inc, prev.inc)} label={`so với ${PREV_LABEL[kind]}`} />
+        <Trend key={kind} kind={kind} series={series} prevSeries={prevSeries} />
       </div>
 
       <div className="a-card tk-list">

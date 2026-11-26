@@ -27,6 +27,7 @@
 .tk-trend svg{overflow:visible}
 .tk-grid{stroke:var(--s10);stroke-width:1;vector-effect:non-scaling-stroke}
 .tk-line{fill:none;stroke:var(--yellow);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;animation:tk-draw 1.3s .15s cubic-bezier(.65,0,.35,1) forwards}
+.tk-pline{fill:none;stroke:#5c5c5c;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;animation:tk-draw 1.1s cubic-bezier(.65,0,.35,1) forwards}
 .tk-reveal{transform-origin:0 0;transform:scaleX(0);animation:tk-reveal 1.3s .15s cubic-bezier(.65,0,.35,1) forwards}
 @keyframes tk-draw{to{stroke-dashoffset:0}}
 @keyframes tk-reveal{to{transform:scaleX(1)}}
@@ -94,7 +95,7 @@
 .tk-pct{width:36px;text-align:right}
 
 @media (prefers-reduced-motion:reduce){
-  .tk-line,.tk-reveal,.tk-peak,.tk-tip,.tk-ped,.tk-ped>*,.tk-crown,.tk-crow,.tk-num{animation:none!important;opacity:1;transform:none;stroke-dashoffset:0}
+  .tk-line,.tk-pline,.tk-reveal,.tk-peak,.tk-tip,.tk-ped,.tk-ped>*,.tk-crown,.tk-crow,.tk-num{animation:none!important;opacity:1;transform:none;stroke-dashoffset:0}
   .tk-crown{transform:translate(-50%,0)}
   .tk-tip{transform:translate(var(--tx,-50%),-38px)}
   .tk-fill,.tk-stack span{transition:none}
