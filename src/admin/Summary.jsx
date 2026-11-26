@@ -153,7 +153,7 @@ const Bar = ({ pct, color, delay = 0, ready }) => (
 );
 
 const CROWN = (
-  <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5L3 8z" fill="#fc0" /></svg>
+  <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5L3 8z" fill="#fc0" /></svg>
 );
 
 export default function Summary({ orders, txs, users, onBack }) {
@@ -189,7 +189,7 @@ export default function Summary({ orders, txs, users, onBack }) {
   const { cur, prev, series, drinks, custs, cats } = s;
   const maxCups = drinks[0] ? drinks[0].cups : 1;
   const podium = [custs[1], custs[0], custs[2]];
-  const PCOL = ['var(--info)', 'var(--yellow)', 'var(--ok)'];
+  const PCOL = ['#00c0e8', '#ffcc00', '#30d158']; // màu bục theo Figma: hạng 2, 1, 3
   const PRANK = [2, 1, 3];
   const ratio = cur.inc ? Math.round((cur.exp / cur.inc) * 100) : 0;
 
