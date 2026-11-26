@@ -10,7 +10,7 @@ const NOW_LABEL = { week: 'tuần này', month: 'tháng này', year: 'năm nay' 
 const PREV_LABEL = { week: 'tuần trước', month: 'tháng trước', year: 'năm trước' };
 const DOW = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
 const DRINK_COLORS = ['var(--yellow)', 'var(--info)', 'var(--ok)', '#fff'];
-const CATS = [['Cafe', 'var(--yellow)'], ['Cacao', '#ff8d28'], ['Sữa', '#ffffff'], ['Cốc & ống hút', 'var(--info)'], ['Khác', '#ff2d92']];
+const CATS = [['Cafe', 'var(--yellow)'], ['Cacao', 'var(--ok)'], ['Sữa', 'var(--info)'], ['Cốc & ống hút', '#ff2d92'], ['Khác', '#8e8e93']];
 const catOf = (t) => {
   const c = (t.description || '').match(/^\[([^\]]*)\]/)?.[1] || '';
   const i = ['Cafe', 'Cacao', 'Sữa'].indexOf(c);
