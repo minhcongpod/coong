@@ -95,12 +95,13 @@ const Delta = ({ pct, invert, label }) => {
   );
 };
 
-const smooth = (pts) => {
+const smooth = (pts, lo = -Infinity, hi = Infinity) => {
+  const cy = (v) => Math.min(hi, Math.max(lo, v)); // không cho đường cong vượt ra ngoài khung
   if (!pts.length) return '';
   let d = `M ${pts[0][0]} ${pts[0][1]}`;
   for (let i = 0; i < pts.length - 1; i++) {
     const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
-    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6], c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, cy(p1[1] + (p2[1] - p0[1]) / 6)], c2 = [p2[0] - (p3[0] - p1[0]) / 6, cy(p2[1] - (p3[1] - p1[1]) / 6)];
     d += ` C ${c1[0].toFixed(1)} ${c1[1].toFixed(1)} ${c2[0].toFixed(1)} ${c2[1].toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
   }
   return d;
@@ -108,7 +109,7 @@ const smooth = (pts) => {
 
 // Biểu đồ lãi ròng theo ngày/tháng: đường vàng vẽ dần, vùng dưới hiện theo, điểm cao nhất nảy ra
 function Trend({ kind, series }) {
-  const W = 300, H = 140, TOP = 30, BOT = 128;
+  const W = 300, H = 100, TOP = 16, BOT = 96;
   const live = series.filter((b) => !b.future); // ngày/tháng chưa tới thì không vẽ
   const vals = live.map((b) => b.v);
   const hi = Math.max(0, ...vals), lo = Math.min(0, ...vals);
@@ -116,7 +117,7 @@ function Trend({ kind, series }) {
   const y = (v) => TOP + (BOT - TOP) * (1 - (v - lo) / span);
   const step = series.length > 1 ? W / (series.length - 1) : W;
   const pts = live.map((b, i) => [i * step, y(b.v)]);
-  const line = smooth(pts);
+  const line = smooth(pts, TOP, BOT);
   const zero = y(0);
   const area = pts.length ? `${line} L ${pts[pts.length - 1][0]} ${zero} L 0 ${zero} Z` : '';
   const pk = vals.length ? vals.indexOf(Math.max(...vals)) : -1;
@@ -142,7 +143,7 @@ function Trend({ kind, series }) {
           <span className="tk-tip" style={{ left: `${(pts[pk][0] / W) * 100}%`, top: pts[pk][1], '--tx': `${-Math.round(Math.min(.92, Math.max(.08, pts[pk][0] / W)) * 100)}%` }}>{series[pk].l} · {fmt(vals[pk])}</span>
         </>
       )}
-      <div className="tk-xl">{series.map((b, i) => <span key={i} className={i === pk && showPk ? 'on' : ''}>{label(i)}</span>)}</div>
+      <div className="tk-xl">{series.map((b, i) => (label(i) ? <span key={i} className={i === pk && showPk ? 'on' : ''} style={{ left: `${(i * step / W) * 100}%`, transform: `translateX(${i === 0 ? 0 : i === series.length - 1 ? -100 : -50}%)` }}>{label(i)}</span> : null))}</div>
     </div>
   );
 }

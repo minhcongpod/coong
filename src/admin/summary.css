@@ -4,7 +4,7 @@
 .tk-h{font-size:18px;line-height:24px;font-weight:700;margin-top:8px}
 .tk-hero{padding:20px;gap:4px;border-radius:32px;background:#1c1c1c;overflow:hidden}
 .tk-hero .tk-mute{font-size:14px;line-height:18px}
-.tk-big{display:block;font-size:44px;line-height:52px;font-weight:700;letter-spacing:-.5px}
+.tk-big{display:block;font-size:32px;line-height:40px;font-weight:700}
 .tk-big.r{color:var(--err)}
 .tk-num{display:inline-block;font-variant-numeric:tabular-nums;will-change:transform}
 .tk-num.tk-up{animation:tk-up .7s var(--ease-out)}
@@ -17,7 +17,7 @@
 .tk-chip.r{background:rgba(255,56,60,.16);color:var(--err)}
 
 /* biểu đồ xu hướng */
-.tk-trend{position:relative;margin-top:12px}
+.tk-trend{position:relative;margin-top:28px}
 .tk-trend svg{overflow:visible}
 .tk-grid{stroke:var(--s10);stroke-width:1;vector-effect:non-scaling-stroke}
 .tk-line{fill:none;stroke:var(--yellow);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;animation:tk-draw 1.3s .15s cubic-bezier(.65,0,.35,1) forwards}
@@ -30,10 +30,8 @@
 @keyframes tk-pop{to{transform:scale(1)}}
 @keyframes tk-ping{0%{opacity:.8;transform:scale(.6)}100%{opacity:0;transform:scale(1.6)}}
 @keyframes tk-tip{to{opacity:1;transform:translate(var(--tx,-50%),-38px)}}
-.tk-xl{display:flex;justify-content:space-between;margin-top:4px;font-size:10px;line-height:12px;font-weight:500;color:var(--mute)}
-.tk-xl span{flex:1;text-align:center;min-width:0;white-space:nowrap}
-.tk-xl span:first-child{text-align:left}
-.tk-xl span:last-child{text-align:right}
+.tk-xl{position:relative;height:12px;margin-top:6px;font-size:10px;line-height:12px;font-weight:500;color:var(--mute)}
+.tk-xl span{position:absolute;top:0;white-space:nowrap}
 .tk-xl .on{color:var(--yellow)}
 
 /* 3 ô thu chi số cốc */
