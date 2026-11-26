@@ -1,7 +1,9 @@
 /* Trang Tổng kết (design A trong Figma, Section 9) */
 .tk-page .a-body{gap:12px}
 .tk-mute{color:var(--mute);font-size:12px;line-height:16px;font-weight:500}
-.tk-h{font-size:18px;line-height:24px;font-weight:700;margin-top:8px}
+.tk-h{font-size:18px;line-height:24px;font-weight:700}
+.tk-list>.tk-h{margin-bottom:-8px}
+.tk-cust>.tk-h{margin-bottom:8px}
 .tk-hero{padding:20px;gap:4px;border-radius:32px;background:#1c1c1c;overflow:hidden}
 .tk-hero .tk-mute{font-size:14px;line-height:18px}
 .tk-big{display:block;font-size:32px;line-height:40px;font-weight:700}
