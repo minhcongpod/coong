@@ -1,0 +1,28 @@
+name: Preview PR trên Firebase Hosting
+
+on:
+  pull_request:
+
+jobs:
+  preview:
+    # PR từ fork không có quyền đọc secret
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_COONG_59EDE }}
+          projectId: coong-59ede
+          expires: 7d
