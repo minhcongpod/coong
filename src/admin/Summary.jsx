@@ -8,7 +8,7 @@ import './summary.css';
 const PERIODS = [['week', 'Tuần'], ['month', 'Tháng'], ['year', 'Năm']];
 const NOW_LABEL = { week: 'tuần này', month: 'tháng này', year: 'năm nay' };
 const PREV_LABEL = { week: 'tuần trước', month: 'tháng trước', year: 'năm trước' };
-const DOW = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+const DOW = ['T2', 'T3', 'T4', 'T5', 'T6']; // quán nghỉ thứ 7, chủ nhật nên chart tuần chỉ có T2–T6
 const DRINK_COLORS = ['var(--yellow)', 'var(--info)', 'var(--ok)', '#fff'];
 const CATS = [['Cafe', 'var(--yellow)'], ['Cacao', 'var(--ok)'], ['Sữa', 'var(--info)'], ['Cốc & ống hút', '#ff2d92'], ['Khác', '#8e8e93']];
 const catOf = (t) => {
