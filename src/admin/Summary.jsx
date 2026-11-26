@@ -10,12 +10,13 @@ const NOW_LABEL = { week: 'tuần này', month: 'tháng này', year: 'năm nay' 
 const PREV_LABEL = { week: 'tuần trước', month: 'tháng trước', year: 'năm trước' };
 const DOW = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
 const DRINK_COLORS = ['var(--yellow)', 'var(--info)', 'var(--ok)', '#fff'];
-const CATS = [['Nguyên liệu', 'var(--yellow)'], ['Cốc & ống hút', 'var(--info)'], ['Khác', '#ff2d92']];
+const CATS = [['Cafe', 'var(--yellow)'], ['Cacao', '#ff8d28'], ['Sữa', '#ffffff'], ['Cốc & ống hút', 'var(--info)'], ['Khác', '#ff2d92']];
 const catOf = (t) => {
   const c = (t.description || '').match(/^\[([^\]]*)\]/)?.[1] || '';
-  if (['Cafe', 'Cacao', 'Sữa'].includes(c)) return 0;
-  if (['Cốc', 'Ống hút'].includes(c)) return 1;
-  return 2;
+  const i = ['Cafe', 'Cacao', 'Sữa'].indexOf(c);
+  if (i >= 0) return i;
+  if (['Cốc', 'Ống hút'].includes(c)) return 3;
+  return 4; // Khác, gồm cả Rút tiền
 };
 
 const day = (y, m, d) => new Date(y, m, d);
