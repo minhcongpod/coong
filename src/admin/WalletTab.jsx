@@ -4,6 +4,7 @@ import { CustomerPicker } from './Customers.jsx';
 import { tgToCustomer, tgDebt, APP_URL } from '../telegram';
 import { Icon, Sym, Page, Btn, Seg, Chip, Empty, fmt, hm, timeOf, isLive, orderCode, useUI, errText } from './ui.jsx';
 import { summary } from './HistoryTab.jsx';
+import Summary from './Summary.jsx';
 
 const PERIODS = [['day', 'Ngày'], ['month', 'Tháng'], ['year', 'Năm']];
 const EXPENSE_CATS = ['Cafe', 'Cacao', 'Sữa', 'Cốc', 'Ống hút', 'Rút tiền', 'Khác'];
@@ -101,7 +102,7 @@ export default function WalletTab({ orders, txs, users, unread, onBell, focus, o
     ...(filter === 'expense' ? [] : pending),
   ].sort((x, y) => String(y.createdAt || '').localeCompare(String(x.createdAt || '')));
 
-  if (page === 'summary') return <Summary orders={orders} txs={txs} onBack={() => setPage(null)} />;
+  if (page === 'summary') return <Summary orders={orders} txs={txs} users={users} onBack={() => setPage(null)} />;
   if (page === 'unpaid') return <Unpaid orders={unpaid} onOpen={onOpenOrder} onBack={() => setPage(null)} />;
   if (page && page.unpaid) return <Unpaid orders={unpaid.filter((o) => o.customerPhone === page.unpaid)} only focus onOpen={onOpenOrder} onBack={() => setPage(null)} />;
   if (page && (page.add || page.edit)) return <AddTx users={users} onBack={() => setPage(null)} initial={page.add} edit={page.edit} />;
@@ -342,57 +343,3 @@ function AddTx({ users, onBack, initial = 'expense', edit }) {
   );
 }
 
-// Trang Tổng kết: doanh thu, chi phí, lợi nhuận, món bán chạy, khách mua nhiều theo ngày/tháng/năm
-function Summary({ orders, txs, onBack }) {
-  const [kind, setKind] = useState('day');
-  const s = useMemo(() => {
-    const r = range(kind, new Date());
-    const live = orders.filter((o) => isLive(o) && within(o, r));
-    const revenue = live.reduce((n, o) => n + (o.totalAmount || 0), 0) + txs.filter((t) => extraIncome(t) && within(t, r)).reduce((n, t) => n + (t.amount || 0), 0);
-    const expense = txs.filter((t) => t.type === 'expense' && !t.excludeRevenue && within(t, r)).reduce((n, t) => n + (t.amount || 0), 0);
-    const drinks = new Map(), custs = new Map();
-    let cups = 0;
-    live.forEach((o) => {
-      const c = custs.get(o.customerPhone || o.customerName || '?') || { name: o.customerName || 'Khách', cups: 0, total: 0 };
-      (o.items || []).forEach((x) => {
-        const q = x.quantity || 1;
-        cups += q; c.cups += q;
-        drinks.set(x.name, (drinks.get(x.name) || 0) + q);
-      });
-      c.total += o.totalAmount || 0;
-      custs.set(o.customerPhone || o.customerName || '?', c);
-    });
-    return {
-      orders: live.length, cups, revenue, expense, profit: revenue - expense,
-      drinks: [...drinks].sort((a, b) => b[1] - a[1]).slice(0, 5),
-      custs: [...custs.values()].sort((a, b) => b.total - a.total).slice(0, 5),
-    };
-  }, [orders, txs, kind]);
-  const sign = (n) => (n < 0 ? '−' : '') + fmt(Math.abs(n));
-  return (
-    <Page onBack={onBack}>
-      <h1 className="a-title">Tổng kết</h1>
-      <div className="w-sticky"><Seg items={PERIODS} value={kind} onChange={setKind} /></div>
-      <div className="a-body">
-        <div className="a-card w-stats">
-          <span className="a-s" style={{ display: 'block' }}>{s.orders} đơn · {s.cups} cốc</span>
-          <b className="w-rev">{fmt(s.revenue)}</b>
-          <div className="w-two">
-            <span><span className="a-s" style={{ display: 'block' }}>Chi phí</span><b className="w-val r">{fmt(s.expense)}</b></span>
-            <span><span className="a-s" style={{ display: 'block' }}>Lợi nhuận</span><b className={`w-val ${s.profit < 0 ? 'r' : 'g'}`}>{sign(s.profit)}</b></span>
-          </div>
-        </div>
-        <h2 className="h-head">Món bán chạy</h2>
-        {s.drinks.length === 0 && <div className="a-s">Chưa có đơn</div>}
-        {s.drinks.map(([name, q], i) => (
-          <div key={name} className="a-card a-between" style={{ marginBottom: 8 }}><b className="a-t a-ell">{i + 1}. {name}</b><b className="a-t a-num">{q} cốc</b></div>
-        ))}
-        <h2 className="h-head">Khách mua nhiều</h2>
-        {s.custs.length === 0 && <div className="a-s">Chưa có khách</div>}
-        {s.custs.map((c, i) => (
-          <div key={i} className="a-card a-between" style={{ marginBottom: 8 }}><span className="a-ell"><b className="a-t">{i + 1}. {c.name}</b><span className="a-s" style={{ display: 'block' }}>{c.cups} cốc</span></span><b className="a-t a-num">{fmt(c.total)}</b></div>
-        ))}
-      </div>
-    </Page>
-  );
-}
