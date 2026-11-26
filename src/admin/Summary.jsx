@@ -215,8 +215,8 @@ export default function Summary({ orders, txs, users, onBack }) {
         ))}
       </div>
 
-      <h2 className="tk-h">Món bán chạy</h2>
       <div className="a-card tk-list">
+        <h2 className="tk-h">Món bán chạy</h2>
         {drinks.length === 0 && <span className="tk-mute">Chưa có đơn trong {NOW_LABEL[kind]}</span>}
         {drinks.map((d, i) => (
           <div key={d.name} className="tk-drink">
@@ -231,8 +231,8 @@ export default function Summary({ orders, txs, users, onBack }) {
         ))}
       </div>
 
-      <h2 className="tk-h">Khách thân thiết</h2>
       <div className="a-card tk-cust">
+        <h2 className="tk-h">Khách hàng thân thiết</h2>
         {custs.length === 0 && <span className="tk-mute">Chưa có khách trong {NOW_LABEL[kind]}</span>}
         {custs.length > 0 && (
           <div className="tk-podium" key={kind}>
@@ -257,8 +257,8 @@ export default function Summary({ orders, txs, users, onBack }) {
         ))}
       </div>
 
-      <h2 className="tk-h">Chi phí</h2>
       <div className="a-card tk-exp">
+        <h2 className="tk-h">Chi phí</h2>
         <Num v={cur.exp} f={(x) => fmt(x)} className="tk-mid2" />
         <span className="tk-mute">chiếm <Num v={ratio} f={(x) => Math.round(x) + '%'} /> doanh thu</span>
         <div className="tk-stack">
